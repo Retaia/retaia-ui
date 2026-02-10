@@ -11,7 +11,6 @@ import {
   filterAssets,
   getStateFromDecision,
   type DecisionAction,
-  updateAssetState,
 } from './domain/assets'
 
 function App() {
@@ -26,15 +25,17 @@ function App() {
   const counts = useMemo(() => countAssetsByState(assets), [assets])
 
   const handleDecision = (id: string, action: DecisionAction) => {
-    setAssets((current) => {
-      const targetAsset = current.find((asset) => asset.id === id)
-      if (!targetAsset) {
-        return current
-      }
-
-      const nextState = getStateFromDecision(action, targetAsset.state)
-      return updateAssetState(current, id, nextState)
-    })
+    setAssets((current) =>
+      current.map((asset) => {
+        if (asset.id !== id) {
+          return asset
+        }
+        return {
+          ...asset,
+          state: getStateFromDecision(action, asset.state),
+        }
+      }),
+    )
   }
 
   return (

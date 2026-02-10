@@ -53,4 +53,15 @@ describe('App', () => {
     expect(screen.getByText('behind-the-scenes.jpg')).toBeInTheDocument()
     expect(screen.queryByText('interview-camera-a.mov')).not.toBeInTheDocument()
   })
+
+  it('shows an empty state when filters match no asset', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.type(screen.getByLabelText('Recherche'), 'no-match')
+
+    expect(screen.getByRole('heading', { name: 'Assets (0)' })).toBeInTheDocument()
+    expect(screen.getByText('Aucun asset ne correspond aux filtres.')).toBeInTheDocument()
+  })
 })
