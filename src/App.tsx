@@ -1,10 +1,16 @@
 import { useMemo, useState } from 'react'
 import './App.css'
+import { AssetList } from './components/AssetList'
+import { ReviewSummary } from './components/ReviewSummary'
+import { ReviewToolbar } from './components/ReviewToolbar'
 import { INITIAL_ASSETS } from './data/mockAssets'
 import {
   type Asset,
   type AssetFilter,
+  countAssetsByState,
   filterAssets,
+  getStateFromDecision,
+  type DecisionAction,
   updateAssetState,
 } from './domain/assets'
 
@@ -17,59 +23,38 @@ function App() {
     return filterAssets(assets, filter, search)
   }, [assets, filter, search])
 
-  const decideKeep = (id: string) => {
-    setAssets((current) => updateAssetState(current, id, 'DECIDED_KEEP'))
+  const counts = useMemo(() => countAssetsByState(assets), [assets])
+
+  const handleDecision = (id: string, action: DecisionAction) => {
+    setAssets((current) => {
+      const targetAsset = current.find((asset) => asset.id === id)
+      if (!targetAsset) {
+        return current
+      }
+
+      const nextState = getStateFromDecision(action, targetAsset.state)
+      return updateAssetState(current, id, nextState)
+    })
   }
 
   return (
     <main className="app">
       <header className="app__header">
         <h1>Retaia UI</h1>
-        <p>Interface simple de revue utilisateur</p>
+        <p>Review simple pour décider KEEP ou REJECT</p>
       </header>
 
-      <section className="panel">
-        <label htmlFor="state-filter">Filtrer par état</label>
-        <select
-          id="state-filter"
-          value={filter}
-          onChange={(event) => setFilter(event.target.value as AssetFilter)}
-        >
-          <option value="ALL">Tous</option>
-          <option value="DECISION_PENDING">DECISION_PENDING</option>
-          <option value="DECIDED_KEEP">DECIDED_KEEP</option>
-          <option value="DECIDED_REJECT">DECIDED_REJECT</option>
-        </select>
-        <label htmlFor="asset-search">Recherche</label>
-        <input
-          id="asset-search"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Nom ou identifiant"
-        />
-      </section>
+      <ReviewSummary total={assets.length} counts={counts} />
+      <ReviewToolbar
+        filter={filter}
+        search={search}
+        onFilterChange={setFilter}
+        onSearchChange={setSearch}
+      />
 
       <section className="panel">
         <h2>Assets ({visibleAssets.length})</h2>
-        <ul className="asset-list">
-          {visibleAssets.map((asset) => (
-            <li key={asset.id} className="asset-row">
-              <div>
-                <strong>{asset.name}</strong>
-                <p>
-                  {asset.id} - {asset.state}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => decideKeep(asset.id)}
-                disabled={asset.state === 'DECIDED_KEEP'}
-              >
-                Décider KEEP
-              </button>
-            </li>
-          ))}
-        </ul>
+        <AssetList assets={visibleAssets} onDecision={handleDecision} />
       </section>
     </main>
   )

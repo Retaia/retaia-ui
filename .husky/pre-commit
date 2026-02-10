@@ -1,2 +1,4 @@
 #!/usr/bin/env sh
-npm run test
+set -eu
+
+npm run qa

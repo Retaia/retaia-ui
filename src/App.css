@@ -14,6 +14,44 @@
   color: #4b5563;
 }
 
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.summary-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.summary-card h2 {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.summary-card p {
+  margin: 6px 0 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.summary-card--pending {
+  border-color: #c7d2fe;
+}
+
+.summary-card--keep {
+  border-color: #bbf7d0;
+}
+
+.summary-card--reject {
+  border-color: #fecaca;
+}
+
 .panel {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -22,20 +60,21 @@
   margin-top: 16px;
 }
 
+.toolbar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
 label {
   display: block;
   margin-bottom: 8px;
-  margin-top: 10px;
-  font-weight: 600;
-}
-
-label:first-child {
   margin-top: 0;
+  font-weight: 600;
 }
 
 select {
   width: 100%;
-  max-width: 260px;
   padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid #d1d5db;
@@ -43,7 +82,6 @@ select {
 
 input {
   width: 100%;
-  max-width: 260px;
   padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid #d1d5db;
@@ -71,5 +109,19 @@ input {
 
 .asset-row p {
   margin: 4px 0 0;
+  color: #6b7280;
+}
+
+.decision-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.decision-actions button {
+  min-width: 72px;
+}
+
+.empty-state {
+  margin: 0;
   color: #6b7280;
 }

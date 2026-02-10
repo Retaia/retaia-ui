@@ -9,9 +9,10 @@ describe('App', () => {
     render(<App />)
 
     expect(screen.getByRole('heading', { name: 'Retaia UI' })).toBeInTheDocument()
-    expect(screen.getByText('Interface simple de revue utilisateur')).toBeInTheDocument()
+    expect(screen.getByText('Review simple pour décider KEEP ou REJECT')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Assets (3)' })).toBeInTheDocument()
     expect(screen.getByText('interview-camera-a.mov')).toBeInTheDocument()
+    expect(screen.getByLabelText('Résumé des assets')).toBeInTheDocument()
   })
 
   it('filters assets by state', async () => {
@@ -22,19 +23,34 @@ describe('App', () => {
     await user.selectOptions(screen.getByLabelText('Filtrer par état'), 'DECISION_PENDING')
 
     expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
-    expect(screen.getByText('interview-camera-a.mov')).toBeInTheDocument()
+    expect(screen.getAllByText('interview-camera-a.mov')).toHaveLength(1)
     expect(screen.queryByText('ambiance-plateau.wav')).not.toBeInTheDocument()
   })
 
-  it('allows deciding keep and disables the action when already keep', async () => {
+  it('supports keep reject clear actions', async () => {
     const user = userEvent.setup()
 
     render(<App />)
 
-    const actionButtons = screen.getAllByRole('button', { name: 'Décider KEEP' })
-    await user.click(actionButtons[0])
+    await user.click(screen.getAllByRole('button', { name: 'REJECT' })[0])
+    expect(screen.getByText('A-001 - DECIDED_REJECT')).toBeInTheDocument()
 
+    await user.click(screen.getAllByRole('button', { name: 'CLEAR' })[0])
+    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+
+    await user.click(screen.getAllByRole('button', { name: 'KEEP' })[0])
     expect(screen.getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
-    expect(screen.getAllByRole('button', { name: 'Décider KEEP' })[0]).toBeDisabled()
+  })
+
+  it('filters assets with free-text search', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.type(screen.getByLabelText('Recherche'), 'behind')
+
+    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+    expect(screen.getByText('behind-the-scenes.jpg')).toBeInTheDocument()
+    expect(screen.queryByText('interview-camera-a.mov')).not.toBeInTheDocument()
   })
 })
