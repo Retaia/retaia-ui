@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   countAssetsByState,
   filterAssets,
+  getStateFromDecision,
   updateAssetState,
   type Asset,
 } from './assets'
@@ -31,5 +32,12 @@ describe('assets domain', () => {
     const result = updateAssetState(assets, 'A-001', 'DECIDED_KEEP')
     expect(result[0].state).toBe('DECIDED_KEEP')
     expect(result[1].state).toBe('DECIDED_KEEP')
+  })
+
+  it('maps decision actions to states', () => {
+    expect(getStateFromDecision('KEEP', 'DECISION_PENDING')).toBe('DECIDED_KEEP')
+    expect(getStateFromDecision('REJECT', 'DECISION_PENDING')).toBe('DECIDED_REJECT')
+    expect(getStateFromDecision('CLEAR', 'DECIDED_KEEP')).toBe('DECISION_PENDING')
+    expect(getStateFromDecision('CLEAR', 'DECISION_PENDING')).toBe('DECISION_PENDING')
   })
 })

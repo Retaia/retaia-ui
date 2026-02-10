@@ -2,6 +2,7 @@ export const ASSET_STATES = ['DECISION_PENDING', 'DECIDED_KEEP', 'DECIDED_REJECT
 
 export type AssetState = (typeof ASSET_STATES)[number]
 export type AssetFilter = AssetState | 'ALL'
+export type DecisionAction = 'KEEP' | 'REJECT' | 'CLEAR'
 
 export type Asset = {
   id: string
@@ -49,4 +50,18 @@ export const updateAssetState = (
   return assets.map((asset) =>
     asset.id === id ? { ...asset, state: nextState } : asset,
   )
+}
+
+export const getStateFromDecision = (
+  action: DecisionAction,
+  currentState: AssetState,
+): AssetState => {
+  if (action === 'CLEAR') {
+    if (currentState === 'DECIDED_KEEP' || currentState === 'DECIDED_REJECT') {
+      return 'DECISION_PENDING'
+    }
+    return currentState
+  }
+
+  return action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT'
 }
