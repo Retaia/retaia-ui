@@ -1,0 +1,3 @@
+[submodule "specs/retaia-core"]
+	path = specs/retaia-core
+	url = git@github.com:Retaia/retaia-core.git
