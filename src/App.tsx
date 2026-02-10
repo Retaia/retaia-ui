@@ -1,37 +1,24 @@
 import { useMemo, useState } from 'react'
 import './App.css'
-
-type AssetState = 'DECISION_PENDING' | 'DECIDED_KEEP' | 'DECIDED_REJECT'
-
-type Asset = {
-  id: string
-  name: string
-  state: AssetState
-}
-
-const INITIAL_ASSETS: Asset[] = [
-  { id: 'A-001', name: 'interview-camera-a.mov', state: 'DECISION_PENDING' },
-  { id: 'A-002', name: 'ambiance-plateau.wav', state: 'DECIDED_KEEP' },
-  { id: 'A-003', name: 'behind-the-scenes.jpg', state: 'DECIDED_REJECT' },
-]
+import { INITIAL_ASSETS } from './data/mockAssets'
+import {
+  type Asset,
+  type AssetFilter,
+  filterAssets,
+  updateAssetState,
+} from './domain/assets'
 
 function App() {
-  const [filter, setFilter] = useState<AssetState | 'ALL'>('ALL')
+  const [filter, setFilter] = useState<AssetFilter>('ALL')
+  const [search, setSearch] = useState('')
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
 
   const visibleAssets = useMemo(() => {
-    if (filter === 'ALL') {
-      return assets
-    }
-    return assets.filter((asset) => asset.state === filter)
-  }, [assets, filter])
+    return filterAssets(assets, filter, search)
+  }, [assets, filter, search])
 
   const decideKeep = (id: string) => {
-    setAssets((current) =>
-      current.map((asset) =>
-        asset.id === id ? { ...asset, state: 'DECIDED_KEEP' } : asset,
-      ),
-    )
+    setAssets((current) => updateAssetState(current, id, 'DECIDED_KEEP'))
   }
 
   return (
@@ -46,13 +33,20 @@ function App() {
         <select
           id="state-filter"
           value={filter}
-          onChange={(event) => setFilter(event.target.value as AssetState | 'ALL')}
+          onChange={(event) => setFilter(event.target.value as AssetFilter)}
         >
           <option value="ALL">Tous</option>
           <option value="DECISION_PENDING">DECISION_PENDING</option>
           <option value="DECIDED_KEEP">DECIDED_KEEP</option>
           <option value="DECIDED_REJECT">DECIDED_REJECT</option>
         </select>
+        <label htmlFor="asset-search">Recherche</label>
+        <input
+          id="asset-search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Nom ou identifiant"
+        />
       </section>
 
       <section className="panel">

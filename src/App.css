@@ -25,10 +25,23 @@
 label {
   display: block;
   margin-bottom: 8px;
+  margin-top: 10px;
   font-weight: 600;
 }
 
+label:first-child {
+  margin-top: 0;
+}
+
 select {
+  width: 100%;
+  max-width: 260px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+input {
   width: 100%;
   max-width: 260px;
   padding: 8px 10px;
