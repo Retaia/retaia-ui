@@ -52,6 +52,7 @@
 - `b`: bascule filtre "batch seul".
 - `n`: ouvre le prochain asset à traiter et sort des filtres actifs.
 - `d`: alterne la densité de liste (confortable/compacte).
+- `1` / `2` / `3`: applique les presets rapides enregistrés.
 - `/`: focus direct sur la recherche.
 - `Shift+Flèches`: extension de sélection batch.
 - `Ctrl/Cmd+A`: ajouter visibles au batch.

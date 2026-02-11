@@ -920,6 +920,24 @@ function App() {
           toggleDensityMode()
           return
         }
+        if (key === '1') {
+          event.preventDefault()
+          saveQuickFilterPreset('PENDING_RECENT')
+          applyQuickFilterPreset('PENDING_RECENT')
+          return
+        }
+        if (key === '2') {
+          event.preventDefault()
+          saveQuickFilterPreset('IMAGES_REJECTED')
+          applyQuickFilterPreset('IMAGES_REJECTED')
+          return
+        }
+        if (key === '3') {
+          event.preventDefault()
+          saveQuickFilterPreset('MEDIA_REVIEW')
+          applyQuickFilterPreset('MEDIA_REVIEW')
+          return
+        }
         if (event.key === '/') {
           event.preventDefault()
           const searchInput = document.getElementById('asset-search')

@@ -168,6 +168,23 @@ describe('App', () => {
     window.localStorage.removeItem('retaia_ui_quick_filter_preset')
   })
 
+  it('applies quick presets with keyboard shortcuts 1 2 3', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.keyboard('1')
+    expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECISION_PENDING')
+    expect(screen.getByLabelText('Date de capture')).toHaveValue('LAST_7_DAYS')
+
+    await user.keyboard('2')
+    expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECIDED_REJECT')
+    expect(screen.getByLabelText('Type')).toHaveValue('IMAGE')
+
+    await user.keyboard('3')
+    expect(screen.getByLabelText('Type')).toHaveValue('VIDEO')
+    expect(screen.getByLabelText('Date de capture')).toHaveValue('LAST_30_DAYS')
+  })
+
   it('renders separate panels for general and batch actions', () => {
     render(<App />)
 
