@@ -16,6 +16,8 @@
 - Bootstrap en priorité (components + utility classes).
 - CSS custom à éviter; ne garder que les variables Sass de thème global quand nécessaire.
 - thème actif initial: Bootswatch `Cyborg` (en attendant une identité de marque).
+- tokens Sass UI centralisés dans `src/index.scss` (typo, couleurs, rayons, densité).
+- conventions de design documentées dans `docs/UI-DESIGN-SYSTEM.md`.
 
 ## État actuel
 

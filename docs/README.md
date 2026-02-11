@@ -7,6 +7,7 @@
 
 - `docs/DEVELOPMENT-BEST-PRACTICES.md`
 - `docs/BOOTSTRAP-TECHNIQUE.md`
+- `docs/UI-DESIGN-SYSTEM.md`
 - `docs/GITHUB-WORKFLOWS.md`
 - `docs/DOCKER-DEVELOPMENT.md`
 - `bdd/features/`

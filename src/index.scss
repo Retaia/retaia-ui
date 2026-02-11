@@ -1,5 +1,27 @@
-$font-family-sans-serif: Inter, "Segoe UI", sans-serif;
-
 @import "bootswatch/dist/cyborg/variables";
+
+$font-family-sans-serif: "IBM Plex Sans", "Segoe UI", sans-serif;
+$headings-font-family: "Space Grotesk", $font-family-sans-serif;
+
+$primary: #2fb6d6;
+$success: #6de08f;
+$danger: #ff6b78;
+$warning: #f2b84b;
+$info: #7dc8ff;
+
+$border-radius: 0.625rem;
+$border-radius-sm: 0.5rem;
+$border-radius-lg: 0.75rem;
+$btn-border-radius: $border-radius-sm;
+$input-border-radius: $border-radius-sm;
+$card-border-radius: $border-radius-lg;
+$list-group-border-radius: $border-radius-lg;
+
+$card-cap-padding-y: 0.625rem;
+$card-cap-padding-x: 1rem;
+$list-group-item-padding-y: 0.9rem;
+$list-group-item-padding-x: 1rem;
+$badge-border-radius: 999px;
+
 @import "bootstrap/scss/bootstrap";
 @import "bootswatch/dist/cyborg/bootswatch";
