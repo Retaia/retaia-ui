@@ -22,6 +22,8 @@ import { getActionAvailability } from './domain/actionAvailability'
 import { type Locale } from './i18n/resources'
 import { isTypingContext } from './ui/keyboard'
 
+const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
+
 function App() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t, i18n } = useTranslation()
@@ -162,6 +164,22 @@ function App() {
     }
     return t('assets.emptyBatch')
   }, [batchIds.length, batchOnly, filter, search, t])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    try {
+      const seen = window.localStorage.getItem(SHORTCUTS_HELP_SEEN_KEY)
+      if (seen) {
+        return
+      }
+      setShowShortcutsHelp(true)
+      window.localStorage.setItem(SHORTCUTS_HELP_SEEN_KEY, '1')
+    } catch {
+      // Ignore storage access errors and keep default UI behavior.
+    }
+  }, [])
 
   const logActivity = useCallback((label: string) => {
     setActivityLog((current) =>
