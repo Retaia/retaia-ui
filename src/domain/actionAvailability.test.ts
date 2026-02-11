@@ -73,4 +73,28 @@ describe('getActionAvailability', () => {
       executePurgeDisabled: true,
     })
   })
+
+  it('disables batch decision/clear actions while preview or execute is running', () => {
+    expect(
+      getActionAvailability({
+        ...baseInput,
+        previewingBatch: true,
+      }),
+    ).toMatchObject({
+      keepBatchDisabled: true,
+      rejectBatchDisabled: true,
+      clearBatchDisabled: true,
+    })
+
+    expect(
+      getActionAvailability({
+        ...baseInput,
+        executingBatch: true,
+      }),
+    ).toMatchObject({
+      keepBatchDisabled: true,
+      rejectBatchDisabled: true,
+      clearBatchDisabled: true,
+    })
+  })
 })

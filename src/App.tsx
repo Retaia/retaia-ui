@@ -880,6 +880,11 @@ function App() {
                 ].join(' · ')}
               </p>
             </section>
+            {previewingBatch || executingBatch ? (
+              <p data-testid="batch-busy-status" className="small text-secondary mt-2 mb-0">
+                {t('actions.batchBusy')}
+              </p>
+            ) : null}
           </section>
           {previewStatus ? (
             <p

@@ -225,6 +225,35 @@ describe('App', () => {
     fetchSpy.mockRestore()
   })
 
+  it('locks batch decision actions while preview is running', async () => {
+    const user = userEvent.setup()
+    let resolvePreview: (() => void) | null = null
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = String(input)
+      if (url.endsWith('/batches/moves/preview')) {
+        return new Promise<Response>((resolve) => {
+          resolvePreview = () => resolve(new Response(null, { status: 200 }))
+        })
+      }
+      return Promise.resolve(new Response(null, { status: 200 }))
+    })
+
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.keyboard('{/Shift}')
+    await user.click(screen.getByRole('button', { name: 'Prévisualiser batch' }))
+
+    expect(screen.getByRole('button', { name: 'KEEP batch' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'REJECT batch' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Vider batch' })).toBeDisabled()
+    expect(screen.getByTestId('batch-busy-status')).toBeInTheDocument()
+
+    resolvePreview?.()
+    fetchSpy.mockRestore()
+  })
+
   it('executes batch and loads report', async () => {
     const user = userEvent.setup()
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
