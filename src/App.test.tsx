@@ -138,6 +138,36 @@ describe('App', () => {
     expect(within(getAssetsPanel()).getByText('interview-camera-a.mov')).toBeInTheDocument()
   })
 
+  it('applies quick filter preset with status type and date', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'À traiter (7j)' }))
+
+    expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECISION_PENDING')
+    expect(screen.getByLabelText('Type')).toHaveValue('ALL')
+    expect(screen.getByLabelText('Date de capture')).toHaveValue('LAST_7_DAYS')
+    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+  })
+
+  it('loads persisted quick filter preset from local storage', async () => {
+    const user = userEvent.setup()
+    const firstRender = render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Images rejetées' }))
+    firstRender.unmount()
+
+    render(<App />)
+
+    expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECIDED_REJECT')
+    expect(screen.getByLabelText('Type')).toHaveValue('IMAGE')
+    expect(screen.getByLabelText('Date de capture')).toHaveValue('ALL')
+    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+    expect(within(getAssetsPanel()).getByText('behind-the-scenes.jpg')).toBeInTheDocument()
+    window.localStorage.removeItem('retaia_ui_quick_filter_preset')
+  })
+
   it('renders separate panels for general and batch actions', () => {
     render(<App />)
 
@@ -245,6 +275,40 @@ describe('App', () => {
       'scope manquant',
     )
     expect(screen.getByRole('status')).toHaveTextContent('scope manquant')
+    fetchSpy.mockRestore()
+  })
+
+  it('shows retry status while API client retries a temporary error', async () => {
+    const user = userEvent.setup()
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = String(input)
+      if (url.endsWith('/batches/moves/preview')) {
+        if (fetchSpy.mock.calls.filter((call) => String(call[0]).endsWith('/batches/moves/preview')).length === 1) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                code: 'TEMPORARY_UNAVAILABLE',
+                message: 'temporary unavailable',
+                retryable: true,
+                correlation_id: 'c-r-1',
+              }),
+              { status: 503, headers: { 'content-type': 'application/json' } },
+            ),
+          )
+        }
+        return new Promise<Response>(() => {})
+      }
+      return Promise.resolve(new Response(null, { status: 200 }))
+    })
+
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.keyboard('{/Shift}')
+    await user.click(screen.getByRole('button', { name: 'Prévisualiser batch' }))
+
+    expect(await screen.findByTestId('api-retry-status')).toHaveTextContent('Nouvelle tentative')
     fetchSpy.mockRestore()
   })
 

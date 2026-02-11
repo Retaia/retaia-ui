@@ -10,7 +10,9 @@ import { mapApiErrorToMessage } from './api/errorMapping'
 import { INITIAL_ASSETS } from './data/mockAssets'
 import {
   type Asset,
+  type AssetDateFilter,
   type AssetFilter,
+  type AssetMediaTypeFilter,
   type AssetState,
   countAssetsByState,
   filterAssets,
@@ -24,10 +26,14 @@ import { isTypingContext } from './ui/keyboard'
 
 const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
 const BATCH_EXECUTION_UNDO_WINDOW_MS = 6000
+const QUICK_FILTER_PRESET_KEY = 'retaia_ui_quick_filter_preset'
+
+type QuickFilterPreset = 'DEFAULT' | 'PENDING_RECENT' | 'IMAGES_REJECTED' | 'MEDIA_REVIEW'
 
 function App() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t, i18n } = useTranslation()
+  const [retryStatus, setRetryStatus] = useState<string | null>(null)
   const apiClient = useMemo(
     () =>
       createApiClient({
@@ -48,10 +54,24 @@ function App() {
           return null
         },
         onAuthError: () => {},
+        onRetry: ({ attempt, maxRetries }) => {
+          setRetryStatus(
+            t('actions.retrying', {
+              attempt,
+              total: maxRetries + 1,
+            }),
+          )
+        },
+        retry: {
+          maxRetries: 2,
+          baseDelayMs: 50,
+        },
       }),
-    [],
+    [t],
   )
   const [filter, setFilter] = useState<AssetFilter>('ALL')
+  const [mediaTypeFilter, setMediaTypeFilter] = useState<AssetMediaTypeFilter>('ALL')
+  const [dateFilter, setDateFilter] = useState<AssetDateFilter>('ALL')
   const [search, setSearch] = useState('')
   const [batchOnly, setBatchOnly] = useState(false)
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
@@ -92,12 +112,15 @@ function App() {
   const pendingBatchExecutionTimer = useRef<number | null>(null)
 
   const visibleAssets = useMemo(() => {
-    const filtered = filterAssets(assets, filter, search)
+    const filtered = filterAssets(assets, filter, search, {
+      mediaType: mediaTypeFilter,
+      date: dateFilter,
+    })
     if (!batchOnly) {
       return filtered
     }
     return filtered.filter((asset) => batchIds.includes(asset.id))
-  }, [assets, batchIds, batchOnly, filter, search])
+  }, [assets, batchIds, batchOnly, dateFilter, filter, mediaTypeFilter, search])
 
   const counts = useMemo(() => countAssetsByState(assets), [assets])
   const selectedAsset = useMemo(
@@ -298,35 +321,41 @@ function App() {
   )
 
   const focusPending = useCallback(() => {
-    if (filter === 'DECISION_PENDING' && search === '') {
+    if (filter === 'DECISION_PENDING' && mediaTypeFilter === 'ALL' && dateFilter === 'ALL' && search === '') {
       return
     }
     recordAction(t('activity.filterPending'))
     setFilter('DECISION_PENDING')
+    setMediaTypeFilter('ALL')
+    setDateFilter('ALL')
     setSearch('')
-  }, [filter, recordAction, search, t])
+  }, [dateFilter, filter, mediaTypeFilter, recordAction, search, t])
 
   const openNextPending = useCallback(() => {
     const target = assets.find((asset) => asset.state === 'DECISION_PENDING')
     if (!target) {
       return
     }
-    if (filter !== 'ALL' || search !== '' || batchOnly) {
+    if (filter !== 'ALL' || mediaTypeFilter !== 'ALL' || dateFilter !== 'ALL' || search !== '' || batchOnly) {
       recordAction(t('activity.openNextPending'))
       setFilter('ALL')
+      setMediaTypeFilter('ALL')
+      setDateFilter('ALL')
       setSearch('')
       setBatchOnly(false)
     }
     setSelectedAssetId(target.id)
     setSelectionAnchorId(target.id)
-  }, [assets, batchOnly, filter, recordAction, search, t])
+  }, [assets, batchOnly, dateFilter, filter, mediaTypeFilter, recordAction, search, t])
 
   const clearFilters = () => {
-    if (filter === 'ALL' && search === '' && !batchOnly) {
+    if (filter === 'ALL' && mediaTypeFilter === 'ALL' && dateFilter === 'ALL' && search === '' && !batchOnly) {
       return
     }
     recordAction(t('activity.filterReset'))
     setFilter('ALL')
+    setMediaTypeFilter('ALL')
+    setDateFilter('ALL')
     setSearch('')
     setBatchOnly(false)
   }
@@ -335,22 +364,95 @@ function App() {
     (view: 'DEFAULT' | 'PENDING' | 'BATCH') => {
       if (view === 'DEFAULT') {
         setFilter('ALL')
+        setMediaTypeFilter('ALL')
+        setDateFilter('ALL')
         setSearch('')
         setBatchOnly(false)
         return
       }
       if (view === 'PENDING') {
         setFilter('DECISION_PENDING')
+        setMediaTypeFilter('ALL')
+        setDateFilter('ALL')
         setSearch('')
         setBatchOnly(false)
         return
       }
       setFilter('ALL')
+      setMediaTypeFilter('ALL')
+      setDateFilter('ALL')
       setSearch('')
       setBatchOnly(true)
     },
     [],
   )
+
+  const applyQuickFilterPreset = useCallback((preset: QuickFilterPreset) => {
+    if (preset === 'DEFAULT') {
+      setFilter('ALL')
+      setMediaTypeFilter('ALL')
+      setDateFilter('ALL')
+      setSearch('')
+      setBatchOnly(false)
+      return
+    }
+    if (preset === 'PENDING_RECENT') {
+      setFilter('DECISION_PENDING')
+      setMediaTypeFilter('ALL')
+      setDateFilter('LAST_7_DAYS')
+      setSearch('')
+      setBatchOnly(false)
+      return
+    }
+    if (preset === 'IMAGES_REJECTED') {
+      setFilter('DECIDED_REJECT')
+      setMediaTypeFilter('IMAGE')
+      setDateFilter('ALL')
+      setSearch('')
+      setBatchOnly(false)
+      return
+    }
+    setFilter('ALL')
+    setMediaTypeFilter('VIDEO')
+    setDateFilter('LAST_30_DAYS')
+    setSearch('')
+    setBatchOnly(false)
+  }, [])
+
+  const saveQuickFilterPreset = useCallback((preset: QuickFilterPreset) => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    try {
+      window.localStorage.setItem(QUICK_FILTER_PRESET_KEY, preset)
+    } catch {
+      // Ignore storage access errors and keep default behavior.
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    try {
+      const raw = window.localStorage.getItem(QUICK_FILTER_PRESET_KEY)
+      if (!raw) {
+        return
+      }
+      const preset = raw as QuickFilterPreset
+      if (
+        preset !== 'DEFAULT' &&
+        preset !== 'PENDING_RECENT' &&
+        preset !== 'IMAGES_REJECTED' &&
+        preset !== 'MEDIA_REVIEW'
+      ) {
+        return
+      }
+      applyQuickFilterPreset(preset)
+    } catch {
+      // Ignore storage access errors and keep default behavior.
+    }
+  }, [applyQuickFilterPreset])
 
   const clearActivityLog = useCallback(() => {
     if (activityLog.length === 0) {
@@ -465,6 +567,7 @@ function App() {
 
     setPreviewingBatch(true)
     setPreviewStatus(null)
+    setRetryStatus(null)
 
     try {
       await apiClient.previewMoveBatch({
@@ -487,6 +590,7 @@ function App() {
       })
     } finally {
       setPreviewingBatch(false)
+      setRetryStatus(null)
     }
   }, [apiClient, batchIds.length, previewingBatch, t])
 
@@ -498,6 +602,7 @@ function App() {
 
       setExecutingBatch(true)
       setExecuteStatus(null)
+      setRetryStatus(null)
 
       try {
         const response = await apiClient.executeMoveBatch(
@@ -543,6 +648,7 @@ function App() {
         })
       } finally {
         setExecutingBatch(false)
+        setRetryStatus(null)
       }
     },
     [apiClient, executingBatch, t],
@@ -613,6 +719,7 @@ function App() {
 
     setReportLoading(true)
     setReportStatus(null)
+    setRetryStatus(null)
 
     try {
       const report = await apiClient.getMoveBatchReport(reportBatchId)
@@ -626,6 +733,7 @@ function App() {
       )
     } finally {
       setReportLoading(false)
+      setRetryStatus(null)
     }
   }, [apiClient, reportBatchId, reportLoading, t])
 
@@ -636,6 +744,7 @@ function App() {
 
     setPreviewingPurge(true)
     setPurgeStatus(null)
+    setRetryStatus(null)
 
     try {
       await apiClient.previewAssetPurge(selectedAsset.id)
@@ -654,6 +763,7 @@ function App() {
       })
     } finally {
       setPreviewingPurge(false)
+      setRetryStatus(null)
     }
   }, [apiClient, previewingPurge, selectedAsset, t])
 
@@ -669,6 +779,7 @@ function App() {
 
     setExecutingPurge(true)
     setPurgeStatus(null)
+    setRetryStatus(null)
 
     try {
       await apiClient.executeAssetPurge(selectedAsset.id, crypto.randomUUID())
@@ -691,6 +802,7 @@ function App() {
       })
     } finally {
       setExecutingPurge(false)
+      setRetryStatus(null)
     }
   }, [apiClient, executingPurge, purgePreviewAssetId, recordAction, selectedAsset, t])
 
@@ -894,14 +1006,22 @@ function App() {
       />
       <ReviewToolbar
         filter={filter}
+        mediaTypeFilter={mediaTypeFilter}
+        dateFilter={dateFilter}
         search={search}
         labels={{
           filter: t('toolbar.filter'),
+          mediaType: t('toolbar.mediaType'),
+          date: t('toolbar.date'),
           search: t('toolbar.search'),
           searchPlaceholder: t('toolbar.placeholder'),
           all: t('toolbar.all'),
+          date7d: t('toolbar.date7d'),
+          date30d: t('toolbar.date30d'),
         }}
         onFilterChange={setFilter}
+        onMediaTypeFilterChange={setMediaTypeFilter}
+        onDateFilterChange={setDateFilter}
         onSearchChange={setSearch}
       />
 
@@ -919,6 +1039,41 @@ function App() {
               </Button>
               <Button type="button" size="sm" variant="outline-secondary" onClick={() => applySavedView('BATCH')}>
                 {t('actions.viewBatch')}
+              </Button>
+            </Stack>
+            <Stack direction="horizontal" className="flex-wrap gap-2 mb-2" aria-label={t('actions.filterPresets')}>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline-secondary"
+                onClick={() => {
+                  saveQuickFilterPreset('PENDING_RECENT')
+                  applyQuickFilterPreset('PENDING_RECENT')
+                }}
+              >
+                {t('actions.filterPresetPendingRecent')}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline-secondary"
+                onClick={() => {
+                  saveQuickFilterPreset('IMAGES_REJECTED')
+                  applyQuickFilterPreset('IMAGES_REJECTED')
+                }}
+              >
+                {t('actions.filterPresetRejectedImages')}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline-secondary"
+                onClick={() => {
+                  saveQuickFilterPreset('MEDIA_REVIEW')
+                  applyQuickFilterPreset('MEDIA_REVIEW')
+                }}
+              >
+                {t('actions.filterPresetMediaReview')}
               </Button>
             </Stack>
             <Stack direction="horizontal" className="flex-wrap gap-2">
@@ -1064,6 +1219,11 @@ function App() {
               ].join(' ')}
             >
               {executeStatus.message}
+            </p>
+          ) : null}
+          {retryStatus ? (
+            <p data-testid="api-retry-status" role="status" aria-live="polite" className="small mt-2 mb-0 text-warning">
+              {retryStatus}
             </p>
           ) : null}
           <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">

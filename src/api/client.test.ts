@@ -202,4 +202,80 @@ describe('api client', () => {
 
     await expect(api.listAssetSummaries()).resolves.toEqual([])
   })
+
+  it('retries retryable temporary errors and notifies onRetry', async () => {
+    const onRetry = vi.fn()
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            code: 'TEMPORARY_UNAVAILABLE',
+            message: 'temporary unavailable',
+            retryable: true,
+            correlation_id: 'retry-1',
+          }),
+          {
+            status: 503,
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ items: [], next_cursor: null }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+      )
+    const api = createApiClient({
+      baseUrl: '/api/v1',
+      fetchImpl: fetchMock,
+      onRetry,
+      retry: { maxRetries: 2, baseDelayMs: 0 },
+    })
+
+    await expect(api.listAssets()).resolves.toEqual({ items: [], next_cursor: null })
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(onRetry).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: '/assets',
+        method: 'GET',
+        attempt: 1,
+        maxRetries: 2,
+      }),
+    )
+  })
+
+  it('does not retry non-retryable api errors', async () => {
+    const onRetry = vi.fn()
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          code: 'STATE_CONFLICT',
+          message: 'invalid state',
+          retryable: false,
+          correlation_id: 'no-retry',
+        }),
+        {
+          status: 409,
+          headers: { 'content-type': 'application/json' },
+        },
+      ),
+    )
+    const api = createApiClient({
+      baseUrl: '/api/v1',
+      fetchImpl: fetchMock,
+      onRetry,
+      retry: { maxRetries: 2, baseDelayMs: 0 },
+    })
+
+    await expect(
+      api.executeMoveBatch({ mode: 'EXECUTE', selection: {} }, 'idem-nr'),
+    ).rejects.toMatchObject({
+      status: 409,
+      payload: { code: 'STATE_CONFLICT' },
+    })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(onRetry).not.toHaveBeenCalled()
+  })
 })

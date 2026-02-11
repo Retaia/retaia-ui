@@ -87,6 +87,12 @@ Feature: Workflow de review desktop-like
     And j'appuie sur la touche "b"
     Then le titre principal "Assets (2)" est visible
 
+  Scenario: Appliquer un preset de filtres rapide
+    Given je suis sur la page d'accueil
+    When je clique sur le bouton "Images rejetées"
+    Then le titre principal "Assets (1)" est visible
+    And l'état "A-003 - DECIDED_REJECT" est visible
+
   Scenario: Décider KEEP/REJECT/CLEAR au clavier
     Given je suis sur la page d'accueil
     When j'ouvre le premier asset au clavier
