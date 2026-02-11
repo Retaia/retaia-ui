@@ -248,6 +248,40 @@ describe('App', () => {
     fetchSpy.mockRestore()
   })
 
+  it('shows retry status while API client retries a temporary error', async () => {
+    const user = userEvent.setup()
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = String(input)
+      if (url.endsWith('/batches/moves/preview')) {
+        if (fetchSpy.mock.calls.filter((call) => String(call[0]).endsWith('/batches/moves/preview')).length === 1) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                code: 'TEMPORARY_UNAVAILABLE',
+                message: 'temporary unavailable',
+                retryable: true,
+                correlation_id: 'c-r-1',
+              }),
+              { status: 503, headers: { 'content-type': 'application/json' } },
+            ),
+          )
+        }
+        return new Promise<Response>(() => {})
+      }
+      return Promise.resolve(new Response(null, { status: 200 }))
+    })
+
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.keyboard('{/Shift}')
+    await user.click(screen.getByRole('button', { name: 'Prévisualiser batch' }))
+
+    expect(await screen.findByTestId('api-retry-status')).toHaveTextContent('Nouvelle tentative')
+    fetchSpy.mockRestore()
+  })
+
   it('locks batch decision actions while preview is running', async () => {
     const user = userEvent.setup()
     const resolvePreviewRef: { current: (() => void) | null } = { current: null }

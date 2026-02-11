@@ -39,7 +39,35 @@ export type ApiClientConfig = {
   fetchImpl?: FetchLike
   getAccessToken?: () => string | null | undefined
   onAuthError?: (status: AuthStatus, payload?: ApiErrorPayload) => void
+  onRetry?: (context: {
+    path: string
+    method: string
+    attempt: number
+    maxRetries: number
+    error: ApiError
+  }) => void
+  retry?: {
+    maxRetries?: number
+    baseDelayMs?: number
+  }
   credentials?: RequestCredentials
+}
+
+function isRetryableError(error: ApiError) {
+  return (
+    error.payload?.retryable === true ||
+    error.payload?.code === 'TEMPORARY_UNAVAILABLE' ||
+    error.status >= 500
+  )
+}
+
+function sleep(ms: number) {
+  if (ms <= 0) {
+    return Promise.resolve()
+  }
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, ms)
+  })
 }
 
 function buildQueryString(query: Record<string, unknown> | undefined) {
@@ -78,6 +106,11 @@ function resolveConfig(
       fetchImpl: baseUrlOrConfig.fetchImpl ?? defaultFetchImpl,
       getAccessToken: baseUrlOrConfig.getAccessToken,
       onAuthError: baseUrlOrConfig.onAuthError,
+      onRetry: baseUrlOrConfig.onRetry,
+      retry: {
+        maxRetries: baseUrlOrConfig.retry?.maxRetries ?? 2,
+        baseDelayMs: baseUrlOrConfig.retry?.baseDelayMs ?? 50,
+      },
       credentials: baseUrlOrConfig.credentials ?? 'include',
     }
   }
@@ -87,6 +120,8 @@ function resolveConfig(
     fetchImpl: legacyFetchImpl ?? defaultFetchImpl,
     getAccessToken: undefined,
     onAuthError: undefined,
+    onRetry: undefined,
+    retry: { maxRetries: 2, baseDelayMs: 50 },
     credentials: 'include' as RequestCredentials,
   }
 }
@@ -100,23 +135,50 @@ export function createApiClient(
     path: string,
     init?: RequestInit,
   ): Promise<TResponse> => {
-    const accessToken = config.getAccessToken?.()
-    const response = await config.fetchImpl(`${config.baseUrl}${path}`, {
-      ...init,
-      credentials: config.credentials,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-        ...(init?.headers ?? {}),
-      },
-    })
+    const method = init?.method ?? 'GET'
+    const maxRetries = config.retry.maxRetries
+    let attempt = 0
+    let response: Response | null = null
 
-    if (!response.ok) {
+    while (attempt <= maxRetries) {
+      const accessToken = config.getAccessToken?.()
+      response = await config.fetchImpl(`${config.baseUrl}${path}`, {
+        ...init,
+        credentials: config.credentials,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+          ...(init?.headers ?? {}),
+        },
+      })
+
+      if (response.ok) {
+        break
+      }
+
       const apiError = await parseApiError(response)
       if (response.status === 401 || response.status === 403) {
         config.onAuthError?.(response.status, apiError.payload)
       }
-      throw apiError
+
+      if (attempt >= maxRetries || !isRetryableError(apiError)) {
+        throw apiError
+      }
+
+      attempt += 1
+      config.onRetry?.({
+        path,
+        method,
+        attempt,
+        maxRetries,
+        error: apiError,
+      })
+      const delay = config.retry.baseDelayMs * 2 ** (attempt - 1)
+      await sleep(delay)
+    }
+
+    if (!response) {
+      throw new ApiError(500, 'HTTP 500')
     }
 
     if (response.status === 204) {

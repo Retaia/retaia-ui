@@ -27,6 +27,7 @@ const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
 function App() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t, i18n } = useTranslation()
+  const [retryStatus, setRetryStatus] = useState<string | null>(null)
   const apiClient = useMemo(
     () =>
       createApiClient({
@@ -47,8 +48,20 @@ function App() {
           return null
         },
         onAuthError: () => {},
+        onRetry: ({ attempt, maxRetries }) => {
+          setRetryStatus(
+            t('actions.retrying', {
+              attempt,
+              total: maxRetries + 1,
+            }),
+          )
+        },
+        retry: {
+          maxRetries: 2,
+          baseDelayMs: 50,
+        },
       }),
-    [],
+    [t],
   )
   const [filter, setFilter] = useState<AssetFilter>('ALL')
   const [search, setSearch] = useState('')
@@ -448,6 +461,7 @@ function App() {
 
     setPreviewingBatch(true)
     setPreviewStatus(null)
+    setRetryStatus(null)
 
     try {
       await apiClient.previewMoveBatch({
@@ -470,6 +484,7 @@ function App() {
       })
     } finally {
       setPreviewingBatch(false)
+      setRetryStatus(null)
     }
   }, [apiClient, batchIds.length, previewingBatch, t])
 
@@ -480,6 +495,7 @@ function App() {
 
     setExecutingBatch(true)
     setExecuteStatus(null)
+    setRetryStatus(null)
 
     try {
       const response = await apiClient.executeMoveBatch(
@@ -525,6 +541,7 @@ function App() {
       })
     } finally {
       setExecutingBatch(false)
+      setRetryStatus(null)
     }
   }, [apiClient, batchIds, executingBatch, t])
 
@@ -535,6 +552,7 @@ function App() {
 
     setReportLoading(true)
     setReportStatus(null)
+    setRetryStatus(null)
 
     try {
       const report = await apiClient.getMoveBatchReport(reportBatchId)
@@ -548,6 +566,7 @@ function App() {
       )
     } finally {
       setReportLoading(false)
+      setRetryStatus(null)
     }
   }, [apiClient, reportBatchId, reportLoading, t])
 
@@ -558,6 +577,7 @@ function App() {
 
     setPreviewingPurge(true)
     setPurgeStatus(null)
+    setRetryStatus(null)
 
     try {
       await apiClient.previewAssetPurge(selectedAsset.id)
@@ -576,6 +596,7 @@ function App() {
       })
     } finally {
       setPreviewingPurge(false)
+      setRetryStatus(null)
     }
   }, [apiClient, previewingPurge, selectedAsset, t])
 
@@ -591,6 +612,7 @@ function App() {
 
     setExecutingPurge(true)
     setPurgeStatus(null)
+    setRetryStatus(null)
 
     try {
       await apiClient.executeAssetPurge(selectedAsset.id, crypto.randomUUID())
@@ -613,6 +635,7 @@ function App() {
       })
     } finally {
       setExecutingPurge(false)
+      setRetryStatus(null)
     }
   }, [apiClient, executingPurge, purgePreviewAssetId, recordAction, selectedAsset, t])
 
@@ -962,6 +985,11 @@ function App() {
               ].join(' ')}
             >
               {executeStatus.message}
+            </p>
+          ) : null}
+          {retryStatus ? (
+            <p data-testid="api-retry-status" role="status" aria-live="polite" className="small mt-2 mb-0 text-warning">
+              {retryStatus}
             </p>
           ) : null}
           <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
