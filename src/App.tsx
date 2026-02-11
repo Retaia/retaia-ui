@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Card, Col, Container, Row, Stack } from 'react-bootstrap'
+import { useTranslation } from 'react-i18next'
 import { AssetList } from './components/AssetList'
 import { ReviewSummary } from './components/ReviewSummary'
 import { ReviewToolbar } from './components/ReviewToolbar'
@@ -13,12 +14,12 @@ import {
   type DecisionAction,
   updateAssetsState,
 } from './domain/assets'
-import { type Locale, t } from './i18n/messages'
+import { type Locale } from './i18n/resources'
 
 function App() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
+  const { t, i18n } = useTranslation()
   const [filter, setFilter] = useState<AssetFilter>('ALL')
-  const [locale, setLocale] = useState<Locale>('fr')
   const [search, setSearch] = useState('')
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
@@ -43,10 +44,7 @@ function App() {
     () => assets.find((asset) => asset.state === 'DECISION_PENDING') ?? null,
     [assets],
   )
-  const tr = useCallback(
-    (key: string, params?: Record<string, string | number>) => t(locale, key, params),
-    [locale],
-  )
+  const locale = (i18n.resolvedLanguage ?? 'fr') as Locale
 
   const logActivity = useCallback((label: string) => {
     setActivityLog((current) =>
@@ -78,7 +76,7 @@ function App() {
       return
     }
 
-    recordAction(tr('activity.actionDecision', { action, id }))
+    recordAction(t('activity.actionDecision', { action, id }))
     setAssets((current) =>
       current.map((asset) => {
         if (asset.id !== id) {
@@ -98,7 +96,7 @@ function App() {
       return
     }
 
-    recordAction(tr('activity.actionVisible', { action, count: targetIds.length }))
+    recordAction(t('activity.actionVisible', { action, count: targetIds.length }))
     const nextState = action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT'
     setAssets((current) => updateAssetsState(current, targetIds, nextState))
   }
@@ -107,7 +105,7 @@ function App() {
     if (batchIds.length === 0) {
       return
     }
-    recordAction(tr('activity.actionBatch', { action, count: batchIds.length }))
+    recordAction(t('activity.actionBatch', { action, count: batchIds.length }))
     const nextState = action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT'
     setAssets((current) => updateAssetsState(current, batchIds, nextState))
     setBatchIds([])
@@ -117,11 +115,15 @@ function App() {
     (id: string) => {
       setBatchIds((current) => {
         const willAdd = !current.includes(id)
-        recordAction(willAdd ? tr('activity.batchAdd', { id }) : tr('activity.batchRemove', { id }))
+        recordAction(
+          willAdd
+            ? t('activity.batchAdd', { id })
+            : t('activity.batchRemove', { id }),
+        )
         return willAdd ? [...current, id] : current.filter((value) => value !== id)
       })
     },
-    [recordAction, tr],
+    [recordAction, t],
   )
 
   const handleAssetClick = (id: string, shiftKey: boolean) => {
@@ -137,7 +139,7 @@ function App() {
     if (filter === 'DECISION_PENDING' && search === '') {
       return
     }
-    recordAction(tr('activity.filterPending'))
+    recordAction(t('activity.filterPending'))
     setFilter('DECISION_PENDING')
     setSearch('')
   }
@@ -146,7 +148,7 @@ function App() {
     if (filter === 'ALL' && search === '') {
       return
     }
-    recordAction(tr('activity.filterReset'))
+    recordAction(t('activity.filterReset'))
     setFilter('ALL')
     setSearch('')
   }
@@ -156,12 +158,12 @@ function App() {
     if (missingCount === 0) {
       return
     }
-    recordAction(tr('activity.batchVisible', { count: missingCount }))
+    recordAction(t('activity.batchVisible', { count: missingCount }))
     setBatchIds((current) => {
       const merged = new Set([...current, ...visibleAssets.map((asset) => asset.id)])
       return [...merged]
     })
-  }, [batchIds, recordAction, tr, visibleAssets])
+  }, [batchIds, recordAction, t, visibleAssets])
 
   const undoLastAction = useCallback(() => {
     setUndoStack((current) => {
@@ -172,10 +174,10 @@ function App() {
       setAssets(last.assets)
       setSelectedAssetId(last.selectedAssetId)
       setBatchIds(last.batchIds)
-      logActivity(tr('activity.undo'))
+      logActivity(t('activity.undo'))
       return rest
     })
-  }, [logActivity, tr])
+  }, [logActivity, t])
 
   const selectVisibleByOffset = useCallback(
     (offset: -1 | 1, extendBatchRange = false) => {
@@ -228,12 +230,12 @@ function App() {
         const merged = new Set([...current, ...rangeIds])
         const addedCount = merged.size - current.length
         if (addedCount > 0) {
-          recordAction(tr('activity.range', { count: addedCount }))
+          recordAction(t('activity.range', { count: addedCount }))
         }
         return [...merged]
       })
     },
-    [recordAction, selectedAssetId, selectionAnchorId, tr, visibleAssets],
+    [recordAction, selectedAssetId, selectionAnchorId, t, visibleAssets],
   )
 
   const toggleBatchForSelectedAsset = useCallback(() => {
@@ -348,16 +350,16 @@ function App() {
       <header className="mb-3">
         <Stack direction="horizontal" className="justify-content-between align-items-start gap-2">
           <div>
-            <h1 className="display-6 fw-bold mb-1">{tr('app.title')}</h1>
-            <p className="text-secondary mb-0">{tr('app.subtitle')}</p>
+            <h1 className="display-6 fw-bold mb-1">{t('app.title')}</h1>
+            <p className="text-secondary mb-0">{t('app.subtitle')}</p>
           </div>
-          <Stack direction="horizontal" gap={2} aria-label={tr('app.language')}>
+          <Stack direction="horizontal" gap={2} aria-label={t('app.language')}>
             <Button
               type="button"
               size="sm"
               variant={locale === 'fr' ? 'primary' : 'outline-primary'}
-              onClick={() => setLocale('fr')}
-              aria-label={tr('app.language.fr')}
+              onClick={() => void i18n.changeLanguage('fr')}
+              aria-label={t('app.language.fr')}
             >
               FR
             </Button>
@@ -365,8 +367,8 @@ function App() {
               type="button"
               size="sm"
               variant={locale === 'en' ? 'primary' : 'outline-primary'}
-              onClick={() => setLocale('en')}
-              aria-label={tr('app.language.en')}
+              onClick={() => void i18n.changeLanguage('en')}
+              aria-label={t('app.language.en')}
             >
               EN
             </Button>
@@ -378,21 +380,21 @@ function App() {
         total={assets.length}
         counts={counts}
         labels={{
-          region: tr('summary.region'),
-          total: tr('summary.total'),
-          pending: tr('summary.pending'),
-          keep: tr('summary.keep'),
-          reject: tr('summary.reject'),
+          region: t('summary.region'),
+          total: t('summary.total'),
+          pending: t('summary.pending'),
+          keep: t('summary.keep'),
+          reject: t('summary.reject'),
         }}
       />
       <ReviewToolbar
         filter={filter}
         search={search}
         labels={{
-          filter: tr('toolbar.filter'),
-          search: tr('toolbar.search'),
-          searchPlaceholder: tr('toolbar.placeholder'),
-          all: tr('toolbar.all'),
+          filter: t('toolbar.filter'),
+          search: t('toolbar.search'),
+          searchPlaceholder: t('toolbar.placeholder'),
+          all: t('toolbar.all'),
         }}
         onFilterChange={setFilter}
         onSearchChange={setSearch}
@@ -400,10 +402,10 @@ function App() {
 
       <Card as="section" className="shadow-sm border-0 mt-3">
         <Card.Body>
-          <h2 className="h5 mb-3">{tr('actions.title')}</h2>
+          <h2 className="h5 mb-3">{t('actions.title')}</h2>
           <Stack direction="horizontal" className="flex-wrap gap-2">
             <Button type="button" variant="outline-primary" onClick={focusPending}>
-              {tr('actions.focusPending')}
+              {t('actions.focusPending')}
             </Button>
             <Button
             type="button"
@@ -411,7 +413,7 @@ function App() {
             onClick={() => applyDecisionToVisible('KEEP')}
             disabled={visibleAssets.length === 0}
           >
-            {tr('actions.keepVisible')}
+            {t('actions.keepVisible')}
             </Button>
             <Button
             type="button"
@@ -419,15 +421,15 @@ function App() {
             onClick={() => applyDecisionToVisible('REJECT')}
             disabled={visibleAssets.length === 0}
           >
-            {tr('actions.rejectVisible')}
+            {t('actions.rejectVisible')}
             </Button>
             <Button type="button" variant="outline-secondary" onClick={clearFilters}>
-              {tr('actions.clearFilters')}
+              {t('actions.clearFilters')}
             </Button>
           </Stack>
           <Stack direction="horizontal" className="flex-wrap align-items-center gap-2 mt-3">
             <p className="mb-0 fw-semibold text-secondary">
-              {tr('actions.batchSelected', { count: batchIds.length })}
+              {t('actions.batchSelected', { count: batchIds.length })}
             </p>
             <Button
             type="button"
@@ -435,7 +437,7 @@ function App() {
             onClick={() => applyDecisionToBatch('KEEP')}
             disabled={batchIds.length === 0}
           >
-            {tr('actions.keepBatch')}
+            {t('actions.keepBatch')}
             </Button>
             <Button
             type="button"
@@ -443,7 +445,7 @@ function App() {
             onClick={() => applyDecisionToBatch('REJECT')}
             disabled={batchIds.length === 0}
           >
-            {tr('actions.rejectBatch')}
+            {t('actions.rejectBatch')}
             </Button>
             <Button
             type="button"
@@ -451,7 +453,7 @@ function App() {
             onClick={() => setBatchIds([])}
             disabled={batchIds.length === 0}
           >
-            {tr('actions.clearBatch')}
+            {t('actions.clearBatch')}
             </Button>
           </Stack>
           <Stack direction="horizontal" className="flex-wrap align-items-center gap-2 mt-3">
@@ -461,16 +463,16 @@ function App() {
               onClick={undoLastAction}
               disabled={undoStack.length === 0}
             >
-              {tr('actions.undo')}
+              {t('actions.undo')}
             </Button>
             <p className="mb-0 fw-semibold text-secondary">
-              {tr('actions.history', { count: undoStack.length })}
+              {t('actions.history', { count: undoStack.length })}
             </p>
           </Stack>
-          <section className="border border-2 border-secondary-subtle rounded p-3 mt-3" aria-label={tr('actions.journal')}>
-            <h3 className="h6 mb-2">{tr('actions.journal')}</h3>
+          <section className="border border-2 border-secondary-subtle rounded p-3 mt-3" aria-label={t('actions.journal')}>
+            <h3 className="h6 mb-2">{t('actions.journal')}</h3>
             {activityLog.length === 0 ? (
-              <p className="text-secondary mb-0">{tr('actions.journalEmpty')}</p>
+              <p className="text-secondary mb-0">{t('actions.journalEmpty')}</p>
             ) : (
               <ul className="mb-0">
                 {activityLog.map((entry) => (
@@ -480,14 +482,14 @@ function App() {
             )}
           </section>
           <p className="small text-secondary mb-0 mt-3">
-            {tr('actions.shortcuts')}
+            {t('actions.shortcuts')}
           </p>
         </Card.Body>
       </Card>
 
-      <Card as="section" className="shadow-sm border-0 mt-3" aria-label={tr('next.region')}>
+      <Card as="section" className="shadow-sm border-0 mt-3" aria-label={t('next.region')}>
         <Card.Body>
-          <h2 className="h5 mb-3">{tr('next.title')}</h2>
+          <h2 className="h5 mb-3">{t('next.title')}</h2>
           {nextPendingAsset ? (
             <Stack direction="horizontal" className="flex-wrap justify-content-between align-items-center gap-3">
               <div>
@@ -512,7 +514,7 @@ function App() {
               </Stack>
             </Stack>
           ) : (
-            <p className="text-secondary mb-0">{tr('next.empty')}</p>
+            <p className="text-secondary mb-0">{t('next.empty')}</p>
           )}
         </Card.Body>
       </Card>
@@ -522,20 +524,20 @@ function App() {
           as="section"
           xs={12}
           xl={8}
-          aria-label={tr('assets.region')}
+          aria-label={t('assets.region')}
           ref={assetListRegionRef}
         >
           <Card className="shadow-sm border-0 h-100">
             <Card.Body>
-              <h2 className="h5">{tr('assets.title', { count: visibleAssets.length })}</h2>
-              <p className="small text-secondary">{tr('assets.help')}</p>
+              <h2 className="h5">{t('assets.title', { count: visibleAssets.length })}</h2>
+              <p className="small text-secondary">{t('assets.help')}</p>
               <AssetList
                 assets={visibleAssets}
                 selectedAssetId={selectedAssetId}
                 batchIds={batchIds}
                 labels={{
-                  empty: tr('assets.empty'),
-                  batch: tr('assets.batchBadge'),
+                  empty: t('assets.empty'),
+                  batch: t('assets.batchBadge'),
                   keep: 'KEEP',
                   reject: 'REJECT',
                   clear: 'CLEAR',
@@ -547,18 +549,18 @@ function App() {
           </Card>
         </Col>
 
-        <Col as="section" xs={12} xl={4} aria-label={tr('detail.region')}>
+        <Col as="section" xs={12} xl={4} aria-label={t('detail.region')}>
           <Card className="shadow-sm border-0 h-100">
             <Card.Body>
-              <h2 className="h5">{tr('detail.title')}</h2>
+              <h2 className="h5">{t('detail.title')}</h2>
               {selectedAsset ? (
                 <div>
                   <strong className="d-block">{selectedAsset.name}</strong>
                   <p className="text-secondary mb-1">
-                    {tr('detail.id', { id: selectedAsset.id })}
+                    {t('detail.id', { id: selectedAsset.id })}
                   </p>
                   <p className="text-secondary mb-3">
-                    {tr('detail.state', { state: selectedAsset.state })}
+                    {t('detail.state', { state: selectedAsset.state })}
                   </p>
                   <Stack direction="horizontal" className="flex-wrap gap-2">
                     <Button
@@ -585,7 +587,7 @@ function App() {
                   </Stack>
                 </div>
               ) : (
-                <p className="text-secondary mb-0">{tr('detail.empty')}</p>
+                <p className="text-secondary mb-0">{t('detail.empty')}</p>
               )}
             </Card.Body>
           </Card>

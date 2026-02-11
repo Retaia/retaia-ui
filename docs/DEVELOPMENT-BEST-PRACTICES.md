@@ -119,8 +119,10 @@ Scénarios BDD minimum à garder verts:
 
 Implémentation locale actuelle:
 
-- dictionnaire i18n TypeScript dans `src/i18n/messages.ts`
-- helper `t(locale, key, params)` avec fallback strict `locale -> en -> key`
+- stack standard `i18next` + `react-i18next`
+- ressources i18n dans `src/i18n/resources.ts`
+- instance i18n partagée dans `src/i18n/index.ts`
+- fallback strict `locale -> en -> key`
 - switch de langue `FR/EN` dans l'en-tête UI desktop-like
 
 ## Checklist PR
