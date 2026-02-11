@@ -199,6 +199,35 @@ function App() {
     return t('assets.emptyBatch')
   }, [batchIds.length, batchOnly, filter, search, t])
 
+  const batchTimeline = useMemo(() => {
+    const queued = !!pendingBatchExecution
+    const running = executingBatch
+    const failed = executeStatus?.kind === 'error'
+    const done = executeStatus?.kind === 'success' && !queued && !running
+
+    return [
+      {
+        key: 'queued',
+        active: queued,
+        done: !queued && (running || done || failed),
+        label: t('actions.timelineQueued'),
+      },
+      {
+        key: 'running',
+        active: running,
+        done: !running && (done || failed),
+        label: t('actions.timelineRunning'),
+      },
+      {
+        key: 'done',
+        active: done,
+        done,
+        error: failed,
+        label: failed ? t('actions.timelineError') : t('actions.timelineDone'),
+      },
+    ]
+  }, [executeStatus?.kind, executingBatch, pendingBatchExecution, t])
+
   useEffect(() => {
     if (typeof window === 'undefined') {
       return
@@ -1205,6 +1234,23 @@ function App() {
                   t('actions.batchScopeReject', { count: batchScope.reject }),
                 ].join(' · ')}
               </p>
+            </section>
+            <section className="mt-2" aria-label={t('actions.timelineTitle')}>
+              <p className="mb-1 small text-secondary">{t('actions.timelineTitle')}</p>
+              <div data-testid="batch-timeline" className="d-flex flex-wrap gap-2">
+                {batchTimeline.map((step) => (
+                  <span
+                    key={step.key}
+                    className={[
+                      'badge',
+                      step.active ? 'text-bg-info' : step.done ? 'text-bg-success' : 'text-bg-secondary',
+                      step.error ? 'text-bg-danger' : '',
+                    ].join(' ')}
+                  >
+                    {step.label}
+                  </span>
+                ))}
+              </div>
             </section>
             {previewingBatch || executingBatch ? (
               <p data-testid="batch-busy-status" className="small text-secondary mt-2 mb-0">
