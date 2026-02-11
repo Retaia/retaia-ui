@@ -71,6 +71,7 @@ Règles UX:
 - journal d'actions: afficher des libellés compréhensibles côté utilisateur (`KEEP visibles`, `REJECT batch`, etc.)
 - undo borné: limiter l'historique pour éviter la croissance mémoire côté client
 - navigation clavier: préférer un modèle `listbox/option` avec `aria-selected` et roving `tabIndex`
+- retours asynchrones (preview/execute/report): exposer des live regions (`role="status"` + `aria-live="polite"`)
 
 ## TDD (obligatoire par défaut)
 
@@ -120,6 +121,8 @@ Scénarios BDD minimum à garder verts:
 - clic asset -> ouverture du panneau détail
 - `Shift+clic` -> création/extension du batch
 - `Ctrl/Cmd+Z` -> annulation de la dernière action
+- `Shift+Espace` -> ajout/retrait de l'asset sélectionné au batch
+- `Ctrl/Cmd+A` -> sélection de tous les assets visibles
 
 ## I18N
 
