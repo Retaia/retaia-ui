@@ -22,7 +22,22 @@ function App() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t, i18n } = useTranslation()
   const apiClient = useMemo(
-    () => createApiClient(import.meta.env.VITE_API_BASE_URL ?? '/api/v1'),
+    () =>
+      createApiClient({
+        baseUrl: import.meta.env.VITE_API_BASE_URL ?? '/api/v1',
+        // Priority: explicit env token (CI/dev), then browser session storage token.
+        getAccessToken: () => {
+          const envToken = import.meta.env.VITE_API_TOKEN
+          if (envToken) {
+            return envToken
+          }
+          if (typeof window !== 'undefined') {
+            return window.localStorage.getItem('retaia_api_token')
+          }
+          return null
+        },
+        onAuthError: () => {},
+      }),
     [],
   )
   const [filter, setFilter] = useState<AssetFilter>('ALL')

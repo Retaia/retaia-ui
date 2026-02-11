@@ -1,6 +1,7 @@
 import type { components, paths } from './generated/openapi'
 
 type FetchLike = typeof fetch
+type AuthStatus = 401 | 403
 
 type ListAssetsQuery = NonNullable<paths['/assets']['get']['parameters']['query']>
 type ListAssetsResponse =
@@ -29,6 +30,14 @@ export class ApiError extends Error {
   }
 }
 
+export type ApiClientConfig = {
+  baseUrl?: string
+  fetchImpl?: FetchLike
+  getAccessToken?: () => string | null | undefined
+  onAuthError?: (status: AuthStatus, payload?: ApiErrorPayload) => void
+  credentials?: RequestCredentials
+}
+
 function buildQueryString(query: Record<string, unknown> | undefined) {
   if (!query) {
     return ''
@@ -55,21 +64,55 @@ async function parseApiError(response: Response) {
   }
 }
 
-export function createApiClient(baseUrl = '/api/v1', fetchImpl: FetchLike = fetch) {
+function resolveConfig(
+  baseUrlOrConfig: string | ApiClientConfig | undefined,
+  legacyFetchImpl?: FetchLike,
+) {
+  if (typeof baseUrlOrConfig === 'object' && baseUrlOrConfig !== null) {
+    return {
+      baseUrl: baseUrlOrConfig.baseUrl ?? '/api/v1',
+      fetchImpl: baseUrlOrConfig.fetchImpl ?? fetch,
+      getAccessToken: baseUrlOrConfig.getAccessToken,
+      onAuthError: baseUrlOrConfig.onAuthError,
+      credentials: baseUrlOrConfig.credentials ?? 'include',
+    }
+  }
+
+  return {
+    baseUrl: baseUrlOrConfig ?? '/api/v1',
+    fetchImpl: legacyFetchImpl ?? fetch,
+    getAccessToken: undefined,
+    onAuthError: undefined,
+    credentials: 'include' as RequestCredentials,
+  }
+}
+
+export function createApiClient(
+  baseUrlOrConfig: string | ApiClientConfig = '/api/v1',
+  legacyFetchImpl?: FetchLike,
+) {
+  const config = resolveConfig(baseUrlOrConfig, legacyFetchImpl)
   const request = async <TResponse>(
     path: string,
     init?: RequestInit,
   ): Promise<TResponse> => {
-    const response = await fetchImpl(`${baseUrl}${path}`, {
+    const accessToken = config.getAccessToken?.()
+    const response = await config.fetchImpl(`${config.baseUrl}${path}`, {
       ...init,
+      credentials: config.credentials,
       headers: {
         'Content-Type': 'application/json',
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         ...(init?.headers ?? {}),
       },
     })
 
     if (!response.ok) {
-      throw await parseApiError(response)
+      const apiError = await parseApiError(response)
+      if (response.status === 401 || response.status === 403) {
+        config.onAuthError?.(response.status, apiError.payload)
+      }
+      throw apiError
     }
 
     if (response.status === 204) {
