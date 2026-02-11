@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, Card, Col, Container, Row, Stack } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import { AssetList } from './components/AssetList'
+import { BatchReportView } from './components/BatchReportView'
 import { ReviewSummary } from './components/ReviewSummary'
 import { ReviewToolbar } from './components/ReviewToolbar'
 import { createApiClient } from './api/client'
@@ -48,7 +49,7 @@ function App() {
   const [reportBatchId, setReportBatchId] = useState<string | null>(null)
   const [reportLoading, setReportLoading] = useState(false)
   const [reportStatus, setReportStatus] = useState<string | null>(null)
-  const [reportData, setReportData] = useState<string | null>(null)
+  const [reportData, setReportData] = useState<unknown>(null)
   const activityId = useRef(1)
 
   const visibleAssets = useMemo(() => {
@@ -344,7 +345,7 @@ function App() {
 
     try {
       const report = await apiClient.getMoveBatchReport(reportBatchId)
-      setReportData(JSON.stringify(report, null, 2))
+      setReportData(report)
       setReportStatus(t('actions.reportReady', { batchId: reportBatchId }))
     } catch (error) {
       setReportStatus(
@@ -625,7 +626,17 @@ function App() {
               <p className="small mt-2 mb-0 text-secondary">{reportStatus}</p>
             ) : null}
             {reportData ? (
-              <pre className="small mt-2 mb-0 p-2 border rounded">{reportData}</pre>
+              <BatchReportView
+                report={reportData}
+                labels={{
+                  summary: t('actions.reportSummary'),
+                  status: t('actions.reportStatusLabel'),
+                  moved: t('actions.reportMovedLabel'),
+                  failed: t('actions.reportFailedLabel'),
+                  errors: t('actions.reportErrorsLabel'),
+                  noErrors: t('actions.reportNoErrors'),
+                }}
+              />
             ) : null}
           </section>
           <Stack direction="horizontal" className="flex-wrap align-items-center gap-2 mt-3">
