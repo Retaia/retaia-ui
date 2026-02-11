@@ -28,9 +28,8 @@
 - `j` / `k`: navigation.
 - `?`: ouvrir/fermer l'aide des raccourcis.
 - `p`: filtre rapide sur les assets à traiter.
-- `n`: ouvre le prochain asset à traiter.
 - `b`: bascule filtre "batch seul".
-- `n`: ouvre le prochain asset à traiter.
+- `n`: ouvre le prochain asset à traiter et sort des filtres actifs.
 - `/`: focus direct sur la recherche.
 - `Shift+Flèches`: extension de sélection batch.
 - `Ctrl/Cmd+A`: ajouter visibles au batch.
@@ -42,6 +41,11 @@
 - conflit d'état: rafraîchir et relancer.
 - indisponibilité temporaire: réessayer plus tard.
 - purge désactivée: vérifier que l'asset est bien en état `DECIDED_REJECT`.
+
+## États vides
+
+- si le filtre/recherche est trop restrictif, ajuster ou réinitialiser les filtres.
+- en mode `batch seul`, ajouter des assets via `Shift+clic` pour remplir la liste.
 
 ## Journal d'actions
 

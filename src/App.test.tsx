@@ -89,7 +89,19 @@ describe('App', () => {
     await user.type(screen.getByLabelText('Recherche'), 'no-match')
 
     expect(screen.getByRole('heading', { name: 'Assets (0)' })).toBeInTheDocument()
-    expect(screen.getByText('Aucun asset ne correspond aux filtres.')).toBeInTheDocument()
+    expect(screen.getByText('Aucun résultat pour la recherche ou le filtre actif.')).toBeInTheDocument()
+  })
+
+  it('shows guidance when batch-only mode is active with empty batch', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.keyboard('b')
+
+    expect(screen.getByRole('heading', { name: 'Assets (0)' })).toBeInTheDocument()
+    expect(
+      screen.getByText('Mode batch seul actif. Ajoute des assets au batch via Shift+clic.'),
+    ).toBeInTheDocument()
   })
 
   it('focuses pending assets using quick action', async () => {
@@ -101,6 +113,13 @@ describe('App', () => {
 
     expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
     expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+  })
+
+  it('renders separate panels for general and batch actions', () => {
+    render(<App />)
+
+    expect(screen.getByRole('heading', { name: 'Actions générales' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Actions batch' })).toBeInTheDocument()
   })
 
   it('adds assets to batch with shift+click and applies batch action', async () => {
@@ -332,6 +351,22 @@ describe('App', () => {
     expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
   })
 
+  it('resets batch-only mode when opening next pending with n', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
+    await user.keyboard('{/Shift}')
+    await user.keyboard('b')
+    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+
+    await user.keyboard('n')
+
+    expect(screen.getByRole('heading', { name: 'Assets (3)' })).toBeInTheDocument()
+    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
+  })
+
   it('opens first visible asset with Enter shortcut', async () => {
     const user = userEvent.setup()
 
@@ -445,6 +480,23 @@ describe('App', () => {
     expect(movedItems[1]).toHaveAttribute('tabIndex', '0')
     expect(movedItems[1]).toHaveFocus()
     expect(listbox).toHaveAttribute('aria-activedescendant', 'asset-option-A-002')
+  })
+
+  it('scrolls selected asset row into view when keyboard navigation changes focus', async () => {
+    const user = userEvent.setup()
+    const scrollIntoViewMock = vi.fn()
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView
+    HTMLElement.prototype.scrollIntoView = scrollIntoViewMock
+
+    try {
+      render(<App />)
+      await user.keyboard('{Enter}')
+      await user.keyboard('j')
+
+      expect(scrollIntoViewMock).toHaveBeenCalled()
+    } finally {
+      HTMLElement.prototype.scrollIntoView = originalScrollIntoView
+    }
   })
 
   it('keeps undo disabled when no action has been recorded', () => {

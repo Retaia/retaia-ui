@@ -67,7 +67,6 @@ Raccourcis clavier desktop:
 - `Ctrl/Cmd+Z`: annule la dernière action (décision/batch/filtre)
 - `n`: ouvre le prochain asset en `DECISION_PENDING` et recentre le contexte
 - `b`: bascule l'affichage "batch seul" sans quitter le contexte courant
-- `n`: ouvre le prochain asset en `DECISION_PENDING` et recentre le contexte
 
 Règles UX:
 
@@ -78,6 +77,7 @@ Règles UX:
 - fournir une action explicite pour vider le journal sans impacter les données métier
 - undo borné: limiter l'historique pour éviter la croissance mémoire côté client
 - navigation clavier: préférer un modèle `listbox/option` avec `aria-selected` et roving `tabIndex`
+- navigation clavier: garder la ligne active visible (`scrollIntoView` en mode `nearest`)
 - retours asynchrones (preview/execute/report): exposer des live regions (`role="status"` + `aria-live="polite"`)
 - exécution batch: déclencher un chargement automatique du rapport quand `batch_id` est disponible
 
