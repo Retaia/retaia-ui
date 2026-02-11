@@ -142,7 +142,6 @@ describe('api client', () => {
     })
     expect(requestInit?.body).toBe(JSON.stringify({ confirm: true }))
   })
-
   it('skips undefined query params when building query string', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ items: [], next_cursor: null }), {
