@@ -15,6 +15,30 @@ Before(async () => {
   browser = await browserType.launch({ headless: true })
   context = await browser.newContext()
   page = await context.newPage()
+
+  await page.route('**/api/v1/batches/moves/preview', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ ok: true }),
+    })
+  })
+
+  await page.route('**/api/v1/batches/moves/batch-e2e-1', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ status: 'DONE', moved: 2 }),
+    })
+  })
+
+  await page.route('**/api/v1/batches/moves', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ batch_id: 'batch-e2e-1' }),
+    })
+  })
 })
 
 After(async () => {
@@ -95,4 +119,12 @@ When('je clique sur le bouton {string}', async (buttonLabel: string) => {
 
 Then('l\'historique disponible affiche {int}', async (count: number) => {
   await expect(page.getByText(`Historique disponible: ${count}`)).toBeVisible()
+})
+
+Then('le message {string} est visible', async (message: string) => {
+  await expect(page.getByText(message)).toBeVisible()
+})
+
+Then('le rapport de batch contient {string}', async (text: string) => {
+  await expect(page.locator('pre').filter({ hasText: text })).toBeVisible()
 })
