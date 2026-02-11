@@ -90,6 +90,12 @@
   font-weight: 600;
 }
 
+.keyboard-hint {
+  margin: 10px 0 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
 label {
   display: block;
   margin-bottom: 8px;
