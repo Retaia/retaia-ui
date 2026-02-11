@@ -173,6 +173,45 @@ describe('App', () => {
     fetchSpy.mockRestore()
   })
 
+  it('executes batch and loads report', async () => {
+    const user = userEvent.setup()
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = String(input)
+      if (url.endsWith('/batches/moves')) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ batch_id: 'batch-123' }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+        )
+      }
+      if (url.endsWith('/batches/moves/batch-123')) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ status: 'DONE', moved: 2 }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+        )
+      }
+      return Promise.resolve(new Response(null, { status: 200 }))
+    })
+
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
+    await user.keyboard('{/Shift}')
+
+    await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
+    expect(screen.getByText('Exécution du batch acceptée')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Rafraîchir rapport' }))
+    expect(screen.getByText('Rapport chargé pour batch-123')).toBeInTheDocument()
+    expect(screen.getByText((content) => /"status":\s*"DONE"/.test(content))).toBeInTheDocument()
+    fetchSpy.mockRestore()
+  })
+
   it('applies KEEP to all visible assets', async () => {
     const user = userEvent.setup()
 

@@ -90,7 +90,7 @@ Parcours prioritaires:
 
 - Review d'asset
 - Décision `KEEP/REJECT`
-- Batch move (preview + apply)
+- Batch move (preview + execute + report)
 - Purge confirmée
 - i18n `en/fr` + fallback `en`
 
