@@ -190,7 +190,9 @@ When('je recherche {string}', async (term: string) => {
 })
 
 When('je clique sur le bouton {string}', async (buttonLabel: string) => {
-  await page.getByRole('button', { name: buttonLabel }).click()
+  const button = page.getByRole('button', { name: buttonLabel })
+  await expect(button).toBeEnabled({ timeout: 10000 })
+  await button.click()
 })
 
 Then('l\'historique disponible affiche {int}', async (count: number) => {
@@ -203,4 +205,24 @@ Then('le message {string} est visible', async (message: string) => {
 
 Then('le rapport de batch contient {string}', async (text: string) => {
   await expect(page.getByText(text, { exact: false }).first()).toBeVisible()
+})
+
+Then('le statut de prévisualisation contient {string}', async (text: string) => {
+  await expect(page.getByTestId('batch-preview-status')).toContainText(text)
+})
+
+Then('le statut d\'exécution contient {string}', async (text: string) => {
+  await expect(page.getByTestId('batch-execute-status')).toContainText(text)
+})
+
+Then('le rapport batch affiche le statut {string}', async (status: string) => {
+  await expect(page.getByTestId('batch-report-status-value')).toHaveText(status)
+})
+
+Then('le rapport batch affiche {int} assets déplacés', async (count: number) => {
+  await expect(page.getByTestId('batch-report-moved-value')).toHaveText(String(count))
+})
+
+Then('le rapport batch affiche {int} assets en échec', async (count: number) => {
+  await expect(page.getByTestId('batch-report-failed-value')).toHaveText(String(count))
 })

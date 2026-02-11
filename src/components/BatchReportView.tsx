@@ -55,7 +55,7 @@ export function BatchReportView({ report, labels }: BatchReportViewProps) {
   const errors = parseErrors(parsed)
 
   return (
-    <section className="mt-2" aria-label={labels.summary}>
+    <section className="mt-2" aria-label={labels.summary} data-testid="batch-report-summary">
       <div className="table-responsive">
         <table className="table table-sm table-bordered align-middle mb-2">
           <thead>
@@ -67,9 +67,9 @@ export function BatchReportView({ report, labels }: BatchReportViewProps) {
           </thead>
           <tbody>
             <tr>
-              <td>{status}</td>
-              <td>{moved}</td>
-              <td>{failed}</td>
+              <td data-testid="batch-report-status-value">{status}</td>
+              <td data-testid="batch-report-moved-value">{moved}</td>
+              <td data-testid="batch-report-failed-value">{failed}</td>
             </tr>
           </tbody>
         </table>
@@ -90,8 +90,8 @@ export function BatchReportView({ report, labels }: BatchReportViewProps) {
             <tbody>
               {errors.map((row, index) => (
                 <tr key={`${row.assetId}-${index}`}>
-                  <td>{row.assetId}</td>
-                  <td>{row.reason}</td>
+                  <td data-testid="batch-report-error-asset">{row.assetId}</td>
+                  <td data-testid="batch-report-error-reason">{row.reason}</td>
                 </tr>
               ))}
             </tbody>
