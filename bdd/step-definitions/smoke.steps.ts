@@ -8,8 +8,15 @@ setDefaultTimeout(15000)
 let browser: Browser
 let context: BrowserContext
 let page: Page
+let previewShouldFailScope = false
+let executeShouldFailStateConflict = false
+let reportShouldFailTemporary = false
 
 Before(async () => {
+  previewShouldFailScope = false
+  executeShouldFailStateConflict = false
+  reportShouldFailTemporary = false
+
   const browserType =
     BROWSER_NAME === 'firefox' ? firefox : BROWSER_NAME === 'webkit' ? webkit : chromium
   browser = await browserType.launch({ headless: true })
@@ -17,6 +24,19 @@ Before(async () => {
   page = await context.newPage()
 
   await page.route('**/api/v1/batches/moves/preview', async (route) => {
+    if (previewShouldFailScope) {
+      await route.fulfill({
+        status: 403,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'FORBIDDEN_SCOPE',
+          message: 'forbidden',
+          retryable: false,
+          correlation_id: 'bdd-corr-1',
+        }),
+      })
+      return
+    }
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -25,6 +45,19 @@ Before(async () => {
   })
 
   await page.route('**/api/v1/batches/moves/batch-e2e-1', async (route) => {
+    if (reportShouldFailTemporary) {
+      await route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'TEMPORARY_UNAVAILABLE',
+          message: 'temporary unavailable',
+          retryable: true,
+          correlation_id: 'bdd-corr-2',
+        }),
+      })
+      return
+    }
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -33,6 +66,19 @@ Before(async () => {
   })
 
   await page.route('**/api/v1/batches/moves', async (route) => {
+    if (executeShouldFailStateConflict) {
+      await route.fulfill({
+        status: 409,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'STATE_CONFLICT',
+          message: 'state conflict',
+          retryable: false,
+          correlation_id: 'bdd-corr-3',
+        }),
+      })
+      return
+    }
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -48,6 +94,18 @@ After(async () => {
 
 Given("je suis sur la page d'accueil", async () => {
   await page.goto(APP_URL, { waitUntil: 'networkidle' })
+})
+
+Given('le mock API retourne FORBIDDEN_SCOPE sur la preview batch', async () => {
+  previewShouldFailScope = true
+})
+
+Given('le mock API retourne STATE_CONFLICT sur l\'exécution batch', async () => {
+  executeShouldFailStateConflict = true
+})
+
+Given('le mock API retourne TEMPORARY_UNAVAILABLE sur le rapport batch', async () => {
+  reportShouldFailTemporary = true
 })
 
 Then('le titre principal {string} est visible', async (title: string) => {
