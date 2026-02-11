@@ -13,7 +13,9 @@
     "test:coverage": "vitest run --coverage",
     "qa": "npm run lint && npm run test:coverage",
     "prepare": "husky",
-    "hooks:install": "husky"
+    "hooks:install": "husky",
+    "typecheck": "tsc -b --pretty false",
+    "security:audit": "npm audit --omit=dev"
   },
   "dependencies": {
     "react": "^19.2.0",
