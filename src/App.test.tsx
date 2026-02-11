@@ -398,4 +398,63 @@ describe('App', () => {
     const activityPanel = screen.getByLabelText("Journal d'actions")
     expect(within(activityPanel).getByText('Sélection plage (1)')).toBeInTheDocument()
   })
+
+  it('previews then confirms purge on rejected asset', async () => {
+    const user = userEvent.setup()
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = String(input)
+      if (url.endsWith('/assets/A-003/purge/preview')) {
+        return Promise.resolve(new Response(null, { status: 200 }))
+      }
+      if (url.endsWith('/assets/A-003/purge')) {
+        return Promise.resolve(new Response(null, { status: 200 }))
+      }
+      return Promise.resolve(new Response(null, { status: 200 }))
+    })
+
+    render(<App />)
+
+    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
+    await user.click(screen.getByRole('button', { name: 'Prévisualiser purge' }))
+    expect(screen.getByTestId('asset-purge-status')).toHaveTextContent('Prévisualisation purge prête')
+
+    await user.click(screen.getByRole('button', { name: 'Confirmer purge' }))
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      '/api/v1/assets/A-003/purge',
+      expect.objectContaining({ method: 'POST' }),
+    )
+    expect(within(getAssetsPanel()).queryByText('behind-the-scenes.jpg')).not.toBeInTheDocument()
+    expect(screen.getByTestId('asset-purge-status')).toHaveTextContent('Purge exécutée')
+    fetchSpy.mockRestore()
+  })
+
+  it('shows purge error when preview fails', async () => {
+    const user = userEvent.setup()
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = String(input)
+      if (url.endsWith('/assets/A-003/purge/preview')) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              code: 'FORBIDDEN_SCOPE',
+              message: 'forbidden',
+              retryable: false,
+              correlation_id: 'c-3',
+            }),
+            { status: 403, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      }
+      return Promise.resolve(new Response(null, { status: 200 }))
+    })
+
+    render(<App />)
+
+    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
+    await user.click(screen.getByRole('button', { name: 'Prévisualiser purge' }))
+
+    expect(screen.getByTestId('asset-purge-status')).toHaveTextContent('scope manquant')
+    fetchSpy.mockRestore()
+  })
 })
