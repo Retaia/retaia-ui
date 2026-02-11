@@ -90,6 +90,38 @@
   font-weight: 600;
 }
 
+.history-actions {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.history-actions p {
+  margin: 0;
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.activity-log {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+}
+
+.activity-log h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.activity-log ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #374151;
+}
+
 .keyboard-hint {
   margin: 10px 0 0;
   color: #6b7280;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import { AssetList } from './components/AssetList'
 import { ReviewSummary } from './components/ReviewSummary'
@@ -20,6 +20,11 @@ function App() {
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
   const [batchIds, setBatchIds] = useState<string[]>([])
+  const [undoStack, setUndoStack] = useState<
+    Array<{ assets: Asset[]; selectedAssetId: string | null; batchIds: string[] }>
+  >([])
+  const [activityLog, setActivityLog] = useState<Array<{ id: number; label: string }>>([])
+  const activityId = useRef(1)
 
   const visibleAssets = useMemo(() => {
     return filterAssets(assets, filter, search)
@@ -35,7 +40,37 @@ function App() {
     [assets],
   )
 
+  const logActivity = useCallback((label: string) => {
+    setActivityLog((current) =>
+      [{ id: activityId.current++, label }, ...current].slice(0, 8),
+    )
+  }, [])
+
+  const pushUndoSnapshot = useCallback(() => {
+    setUndoStack((current) =>
+      [{ assets, selectedAssetId, batchIds }, ...current].slice(0, 30),
+    )
+  }, [assets, selectedAssetId, batchIds])
+
+  const recordAction = useCallback(
+    (label: string) => {
+      pushUndoSnapshot()
+      logActivity(label)
+    },
+    [logActivity, pushUndoSnapshot],
+  )
+
   const handleDecision = (id: string, action: DecisionAction) => {
+    const target = assets.find((asset) => asset.id === id)
+    if (!target) {
+      return
+    }
+    const nextState = getStateFromDecision(action, target.state)
+    if (nextState === target.state) {
+      return
+    }
+
+    recordAction(`${action} ${id}`)
     setAssets((current) =>
       current.map((asset) => {
         if (asset.id !== id) {
@@ -43,7 +78,7 @@ function App() {
         }
         return {
           ...asset,
-          state: getStateFromDecision(action, asset.state),
+          state: nextState,
         }
       }),
     )
@@ -55,6 +90,7 @@ function App() {
       return
     }
 
+    recordAction(`${action} visibles (${targetIds.length})`)
     const nextState = action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT'
     setAssets((current) => updateAssetsState(current, targetIds, nextState))
   }
@@ -63,16 +99,22 @@ function App() {
     if (batchIds.length === 0) {
       return
     }
+    recordAction(`${action} batch (${batchIds.length})`)
     const nextState = action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT'
     setAssets((current) => updateAssetsState(current, batchIds, nextState))
     setBatchIds([])
   }
 
-  const toggleBatchAsset = (id: string) => {
-    setBatchIds((current) =>
-      current.includes(id) ? current.filter((value) => value !== id) : [...current, id],
-    )
-  }
+  const toggleBatchAsset = useCallback(
+    (id: string) => {
+      setBatchIds((current) => {
+        const willAdd = !current.includes(id)
+        recordAction(willAdd ? `Ajout batch ${id}` : `Retrait batch ${id}`)
+        return willAdd ? [...current, id] : current.filter((value) => value !== id)
+      })
+    },
+    [recordAction],
+  )
 
   const handleAssetClick = (id: string, shiftKey: boolean) => {
     if (shiftKey) {
@@ -83,21 +125,48 @@ function App() {
   }
 
   const focusPending = () => {
+    if (filter === 'DECISION_PENDING' && search === '') {
+      return
+    }
+    recordAction('Filtre: à traiter')
     setFilter('DECISION_PENDING')
     setSearch('')
   }
 
   const clearFilters = () => {
+    if (filter === 'ALL' && search === '') {
+      return
+    }
+    recordAction('Réinitialiser filtres')
     setFilter('ALL')
     setSearch('')
   }
 
   const selectAllVisibleInBatch = useCallback(() => {
+    const missingCount = visibleAssets.filter((asset) => !batchIds.includes(asset.id)).length
+    if (missingCount === 0) {
+      return
+    }
+    recordAction(`Sélection batch visible (+${missingCount})`)
     setBatchIds((current) => {
       const merged = new Set([...current, ...visibleAssets.map((asset) => asset.id)])
       return [...merged]
     })
-  }, [visibleAssets])
+  }, [batchIds, recordAction, visibleAssets])
+
+  const undoLastAction = useCallback(() => {
+    setUndoStack((current) => {
+      if (current.length === 0) {
+        return current
+      }
+      const [last, ...rest] = current
+      setAssets(last.assets)
+      setSelectedAssetId(last.selectedAssetId)
+      setBatchIds(last.batchIds)
+      logActivity('Annulation')
+      return rest
+    })
+  }, [logActivity])
 
   const selectVisibleByOffset = useCallback(
     (offset: -1 | 1) => {
@@ -130,7 +199,7 @@ function App() {
       return
     }
     toggleBatchAsset(selectedAssetId)
-  }, [selectedAssetId])
+  }, [selectedAssetId, toggleBatchAsset])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -149,6 +218,12 @@ function App() {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
         event.preventDefault()
         selectAllVisibleInBatch()
+        return
+      }
+
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
+        event.preventDefault()
+        undoLastAction()
         return
       }
 
@@ -187,6 +262,7 @@ function App() {
     selectAllVisibleInBatch,
     selectVisibleByOffset,
     toggleBatchForSelectedAsset,
+    undoLastAction,
   ])
 
   return (
@@ -252,9 +328,27 @@ function App() {
             Vider batch
           </button>
         </div>
+        <div className="history-actions">
+          <button type="button" onClick={undoLastAction} disabled={undoStack.length === 0}>
+            Annuler dernière action
+          </button>
+          <p>Historique disponible: {undoStack.length}</p>
+        </div>
+        <section className="activity-log" aria-label="Journal d'actions">
+          <h3>Journal d&apos;actions</h3>
+          {activityLog.length === 0 ? (
+            <p className="empty-state">Aucune action pour le moment.</p>
+          ) : (
+            <ul>
+              {activityLog.map((entry) => (
+                <li key={entry.id}>{entry.label}</li>
+              ))}
+            </ul>
+          )}
+        </section>
         <p className="keyboard-hint">
           Raccourcis desktop: j/k (navigation), Entrée (ouvrir), Shift+Espace (batch),
-          Ctrl/Cmd+A (batch visible)
+          Ctrl/Cmd+A (batch visible), Ctrl/Cmd+Z (annuler)
         </p>
       </section>
 

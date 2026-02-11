@@ -32,6 +32,8 @@ Layout cible:
 - split view: liste à gauche, détail à droite
 - barre d'actions rapides visible en permanence
 - panneau batch explicite (taille du batch + actions)
+- journal d'actions visible pour comprendre les opérations récentes
+- annulation explicite de la dernière action
 
 Interactions souris:
 
@@ -46,12 +48,15 @@ Raccourcis clavier desktop:
 - `Entrée`: ouvre le premier asset visible si aucun détail n'est ouvert
 - `Shift+Espace`: ajoute/retire l'asset sélectionné au batch
 - `Ctrl/Cmd+A`: ajoute tous les assets visibles au batch
+- `Ctrl/Cmd+Z`: annule la dernière action (décision/batch/filtre)
 
 Règles UX:
 
 - les boutons d'action d'une ligne (`KEEP/REJECT/CLEAR`) ne doivent pas déclencher l'ouverture du détail par propagation d'événement
 - garder un état visuel clair pour l'item sélectionné (focus détail) et pour l'item présent dans le batch
 - les raccourcis ne doivent pas interférer avec la saisie dans les champs (`input`, `textarea`, `select`)
+- journal d'actions: afficher des libellés compréhensibles côté utilisateur (`KEEP visibles`, `REJECT batch`, etc.)
+- undo borné: limiter l'historique pour éviter la croissance mémoire côté client
 
 ## TDD (obligatoire par défaut)
 
