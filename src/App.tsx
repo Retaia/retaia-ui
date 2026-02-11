@@ -296,6 +296,27 @@ function App() {
     setBatchOnly(false)
   }
 
+  const applySavedView = useCallback(
+    (view: 'DEFAULT' | 'PENDING' | 'BATCH') => {
+      if (view === 'DEFAULT') {
+        setFilter('ALL')
+        setSearch('')
+        setBatchOnly(false)
+        return
+      }
+      if (view === 'PENDING') {
+        setFilter('DECISION_PENDING')
+        setSearch('')
+        setBatchOnly(false)
+        return
+      }
+      setFilter('ALL')
+      setSearch('')
+      setBatchOnly(true)
+    },
+    [],
+  )
+
   const clearActivityLog = useCallback(() => {
     if (activityLog.length === 0) {
       return
@@ -793,6 +814,17 @@ function App() {
           <h2 className="h5 mb-3">{t('actions.title')}</h2>
           <section className="border border-2 border-secondary-subtle rounded p-3 mt-2">
             <h3 className="h6 mb-2">{t('actions.quickPanel')}</h3>
+            <Stack direction="horizontal" className="flex-wrap gap-2 mb-2" aria-label={t('actions.savedViews')}>
+              <Button type="button" size="sm" variant="outline-secondary" onClick={() => applySavedView('DEFAULT')}>
+                {t('actions.viewDefault')}
+              </Button>
+              <Button type="button" size="sm" variant="outline-secondary" onClick={() => applySavedView('PENDING')}>
+                {t('actions.viewPending')}
+              </Button>
+              <Button type="button" size="sm" variant="outline-secondary" onClick={() => applySavedView('BATCH')}>
+                {t('actions.viewBatch')}
+              </Button>
+            </Stack>
             <Stack direction="horizontal" className="flex-wrap gap-2">
               <Button type="button" variant="outline-primary" onClick={focusPending}>
                 {t('actions.focusPending')}
