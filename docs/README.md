@@ -9,6 +9,7 @@
 - `docs/BOOTSTRAP-TECHNIQUE.md`
 - `docs/GITHUB-WORKFLOWS.md`
 - `docs/DOCKER-DEVELOPMENT.md`
+- `bdd/features/`
 
 ## Lecture minimale avant de coder
 
@@ -19,3 +20,8 @@
 - `specs/policies/AUTHZ-MATRIX.md`
 - `specs/state-machine/STATE-MACHINE.md`
 - `specs/workflows/WORKFLOWS.md`
+
+## Commandes BDD/E2E locales
+
+- `npm run bdd:test`
+- `npm run e2e:bdd`
