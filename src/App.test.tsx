@@ -212,7 +212,9 @@ describe('App', () => {
 
     await user.click(screen.getByRole('button', { name: 'Rafraîchir rapport' }))
     expect(screen.getByText('Rapport chargé pour batch-123')).toBeInTheDocument()
-    expect(screen.getByText((content) => /"status":\s*"DONE"/.test(content))).toBeInTheDocument()
+    expect(screen.getByLabelText('Synthèse batch')).toBeInTheDocument()
+    expect(screen.getByText('DONE')).toBeInTheDocument()
+    expect(screen.getByText('2')).toBeInTheDocument()
     fetchSpy.mockRestore()
   })
 
