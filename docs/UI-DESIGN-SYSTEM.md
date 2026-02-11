@@ -26,6 +26,7 @@ Fichier source: `src/index.scss`
 ## Patterns de composants
 
 - Boutons d'actions: variantes Bootstrap (`outline-success`, `outline-danger`, `outline-secondary`, `warning`)
+- Actions: séparer visuellement les actions générales et les actions batch via sections `Card`/`section` Bootstrap
 - Cartes de sections: `Card` avec hiérarchie typographique (`h5`, `h6`, `small`)
 - Liste interactive: `ListGroup` + état `active` + état batch (`list-group-item-warning`)
 - Layout principal: grille Bootstrap (`Container`, `Row`, `Col`)

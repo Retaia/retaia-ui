@@ -758,78 +758,84 @@ function App() {
       <Card as="section" className="shadow-sm border-0 mt-3">
         <Card.Body>
           <h2 className="h5 mb-3">{t('actions.title')}</h2>
-          <Stack direction="horizontal" className="flex-wrap gap-2">
-            <Button type="button" variant="outline-primary" onClick={focusPending}>
-              {t('actions.focusPending')}
-            </Button>
-            <Button type="button" variant={batchOnly ? 'primary' : 'outline-primary'} onClick={toggleBatchOnly}>
-              {batchOnly ? t('actions.batchOnlyOn') : t('actions.batchOnlyOff')}
-            </Button>
-            <Button
-            type="button"
-            variant="outline-success"
-            onClick={() => applyDecisionToVisible('KEEP')}
-            disabled={availability.keepVisibleDisabled}
-          >
-            {t('actions.keepVisible')}
-            </Button>
-            <Button
-            type="button"
-            variant="outline-danger"
-            onClick={() => applyDecisionToVisible('REJECT')}
-            disabled={availability.rejectVisibleDisabled}
-          >
-            {t('actions.rejectVisible')}
-            </Button>
-            <Button type="button" variant="outline-secondary" onClick={clearFilters}>
-              {t('actions.clearFilters')}
-            </Button>
-          </Stack>
-          <Stack direction="horizontal" className="flex-wrap align-items-center gap-2 mt-3">
-            <p className="mb-0 fw-semibold text-secondary">
-              {t('actions.batchSelected', { count: batchIds.length })}
-            </p>
-            <Button
-            type="button"
-            variant="outline-success"
-            onClick={() => applyDecisionToBatch('KEEP')}
-            disabled={availability.keepBatchDisabled}
-          >
-            {t('actions.keepBatch')}
-            </Button>
-            <Button
-            type="button"
-            variant="outline-danger"
-            onClick={() => applyDecisionToBatch('REJECT')}
-            disabled={availability.rejectBatchDisabled}
-          >
-            {t('actions.rejectBatch')}
-            </Button>
-            <Button
-            type="button"
-            variant="outline-secondary"
-            onClick={() => setBatchIds([])}
-            disabled={availability.clearBatchDisabled}
-          >
-            {t('actions.clearBatch')}
-            </Button>
-            <Button
-              type="button"
-              variant="outline-info"
-              onClick={() => void previewBatchMove()}
-              disabled={availability.previewBatchDisabled}
-            >
-              {previewingBatch ? t('actions.previewing') : t('actions.previewBatch')}
-            </Button>
-            <Button
-              type="button"
-              variant="info"
-              onClick={() => void executeBatchMove()}
-              disabled={availability.executeBatchDisabled}
-            >
-              {executingBatch ? t('actions.executing') : t('actions.executeBatch')}
-            </Button>
-          </Stack>
+          <section className="border border-2 border-secondary-subtle rounded p-3 mt-2">
+            <h3 className="h6 mb-2">{t('actions.quickPanel')}</h3>
+            <Stack direction="horizontal" className="flex-wrap gap-2">
+              <Button type="button" variant="outline-primary" onClick={focusPending}>
+                {t('actions.focusPending')}
+              </Button>
+              <Button type="button" variant={batchOnly ? 'primary' : 'outline-primary'} onClick={toggleBatchOnly}>
+                {batchOnly ? t('actions.batchOnlyOn') : t('actions.batchOnlyOff')}
+              </Button>
+              <Button
+                type="button"
+                variant="outline-success"
+                onClick={() => applyDecisionToVisible('KEEP')}
+                disabled={availability.keepVisibleDisabled}
+              >
+                {t('actions.keepVisible')}
+              </Button>
+              <Button
+                type="button"
+                variant="outline-danger"
+                onClick={() => applyDecisionToVisible('REJECT')}
+                disabled={availability.rejectVisibleDisabled}
+              >
+                {t('actions.rejectVisible')}
+              </Button>
+              <Button type="button" variant="outline-secondary" onClick={clearFilters}>
+                {t('actions.clearFilters')}
+              </Button>
+            </Stack>
+          </section>
+          <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
+            <h3 className="h6 mb-2">{t('actions.batchPanel')}</h3>
+            <Stack direction="horizontal" className="flex-wrap align-items-center gap-2">
+              <p className="mb-0 fw-semibold text-secondary">
+                {t('actions.batchSelected', { count: batchIds.length })}
+              </p>
+              <Button
+                type="button"
+                variant="outline-success"
+                onClick={() => applyDecisionToBatch('KEEP')}
+                disabled={availability.keepBatchDisabled}
+              >
+                {t('actions.keepBatch')}
+              </Button>
+              <Button
+                type="button"
+                variant="outline-danger"
+                onClick={() => applyDecisionToBatch('REJECT')}
+                disabled={availability.rejectBatchDisabled}
+              >
+                {t('actions.rejectBatch')}
+              </Button>
+              <Button
+                type="button"
+                variant="outline-secondary"
+                onClick={() => setBatchIds([])}
+                disabled={availability.clearBatchDisabled}
+              >
+                {t('actions.clearBatch')}
+              </Button>
+              <Button
+                type="button"
+                variant="outline-info"
+                onClick={() => void previewBatchMove()}
+                disabled={availability.previewBatchDisabled}
+              >
+                {previewingBatch ? t('actions.previewing') : t('actions.previewBatch')}
+              </Button>
+              <Button
+                type="button"
+                variant="info"
+                onClick={() => void executeBatchMove()}
+                disabled={availability.executeBatchDisabled}
+              >
+                {executingBatch ? t('actions.executing') : t('actions.executeBatch')}
+              </Button>
+            </Stack>
+          </section>
           {previewStatus ? (
             <p
               data-testid="batch-preview-status"
