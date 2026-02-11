@@ -122,6 +122,23 @@ describe('App', () => {
     expect(within(getAssetsPanel()).getByText('A-003 - DECIDED_KEEP')).toBeInTheDocument()
   })
 
+  it('filters visible assets to current batch with batch-only toggle', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
+    await user.keyboard('{/Shift}')
+    await user.click(screen.getByRole('button', { name: 'Batch seul: OFF' }))
+
+    expect(screen.getByRole('heading', { name: 'Assets (2)' })).toBeInTheDocument()
+    expect(within(getAssetsPanel()).getByText('interview-camera-a.mov')).toBeInTheDocument()
+    expect(within(getAssetsPanel()).getByText('behind-the-scenes.jpg')).toBeInTheDocument()
+    expect(within(getAssetsPanel()).queryByText('ambiance-plateau.wav')).not.toBeInTheDocument()
+  })
+
   it('previews selected batch with API call', async () => {
     const user = userEvent.setup()
     const fetchSpy = vi
@@ -501,6 +518,21 @@ describe('App', () => {
     await user.keyboard('/')
 
     expect(searchInput).toHaveFocus()
+  })
+
+  it('toggles batch-only mode with b shortcut', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.keyboard('{/Shift}')
+    await user.keyboard('b')
+
+    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+    expect(within(getAssetsPanel()).getByText('interview-camera-a.mov')).toBeInTheDocument()
+    expect(within(getAssetsPanel()).queryByText('ambiance-plateau.wav')).not.toBeInTheDocument()
   })
 
   it('toggles shortcuts help panel with dedicated button', async () => {
