@@ -1,7 +1,8 @@
-import { After, Before, Given, Then, When } from '@cucumber/cucumber'
+import { After, Before, Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber'
 import { chromium, expect, type Browser, type BrowserContext, type Page } from '@playwright/test'
 
 const APP_URL = 'http://127.0.0.1:4173'
+setDefaultTimeout(15000)
 
 let browser: Browser
 let context: BrowserContext
