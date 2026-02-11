@@ -54,12 +54,14 @@
 - `b`: bascule filtre "batch seul".
 - `n`: ouvre le prochain asset à traiter et sort des filtres actifs.
 - `d`: alterne la densité de liste (confortable/compacte).
+- `l`: vide le journal d'actions.
 - `1` / `2` / `3`: applique les presets rapides enregistrés.
 - `/`: focus direct sur la recherche.
 - `Shift+Flèches`: extension de sélection batch.
 - `Shift+Entrée`: exécuter immédiatement un batch en attente.
 - `Ctrl/Cmd+A`: ajouter visibles au batch.
 - `Ctrl/Cmd+Z`: annuler dernière action.
+- `Escape`: ferme la sélection, ou vide la recherche si le focus est dans le champ.
 
 ## Erreurs fréquentes
 

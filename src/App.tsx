@@ -911,6 +911,17 @@ function App() {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (isTypingContext(event.target)) {
+        const target = event.target
+        if (
+          event.key === 'Escape' &&
+          target instanceof HTMLInputElement &&
+          target.id === 'asset-search' &&
+          target.value !== ''
+        ) {
+          event.preventDefault()
+          setSearch('')
+          return
+        }
         return
       }
 
@@ -969,6 +980,11 @@ function App() {
         if (key === 'd') {
           event.preventDefault()
           toggleDensityMode()
+          return
+        }
+        if (key === 'l') {
+          event.preventDefault()
+          clearActivityLog()
           return
         }
         if (key === '1') {
@@ -1063,6 +1079,7 @@ function App() {
     toggleDensityMode,
     pendingBatchExecution,
     executeBatchMove,
+    clearActivityLog,
     selectAllVisibleInBatch,
     selectVisibleByOffset,
     toggleBatchForSelectedAsset,

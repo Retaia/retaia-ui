@@ -729,6 +729,19 @@ describe('App', () => {
     expect(within(activityPanel).getByText('Aucune action pour le moment.')).toBeInTheDocument()
   })
 
+  it('clears activity log with l shortcut', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
+    const activityPanel = screen.getByLabelText("Journal d'actions")
+    expect(within(activityPanel).getByText('KEEP visibles (3)')).toBeInTheDocument()
+
+    await user.keyboard('l')
+
+    expect(within(activityPanel).getByText('Aucune action pour le moment.')).toBeInTheDocument()
+  })
+
   it('supports undo with Ctrl+Z shortcut', async () => {
     const user = userEvent.setup()
 
@@ -817,6 +830,21 @@ describe('App', () => {
     await user.keyboard('{Control>}a{/Control}')
 
     expect(screen.getByText('Batch sélectionné: 1')).toBeInTheDocument()
+  })
+
+  it('clears search with Escape when search input is focused', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const searchInput = screen.getByLabelText('Recherche')
+    await user.click(searchInput)
+    await user.keyboard('behind')
+    expect(searchInput).toHaveValue('behind')
+    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+
+    await user.keyboard('{Escape}')
+    expect(searchInput).toHaveValue('')
+    expect(screen.getByRole('heading', { name: 'Assets (3)' })).toBeInTheDocument()
   })
 
   it('selects a range in batch with Shift+ArrowDown', async () => {
