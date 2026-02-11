@@ -15,6 +15,19 @@ type ReportErrorRow = {
   reason: string
 }
 
+function getStatusVariant(status: string) {
+  if (status === 'DONE') {
+    return 'success'
+  }
+  if (status === 'PARTIAL') {
+    return 'warning'
+  }
+  if (status === 'FAILED') {
+    return 'danger'
+  }
+  return 'secondary'
+}
+
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return null
@@ -52,10 +65,16 @@ export function BatchReportView({ report, labels }: BatchReportViewProps) {
   const status = typeof parsed.status === 'string' ? parsed.status : 'UNKNOWN'
   const moved = asNumber(parsed.moved ?? parsed.moved_count)
   const failed = asNumber(parsed.failed ?? parsed.failed_count)
-  const errors = parseErrors(parsed)
+  const statusVariant = getStatusVariant(status)
+  const errors = parseErrors(parsed).sort((a, b) => a.assetId.localeCompare(b.assetId))
 
   return (
     <section className="mt-2" aria-label={labels.summary} data-testid="batch-report-summary">
+      <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
+        <span className={`badge text-bg-${statusVariant}`}>{status}</span>
+        <span className="badge text-bg-success">{`${labels.moved}: ${moved}`}</span>
+        <span className="badge text-bg-danger">{`${labels.failed}: ${failed}`}</span>
+      </div>
       <div className="table-responsive">
         <table className="table table-sm table-bordered align-middle mb-2">
           <thead>
@@ -75,7 +94,7 @@ export function BatchReportView({ report, labels }: BatchReportViewProps) {
         </table>
       </div>
 
-      <h4 className="h6 mt-3 mb-2">{labels.errors}</h4>
+      <h4 className="h6 mt-3 mb-2">{`${labels.errors} (${errors.length})`}</h4>
       {errors.length === 0 ? (
         <p className="small mb-0 text-secondary">{labels.noErrors}</p>
       ) : (
