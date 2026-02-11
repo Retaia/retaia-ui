@@ -11,6 +11,11 @@
 - Tests TDD: Vitest + Testing Library + MSW
 - Tests BDD: Cucumber.js + Playwright (TypeScript)
 
+## Règle CSS
+
+- Bootstrap en priorité (components + utility classes).
+- CSS custom à éviter; ne garder que les variables Sass de thème global quand nécessaire.
+
 ## État actuel
 
 Présent:

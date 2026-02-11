@@ -16,18 +16,24 @@ export function AssetList({
   onAssetClick,
 }: AssetListProps) {
   if (assets.length === 0) {
-    return <p className="empty-state">Aucun asset ne correspond aux filtres.</p>
+    return <p className="text-secondary mb-0">Aucun asset ne correspond aux filtres.</p>
   }
 
   return (
-    <ul className="asset-list">
+    <ul className="list-group list-group-flush">
       {assets.map((asset) => (
         <li
           key={asset.id}
           className={[
-            'asset-row',
-            selectedAssetId === asset.id ? 'asset-row--selected' : '',
-            batchIds.includes(asset.id) ? 'asset-row--batch' : '',
+            'list-group-item',
+            'list-group-item-action',
+            'd-flex',
+            'justify-content-between',
+            'align-items-center',
+            'gap-3',
+            'py-3',
+            selectedAssetId === asset.id ? 'active border-primary' : '',
+            batchIds.includes(asset.id) ? 'list-group-item-warning' : '',
           ]
             .join(' ')
             .trim()}
@@ -40,17 +46,21 @@ export function AssetList({
           }}
           role="button"
           tabIndex={0}
+          aria-pressed={selectedAssetId === asset.id}
         >
-          <div className="asset-row-main">
-            <strong>{asset.name}</strong>
-            <p>
+          <div className="flex-grow-1">
+            <strong className="d-block">{asset.name}</strong>
+            <p className={selectedAssetId === asset.id ? 'mb-0 text-white-50' : 'mb-0 text-secondary'}>
               {asset.id} - {asset.state}
             </p>
-            {batchIds.includes(asset.id) ? <small className="batch-chip">Batch</small> : null}
+            {batchIds.includes(asset.id) ? (
+              <span className="badge text-bg-warning mt-2">Batch</span>
+            ) : null}
           </div>
-          <div className="decision-actions">
+          <div className="d-flex gap-2 flex-wrap">
             <button
               type="button"
+              className="btn btn-sm btn-outline-success"
               onClick={(event) => {
                 event.stopPropagation()
                 onDecision(asset.id, 'KEEP')
@@ -61,6 +71,7 @@ export function AssetList({
             </button>
             <button
               type="button"
+              className="btn btn-sm btn-outline-danger"
               onClick={(event) => {
                 event.stopPropagation()
                 onDecision(asset.id, 'REJECT')
@@ -71,6 +82,7 @@ export function AssetList({
             </button>
             <button
               type="button"
+              className="btn btn-sm btn-outline-secondary"
               onClick={(event) => {
                 event.stopPropagation()
                 onDecision(asset.id, 'CLEAR')

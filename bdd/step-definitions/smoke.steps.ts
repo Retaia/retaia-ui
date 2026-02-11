@@ -47,7 +47,7 @@ Then('le batch sélectionné affiche {int}', async (size: number) => {
 
 When('je rejette le premier asset de la liste', async () => {
   const assetsPanel = page.locator('section[aria-label="Liste des assets"]')
-  const firstRow = assetsPanel.locator('li.asset-row').first()
+  const firstRow = assetsPanel.locator('li.list-group-item').first()
   await firstRow.getByRole('button', { name: 'REJECT' }).click()
 })
 
@@ -57,7 +57,7 @@ Then('l\'état {string} est visible', async (stateLabel: string) => {
     throw new Error(`Format d'état invalide: ${stateLabel}`)
   }
   const assetsPanel = page.locator('section[aria-label="Liste des assets"]')
-  const row = assetsPanel.locator('li.asset-row', { hasText: assetId })
+  const row = assetsPanel.locator('li.list-group-item', { hasText: assetId })
   await expect(row).toContainText(expectedState)
 })
 
