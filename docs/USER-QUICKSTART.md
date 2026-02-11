@@ -16,6 +16,7 @@
 - `Exécuter maintenant`: confirme immédiatement sans attendre la fin des 6s.
 - le rapport se charge automatiquement après exécution.
 - `Rafraîchir rapport`: relancer la lecture du rapport si besoin.
+- `Exporter JSON` / `Exporter CSV`: exporter le rapport batch courant.
 
 ## Vues enregistrées
 
