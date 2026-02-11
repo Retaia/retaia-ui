@@ -326,6 +326,22 @@ describe('App', () => {
     expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
   })
 
+  it('resets batch-only mode when opening next pending with n', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
+    await user.keyboard('{/Shift}')
+    await user.keyboard('b')
+    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+
+    await user.keyboard('n')
+
+    expect(screen.getByRole('heading', { name: 'Assets (3)' })).toBeInTheDocument()
+    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
+  })
+
   it('opens first visible asset with Enter shortcut', async () => {
     const user = userEvent.setup()
 

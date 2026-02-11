@@ -57,6 +57,15 @@ Feature: Workflow de review desktop-like
     When j'ouvre le prochain asset à traiter via la touche n
     Then le panneau détail affiche l'asset "interview-camera-a.mov"
 
+  Scenario: Sortir du mode batch-only puis ouvrir le prochain asset via n
+    Given je suis sur la page d'accueil
+    When je fais Maj+clic sur l'asset "behind-the-scenes.jpg"
+    And j'appuie sur la touche "b"
+    Then le titre principal "Assets (1)" est visible
+    When j'appuie sur la touche "n"
+    Then le titre principal "Assets (3)" est visible
+    And le panneau détail affiche l'asset "interview-camera-a.mov"
+
   Scenario: Vider le journal d'actions
     Given je suis sur la page d'accueil
     When je clique sur le bouton "KEEP visibles"

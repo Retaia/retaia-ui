@@ -27,9 +27,8 @@
 - `j` / `k`: navigation.
 - `?`: ouvrir/fermer l'aide des raccourcis.
 - `p`: filtre rapide sur les assets à traiter.
-- `n`: ouvre le prochain asset à traiter.
 - `b`: bascule filtre "batch seul".
-- `n`: ouvre le prochain asset à traiter.
+- `n`: ouvre le prochain asset à traiter et sort des filtres actifs.
 - `/`: focus direct sur la recherche.
 - `Shift+Flèches`: extension de sélection batch.
 - `Ctrl/Cmd+A`: ajouter visibles au batch.
