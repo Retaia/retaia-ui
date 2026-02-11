@@ -113,4 +113,33 @@ describe('api client', () => {
       expect.objectContaining({ code: 'FORBIDDEN_SCOPE' }),
     )
   })
+
+  it('calls purge preview endpoint for one asset', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await api.previewAssetPurge('A-003')
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/assets/A-003/purge/preview',
+      expect.objectContaining({
+        method: 'POST',
+      }),
+    )
+  })
+
+  it('sends idempotency key for purge execution', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await api.executeAssetPurge('A-003', 'idem-purge-1')
+
+    const requestInit = fetchMock.mock.calls[0]?.[1]
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/assets/A-003/purge', expect.any(Object))
+    expect(requestInit?.headers).toMatchObject({
+      'Idempotency-Key': 'idem-purge-1',
+      'Content-Type': 'application/json',
+    })
+    expect(requestInit?.body).toBe(JSON.stringify({ confirm: true }))
+  })
 })

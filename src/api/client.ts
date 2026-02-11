@@ -17,6 +17,8 @@ type MoveExecutePayload =
 type MoveExecuteResponse = Record<string, unknown> | void
 type MoveStatusResponse =
   paths['/batches/moves/{batch_id}']['get']['responses'][200]['content']['application/json']
+type PurgeExecutePayload =
+  paths['/assets/{uuid}/purge']['post']['requestBody']['content']['application/json']
 
 export type ApiErrorPayload = components['schemas']['ErrorResponse']
 
@@ -155,6 +157,20 @@ export function createApiClient(
 
     getMoveBatchReport: (batchId: string) =>
       request<MoveStatusResponse>(`/batches/moves/${batchId}`),
+
+    previewAssetPurge: (assetId: string) =>
+      request<void>(`/assets/${assetId}/purge/preview`, {
+        method: 'POST',
+      }),
+
+    executeAssetPurge: (assetId: string, idempotencyKey: string) =>
+      request<void>(`/assets/${assetId}/purge`, {
+        method: 'POST',
+        headers: {
+          'Idempotency-Key': idempotencyKey,
+        },
+        body: JSON.stringify({ confirm: true } satisfies PurgeExecutePayload),
+      }),
   }
 }
 

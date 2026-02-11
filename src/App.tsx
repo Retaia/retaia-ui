@@ -69,6 +69,13 @@ function App() {
   const [reportLoading, setReportLoading] = useState(false)
   const [reportStatus, setReportStatus] = useState<string | null>(null)
   const [reportData, setReportData] = useState<unknown>(null)
+  const [previewingPurge, setPreviewingPurge] = useState(false)
+  const [executingPurge, setExecutingPurge] = useState(false)
+  const [purgePreviewAssetId, setPurgePreviewAssetId] = useState<string | null>(null)
+  const [purgeStatus, setPurgeStatus] = useState<{
+    kind: 'success' | 'error'
+    message: string
+  } | null>(null)
   const activityId = useRef(1)
 
   const visibleAssets = useMemo(() => {
@@ -377,6 +384,71 @@ function App() {
     }
   }, [apiClient, reportBatchId, reportLoading, t])
 
+  const previewSelectedAssetPurge = useCallback(async () => {
+    if (!selectedAsset || selectedAsset.state !== 'DECIDED_REJECT' || previewingPurge) {
+      return
+    }
+
+    setPreviewingPurge(true)
+    setPurgeStatus(null)
+
+    try {
+      await apiClient.previewAssetPurge(selectedAsset.id)
+      setPurgePreviewAssetId(selectedAsset.id)
+      setPurgeStatus({
+        kind: 'success',
+        message: t('actions.purgePreviewReady', { id: selectedAsset.id }),
+      })
+    } catch (error) {
+      setPurgePreviewAssetId(null)
+      setPurgeStatus({
+        kind: 'error',
+        message: t('actions.purgePreviewError', {
+          message: mapApiErrorToMessage(error, t),
+        }),
+      })
+    } finally {
+      setPreviewingPurge(false)
+    }
+  }, [apiClient, previewingPurge, selectedAsset, t])
+
+  const executeSelectedAssetPurge = useCallback(async () => {
+    if (
+      !selectedAsset ||
+      selectedAsset.state !== 'DECIDED_REJECT' ||
+      purgePreviewAssetId !== selectedAsset.id ||
+      executingPurge
+    ) {
+      return
+    }
+
+    setExecutingPurge(true)
+    setPurgeStatus(null)
+
+    try {
+      await apiClient.executeAssetPurge(selectedAsset.id, crypto.randomUUID())
+      recordAction(t('activity.purge', { id: selectedAsset.id }))
+      setAssets((current) => current.filter((asset) => asset.id !== selectedAsset.id))
+      setBatchIds((current) => current.filter((id) => id !== selectedAsset.id))
+      setSelectedAssetId((current) => (current === selectedAsset.id ? null : current))
+      setSelectionAnchorId((current) => (current === selectedAsset.id ? null : current))
+      setPurgePreviewAssetId(null)
+      setPurgeStatus({
+        kind: 'success',
+        message: t('actions.purgeResult', { id: selectedAsset.id }),
+      })
+    } catch (error) {
+      setPurgeStatus({
+        kind: 'error',
+        message: t('actions.purgeError', {
+          message: mapApiErrorToMessage(error, t),
+        }),
+      })
+    } finally {
+      setExecutingPurge(false)
+    }
+  }, [apiClient, executingPurge, purgePreviewAssetId, recordAction, selectedAsset, t])
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null
@@ -476,6 +548,13 @@ function App() {
       target.focus()
     }
   }, [selectedAssetId, visibleAssets])
+
+  useEffect(() => {
+    if (!selectedAsset || selectedAsset.id === purgePreviewAssetId) {
+      return
+    }
+    setPurgePreviewAssetId(null)
+  }, [purgePreviewAssetId, selectedAsset])
 
   return (
     <Container as="main" className="py-4">
@@ -800,10 +879,51 @@ function App() {
                       CLEAR
                     </Button>
                   </Stack>
+                  <section className="border border-2 border-danger-subtle rounded p-3 mt-3">
+                    <h3 className="h6 mb-2">{t('actions.purgeTitle')}</h3>
+                    <p className="small text-secondary mb-2">{t('actions.purgeHelp')}</p>
+                    <Stack direction="horizontal" className="flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant="outline-danger"
+                        onClick={() => void previewSelectedAssetPurge()}
+                        disabled={selectedAsset.state !== 'DECIDED_REJECT' || previewingPurge}
+                      >
+                        {previewingPurge ? t('actions.purgePreviewing') : t('actions.purgePreview')}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="danger"
+                        onClick={() => void executeSelectedAssetPurge()}
+                        disabled={
+                          selectedAsset.state !== 'DECIDED_REJECT' ||
+                          purgePreviewAssetId !== selectedAsset.id ||
+                          executingPurge
+                        }
+                      >
+                        {executingPurge ? t('actions.purging') : t('actions.purgeConfirm')}
+                      </Button>
+                    </Stack>
+                  </section>
                 </div>
               ) : (
                 <p className="text-secondary mb-0">{t('detail.empty')}</p>
               )}
+              {purgeStatus ? (
+                <p
+                  data-testid="asset-purge-status"
+                  role="status"
+                  aria-live="polite"
+                  className={[
+                    'small',
+                    'mt-3',
+                    'mb-0',
+                    purgeStatus.kind === 'success' ? 'text-success' : 'text-danger',
+                  ].join(' ')}
+                >
+                  {purgeStatus.message}
+                </p>
+              ) : null}
             </Card.Body>
           </Card>
         </Col>
