@@ -24,6 +24,7 @@
 ## Raccourcis
 
 - `j` / `k`: navigation.
+- `?`: ouvrir/fermer l'aide des raccourcis.
 - `p`: filtre rapide sur les assets à traiter.
 - `/`: focus direct sur la recherche.
 - `Shift+Flèches`: extension de sélection batch.
