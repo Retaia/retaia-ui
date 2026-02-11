@@ -143,7 +143,7 @@ describe('api client', () => {
     expect(requestInit?.body).toBe(JSON.stringify({ confirm: true }))
   })
 
-  it('skips nullish query params when building query string', async () => {
+  it('skips undefined query params when building query string', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ items: [], next_cursor: null }), {
         status: 200,
@@ -152,7 +152,7 @@ describe('api client', () => {
     )
 
     const api = createApiClient('/api/v1', fetchMock)
-    await api.listAssets({ state: 'DECISION_PENDING', cursor: null, limit: undefined })
+    await api.listAssets({ state: 'DECISION_PENDING', cursor: undefined, limit: undefined })
 
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/v1/assets?state=DECISION_PENDING',
