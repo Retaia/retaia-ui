@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { AssetList } from './components/AssetList'
 import { ReviewSummary } from './components/ReviewSummary'
 import { ReviewToolbar } from './components/ReviewToolbar'
-import { ApiError, createApiClient } from './api/client'
+import { createApiClient } from './api/client'
+import { mapApiErrorToMessage } from './api/errorMapping'
 import { INITIAL_ASSETS } from './data/mockAssets'
 import {
   type Asset,
@@ -285,13 +286,11 @@ function App() {
         }),
       })
     } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? `${error.payload?.code ?? 'UNKNOWN'} (${error.status})`
-          : 'UNKNOWN'
       setPreviewStatus({
         kind: 'error',
-        message: t('actions.previewError', { message }),
+        message: t('actions.previewError', {
+          message: mapApiErrorToMessage(error, t),
+        }),
       })
     } finally {
       setPreviewingBatch(false)
@@ -324,13 +323,11 @@ function App() {
         message: t('actions.executeResult'),
       })
     } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? `${error.payload?.code ?? 'UNKNOWN'} (${error.status})`
-          : 'UNKNOWN'
       setExecuteStatus({
         kind: 'error',
-        message: t('actions.executeError', { message }),
+        message: t('actions.executeError', {
+          message: mapApiErrorToMessage(error, t),
+        }),
       })
     } finally {
       setExecutingBatch(false)
@@ -350,11 +347,11 @@ function App() {
       setReportData(JSON.stringify(report, null, 2))
       setReportStatus(t('actions.reportReady', { batchId: reportBatchId }))
     } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? `${error.payload?.code ?? 'UNKNOWN'} (${error.status})`
-          : 'UNKNOWN'
-      setReportStatus(t('actions.reportError', { message }))
+      setReportStatus(
+        t('actions.reportError', {
+          message: mapApiErrorToMessage(error, t),
+        }),
+      )
     } finally {
       setReportLoading(false)
     }
