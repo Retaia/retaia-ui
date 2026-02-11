@@ -174,6 +174,7 @@ describe('App', () => {
         "Prévisualisation en échec: Droit insuffisant pour cette action (scope manquant).",
       ),
     ).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent('scope manquant')
     fetchSpy.mockRestore()
   })
 
@@ -216,6 +217,13 @@ describe('App', () => {
     expect(reportSummary).toBeInTheDocument()
     expect(within(reportSummary).getAllByText('DONE').length).toBeGreaterThan(0)
     expect(within(reportSummary).getByText('2')).toBeInTheDocument()
+    const liveRegions = screen.getAllByRole('status')
+    expect(liveRegions.some((node) => node.textContent?.includes('Exécution du batch acceptée'))).toBe(
+      true,
+    )
+    expect(liveRegions.some((node) => node.textContent?.includes('Rapport chargé pour batch-123'))).toBe(
+      true,
+    )
     fetchSpy.mockRestore()
   })
 

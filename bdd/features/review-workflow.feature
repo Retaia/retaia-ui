@@ -40,3 +40,14 @@ Feature: Workflow de review desktop-like
     Then l'historique disponible affiche 1
     When je clique sur le bouton "Réinitialiser filtres"
     Then l'historique disponible affiche 1
+
+  Scenario: Ajouter au batch via raccourci Shift+Espace
+    Given je suis sur la page d'accueil
+    When je clique sur l'asset "interview-camera-a.mov"
+    And j'ajoute l'asset sélectionné au batch via Shift+Espace
+    Then le batch sélectionné affiche 1
+
+  Scenario: Sélectionner tous les assets visibles via Ctrl/Cmd+A
+    Given je suis sur la page d'accueil
+    When je sélectionne tous les assets visibles via Ctrl/Cmd+A
+    Then le batch sélectionné affiche 3
