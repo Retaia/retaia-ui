@@ -795,6 +795,21 @@ describe('App', () => {
     expect(screen.getByText('Batch sélectionné: 1')).toBeInTheDocument()
   })
 
+  it('clears search with Escape when search input is focused', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const searchInput = screen.getByLabelText('Recherche')
+    await user.click(searchInput)
+    await user.keyboard('behind')
+    expect(searchInput).toHaveValue('behind')
+    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+
+    await user.keyboard('{Escape}')
+    expect(searchInput).toHaveValue('')
+    expect(screen.getByRole('heading', { name: 'Assets (3)' })).toBeInTheDocument()
+  })
+
   it('selects a range in batch with Shift+ArrowDown', async () => {
     const user = userEvent.setup()
 

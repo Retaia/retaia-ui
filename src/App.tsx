@@ -911,6 +911,17 @@ function App() {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (isTypingContext(event.target)) {
+        const target = event.target
+        if (
+          event.key === 'Escape' &&
+          target instanceof HTMLInputElement &&
+          target.id === 'asset-search' &&
+          target.value !== ''
+        ) {
+          event.preventDefault()
+          setSearch('')
+          return
+        }
         return
       }
 

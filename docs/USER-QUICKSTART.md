@@ -59,6 +59,7 @@
 - `Shift+Flèches`: extension de sélection batch.
 - `Ctrl/Cmd+A`: ajouter visibles au batch.
 - `Ctrl/Cmd+Z`: annuler dernière action.
+- `Escape`: ferme la sélection, ou vide la recherche si le focus est dans le champ.
 
 ## Erreurs fréquentes
 
