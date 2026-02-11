@@ -77,6 +77,7 @@ function App() {
     kind: 'success' | 'error'
     message: string
   } | null>(null)
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
   const activityId = useRef(1)
 
   const visibleAssets = useMemo(() => {
@@ -528,6 +529,12 @@ function App() {
         }
       }
 
+      if (event.key === '?') {
+        event.preventDefault()
+        setShowShortcutsHelp((current) => !current)
+        return
+      }
+
       if (event.key === 'j') {
         event.preventDefault()
         selectVisibleByOffset(1)
@@ -814,9 +821,24 @@ function App() {
               </ul>
             )}
           </section>
-          <p className="small text-secondary mb-0 mt-3">
-            {t('actions.shortcuts')}
-          </p>
+          <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
+            <Stack direction="horizontal" className="justify-content-between align-items-center gap-2">
+              <h3 className="h6 mb-0">{t('actions.shortcutsTitle')}</h3>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline-secondary"
+                onClick={() => setShowShortcutsHelp((current) => !current)}
+              >
+                {showShortcutsHelp
+                  ? t('actions.shortcutsToggleHide')
+                  : t('actions.shortcutsToggleShow')}
+              </Button>
+            </Stack>
+            {showShortcutsHelp ? (
+              <p className="small text-secondary mb-0 mt-2">{t('actions.shortcuts')}</p>
+            ) : null}
+          </section>
         </Card.Body>
       </Card>
 
