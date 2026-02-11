@@ -25,6 +25,7 @@
 
 ## Raccourcis
 
+- au premier lancement, le panneau raccourcis s'ouvre automatiquement.
 - `j` / `k`: navigation.
 - `?`: ouvrir/fermer l'aide des raccourcis.
 - `p`: filtre rapide sur les assets à traiter.

@@ -625,6 +625,7 @@ describe('App', () => {
   it('toggles shortcuts help panel with dedicated button', async () => {
     const user = userEvent.setup()
 
+    window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
     render(<App />)
 
     expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
@@ -637,11 +638,26 @@ describe('App', () => {
   it('toggles shortcuts help panel with question mark shortcut', async () => {
     const user = userEvent.setup()
 
+    window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
     render(<App />)
 
     await user.keyboard('?')
     expect(screen.getByText(/Raccourcis desktop:/)).toBeInTheDocument()
     await user.keyboard('?')
+    expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
+  })
+
+  it('opens shortcuts help automatically on first launch', () => {
+    window.localStorage.removeItem('retaia_ui_shortcuts_help_seen')
+    render(<App />)
+
+    expect(screen.getByText(/Raccourcis desktop:/)).toBeInTheDocument()
+  })
+
+  it('keeps shortcuts help closed by default once seen', () => {
+    window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
+    render(<App />)
+
     expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
   })
 
