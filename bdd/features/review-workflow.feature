@@ -72,6 +72,12 @@ Feature: Workflow de review desktop-like
     And je clique sur le bouton "Vider journal"
     Then le message "Aucune action pour le moment." est visible
 
+  Scenario: Vider le journal avec le raccourci l
+    Given je suis sur la page d'accueil
+    When je clique sur le bouton "KEEP visibles"
+    And j'appuie sur la touche "l"
+    Then le message "Aucune action pour le moment." est visible
+
   Scenario: Annuler une exécution batch avant envoi API
     Given je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
@@ -113,10 +119,22 @@ Feature: Workflow de review desktop-like
     When j'appuie sur la touche "d"
     Then le bouton "Densité: compacte" est visible
 
+  Scenario: Appliquer un preset rapide au clavier
+    Given je suis sur la page d'accueil
+    When j'appuie sur la touche "2"
+    Then le titre principal "Assets (1)" est visible
+    And l'état "A-003 - DECIDED_REJECT" est visible
+
   Scenario: Focus recherche avec slash
     Given je suis sur la page d'accueil
     When j'appuie sur la touche "/"
     Then le champ de recherche a le focus
+
+  Scenario: Vider la recherche avec Escape
+    Given je suis sur la page d'accueil
+    When je recherche "behind"
+    And j'appuie sur la touche "Escape"
+    Then le titre principal "Assets (3)" est visible
 
   Scenario: Fermer la sélection au clavier
     Given je suis sur la page d'accueil

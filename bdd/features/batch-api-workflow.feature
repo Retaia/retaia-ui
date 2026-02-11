@@ -37,3 +37,14 @@ Feature: Workflow batch API
     And je clique sur le bouton "Exécuter maintenant"
     Then le statut d'exécution contient "acceptée"
     And le rapport batch affiche le statut "DONE"
+
+  Scenario: Exporter le rapport batch en JSON et CSV
+    Given je suis sur la page d'accueil
+    When je fais Maj+clic sur l'asset "interview-camera-a.mov"
+    And je fais Maj+clic sur l'asset "behind-the-scenes.jpg"
+    And je clique sur le bouton "Exécuter batch"
+    And je clique sur le bouton "Exécuter maintenant"
+    And je clique sur le bouton "Exporter JSON"
+    Then le message "Rapport exporté (JSON)." est visible
+    When je clique sur le bouton "Exporter CSV"
+    Then le message "Rapport exporté (CSV)." est visible
