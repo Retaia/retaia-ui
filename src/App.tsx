@@ -18,6 +18,7 @@ import {
   updateAssetsState,
 } from './domain/assets'
 import { type Locale } from './i18n/resources'
+import { isTypingContext } from './ui/keyboard'
 
 function App() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
@@ -451,15 +452,7 @@ function App() {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null
-      const isTypingContext =
-        !!target &&
-        (target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.tagName === 'SELECT' ||
-          target.isContentEditable)
-
-      if (isTypingContext) {
+      if (isTypingContext(event.target)) {
         return
       }
 
@@ -536,15 +529,8 @@ function App() {
     if (!target) {
       return
     }
-    const activeElement = document.activeElement as HTMLElement | null
-    const isTypingContext =
-      !!activeElement &&
-      (activeElement.tagName === 'INPUT' ||
-        activeElement.tagName === 'TEXTAREA' ||
-        activeElement.tagName === 'SELECT' ||
-        activeElement.isContentEditable)
-
-    if (!isTypingContext && activeElement !== target) {
+    const activeElement = document.activeElement
+    if (!isTypingContext(activeElement) && activeElement !== target) {
       target.focus()
     }
   }, [selectedAssetId, visibleAssets])
