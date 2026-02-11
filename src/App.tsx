@@ -25,6 +25,7 @@ import { type Locale } from './i18n/resources'
 import { isTypingContext } from './ui/keyboard'
 
 const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
+const BATCH_EXECUTION_UNDO_WINDOW_MS = 6000
 const DENSITY_MODE_KEY = 'retaia_ui_density_mode'
 type DensityMode = 'COMFORTABLE' | 'COMPACT'
 const QUICK_FILTER_PRESET_KEY = 'retaia_ui_quick_filter_preset'
@@ -85,6 +86,10 @@ function App() {
   const [activityLog, setActivityLog] = useState<Array<{ id: number; label: string }>>([])
   const [previewingBatch, setPreviewingBatch] = useState(false)
   const [executingBatch, setExecutingBatch] = useState(false)
+  const [pendingBatchExecution, setPendingBatchExecution] = useState<{
+    assetIds: string[]
+    expiresAt: number
+  } | null>(null)
   const [previewStatus, setPreviewStatus] = useState<{
     kind: 'success' | 'error'
     message: string
@@ -107,6 +112,7 @@ function App() {
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
   const [densityMode, setDensityMode] = useState<DensityMode>('COMFORTABLE')
   const activityId = useRef(1)
+  const pendingBatchExecutionTimer = useRef<number | null>(null)
 
   const visibleAssets = useMemo(() => {
     const filtered = filterAssets(assets, filter, search, {
@@ -153,6 +159,7 @@ function App() {
         batchCount: batchIds.length,
         previewingBatch,
         executingBatch,
+        schedulingBatchExecution: !!pendingBatchExecution,
         reportBatchId,
         reportLoading,
         undoCount: undoStack.length,
@@ -167,6 +174,7 @@ function App() {
       batchIds.length,
       previewingBatch,
       executingBatch,
+      pendingBatchExecution,
       reportBatchId,
       reportLoading,
       undoStack.length,
@@ -207,6 +215,14 @@ function App() {
     }
   }, [])
 
+  useEffect(
+    () => () => {
+      if (pendingBatchExecutionTimer.current !== null) {
+        window.clearTimeout(pendingBatchExecutionTimer.current)
+      }
+    },
+    [],
+  )
   useEffect(() => {
     if (typeof window === 'undefined') {
       return
@@ -606,62 +622,123 @@ function App() {
     }
   }, [apiClient, batchIds.length, previewingBatch, t])
 
+  const runBatchExecution = useCallback(
+    async (assetIds: string[]) => {
+      if (assetIds.length === 0 || executingBatch) {
+        return
+      }
+
+      setExecutingBatch(true)
+      setExecuteStatus(null)
+      setRetryStatus(null)
+
+      try {
+        const response = await apiClient.executeMoveBatch(
+          {
+            mode: 'EXECUTE',
+            selection: { asset_ids: assetIds },
+          },
+          crypto.randomUUID(),
+        )
+        const batchId =
+          response && typeof response === 'object' && 'batch_id' in response
+            ? String(response.batch_id)
+            : null
+        setReportBatchId(batchId)
+        setExecuteStatus({
+          kind: 'success',
+          message: t('actions.executeResult'),
+        })
+        if (!batchId) {
+          return
+        }
+        setReportLoading(true)
+        setReportStatus(null)
+        try {
+          const report = await apiClient.getMoveBatchReport(batchId)
+          setReportData(report)
+          setReportStatus(t('actions.reportReady', { batchId }))
+        } catch (error) {
+          setReportStatus(
+            t('actions.reportError', {
+              message: mapApiErrorToMessage(error, t),
+            }),
+          )
+        } finally {
+          setReportLoading(false)
+        }
+      } catch (error) {
+        setExecuteStatus({
+          kind: 'error',
+          message: t('actions.executeError', {
+            message: mapApiErrorToMessage(error, t),
+          }),
+        })
+      } finally {
+        setExecutingBatch(false)
+        setRetryStatus(null)
+      }
+    },
+    [apiClient, executingBatch, t],
+  )
+
+  const cancelPendingBatchExecution = useCallback(() => {
+    if (!pendingBatchExecution) {
+      return
+    }
+    if (pendingBatchExecutionTimer.current !== null) {
+      window.clearTimeout(pendingBatchExecutionTimer.current)
+      pendingBatchExecutionTimer.current = null
+    }
+    setPendingBatchExecution(null)
+    setExecuteStatus({
+      kind: 'success',
+      message: t('actions.executeCanceled'),
+    })
+  }, [pendingBatchExecution, t])
+
   const executeBatchMove = useCallback(async () => {
-    if (batchIds.length === 0 || executingBatch) {
+    if (executingBatch) {
       return
     }
 
-    setExecutingBatch(true)
-    setExecuteStatus(null)
-    setRetryStatus(null)
-
-    try {
-      const response = await apiClient.executeMoveBatch(
-        {
-          mode: 'EXECUTE',
-          selection: { asset_ids: batchIds },
-        },
-        crypto.randomUUID(),
-      )
-      const batchId =
-        response && typeof response === 'object' && 'batch_id' in response
-          ? String(response.batch_id)
-          : null
-      setReportBatchId(batchId)
-      setExecuteStatus({
-        kind: 'success',
-        message: t('actions.executeResult'),
-      })
-      if (!batchId) {
-        return
+    if (pendingBatchExecution) {
+      if (pendingBatchExecutionTimer.current !== null) {
+        window.clearTimeout(pendingBatchExecutionTimer.current)
+        pendingBatchExecutionTimer.current = null
       }
-      setReportLoading(true)
-      setReportStatus(null)
-      try {
-        const report = await apiClient.getMoveBatchReport(batchId)
-        setReportData(report)
-        setReportStatus(t('actions.reportReady', { batchId }))
-      } catch (error) {
-        setReportStatus(
-          t('actions.reportError', {
-            message: mapApiErrorToMessage(error, t),
-          }),
-        )
-      } finally {
-        setReportLoading(false)
-      }
-    } catch (error) {
-      setExecuteStatus({
-        kind: 'error',
-        message: t('actions.executeError', {
-          message: mapApiErrorToMessage(error, t),
-        }),
-      })
-    } finally {
-      setExecutingBatch(false)
-      setRetryStatus(null)
+      const selection = pendingBatchExecution.assetIds
+      setPendingBatchExecution(null)
+      await runBatchExecution(selection)
+      return
     }
-  }, [apiClient, batchIds, executingBatch, t])
+
+    if (batchIds.length === 0) {
+      return
+    }
+
+    const selection = [...batchIds]
+    setExecuteStatus({
+      kind: 'success',
+      message: t('actions.executeQueued', {
+        seconds: Math.round(BATCH_EXECUTION_UNDO_WINDOW_MS / 1000),
+      }),
+    })
+    setPendingBatchExecution({
+      assetIds: selection,
+      expiresAt: Date.now() + BATCH_EXECUTION_UNDO_WINDOW_MS,
+    })
+    pendingBatchExecutionTimer.current = window.setTimeout(() => {
+      pendingBatchExecutionTimer.current = null
+      setPendingBatchExecution((current) => {
+        if (!current) {
+          return current
+        }
+        void runBatchExecution(current.assetIds)
+        return null
+      })
+    }, BATCH_EXECUTION_UNDO_WINDOW_MS)
+  }, [batchIds, executingBatch, pendingBatchExecution, runBatchExecution, t])
 
   const refreshBatchReport = useCallback(async () => {
     if (!reportBatchId || reportLoading) {
@@ -1110,7 +1187,11 @@ function App() {
                 onClick={() => void executeBatchMove()}
                 disabled={availability.executeBatchDisabled}
               >
-                {executingBatch ? t('actions.executing') : t('actions.executeBatch')}
+                {executingBatch
+                  ? t('actions.executing')
+                  : pendingBatchExecution
+                    ? t('actions.executeConfirmNow')
+                    : t('actions.executeBatch')}
               </Button>
             </Stack>
             <section className="mt-2" aria-label={t('actions.batchScope')}>
@@ -1129,6 +1210,26 @@ function App() {
               <p data-testid="batch-busy-status" className="small text-secondary mt-2 mb-0">
                 {t('actions.batchBusy')}
               </p>
+            ) : null}
+            {pendingBatchExecution ? (
+              <Stack direction="horizontal" className="flex-wrap gap-2 mt-2">
+                <p data-testid="batch-execute-undo-status" className="small text-warning mb-0">
+                  {t('actions.executeUndoWindow', {
+                    seconds: Math.max(
+                      0,
+                      Math.ceil((pendingBatchExecution.expiresAt - Date.now()) / 1000),
+                    ),
+                  })}
+                </p>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline-warning"
+                  onClick={cancelPendingBatchExecution}
+                >
+                  {t('actions.executeCancel')}
+                </Button>
+              </Stack>
             ) : null}
           </section>
           {previewStatus ? (

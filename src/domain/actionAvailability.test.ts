@@ -6,6 +6,7 @@ const baseInput = {
   batchCount: 1,
   previewingBatch: false,
   executingBatch: false,
+  schedulingBatchExecution: false,
   reportBatchId: 'b-1',
   reportLoading: false,
   undoCount: 1,
@@ -74,7 +75,7 @@ describe('getActionAvailability', () => {
     })
   })
 
-  it('disables batch decision/clear actions while preview or execute is running', () => {
+  it('disables batch decision/clear actions while preview, execute, or scheduling is active', () => {
     expect(
       getActionAvailability({
         ...baseInput,
@@ -95,6 +96,18 @@ describe('getActionAvailability', () => {
       keepBatchDisabled: true,
       rejectBatchDisabled: true,
       clearBatchDisabled: true,
+    })
+
+    expect(
+      getActionAvailability({
+        ...baseInput,
+        schedulingBatchExecution: true,
+      }),
+    ).toMatchObject({
+      keepBatchDisabled: true,
+      rejectBatchDisabled: true,
+      clearBatchDisabled: true,
+      previewBatchDisabled: true,
     })
   })
 })

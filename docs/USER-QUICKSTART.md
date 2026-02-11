@@ -11,7 +11,9 @@
 - `Shift+clic`: ajouter/retirer un asset du batch.
 - lire le bloc `Périmètre d'exécution` pour vérifier le scope avant action.
 - `Prévisualiser batch`: valider le scope.
-- `Exécuter batch`: lancer le traitement.
+- `Exécuter batch`: programme l'exécution avec une fenêtre d'annulation de 6s.
+- `Annuler exécution`: annule avant l'appel API.
+- `Exécuter maintenant`: confirme immédiatement sans attendre la fin des 6s.
 - le rapport se charge automatiquement après exécution.
 - `Rafraîchir rapport`: relancer la lecture du rapport si besoin.
 

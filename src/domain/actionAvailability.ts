@@ -5,6 +5,7 @@ export type ActionAvailabilityInput = {
   batchCount: number
   previewingBatch: boolean
   executingBatch: boolean
+  schedulingBatchExecution: boolean
   reportBatchId: string | null
   reportLoading: boolean
   undoCount: number
@@ -16,7 +17,7 @@ export type ActionAvailabilityInput = {
 
 export function getActionAvailability(input: ActionAvailabilityInput) {
   const selectedRejected = input.selectedAssetState === 'DECIDED_REJECT'
-  const batchBusy = input.previewingBatch || input.executingBatch
+  const batchBusy = input.previewingBatch || input.executingBatch || input.schedulingBatchExecution
 
   return {
     keepVisibleDisabled: input.visibleCount === 0,
@@ -24,7 +25,7 @@ export function getActionAvailability(input: ActionAvailabilityInput) {
     keepBatchDisabled: input.batchCount === 0 || batchBusy,
     rejectBatchDisabled: input.batchCount === 0 || batchBusy,
     clearBatchDisabled: input.batchCount === 0 || batchBusy,
-    previewBatchDisabled: input.batchCount === 0 || input.previewingBatch,
+    previewBatchDisabled: input.batchCount === 0 || input.previewingBatch || input.schedulingBatchExecution,
     executeBatchDisabled: input.batchCount === 0 || input.executingBatch,
     refreshReportDisabled: !input.reportBatchId || input.reportLoading,
     undoDisabled: input.undoCount === 0,

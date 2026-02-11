@@ -16,6 +16,7 @@ Feature: Workflow batch API en erreur
     And je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je clique sur le bouton "Exécuter batch"
+    And je clique sur le bouton "Exécuter maintenant"
     Then le statut d'exécution contient "échec"
     And le statut d'exécution contient "Conflit d'état"
 
@@ -24,6 +25,7 @@ Feature: Workflow batch API en erreur
     And je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je clique sur le bouton "Exécuter batch"
+    And je clique sur le bouton "Exécuter maintenant"
     And je clique sur le bouton "Rafraîchir rapport"
     Then le message "Chargement rapport en échec" est visible
     And le message "Indisponibilité temporaire" est visible
