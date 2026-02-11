@@ -333,6 +333,9 @@ describe('App', () => {
     const user = userEvent.setup()
     render(<App />)
 
+    const listbox = within(getAssetsPanel()).getByRole('listbox')
+    expect(listbox).toHaveAttribute('aria-activedescendant', 'asset-option-A-001')
+
     const listItems = within(getAssetsPanel()).getAllByRole('option')
     expect(listItems[0]).toHaveAttribute('tabIndex', '0')
     expect(listItems[1]).toHaveAttribute('tabIndex', '-1')
@@ -350,6 +353,7 @@ describe('App', () => {
     expect(movedItems[1]).toHaveAttribute('aria-selected', 'true')
     expect(movedItems[1]).toHaveAttribute('tabIndex', '0')
     expect(movedItems[1]).toHaveFocus()
+    expect(listbox).toHaveAttribute('aria-activedescendant', 'asset-option-A-002')
   })
 
   it('keeps undo disabled when no action has been recorded', () => {
