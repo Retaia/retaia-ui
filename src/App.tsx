@@ -14,6 +14,7 @@ import {
 } from './domain/assets'
 
 function App() {
+  const assetListRegionRef = useRef<HTMLElement | null>(null)
   const [filter, setFilter] = useState<AssetFilter>('ALL')
   const [search, setSearch] = useState('')
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
@@ -297,6 +298,7 @@ function App() {
       if (event.key === 'Enter' && !selectedAssetId && visibleAssets.length > 0) {
         event.preventDefault()
         setSelectedAssetId(visibleAssets[0].id)
+        setSelectionAnchorId(visibleAssets[0].id)
       }
     }
 
@@ -310,6 +312,29 @@ function App() {
     toggleBatchForSelectedAsset,
     undoLastAction,
   ])
+
+  useEffect(() => {
+    if (!selectedAssetId || !assetListRegionRef.current) {
+      return
+    }
+    const target = assetListRegionRef.current.querySelector<HTMLElement>(
+      `[data-asset-id="${selectedAssetId}"]`,
+    )
+    if (!target) {
+      return
+    }
+    const activeElement = document.activeElement as HTMLElement | null
+    const isTypingContext =
+      !!activeElement &&
+      (activeElement.tagName === 'INPUT' ||
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.tagName === 'SELECT' ||
+        activeElement.isContentEditable)
+
+    if (!isTypingContext && activeElement !== target) {
+      target.focus()
+    }
+  }, [selectedAssetId, visibleAssets])
 
   return (
     <main className="container py-4">
@@ -444,7 +469,7 @@ function App() {
       </section>
 
       <section className="row g-3 mt-1">
-        <section className="col-12 col-xl-8" aria-label="Liste des assets">
+        <section className="col-12 col-xl-8" aria-label="Liste des assets" ref={assetListRegionRef}>
           <div className="card shadow-sm border-0 h-100">
             <div className="card-body">
               <h2 className="h5">Assets ({visibleAssets.length})</h2>

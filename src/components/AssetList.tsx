@@ -20,10 +20,11 @@ export function AssetList({
   }
 
   return (
-    <ul className="list-group list-group-flush">
-      {assets.map((asset) => (
+    <ul className="list-group list-group-flush" role="listbox">
+      {assets.map((asset, index) => (
         <li
           key={asset.id}
+          data-asset-id={asset.id}
           className={[
             'list-group-item',
             'list-group-item-action',
@@ -38,15 +39,17 @@ export function AssetList({
             .join(' ')
             .trim()}
           onClick={(event) => onAssetClick(asset.id, event.shiftKey)}
+          onFocus={() => onAssetClick(asset.id, false)}
           onKeyDown={(event) => {
             if (event.key === 'Enter' || event.key === ' ') {
               event.preventDefault()
               onAssetClick(asset.id, event.shiftKey)
             }
           }}
-          role="button"
-          tabIndex={0}
+          role="option"
+          tabIndex={selectedAssetId ? (selectedAssetId === asset.id ? 0 : -1) : index === 0 ? 0 : -1}
           aria-pressed={selectedAssetId === asset.id}
+          aria-selected={selectedAssetId === asset.id}
         >
           <div className="flex-grow-1">
             <strong className="d-block">{asset.name}</strong>
