@@ -21,22 +21,37 @@ Donner un cadre d'implémentation local pour `retaia-ui` avec React + TypeScript
 - Préférer composants simples + hooks isolés.
 - Mettre la logique testable hors JSX quand elle devient complexe.
 
-## Interaction Desktop (référence locale)
+## UI Desktop-like (référence locale)
 
-Comportement cible pour la review desktop:
+Objectif:
+
+- privilégier une expérience de review rapide type application desktop, sans complexifier la surface UI
+
+Layout cible:
+
+- split view: liste à gauche, détail à droite
+- barre d'actions rapides visible en permanence
+- panneau batch explicite (taille du batch + actions)
+
+Interactions souris:
 
 - `clic` sur une ligne asset: ouvre le panneau détail (sans modifier le batch)
 - `Shift+clic` sur une ligne asset: ajoute/retire l'asset du batch
+- actions explicites: `KEEP`, `REJECT`, `CLEAR` par asset
+- actions batch explicites: `KEEP batch`, `REJECT batch`, `Vider batch`
+
+Raccourcis clavier desktop:
+
 - `j` / `k`: navigation dans la liste visible
 - `Entrée`: ouvre le premier asset visible si aucun détail n'est ouvert
 - `Shift+Espace`: ajoute/retire l'asset sélectionné au batch
 - `Ctrl/Cmd+A`: ajoute tous les assets visibles au batch
-- actions batch explicites: `KEEP batch`, `REJECT batch`, `Vider batch`
-- layout desktop en split view: liste à gauche, détail à droite
 
-Règle UX:
+Règles UX:
 
 - les boutons d'action d'une ligne (`KEEP/REJECT/CLEAR`) ne doivent pas déclencher l'ouverture du détail par propagation d'événement
+- garder un état visuel clair pour l'item sélectionné (focus détail) et pour l'item présent dans le batch
+- les raccourcis ne doivent pas interférer avec la saisie dans les champs (`input`, `textarea`, `select`)
 
 ## TDD (obligatoire par défaut)
 
