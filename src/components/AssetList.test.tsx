@@ -88,4 +88,27 @@ describe('AssetList', () => {
     expect(onDecision).toHaveBeenCalledWith('A-001', 'REJECT')
     expect(onDecision).toHaveBeenCalledWith('A-002', 'CLEAR')
   })
+
+  it('exposes listbox active descendant and selected option semantics', () => {
+    render(
+      <AssetList
+        assets={assets}
+        selectedAssetId={'A-002'}
+        batchIds={[]}
+        labels={labels}
+        onDecision={vi.fn()}
+        onAssetClick={vi.fn()}
+      />,
+    )
+
+    const listbox = screen.getByRole('listbox')
+    expect(listbox).toHaveAttribute('aria-activedescendant', 'asset-option-A-002')
+
+    const option1 = screen.getByRole('option', { name: /interview-camera-a\.mov/i })
+    const option2 = screen.getByRole('option', { name: /ambiance-plateau\.wav/i })
+    expect(option1).toHaveAttribute('id', 'asset-option-A-001')
+    expect(option2).toHaveAttribute('id', 'asset-option-A-002')
+    expect(option2).toHaveAttribute('aria-selected', 'true')
+    expect(option2).not.toHaveAttribute('aria-pressed')
+  })
 })

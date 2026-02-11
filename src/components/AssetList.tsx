@@ -28,12 +28,17 @@ export function AssetList({
     return <p className="text-secondary mb-0">{labels.empty}</p>
   }
 
+  const activeOptionId = selectedAssetId
+    ? `asset-option-${selectedAssetId}`
+    : `asset-option-${assets[0].id}`
+
   return (
-    <ListGroup as="ul" variant="flush" role="listbox">
+    <ListGroup as="ul" variant="flush" role="listbox" aria-activedescendant={activeOptionId}>
       {assets.map((asset, index) => (
         <ListGroup.Item
           as="li"
           key={asset.id}
+          id={`asset-option-${asset.id}`}
           data-asset-id={asset.id}
           action
           className={[
@@ -57,7 +62,6 @@ export function AssetList({
           }}
           role="option"
           tabIndex={selectedAssetId ? (selectedAssetId === asset.id ? 0 : -1) : index === 0 ? 0 : -1}
-          aria-pressed={selectedAssetId === asset.id}
           aria-selected={selectedAssetId === asset.id}
         >
           <div className="flex-grow-1">
