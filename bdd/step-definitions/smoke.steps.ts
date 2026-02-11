@@ -1,7 +1,8 @@
 import { After, Before, Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber'
-import { chromium, expect, type Browser, type BrowserContext, type Page } from '@playwright/test'
+import { chromium, expect, firefox, type Browser, type BrowserContext, type Page, webkit } from '@playwright/test'
 
 const APP_URL = 'http://127.0.0.1:4173'
+const BROWSER_NAME = process.env.PW_BROWSER ?? 'chromium'
 setDefaultTimeout(15000)
 
 let browser: Browser
@@ -9,7 +10,9 @@ let context: BrowserContext
 let page: Page
 
 Before(async () => {
-  browser = await chromium.launch({ headless: true })
+  const browserType =
+    BROWSER_NAME === 'firefox' ? firefox : BROWSER_NAME === 'webkit' ? webkit : chromium
+  browser = await browserType.launch({ headless: true })
   context = await browser.newContext()
   page = await context.newPage()
 })
