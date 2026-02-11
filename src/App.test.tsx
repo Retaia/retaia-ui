@@ -308,6 +308,8 @@ describe('App', () => {
     await user.keyboard('{/Shift}')
 
     await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
+    expect(screen.getByTestId('batch-execute-undo-status')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Exécuter maintenant' }))
     expect(screen.getByTestId('batch-execute-status')).toHaveTextContent('acceptée')
 
     await user.click(screen.getByRole('button', { name: 'Rafraîchir rapport' }))
@@ -360,12 +362,33 @@ describe('App', () => {
     await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
     await user.keyboard('{/Shift}')
     await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
+    await user.click(screen.getByRole('button', { name: 'Exécuter maintenant' }))
 
     expect(screen.getByTestId('batch-report-status')).toHaveTextContent(
       'Rapport chargé pour batch-123',
     )
     expect(screen.getByTestId('batch-report-status-value')).toHaveTextContent('DONE')
     expect(screen.getByTestId('batch-report-moved-value')).toHaveTextContent('2')
+    fetchSpy.mockRestore()
+  })
+
+  it('cancels queued batch execution before API call', async () => {
+    const user = userEvent.setup()
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 200 }))
+
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.keyboard('{/Shift}')
+    await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
+    await user.click(screen.getByRole('button', { name: 'Annuler exécution' }))
+
+    const calledMoveExecute = fetchSpy.mock.calls.some((call) =>
+      String(call[0]).endsWith('/batches/moves'),
+    )
+    expect(calledMoveExecute).toBe(false)
+    expect(screen.getByTestId('batch-execute-status')).toHaveTextContent('annulée')
     fetchSpy.mockRestore()
   })
 
