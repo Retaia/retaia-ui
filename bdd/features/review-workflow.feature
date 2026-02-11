@@ -20,3 +20,23 @@ Feature: Workflow de review desktop-like
     Then l'état "A-001 - DECIDED_REJECT" est visible
     When j'utilise le raccourci annuler
     Then l'état "A-001 - DECISION_PENDING" est visible
+
+  Scenario: Workflow batch complet avec sélection de plage et undo
+    Given je suis sur la page d'accueil
+    When j'ouvre le premier asset au clavier
+    And j'étends la sélection de plage jusqu'à 3 assets
+    Then le batch sélectionné affiche 3
+    When j'applique l'action "KEEP batch"
+    Then l'état "A-001 - DECIDED_KEEP" est visible
+    Then l'état "A-003 - DECIDED_KEEP" est visible
+    When j'utilise le raccourci annuler
+    Then l'état "A-001 - DECISION_PENDING" est visible
+    Then l'état "A-003 - DECIDED_REJECT" est visible
+
+  Scenario: Filtres recherche et no-op sur reset
+    Given je suis sur la page d'accueil
+    When je recherche "behind"
+    And je clique sur le bouton "Réinitialiser filtres"
+    Then l'historique disponible affiche 1
+    When je clique sur le bouton "Réinitialiser filtres"
+    Then l'historique disponible affiche 1
