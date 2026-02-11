@@ -16,3 +16,11 @@ Feature: Workflow batch API
     Then le rapport batch affiche le statut "DONE"
     And le rapport batch affiche 2 assets déplacés
     And le rapport batch affiche 0 assets en échec
+
+  Scenario: Exécution avec chargement automatique du rapport
+    Given je suis sur la page d'accueil
+    When je fais Maj+clic sur l'asset "interview-camera-a.mov"
+    And je fais Maj+clic sur l'asset "behind-the-scenes.jpg"
+    And je clique sur le bouton "Exécuter batch"
+    Then le statut d'exécution contient "acceptée"
+    And le rapport batch affiche le statut "DONE"

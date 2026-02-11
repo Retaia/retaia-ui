@@ -75,6 +75,7 @@ Règles UX:
 - undo borné: limiter l'historique pour éviter la croissance mémoire côté client
 - navigation clavier: préférer un modèle `listbox/option` avec `aria-selected` et roving `tabIndex`
 - retours asynchrones (preview/execute/report): exposer des live regions (`role="status"` + `aria-live="polite"`)
+- exécution batch: déclencher un chargement automatique du rapport quand `batch_id` est disponible
 
 ## TDD (obligatoire par défaut)
 

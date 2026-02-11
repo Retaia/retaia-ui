@@ -395,6 +395,24 @@ function App() {
         kind: 'success',
         message: t('actions.executeResult'),
       })
+      if (!batchId) {
+        return
+      }
+      setReportLoading(true)
+      setReportStatus(null)
+      try {
+        const report = await apiClient.getMoveBatchReport(batchId)
+        setReportData(report)
+        setReportStatus(t('actions.reportReady', { batchId }))
+      } catch (error) {
+        setReportStatus(
+          t('actions.reportError', {
+            message: mapApiErrorToMessage(error, t),
+          }),
+        )
+      } finally {
+        setReportLoading(false)
+      }
     } catch (error) {
       setExecuteStatus({
         kind: 'error',
