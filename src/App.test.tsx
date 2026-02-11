@@ -373,8 +373,10 @@ describe('App', () => {
 
     await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
     expect(screen.getByTestId('batch-execute-undo-status')).toBeInTheDocument()
+    expect(screen.getByTestId('batch-timeline')).toHaveTextContent('File d’attente')
     await user.click(screen.getByRole('button', { name: 'Exécuter maintenant' }))
     expect(screen.getByTestId('batch-execute-status')).toHaveTextContent('acceptée')
+    expect(screen.getByTestId('batch-timeline')).toHaveTextContent('Terminé')
 
     await user.click(screen.getByRole('button', { name: 'Rafraîchir rapport' }))
     expect(screen.getByTestId('batch-report-status')).toHaveTextContent(
@@ -393,6 +395,39 @@ describe('App', () => {
     expect(liveRegions.some((node) => node.textContent?.includes('Rapport chargé pour batch-123'))).toBe(
       true,
     )
+    fetchSpy.mockRestore()
+  })
+
+  it('shows error state in batch timeline when execution fails', async () => {
+    const user = userEvent.setup()
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = String(input)
+      if (url.endsWith('/batches/moves')) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              code: 'STATE_CONFLICT',
+              message: 'state conflict',
+              retryable: false,
+              correlation_id: 'c-1',
+            }),
+            { status: 409, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      }
+      return Promise.resolve(new Response(null, { status: 200 }))
+    })
+
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.keyboard('{/Shift}')
+    await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
+    await user.click(screen.getByRole('button', { name: 'Exécuter maintenant' }))
+
+    expect(screen.getByTestId('batch-execute-status')).toHaveTextContent('échec')
+    expect(screen.getByTestId('batch-timeline')).toHaveTextContent('Erreur')
     fetchSpy.mockRestore()
   })
 

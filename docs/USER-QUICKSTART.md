@@ -14,6 +14,7 @@
 - `Exécuter batch`: programme l'exécution avec une fenêtre d'annulation de 6s.
 - `Annuler exécution`: annule avant l'appel API.
 - `Exécuter maintenant`: confirme immédiatement sans attendre la fin des 6s.
+- `Timeline batch`: suit l'état `File d'attente -> En cours -> Terminé/Erreur`.
 - le rapport se charge automatiquement après exécution.
 - `Rafraîchir rapport`: relancer la lecture du rapport si besoin.
 
