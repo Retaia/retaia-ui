@@ -965,6 +965,19 @@ function App() {
           toggleDensityMode()
           return
         }
+        if (event.key === 'Home' && visibleAssets.length > 0) {
+          event.preventDefault()
+          setSelectedAssetId(visibleAssets[0].id)
+          setSelectionAnchorId(visibleAssets[0].id)
+          return
+        }
+        if (event.key === 'End' && visibleAssets.length > 0) {
+          event.preventDefault()
+          const last = visibleAssets[visibleAssets.length - 1]
+          setSelectedAssetId(last.id)
+          setSelectionAnchorId(last.id)
+          return
+        }
         if (key === '1') {
           event.preventDefault()
           saveQuickFilterPreset('PENDING_RECENT')
