@@ -965,6 +965,11 @@ function App() {
           toggleDensityMode()
           return
         }
+        if (key === 'l') {
+          event.preventDefault()
+          clearActivityLog()
+          return
+        }
         if (key === '1') {
           event.preventDefault()
           saveQuickFilterPreset('PENDING_RECENT')
@@ -1055,6 +1060,7 @@ function App() {
     toggleBatchOnly,
     openNextPending,
     toggleDensityMode,
+    clearActivityLog,
     selectAllVisibleInBatch,
     selectVisibleByOffset,
     toggleBatchForSelectedAsset,

@@ -72,6 +72,12 @@ Feature: Workflow de review desktop-like
     And je clique sur le bouton "Vider journal"
     Then le message "Aucune action pour le moment." est visible
 
+  Scenario: Vider le journal avec le raccourci l
+    Given je suis sur la page d'accueil
+    When je clique sur le bouton "KEEP visibles"
+    And j'appuie sur la touche "l"
+    Then le message "Aucune action pour le moment." est visible
+
   Scenario: Annuler une exécution batch avant envoi API
     Given je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"

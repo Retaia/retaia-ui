@@ -692,6 +692,19 @@ describe('App', () => {
     expect(within(activityPanel).getByText('Aucune action pour le moment.')).toBeInTheDocument()
   })
 
+  it('clears activity log with l shortcut', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
+    const activityPanel = screen.getByLabelText("Journal d'actions")
+    expect(within(activityPanel).getByText('KEEP visibles (3)')).toBeInTheDocument()
+
+    await user.keyboard('l')
+
+    expect(within(activityPanel).getByText('Aucune action pour le moment.')).toBeInTheDocument()
+  })
+
   it('supports undo with Ctrl+Z shortcut', async () => {
     const user = userEvent.setup()
 
