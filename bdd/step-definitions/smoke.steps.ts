@@ -11,11 +11,15 @@ let page: Page
 let previewShouldFailScope = false
 let executeShouldFailStateConflict = false
 let reportShouldFailTemporary = false
+let purgePreviewShouldFailScope = false
+let purgeExecuteShouldFailStateConflict = false
 
 Before(async () => {
   previewShouldFailScope = false
   executeShouldFailStateConflict = false
   reportShouldFailTemporary = false
+  purgePreviewShouldFailScope = false
+  purgeExecuteShouldFailStateConflict = false
 
   const browserType =
     BROWSER_NAME === 'firefox' ? firefox : BROWSER_NAME === 'webkit' ? webkit : chromium
@@ -85,6 +89,48 @@ Before(async () => {
       body: JSON.stringify({ batch_id: 'batch-e2e-1' }),
     })
   })
+
+  await page.route('**/assets/*/purge/preview', async (route) => {
+    if (purgePreviewShouldFailScope) {
+      await route.fulfill({
+        status: 403,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'FORBIDDEN_SCOPE',
+          message: 'forbidden',
+          retryable: false,
+          correlation_id: 'bdd-corr-4',
+        }),
+      })
+      return
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ ok: true }),
+    })
+  })
+
+  await page.route('**/assets/*/purge', async (route) => {
+    if (purgeExecuteShouldFailStateConflict) {
+      await route.fulfill({
+        status: 409,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'STATE_CONFLICT',
+          message: 'state conflict',
+          retryable: false,
+          correlation_id: 'bdd-corr-5',
+        }),
+      })
+      return
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ ok: true }),
+    })
+  })
 })
 
 After(async () => {
@@ -106,6 +152,14 @@ Given('le mock API retourne STATE_CONFLICT sur l\'exécution batch', async () =>
 
 Given('le mock API retourne TEMPORARY_UNAVAILABLE sur le rapport batch', async () => {
   reportShouldFailTemporary = true
+})
+
+Given('le mock API retourne FORBIDDEN_SCOPE sur la preview purge', async () => {
+  purgePreviewShouldFailScope = true
+})
+
+Given('le mock API retourne STATE_CONFLICT sur la confirmation purge', async () => {
+  purgeExecuteShouldFailStateConflict = true
 })
 
 Then('le titre principal {string} est visible', async (title: string) => {
@@ -225,4 +279,15 @@ Then('le rapport batch affiche {int} assets déplacés', async (count: number) =
 
 Then('le rapport batch affiche {int} assets en échec', async (count: number) => {
   await expect(page.getByTestId('batch-report-failed-value')).toHaveText(String(count))
+})
+
+Then('le statut purge contient {string}', async (text: string) => {
+  await expect(page.getByTestId('asset-purge-status')).toContainText(text, {
+    ignoreCase: true,
+  })
+})
+
+Then('l\'asset {string} n\'est plus visible dans la liste', async (assetName: string) => {
+  const assetsPanel = page.locator('section[aria-label="Liste des assets"]')
+  await expect(assetsPanel.getByText(assetName)).toHaveCount(0)
 })
