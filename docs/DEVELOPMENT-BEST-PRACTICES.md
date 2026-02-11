@@ -51,6 +51,7 @@ Interactions souris:
 - `clic` sur une ligne asset: ouvre le panneau détail (sans modifier le batch)
 - `Shift+clic` sur une ligne asset: ajoute/retire l'asset du batch
 - actions explicites: `KEEP`, `REJECT`, `CLEAR` par asset
+- purge asset rejeté: `Prévisualiser purge` puis `Confirmer purge` (2 étapes obligatoires)
 - actions batch explicites: `KEEP batch`, `REJECT batch`, `Vider batch`
 
 Raccourcis clavier desktop:
@@ -123,6 +124,7 @@ Scénarios BDD minimum à garder verts:
 - `Ctrl/Cmd+Z` -> annulation de la dernière action
 - `Shift+Espace` -> ajout/retrait de l'asset sélectionné au batch
 - `Ctrl/Cmd+A` -> sélection de tous les assets visibles
+- purge asset rejeté -> preview puis confirmation
 
 ## I18N
 
@@ -146,3 +148,12 @@ Implémentation locale actuelle:
 - Tests ajoutés/ajustés avant merge.
 - Aucun mélange massif feature + refactor + formatting.
 - Commit messages en Conventional Commits.
+
+## Workflow Git recommandé
+
+- ne jamais commiter directement sur `master`
+- créer une branche par feature avec préfixe `codex/`
+- pousser la branche dès création
+- ouvrir la PR immédiatement après le premier push
+- garder des commits atomiques (un objectif clair par commit)
+- rebaser/merger `master` régulièrement pour éviter les conflits tardifs

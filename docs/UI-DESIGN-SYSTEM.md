@@ -29,6 +29,8 @@ Fichier source: `src/index.scss`
 - Cartes de sections: `Card` avec hiérarchie typographique (`h5`, `h6`, `small`)
 - Liste interactive: `ListGroup` + état `active` + état batch (`list-group-item-warning`)
 - Layout principal: grille Bootstrap (`Container`, `Row`, `Col`)
+- Action destructive (purge): bloc dédié avec bordure `danger-subtle`, CTA en 2 étapes (preview puis confirm)
+- Feedback asynchrone: message `role=\"status\"` / `aria-live=\"polite\"` pour preview/execute/report/purge
 
 ## Évolutions
 
