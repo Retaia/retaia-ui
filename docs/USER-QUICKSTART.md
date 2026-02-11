@@ -24,6 +24,8 @@
 ## Raccourcis
 
 - `j` / `k`: navigation.
+- `p`: filtre rapide sur les assets à traiter.
+- `/`: focus direct sur la recherche.
 - `Shift+Flèches`: extension de sélection batch.
 - `Ctrl/Cmd+A`: ajouter visibles au batch.
 - `Ctrl/Cmd+Z`: annuler dernière action.

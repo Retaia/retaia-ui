@@ -193,14 +193,14 @@ function App() {
     [selectedAssetId, handleDecision],
   )
 
-  const focusPending = () => {
+  const focusPending = useCallback(() => {
     if (filter === 'DECISION_PENDING' && search === '') {
       return
     }
     recordAction(t('activity.filterPending'))
     setFilter('DECISION_PENDING')
     setSearch('')
-  }
+  }, [filter, recordAction, search, t])
 
   const clearFilters = () => {
     if (filter === 'ALL' && search === '') {
@@ -497,6 +497,20 @@ function App() {
           setPurgeStatus(null)
           return
         }
+        if (key === 'p') {
+          event.preventDefault()
+          focusPending()
+          return
+        }
+        if (event.key === '/') {
+          event.preventDefault()
+          const searchInput = document.getElementById('asset-search')
+          if (searchInput instanceof HTMLInputElement) {
+            searchInput.focus()
+            searchInput.select()
+          }
+          return
+        }
         if (key === 'g') {
           event.preventDefault()
           applyDecisionToSelected('KEEP')
@@ -550,6 +564,7 @@ function App() {
   }, [
     selectedAssetId,
     visibleAssets,
+    focusPending,
     selectAllVisibleInBatch,
     selectVisibleByOffset,
     toggleBatchForSelectedAsset,
