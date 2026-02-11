@@ -57,7 +57,7 @@
 
 - scope manquant: vérifier les droits API (`batches:execute`).
 - conflit d'état: rafraîchir et relancer.
-- indisponibilité temporaire: réessayer plus tard.
+- indisponibilité temporaire: le client relance automatiquement avec backoff (jusqu'à 2 retries), puis affiche l'erreur finale.
 - purge désactivée: vérifier que l'asset est bien en état `DECIDED_REJECT`.
 
 ## États vides
