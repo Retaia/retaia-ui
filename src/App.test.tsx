@@ -227,12 +227,12 @@ describe('App', () => {
 
   it('locks batch decision actions while preview is running', async () => {
     const user = userEvent.setup()
-    let resolvePreview: (() => void) | null = null
+    const resolvePreviewRef: { current: (() => void) | null } = { current: null }
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
       const url = String(input)
       if (url.endsWith('/batches/moves/preview')) {
         return new Promise<Response>((resolve) => {
-          resolvePreview = () => resolve(new Response(null, { status: 200 }))
+          resolvePreviewRef.current = () => resolve(new Response(null, { status: 200 }))
         })
       }
       return Promise.resolve(new Response(null, { status: 200 }))
@@ -250,7 +250,7 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Vider batch' })).toBeDisabled()
     expect(screen.getByTestId('batch-busy-status')).toBeInTheDocument()
 
-    resolvePreview?.()
+    resolvePreviewRef.current?.()
     fetchSpy.mockRestore()
   })
 
