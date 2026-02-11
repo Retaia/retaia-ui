@@ -11,8 +11,8 @@ describe('i18n messages', () => {
   })
 
   it('falls back to english when key is missing in selected locale', async () => {
-    await i18next.changeLanguage('fr')
-    expect(i18next.t('dev.fallbackOnlyEn')).toBe('English fallback value')
+    await i18next.changeLanguage('es')
+    expect(i18next.t('toolbar.search')).toBe('Search')
   })
 
   it('falls back to raw key when missing in all locales', async () => {

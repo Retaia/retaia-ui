@@ -55,7 +55,6 @@ export const resources = {
       'activity.batchVisible': 'Visible batch selection (+{count})',
       'activity.undo': 'Undo',
       'activity.range': 'Range selection ({count})',
-      'dev.fallbackOnlyEn': 'English fallback value',
     },
   },
   fr: {
