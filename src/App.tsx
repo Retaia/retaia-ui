@@ -247,14 +247,15 @@ function App() {
     if (!target) {
       return
     }
-    if (filter !== 'ALL' || search !== '') {
+    if (filter !== 'ALL' || search !== '' || batchOnly) {
       recordAction(t('activity.openNextPending'))
       setFilter('ALL')
       setSearch('')
+      setBatchOnly(false)
     }
     setSelectedAssetId(target.id)
     setSelectionAnchorId(target.id)
-  }, [assets, filter, recordAction, search, t])
+  }, [assets, batchOnly, filter, recordAction, search, t])
 
   const clearFilters = () => {
     if (filter === 'ALL' && search === '' && !batchOnly) {
