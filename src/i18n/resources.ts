@@ -104,7 +104,7 @@ export const resources = {
       'actions.shortcutsToggleShow': 'Show shortcuts',
       'actions.shortcutsToggleHide': 'Hide shortcuts',
       'actions.shortcuts':
-        'Desktop shortcuts: j/k (move), Arrows (move), Shift+Arrows (range), Enter (open), Shift+Space (batch), g/v/x (KEEP/REJECT/CLEAR selected), Escape (close selection), p (pending filter), b (batch only), n (open next pending), d (density), / (search focus), Ctrl/Cmd+A (visible batch), Ctrl/Cmd+Z (undo)',
+        'Desktop shortcuts: j/k (move), Arrows (move), Shift+Arrows (range), Enter (open), Shift+Space (batch), g/v/x (KEEP/REJECT/CLEAR selected), Escape (close selection), p (pending filter), b (batch only), n (open next pending), d (density), r (refresh report), / (search focus), Ctrl/Cmd+A (visible batch), Ctrl/Cmd+Z (undo)',
       'next.region': 'Next asset',
       'next.title': 'Next pending asset',
       'next.open': 'Open',
@@ -241,7 +241,7 @@ export const resources = {
       'actions.shortcutsToggleShow': 'Voir raccourcis',
       'actions.shortcutsToggleHide': 'Masquer raccourcis',
       'actions.shortcuts':
-        'Raccourcis desktop: j/k (navigation), Flèches (navigation), Shift+Flèches (sélection plage), Entrée (ouvrir), Shift+Espace (batch), g/v/x (KEEP/REJECT/CLEAR sélectionné), Escape (fermer sélection), p (filtre à traiter), b (batch seul), n (ouvrir prochain), d (densité), / (focus recherche), Ctrl/Cmd+A (batch visible), Ctrl/Cmd+Z (annuler)',
+        'Raccourcis desktop: j/k (navigation), Flèches (navigation), Shift+Flèches (sélection plage), Entrée (ouvrir), Shift+Espace (batch), g/v/x (KEEP/REJECT/CLEAR sélectionné), Escape (fermer sélection), p (filtre à traiter), b (batch seul), n (ouvrir prochain), d (densité), r (rafraîchir rapport), / (focus recherche), Ctrl/Cmd+A (batch visible), Ctrl/Cmd+Z (annuler)',
       'next.region': 'Prochain asset',
       'next.title': 'Prochain asset à traiter',
       'next.open': 'Ouvrir',

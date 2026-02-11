@@ -920,6 +920,11 @@ function App() {
           toggleDensityMode()
           return
         }
+        if (key === 'r') {
+          event.preventDefault()
+          void refreshBatchReport()
+          return
+        }
         if (event.key === '/') {
           event.preventDefault()
           const searchInput = document.getElementById('asset-search')
@@ -992,6 +997,7 @@ function App() {
     toggleBatchOnly,
     openNextPending,
     toggleDensityMode,
+    refreshBatchReport,
     selectAllVisibleInBatch,
     selectVisibleByOffset,
     toggleBatchForSelectedAsset,
