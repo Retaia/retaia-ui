@@ -52,6 +52,12 @@ Feature: Workflow de review desktop-like
     When je sélectionne tous les assets visibles via Ctrl/Cmd+A
     Then le batch sélectionné affiche 3
 
+  Scenario: Vider le journal d'actions
+    Given je suis sur la page d'accueil
+    When je clique sur le bouton "KEEP visibles"
+    And je clique sur le bouton "Vider journal"
+    Then le message "Aucune action pour le moment." est visible
+
   Scenario: Filtrer la liste sur le batch via raccourci clavier
     Given je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
