@@ -10,6 +10,8 @@
 - `docs/UI-DESIGN-SYSTEM.md`
 - `docs/GITHUB-WORKFLOWS.md`
 - `docs/DOCKER-DEVELOPMENT.md`
+- `docs/USER-QUICKSTART.md`
+- `docs/RELEASE-CHECKLIST.md`
 - `bdd/features/`
 
 ## Lecture minimale avant de coder
