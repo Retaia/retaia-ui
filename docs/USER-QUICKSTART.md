@@ -41,3 +41,8 @@
 - conflit d'état: rafraîchir et relancer.
 - indisponibilité temporaire: réessayer plus tard.
 - purge désactivée: vérifier que l'asset est bien en état `DECIDED_REJECT`.
+
+## Journal d'actions
+
+- le journal trace les dernières actions utilisateur.
+- `Vider journal`: remet l'historique visuel à zéro sans modifier les assets.
