@@ -118,6 +118,12 @@ Feature: Workflow de review desktop-like
     When j'appuie sur la touche "/"
     Then le champ de recherche a le focus
 
+  Scenario: Utiliser les actions rapides depuis l'aide raccourcis
+    Given je suis sur la page d'accueil
+    When je clique sur le bouton "Voir raccourcis"
+    And je clique sur le bouton "Aller à traiter"
+    Then le titre principal "Assets (1)" est visible
+
   Scenario: Fermer la sélection au clavier
     Given je suis sur la page d'accueil
     When j'ouvre le premier asset au clavier

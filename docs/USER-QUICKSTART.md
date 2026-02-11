@@ -45,6 +45,8 @@
 ## Raccourcis
 
 - au premier lancement, le panneau raccourcis s'ouvre automatiquement.
+- le panneau raccourcis affiche un overlay structuré (Navigation / Batch / Flux).
+- depuis cet overlay: `Aller à traiter`, `Basculer batch seul`, `Ouvrir prochain`.
 - `j` / `k`: navigation.
 - `?`: ouvrir/fermer l'aide des raccourcis.
 - `p`: filtre rapide sur les assets à traiter.
