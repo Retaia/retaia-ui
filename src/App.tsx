@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import './App.scss'
 import { AssetList } from './components/AssetList'
 import { ReviewSummary } from './components/ReviewSummary'
 import { ReviewToolbar } from './components/ReviewToolbar'
@@ -313,10 +312,10 @@ function App() {
   ])
 
   return (
-    <main className="app">
-      <header className="app__header">
-        <h1>Retaia UI</h1>
-        <p>Review simple pour décider KEEP ou REJECT</p>
+    <main className="container py-4">
+      <header className="mb-3">
+        <h1 className="display-6 fw-bold mb-1">Retaia UI</h1>
+        <p className="text-secondary mb-0">Review simple pour décider KEEP ou REJECT</p>
       </header>
 
       <ReviewSummary total={assets.length} counts={counts} />
@@ -327,14 +326,16 @@ function App() {
         onSearchChange={setSearch}
       />
 
-      <section className="panel productivity-panel">
-        <h2>Actions rapides</h2>
-        <div className="quick-actions">
-          <button type="button" onClick={focusPending}>
+      <section className="card shadow-sm border-0 mt-3">
+        <div className="card-body">
+          <h2 className="h5 mb-3">Actions rapides</h2>
+          <div className="d-flex flex-wrap gap-2">
+            <button type="button" className="btn btn-outline-primary" onClick={focusPending}>
             Voir à traiter
           </button>
           <button
             type="button"
+            className="btn btn-outline-success"
             onClick={() => applyDecisionToVisible('KEEP')}
             disabled={visibleAssets.length === 0}
           >
@@ -342,19 +343,21 @@ function App() {
           </button>
           <button
             type="button"
+            className="btn btn-outline-danger"
             onClick={() => applyDecisionToVisible('REJECT')}
             disabled={visibleAssets.length === 0}
           >
             REJECT visibles
           </button>
-          <button type="button" onClick={clearFilters}>
+          <button type="button" className="btn btn-outline-secondary" onClick={clearFilters}>
             Réinitialiser filtres
           </button>
-        </div>
-        <div className="batch-actions">
-          <p>Batch sélectionné: {batchIds.length}</p>
+          </div>
+          <div className="d-flex flex-wrap align-items-center gap-2 mt-3">
+            <p className="mb-0 fw-semibold text-secondary">Batch sélectionné: {batchIds.length}</p>
           <button
             type="button"
+            className="btn btn-outline-success"
             onClick={() => applyDecisionToBatch('KEEP')}
             disabled={batchIds.length === 0}
           >
@@ -362,6 +365,7 @@ function App() {
           </button>
           <button
             type="button"
+            className="btn btn-outline-danger"
             onClick={() => applyDecisionToBatch('REJECT')}
             disabled={batchIds.length === 0}
           >
@@ -369,63 +373,82 @@ function App() {
           </button>
           <button
             type="button"
+            className="btn btn-outline-secondary"
             onClick={() => setBatchIds([])}
             disabled={batchIds.length === 0}
           >
             Vider batch
           </button>
-        </div>
-        <div className="history-actions">
-          <button type="button" onClick={undoLastAction} disabled={undoStack.length === 0}>
+          </div>
+          <div className="d-flex flex-wrap align-items-center gap-2 mt-3">
+            <button
+              type="button"
+              className="btn btn-warning"
+              onClick={undoLastAction}
+              disabled={undoStack.length === 0}
+            >
             Annuler dernière action
           </button>
-          <p>Historique disponible: {undoStack.length}</p>
-        </div>
-        <section className="activity-log" aria-label="Journal d'actions">
-          <h3>Journal d&apos;actions</h3>
+            <p className="mb-0 fw-semibold text-secondary">Historique disponible: {undoStack.length}</p>
+          </div>
+          <section className="border border-2 border-secondary-subtle rounded p-3 mt-3" aria-label="Journal d'actions">
+            <h3 className="h6 mb-2">Journal d&apos;actions</h3>
           {activityLog.length === 0 ? (
-            <p className="empty-state">Aucune action pour le moment.</p>
+            <p className="text-secondary mb-0">Aucune action pour le moment.</p>
           ) : (
-            <ul>
+            <ul className="mb-0">
               {activityLog.map((entry) => (
                 <li key={entry.id}>{entry.label}</li>
               ))}
             </ul>
           )}
-        </section>
-        <p className="keyboard-hint">
+          </section>
+          <p className="small text-secondary mb-0 mt-3">
           Raccourcis desktop: j/k (navigation), Flèches (navigation), Shift+Flèches
           (sélection plage), Entrée (ouvrir), Shift+Espace (batch), Ctrl/Cmd+A (batch
           visible), Ctrl/Cmd+Z (annuler)
-        </p>
+          </p>
+        </div>
       </section>
 
-      <section className="panel" aria-label="Prochain asset">
-        <h2>Prochain asset à traiter</h2>
-        {nextPendingAsset ? (
-          <div className="next-asset">
-            <div>
-              <strong>{nextPendingAsset.name}</strong>
-              <p>{nextPendingAsset.id}</p>
+      <section className="card shadow-sm border-0 mt-3" aria-label="Prochain asset">
+        <div className="card-body">
+          <h2 className="h5 mb-3">Prochain asset à traiter</h2>
+          {nextPendingAsset ? (
+            <div className="d-flex flex-wrap justify-content-between align-items-center gap-3">
+              <div>
+                <strong className="d-block">{nextPendingAsset.name}</strong>
+                <p className="text-secondary mb-0">{nextPendingAsset.id}</p>
+              </div>
+              <div className="d-flex gap-2">
+                <button
+                  type="button"
+                  className="btn btn-outline-success"
+                  onClick={() => handleDecision(nextPendingAsset.id, 'KEEP')}
+                >
+                  KEEP
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline-danger"
+                  onClick={() => handleDecision(nextPendingAsset.id, 'REJECT')}
+                >
+                  REJECT
+                </button>
+              </div>
             </div>
-            <div className="decision-actions">
-              <button type="button" onClick={() => handleDecision(nextPendingAsset.id, 'KEEP')}>
-                KEEP
-              </button>
-              <button type="button" onClick={() => handleDecision(nextPendingAsset.id, 'REJECT')}>
-                REJECT
-              </button>
-            </div>
-          </div>
-        ) : (
-          <p className="empty-state">Plus aucun asset en attente.</p>
-        )}
+          ) : (
+            <p className="text-secondary mb-0">Plus aucun asset en attente.</p>
+          )}
+        </div>
       </section>
 
-      <section className="workspace">
-        <section className="panel" aria-label="Liste des assets">
-          <h2>Assets ({visibleAssets.length})</h2>
-          <p className="desktop-hint">Clic: détail | Shift+clic: ajouter au batch</p>
+      <section className="row g-3 mt-1">
+        <section className="col-12 col-xl-8" aria-label="Liste des assets">
+          <div className="card shadow-sm border-0 h-100">
+            <div className="card-body">
+              <h2 className="h5">Assets ({visibleAssets.length})</h2>
+              <p className="small text-secondary">Clic: détail | Shift+clic: ajouter au batch</p>
           <AssetList
             assets={visibleAssets}
             selectedAssetId={selectedAssetId}
@@ -433,30 +456,48 @@ function App() {
             onDecision={handleDecision}
             onAssetClick={handleAssetClick}
           />
+            </div>
+          </div>
         </section>
 
-        <section className="panel" aria-label="Détail de l'asset">
-          <h2>Détail</h2>
-          {selectedAsset ? (
-            <div className="asset-detail">
-              <strong>{selectedAsset.name}</strong>
-              <p>ID: {selectedAsset.id}</p>
-              <p>État: {selectedAsset.state}</p>
-              <div className="decision-actions">
-                <button type="button" onClick={() => handleDecision(selectedAsset.id, 'KEEP')}>
+        <section className="col-12 col-xl-4" aria-label="Détail de l'asset">
+          <div className="card shadow-sm border-0 h-100">
+            <div className="card-body">
+              <h2 className="h5">Détail</h2>
+              {selectedAsset ? (
+                <div>
+                  <strong className="d-block">{selectedAsset.name}</strong>
+                  <p className="text-secondary mb-1">ID: {selectedAsset.id}</p>
+                  <p className="text-secondary mb-3">État: {selectedAsset.state}</p>
+                  <div className="d-flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      className="btn btn-outline-success"
+                      onClick={() => handleDecision(selectedAsset.id, 'KEEP')}
+                    >
                   KEEP
                 </button>
-                <button type="button" onClick={() => handleDecision(selectedAsset.id, 'REJECT')}>
+                    <button
+                      type="button"
+                      className="btn btn-outline-danger"
+                      onClick={() => handleDecision(selectedAsset.id, 'REJECT')}
+                    >
                   REJECT
                 </button>
-                <button type="button" onClick={() => handleDecision(selectedAsset.id, 'CLEAR')}>
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary"
+                      onClick={() => handleDecision(selectedAsset.id, 'CLEAR')}
+                    >
                   CLEAR
                 </button>
-              </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-secondary mb-0">Clique un asset pour ouvrir le détail.</p>
+              )}
             </div>
-          ) : (
-            <p className="empty-state">Clique un asset pour ouvrir le détail.</p>
-          )}
+          </div>
         </section>
       </section>
     </main>
