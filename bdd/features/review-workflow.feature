@@ -56,3 +56,29 @@ Feature: Workflow de review desktop-like
     Given je suis sur la page d'accueil
     When j'ouvre le prochain asset à traiter via la touche n
     Then le panneau détail affiche l'asset "interview-camera-a.mov"
+
+  Scenario: Décider KEEP/REJECT/CLEAR au clavier
+    Given je suis sur la page d'accueil
+    When j'ouvre le premier asset au clavier
+    And j'appuie sur la touche "v"
+    Then l'état "A-001 - DECIDED_REJECT" est visible
+    When j'appuie sur la touche "g"
+    Then l'état "A-001 - DECIDED_KEEP" est visible
+    When j'appuie sur la touche "x"
+    Then l'état "A-001 - DECISION_PENDING" est visible
+
+  Scenario: Appliquer le filtre pending au clavier
+    Given je suis sur la page d'accueil
+    When j'appuie sur la touche "p"
+    Then l'état "A-001 - DECISION_PENDING" est visible
+
+  Scenario: Focus recherche avec slash
+    Given je suis sur la page d'accueil
+    When j'appuie sur la touche "/"
+    Then le champ de recherche a le focus
+
+  Scenario: Fermer la sélection au clavier
+    Given je suis sur la page d'accueil
+    When j'ouvre le premier asset au clavier
+    And j'appuie sur la touche "Escape"
+    Then le message "Clique un asset pour ouvrir le détail." est visible

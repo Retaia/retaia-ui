@@ -253,6 +253,10 @@ When('je clique sur le bouton {string}', async (buttonLabel: string) => {
   await button.click()
 })
 
+When('j\'appuie sur la touche {string}', async (key: string) => {
+  await page.keyboard.press(key)
+})
+
 Then('l\'historique disponible affiche {int}', async (count: number) => {
   await expect(page.getByText(`Historique disponible: ${count}`)).toBeVisible()
 })
@@ -294,4 +298,8 @@ Then('le statut purge contient {string}', async (text: string) => {
 Then('l\'asset {string} n\'est plus visible dans la liste', async (assetName: string) => {
   const assetsPanel = page.locator('section[aria-label="Liste des assets"]')
   await expect(assetsPanel.getByText(assetName)).toHaveCount(0)
+})
+
+Then('le champ de recherche a le focus', async () => {
+  await expect(page.getByLabel('Recherche')).toBeFocused()
 })

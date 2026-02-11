@@ -229,6 +229,45 @@ describe('App', () => {
     fetchSpy.mockRestore()
   })
 
+  it('loads batch report automatically after execution', async () => {
+    const user = userEvent.setup()
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = String(input)
+      if (url.endsWith('/batches/moves')) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ batch_id: 'batch-123' }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+        )
+      }
+      if (url.endsWith('/batches/moves/batch-123')) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ status: 'DONE', moved: 2 }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+        )
+      }
+      return Promise.resolve(new Response(null, { status: 200 }))
+    })
+
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
+    await user.keyboard('{/Shift}')
+    await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
+
+    expect(screen.getByTestId('batch-report-status')).toHaveTextContent(
+      'Rapport chargé pour batch-123',
+    )
+    expect(screen.getByTestId('batch-report-status-value')).toHaveTextContent('DONE')
+    expect(screen.getByTestId('batch-report-moved-value')).toHaveTextContent('2')
+    fetchSpy.mockRestore()
+  })
+
   it('applies KEEP to all visible assets', async () => {
     const user = userEvent.setup()
 
@@ -471,6 +510,29 @@ describe('App', () => {
     await user.keyboard('/')
 
     expect(searchInput).toHaveFocus()
+  })
+
+  it('toggles shortcuts help panel with dedicated button', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Voir raccourcis' }))
+    expect(screen.getByText(/Raccourcis desktop:/)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Masquer raccourcis' }))
+    expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
+  })
+
+  it('toggles shortcuts help panel with question mark shortcut', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.keyboard('?')
+    expect(screen.getByText(/Raccourcis desktop:/)).toBeInTheDocument()
+    await user.keyboard('?')
+    expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
   })
 
   it('previews then confirms purge on rejected asset', async () => {

@@ -11,12 +11,14 @@ import { INITIAL_ASSETS } from './data/mockAssets'
 import {
   type Asset,
   type AssetFilter,
+  type AssetState,
   countAssetsByState,
   filterAssets,
   getStateFromDecision,
   type DecisionAction,
   updateAssetsState,
 } from './domain/assets'
+import { getActionAvailability } from './domain/actionAvailability'
 import { type Locale } from './i18n/resources'
 import { isTypingContext } from './ui/keyboard'
 
@@ -77,6 +79,7 @@ function App() {
     kind: 'success' | 'error'
     message: string
   } | null>(null)
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
   const activityId = useRef(1)
 
   const visibleAssets = useMemo(() => {
@@ -91,6 +94,38 @@ function App() {
   const nextPendingAsset = useMemo(
     () => assets.find((asset) => asset.state === 'DECISION_PENDING') ?? null,
     [assets],
+  )
+  const selectedAssetState = selectedAsset?.state ?? null
+  const availability = useMemo(
+    () =>
+      getActionAvailability({
+        visibleCount: visibleAssets.length,
+        batchCount: batchIds.length,
+        previewingBatch,
+        executingBatch,
+        reportBatchId,
+        reportLoading,
+        undoCount: undoStack.length,
+        selectedAssetState: selectedAssetState as AssetState | null,
+        previewingPurge,
+        executingPurge,
+        purgePreviewMatchesSelected:
+          !!selectedAsset && purgePreviewAssetId === selectedAsset.id,
+      }),
+    [
+      visibleAssets.length,
+      batchIds.length,
+      previewingBatch,
+      executingBatch,
+      reportBatchId,
+      reportLoading,
+      undoStack.length,
+      selectedAsset,
+      selectedAssetState,
+      previewingPurge,
+      executingPurge,
+      purgePreviewAssetId,
+    ],
   )
   const locale = (i18n.resolvedLanguage ?? 'fr') as Locale
 
@@ -374,6 +409,24 @@ function App() {
         kind: 'success',
         message: t('actions.executeResult'),
       })
+      if (!batchId) {
+        return
+      }
+      setReportLoading(true)
+      setReportStatus(null)
+      try {
+        const report = await apiClient.getMoveBatchReport(batchId)
+        setReportData(report)
+        setReportStatus(t('actions.reportReady', { batchId }))
+      } catch (error) {
+        setReportStatus(
+          t('actions.reportError', {
+            message: mapApiErrorToMessage(error, t),
+          }),
+        )
+      } finally {
+        setReportLoading(false)
+      }
     } catch (error) {
       setExecuteStatus({
         kind: 'error',
@@ -547,6 +600,12 @@ function App() {
         }
       }
 
+      if (event.key === '?') {
+        event.preventDefault()
+        setShowShortcutsHelp((current) => !current)
+        return
+      }
+
       if (event.key === 'j') {
         event.preventDefault()
         selectVisibleByOffset(1)
@@ -681,7 +740,7 @@ function App() {
             type="button"
             variant="outline-success"
             onClick={() => applyDecisionToVisible('KEEP')}
-            disabled={visibleAssets.length === 0}
+            disabled={availability.keepVisibleDisabled}
           >
             {t('actions.keepVisible')}
             </Button>
@@ -689,7 +748,7 @@ function App() {
             type="button"
             variant="outline-danger"
             onClick={() => applyDecisionToVisible('REJECT')}
-            disabled={visibleAssets.length === 0}
+            disabled={availability.rejectVisibleDisabled}
           >
             {t('actions.rejectVisible')}
             </Button>
@@ -705,7 +764,7 @@ function App() {
             type="button"
             variant="outline-success"
             onClick={() => applyDecisionToBatch('KEEP')}
-            disabled={batchIds.length === 0}
+            disabled={availability.keepBatchDisabled}
           >
             {t('actions.keepBatch')}
             </Button>
@@ -713,7 +772,7 @@ function App() {
             type="button"
             variant="outline-danger"
             onClick={() => applyDecisionToBatch('REJECT')}
-            disabled={batchIds.length === 0}
+            disabled={availability.rejectBatchDisabled}
           >
             {t('actions.rejectBatch')}
             </Button>
@@ -721,7 +780,7 @@ function App() {
             type="button"
             variant="outline-secondary"
             onClick={() => setBatchIds([])}
-            disabled={batchIds.length === 0}
+            disabled={availability.clearBatchDisabled}
           >
             {t('actions.clearBatch')}
             </Button>
@@ -729,7 +788,7 @@ function App() {
               type="button"
               variant="outline-info"
               onClick={() => void previewBatchMove()}
-              disabled={batchIds.length === 0 || previewingBatch}
+              disabled={availability.previewBatchDisabled}
             >
               {previewingBatch ? t('actions.previewing') : t('actions.previewBatch')}
             </Button>
@@ -737,7 +796,7 @@ function App() {
               type="button"
               variant="info"
               onClick={() => void executeBatchMove()}
-              disabled={batchIds.length === 0 || executingBatch}
+              disabled={availability.executeBatchDisabled}
             >
               {executingBatch ? t('actions.executing') : t('actions.executeBatch')}
             </Button>
@@ -777,7 +836,7 @@ function App() {
                 type="button"
                 variant="outline-info"
                 onClick={() => void refreshBatchReport()}
-                disabled={!reportBatchId || reportLoading}
+                disabled={availability.refreshReportDisabled}
               >
                 {t('actions.reportFetch')}
               </Button>
@@ -814,7 +873,7 @@ function App() {
               type="button"
               variant="warning"
               onClick={undoLastAction}
-              disabled={undoStack.length === 0}
+              disabled={availability.undoDisabled}
             >
               {t('actions.undo')}
             </Button>
@@ -834,9 +893,24 @@ function App() {
               </ul>
             )}
           </section>
-          <p className="small text-secondary mb-0 mt-3">
-            {t('actions.shortcuts')}
-          </p>
+          <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
+            <Stack direction="horizontal" className="justify-content-between align-items-center gap-2">
+              <h3 className="h6 mb-0">{t('actions.shortcutsTitle')}</h3>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline-secondary"
+                onClick={() => setShowShortcutsHelp((current) => !current)}
+              >
+                {showShortcutsHelp
+                  ? t('actions.shortcutsToggleHide')
+                  : t('actions.shortcutsToggleShow')}
+              </Button>
+            </Stack>
+            {showShortcutsHelp ? (
+              <p className="small text-secondary mb-0 mt-2">{t('actions.shortcuts')}</p>
+            ) : null}
+          </section>
         </Card.Body>
       </Card>
 
@@ -953,7 +1027,7 @@ function App() {
                         type="button"
                         variant="outline-danger"
                         onClick={() => void previewSelectedAssetPurge()}
-                        disabled={selectedAsset.state !== 'DECIDED_REJECT' || previewingPurge}
+                        disabled={availability.previewPurgeDisabled}
                       >
                         {previewingPurge ? t('actions.purgePreviewing') : t('actions.purgePreview')}
                       </Button>
@@ -961,11 +1035,7 @@ function App() {
                         type="button"
                         variant="danger"
                         onClick={() => void executeSelectedAssetPurge()}
-                        disabled={
-                          selectedAsset.state !== 'DECIDED_REJECT' ||
-                          purgePreviewAssetId !== selectedAsset.id ||
-                          executingPurge
-                        }
+                        disabled={availability.executePurgeDisabled}
                       >
                         {executingPurge ? t('actions.purging') : t('actions.purgeConfirm')}
                       </Button>
