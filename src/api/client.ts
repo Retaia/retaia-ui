@@ -3,6 +3,8 @@ import type { components, paths } from './generated/openapi'
 type FetchLike = typeof fetch
 type AuthStatus = 401 | 403
 
+const defaultFetchImpl: FetchLike = (input, init) => globalThis.fetch(input, init)
+
 type ListAssetsQuery = NonNullable<paths['/assets']['get']['parameters']['query']>
 type ListAssetsResponse =
   paths['/assets']['get']['responses'][200]['content']['application/json']
@@ -71,7 +73,7 @@ function resolveConfig(
   if (typeof baseUrlOrConfig === 'object' && baseUrlOrConfig !== null) {
     return {
       baseUrl: baseUrlOrConfig.baseUrl ?? '/api/v1',
-      fetchImpl: baseUrlOrConfig.fetchImpl ?? fetch,
+      fetchImpl: baseUrlOrConfig.fetchImpl ?? defaultFetchImpl,
       getAccessToken: baseUrlOrConfig.getAccessToken,
       onAuthError: baseUrlOrConfig.onAuthError,
       credentials: baseUrlOrConfig.credentials ?? 'include',
@@ -80,7 +82,7 @@ function resolveConfig(
 
   return {
     baseUrl: baseUrlOrConfig ?? '/api/v1',
-    fetchImpl: legacyFetchImpl ?? fetch,
+    fetchImpl: legacyFetchImpl ?? defaultFetchImpl,
     getAccessToken: undefined,
     onAuthError: undefined,
     credentials: 'include' as RequestCredentials,
