@@ -168,6 +168,23 @@ describe('App', () => {
     window.localStorage.removeItem('retaia_ui_quick_filter_preset')
   })
 
+  it('applies quick presets with keyboard shortcuts 1 2 3', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.keyboard('1')
+    expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECISION_PENDING')
+    expect(screen.getByLabelText('Date de capture')).toHaveValue('LAST_7_DAYS')
+
+    await user.keyboard('2')
+    expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECIDED_REJECT')
+    expect(screen.getByLabelText('Type')).toHaveValue('IMAGE')
+
+    await user.keyboard('3')
+    expect(screen.getByLabelText('Type')).toHaveValue('VIDEO')
+    expect(screen.getByLabelText('Date de capture')).toHaveValue('LAST_30_DAYS')
+  })
+
   it('renders separate panels for general and batch actions', () => {
     render(<App />)
 
@@ -373,8 +390,10 @@ describe('App', () => {
 
     await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
     expect(screen.getByTestId('batch-execute-undo-status')).toBeInTheDocument()
+    expect(screen.getByTestId('batch-timeline')).toHaveTextContent('File d’attente')
     await user.click(screen.getByRole('button', { name: 'Exécuter maintenant' }))
     expect(screen.getByTestId('batch-execute-status')).toHaveTextContent('acceptée')
+    expect(screen.getByTestId('batch-timeline')).toHaveTextContent('Terminé')
 
     await user.click(screen.getByRole('button', { name: 'Rafraîchir rapport' }))
     expect(screen.getByTestId('batch-report-status')).toHaveTextContent(
@@ -393,6 +412,39 @@ describe('App', () => {
     expect(liveRegions.some((node) => node.textContent?.includes('Rapport chargé pour batch-123'))).toBe(
       true,
     )
+    fetchSpy.mockRestore()
+  })
+
+  it('shows error state in batch timeline when execution fails', async () => {
+    const user = userEvent.setup()
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = String(input)
+      if (url.endsWith('/batches/moves')) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              code: 'STATE_CONFLICT',
+              message: 'state conflict',
+              retryable: false,
+              correlation_id: 'c-1',
+            }),
+            { status: 409, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      }
+      return Promise.resolve(new Response(null, { status: 200 }))
+    })
+
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.keyboard('{/Shift}')
+    await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
+    await user.click(screen.getByRole('button', { name: 'Exécuter maintenant' }))
+
+    expect(screen.getByTestId('batch-execute-status')).toHaveTextContent('échec')
+    expect(screen.getByTestId('batch-timeline')).toHaveTextContent('Erreur')
     fetchSpy.mockRestore()
   })
 
@@ -433,6 +485,64 @@ describe('App', () => {
     )
     expect(screen.getByTestId('batch-report-status-value')).toHaveTextContent('DONE')
     expect(screen.getByTestId('batch-report-moved-value')).toHaveTextContent('2')
+    fetchSpy.mockRestore()
+  })
+
+  it('exports batch report as JSON and CSV', async () => {
+    const user = userEvent.setup()
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = String(input)
+      if (url.endsWith('/batches/moves')) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ batch_id: 'batch-123' }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+        )
+      }
+      if (url.endsWith('/batches/moves/batch-123')) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ status: 'DONE', moved: 2, failed: 0 }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+        )
+      }
+      return Promise.resolve(new Response(null, { status: 200 }))
+    })
+
+    const createObjectURL = vi.fn(() => 'blob:test')
+    const revokeObjectURL = vi.fn()
+    Object.defineProperty(URL, 'createObjectURL', {
+      value: createObjectURL,
+      configurable: true,
+    })
+    Object.defineProperty(URL, 'revokeObjectURL', {
+      value: revokeObjectURL,
+      configurable: true,
+    })
+    const clickSpy = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => {})
+
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
+    await user.keyboard('{/Shift}')
+    await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
+    await user.click(screen.getByRole('button', { name: 'Exécuter maintenant' }))
+
+    await user.click(screen.getByRole('button', { name: 'Exporter JSON' }))
+    await user.click(screen.getByRole('button', { name: 'Exporter CSV' }))
+
+    expect(createObjectURL).toHaveBeenCalledTimes(2)
+    expect(revokeObjectURL).toHaveBeenCalledTimes(2)
+    expect(clickSpy).toHaveBeenCalledTimes(2)
+    expect(screen.getByTestId('batch-report-export-status')).toHaveTextContent('CSV')
+
+    clickSpy.mockRestore()
     fetchSpy.mockRestore()
   })
 
@@ -582,6 +692,19 @@ describe('App', () => {
     expect(within(activityPanel).getByText('Aucune action pour le moment.')).toBeInTheDocument()
   })
 
+  it('clears activity log with l shortcut', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
+    const activityPanel = screen.getByLabelText("Journal d'actions")
+    expect(within(activityPanel).getByText('KEEP visibles (3)')).toBeInTheDocument()
+
+    await user.keyboard('l')
+
+    expect(within(activityPanel).getByText('Aucune action pour le moment.')).toBeInTheDocument()
+  })
+
   it('supports undo with Ctrl+Z shortcut', async () => {
     const user = userEvent.setup()
 
@@ -670,6 +793,21 @@ describe('App', () => {
     await user.keyboard('{Control>}a{/Control}')
 
     expect(screen.getByText('Batch sélectionné: 1')).toBeInTheDocument()
+  })
+
+  it('clears search with Escape when search input is focused', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const searchInput = screen.getByLabelText('Recherche')
+    await user.click(searchInput)
+    await user.keyboard('behind')
+    expect(searchInput).toHaveValue('behind')
+    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+
+    await user.keyboard('{Escape}')
+    expect(searchInput).toHaveValue('')
+    expect(screen.getByRole('heading', { name: 'Assets (3)' })).toBeInTheDocument()
   })
 
   it('selects a range in batch with Shift+ArrowDown', async () => {

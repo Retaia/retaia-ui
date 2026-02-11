@@ -102,6 +102,7 @@ function App() {
   const [reportLoading, setReportLoading] = useState(false)
   const [reportStatus, setReportStatus] = useState<string | null>(null)
   const [reportData, setReportData] = useState<unknown>(null)
+  const [reportExportStatus, setReportExportStatus] = useState<string | null>(null)
   const [previewingPurge, setPreviewingPurge] = useState(false)
   const [executingPurge, setExecutingPurge] = useState(false)
   const [purgePreviewAssetId, setPurgePreviewAssetId] = useState<string | null>(null)
@@ -198,6 +199,35 @@ function App() {
     }
     return t('assets.emptyBatch')
   }, [batchIds.length, batchOnly, filter, search, t])
+
+  const batchTimeline = useMemo(() => {
+    const queued = !!pendingBatchExecution
+    const running = executingBatch
+    const failed = executeStatus?.kind === 'error'
+    const done = executeStatus?.kind === 'success' && !queued && !running
+
+    return [
+      {
+        key: 'queued',
+        active: queued,
+        done: !queued && (running || done || failed),
+        label: t('actions.timelineQueued'),
+      },
+      {
+        key: 'running',
+        active: running,
+        done: !running && (done || failed),
+        label: t('actions.timelineRunning'),
+      },
+      {
+        key: 'done',
+        active: done,
+        done,
+        error: failed,
+        label: failed ? t('actions.timelineError') : t('actions.timelineDone'),
+      },
+    ]
+  }, [executeStatus?.kind, executingBatch, pendingBatchExecution, t])
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -765,6 +795,50 @@ function App() {
     }
   }, [apiClient, reportBatchId, reportLoading, t])
 
+  const exportBatchReport = useCallback(
+    (format: 'json' | 'csv') => {
+      if (!reportData || !reportBatchId || typeof document === 'undefined') {
+        return
+      }
+
+      const fallbackName = `batch-${reportBatchId}`
+      let content = ''
+      let mimeType = ''
+      let extension = ''
+
+      if (format === 'json') {
+        content = `${JSON.stringify(reportData, null, 2)}\n`
+        mimeType = 'application/json'
+        extension = 'json'
+      } else {
+        const rows =
+          typeof reportData === 'object' && reportData !== null
+            ? Object.entries(reportData as Record<string, unknown>).map(
+                ([key, value]) => `"${key.replaceAll('"', '""')}","${String(typeof value === 'object' ? JSON.stringify(value) : value).replaceAll('"', '""')}"`,
+              )
+            : [`"value","${String(reportData).replaceAll('"', '""')}"`]
+        content = ['key,value', ...rows].join('\n')
+        mimeType = 'text/csv'
+        extension = 'csv'
+      }
+
+      const blob = new Blob([content], { type: mimeType })
+      const objectUrl = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = objectUrl
+      link.download = `${fallbackName}.${extension}`
+      link.click()
+      URL.revokeObjectURL(objectUrl)
+
+      setReportExportStatus(
+        t('actions.reportExportDone', {
+          format: extension.toUpperCase(),
+        }),
+      )
+    },
+    [reportBatchId, reportData, t],
+  )
+
   const previewSelectedAssetPurge = useCallback(async () => {
     if (!selectedAsset || selectedAsset.state !== 'DECIDED_REJECT' || previewingPurge) {
       return
@@ -837,6 +911,17 @@ function App() {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (isTypingContext(event.target)) {
+        const target = event.target
+        if (
+          event.key === 'Escape' &&
+          target instanceof HTMLInputElement &&
+          target.id === 'asset-search' &&
+          target.value !== ''
+        ) {
+          event.preventDefault()
+          setSearch('')
+          return
+        }
         return
       }
 
@@ -889,6 +974,29 @@ function App() {
         if (key === 'd') {
           event.preventDefault()
           toggleDensityMode()
+          return
+        }
+        if (key === 'l') {
+          event.preventDefault()
+          clearActivityLog()
+          return
+        }
+        if (key === '1') {
+          event.preventDefault()
+          saveQuickFilterPreset('PENDING_RECENT')
+          applyQuickFilterPreset('PENDING_RECENT')
+          return
+        }
+        if (key === '2') {
+          event.preventDefault()
+          saveQuickFilterPreset('IMAGES_REJECTED')
+          applyQuickFilterPreset('IMAGES_REJECTED')
+          return
+        }
+        if (key === '3') {
+          event.preventDefault()
+          saveQuickFilterPreset('MEDIA_REVIEW')
+          applyQuickFilterPreset('MEDIA_REVIEW')
           return
         }
         if (event.key === '/') {
@@ -963,6 +1071,7 @@ function App() {
     toggleBatchOnly,
     openNextPending,
     toggleDensityMode,
+    clearActivityLog,
     selectAllVisibleInBatch,
     selectVisibleByOffset,
     toggleBatchForSelectedAsset,
@@ -1206,6 +1315,23 @@ function App() {
                 ].join(' · ')}
               </p>
             </section>
+            <section className="mt-2" aria-label={t('actions.timelineTitle')}>
+              <p className="mb-1 small text-secondary">{t('actions.timelineTitle')}</p>
+              <div data-testid="batch-timeline" className="d-flex flex-wrap gap-2">
+                {batchTimeline.map((step) => (
+                  <span
+                    key={step.key}
+                    className={[
+                      'badge',
+                      step.active ? 'text-bg-info' : step.done ? 'text-bg-success' : 'text-bg-secondary',
+                      step.error ? 'text-bg-danger' : '',
+                    ].join(' ')}
+                  >
+                    {step.label}
+                  </span>
+                ))}
+              </div>
+            </section>
             {previewingBatch || executingBatch ? (
               <p data-testid="batch-busy-status" className="small text-secondary mt-2 mb-0">
                 {t('actions.batchBusy')}
@@ -1276,6 +1402,22 @@ function App() {
               >
                 {t('actions.reportFetch')}
               </Button>
+              <Button
+                type="button"
+                variant="outline-secondary"
+                onClick={() => exportBatchReport('json')}
+                disabled={!reportData}
+              >
+                {t('actions.reportExportJson')}
+              </Button>
+              <Button
+                type="button"
+                variant="outline-secondary"
+                onClick={() => exportBatchReport('csv')}
+                disabled={!reportData}
+              >
+                {t('actions.reportExportCsv')}
+              </Button>
               <p className="small text-secondary mb-0">
                 {reportBatchId ? `batch_id: ${reportBatchId}` : t('actions.reportEmpty')}
               </p>
@@ -1302,6 +1444,11 @@ function App() {
                   noErrors: t('actions.reportNoErrors'),
                 }}
               />
+            ) : null}
+            {reportExportStatus ? (
+              <p data-testid="batch-report-export-status" className="small mt-2 mb-0 text-secondary">
+                {reportExportStatus}
+              </p>
             ) : null}
           </section>
           <Stack direction="horizontal" className="flex-wrap align-items-center gap-2 mt-3">

@@ -14,8 +14,10 @@
 - `Exécuter batch`: programme l'exécution avec une fenêtre d'annulation de 6s.
 - `Annuler exécution`: annule avant l'appel API.
 - `Exécuter maintenant`: confirme immédiatement sans attendre la fin des 6s.
+- `Timeline batch`: suit l'état `File d'attente -> En cours -> Terminé/Erreur`.
 - le rapport se charge automatiquement après exécution.
 - `Rafraîchir rapport`: relancer la lecture du rapport si besoin.
+- `Exporter JSON` / `Exporter CSV`: exporter le rapport batch courant.
 
 ## Vues enregistrées
 
@@ -53,10 +55,13 @@
 - `b`: bascule filtre "batch seul".
 - `n`: ouvre le prochain asset à traiter et sort des filtres actifs.
 - `d`: alterne la densité de liste (confortable/compacte).
+- `l`: vide le journal d'actions.
+- `1` / `2` / `3`: applique les presets rapides enregistrés.
 - `/`: focus direct sur la recherche.
 - `Shift+Flèches`: extension de sélection batch.
 - `Ctrl/Cmd+A`: ajouter visibles au batch.
 - `Ctrl/Cmd+Z`: annuler dernière action.
+- `Escape`: ferme la sélection, ou vide la recherche si le focus est dans le champ.
 
 ## Erreurs fréquentes
 
