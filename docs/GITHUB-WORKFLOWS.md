@@ -6,23 +6,26 @@
 
 Définir un pipeline CI UI orienté qualité React/TypeScript avec TDD/BDD.
 
-## Pipeline recommandé
+## Pipeline en place (aligné core)
 
-Jobs minimum:
+Le workflow CI est défini dans:
 
-1. `lint`
-2. `typecheck`
-3. `unit-integration`
-4. `bdd-e2e`
-5. `build`
+- `.github/workflows/ci.yml`
+
+Jobs:
+
+1. `no-black-magic`
+2. `lint`
+3. `test`
+4. `security-audit`
 
 ## Gates bloquants
 
+- `./scripts/no-black-magic.sh`
 - `npm run lint`
 - `npm run typecheck`
 - `npm run test:coverage`
-- `npm run bdd`
-- `npm run build`
+- `npm run security:audit`
 
 ## Gates de conformité specs
 
@@ -37,11 +40,10 @@ Jobs minimum:
 
 ## Checks requis avant merge
 
+- `no-black-magic`
 - `lint`
-- `typecheck`
-- `unit-integration`
-- `bdd-e2e`
-- `build`
+- `test`
+- `security-audit`
 
 ## Politique de couverture
 
