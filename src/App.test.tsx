@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import App from './App'
 
@@ -120,6 +120,57 @@ describe('App', () => {
     expect(screen.getByText('Batch sélectionné: 0')).toBeInTheDocument()
     expect(within(getAssetsPanel()).getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
     expect(within(getAssetsPanel()).getByText('A-003 - DECIDED_KEEP')).toBeInTheDocument()
+  })
+
+  it('previews selected batch with API call', async () => {
+    const user = userEvent.setup()
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response(null, { status: 200 }))
+
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
+    await user.keyboard('{/Shift}')
+    await user.click(screen.getByRole('button', { name: 'Prévisualiser batch' }))
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      '/api/v1/batches/moves/preview',
+      expect.objectContaining({
+        method: 'POST',
+      }),
+    )
+    expect(
+      screen.getByText('Prévisualisation prête pour BOTH (2 assets)'),
+    ).toBeInTheDocument()
+    fetchSpy.mockRestore()
+  })
+
+  it('shows preview error when API fails', async () => {
+    const user = userEvent.setup()
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          code: 'FORBIDDEN_SCOPE',
+          message: 'forbidden',
+          retryable: false,
+          correlation_id: 'c-1',
+        }),
+        { status: 403, headers: { 'content-type': 'application/json' } },
+      ),
+    )
+
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.keyboard('{/Shift}')
+    await user.click(screen.getByRole('button', { name: 'Prévisualiser batch' }))
+
+    expect(screen.getByText('Prévisualisation en échec: FORBIDDEN_SCOPE (403)')).toBeInTheDocument()
+    fetchSpy.mockRestore()
   })
 
   it('applies KEEP to all visible assets', async () => {
