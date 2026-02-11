@@ -18,6 +18,7 @@ Jobs:
 2. `lint`
 3. `test`
 4. `security-audit`
+5. `e2e-bdd`
 
 ## Gates bloquants
 
@@ -26,6 +27,7 @@ Jobs:
 - `npm run typecheck`
 - `npm run test:coverage`
 - `npm run security:audit`
+- `npm run e2e:bdd:ci`
 
 ## Gates de conformité specs
 
@@ -44,6 +46,7 @@ Jobs:
 - `lint`
 - `test`
 - `security-audit`
+- `e2e-bdd`
 
 ## Politique de couverture
 
