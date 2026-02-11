@@ -51,3 +51,10 @@ Feature: Workflow de review desktop-like
     Given je suis sur la page d'accueil
     When je sélectionne tous les assets visibles via Ctrl/Cmd+A
     Then le batch sélectionné affiche 3
+
+  Scenario: Filtrer la liste sur le batch via raccourci clavier
+    Given je suis sur la page d'accueil
+    When je fais Maj+clic sur l'asset "interview-camera-a.mov"
+    And je fais Maj+clic sur l'asset "behind-the-scenes.jpg"
+    And j'appuie sur la touche "b"
+    Then le titre principal "Assets (2)" est visible

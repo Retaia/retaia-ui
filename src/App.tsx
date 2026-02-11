@@ -48,6 +48,7 @@ function App() {
   )
   const [filter, setFilter] = useState<AssetFilter>('ALL')
   const [search, setSearch] = useState('')
+  const [batchOnly, setBatchOnly] = useState(false)
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
   const [selectionAnchorId, setSelectionAnchorId] = useState<string | null>(null)
@@ -80,8 +81,12 @@ function App() {
   const activityId = useRef(1)
 
   const visibleAssets = useMemo(() => {
-    return filterAssets(assets, filter, search)
-  }, [assets, filter, search])
+    const filtered = filterAssets(assets, filter, search)
+    if (!batchOnly) {
+      return filtered
+    }
+    return filtered.filter((asset) => batchIds.includes(asset.id))
+  }, [assets, batchIds, batchOnly, filter, search])
 
   const counts = useMemo(() => countAssetsByState(assets), [assets])
   const selectedAsset = useMemo(
@@ -203,13 +208,21 @@ function App() {
   }, [filter, recordAction, search, t])
 
   const clearFilters = () => {
-    if (filter === 'ALL' && search === '') {
+    if (filter === 'ALL' && search === '' && !batchOnly) {
       return
     }
     recordAction(t('activity.filterReset'))
     setFilter('ALL')
     setSearch('')
+    setBatchOnly(false)
   }
+
+  const toggleBatchOnly = useCallback(() => {
+    recordAction(
+      batchOnly ? t('activity.batchOnlyOff') : t('activity.batchOnlyOn'),
+    )
+    setBatchOnly((current) => !current)
+  }, [batchOnly, recordAction, t])
 
   const selectAllVisibleInBatch = useCallback(() => {
     const missingCount = visibleAssets.filter((asset) => !batchIds.includes(asset.id)).length
@@ -502,6 +515,11 @@ function App() {
           focusPending()
           return
         }
+        if (key === 'b') {
+          event.preventDefault()
+          toggleBatchOnly()
+          return
+        }
         if (event.key === '/') {
           event.preventDefault()
           const searchInput = document.getElementById('asset-search')
@@ -565,6 +583,7 @@ function App() {
     selectedAssetId,
     visibleAssets,
     focusPending,
+    toggleBatchOnly,
     selectAllVisibleInBatch,
     selectVisibleByOffset,
     toggleBatchForSelectedAsset,
@@ -656,6 +675,9 @@ function App() {
           <Stack direction="horizontal" className="flex-wrap gap-2">
             <Button type="button" variant="outline-primary" onClick={focusPending}>
               {t('actions.focusPending')}
+            </Button>
+            <Button type="button" variant={batchOnly ? 'primary' : 'outline-primary'} onClick={toggleBatchOnly}>
+              {batchOnly ? t('actions.batchOnlyOn') : t('actions.batchOnlyOff')}
             </Button>
             <Button
             type="button"

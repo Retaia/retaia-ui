@@ -249,6 +249,10 @@ When('je clique sur le bouton {string}', async (buttonLabel: string) => {
   await button.click()
 })
 
+When("j'appuie sur la touche {string}", async (key: string) => {
+  await page.keyboard.press(key)
+})
+
 Then('l\'historique disponible affiche {int}', async (count: number) => {
   await expect(page.getByText(`Historique disponible: ${count}`)).toBeVisible()
 })
