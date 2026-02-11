@@ -15,6 +15,7 @@
 
 - Bootstrap en priorité (components + utility classes).
 - CSS custom à éviter; ne garder que les variables Sass de thème global quand nécessaire.
+- thème actif initial: Bootswatch `Cyborg` (en attendant une identité de marque).
 
 ## État actuel
 

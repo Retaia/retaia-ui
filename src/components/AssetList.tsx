@@ -1,4 +1,5 @@
 import type { Asset, DecisionAction } from '../domain/assets'
+import { Badge, Button, ListGroup, Stack } from 'react-bootstrap'
 
 type AssetListProps = {
   assets: Asset[]
@@ -20,14 +21,14 @@ export function AssetList({
   }
 
   return (
-    <ul className="list-group list-group-flush" role="listbox">
+    <ListGroup as="ul" variant="flush" role="listbox">
       {assets.map((asset, index) => (
-        <li
+        <ListGroup.Item
+          as="li"
           key={asset.id}
           data-asset-id={asset.id}
+          action
           className={[
-            'list-group-item',
-            'list-group-item-action',
             'd-flex',
             'justify-content-between',
             'align-items-center',
@@ -57,13 +58,16 @@ export function AssetList({
               {asset.id} - {asset.state}
             </p>
             {batchIds.includes(asset.id) ? (
-              <span className="badge text-bg-warning mt-2">Batch</span>
+              <Badge bg="warning" className="mt-2">
+                Batch
+              </Badge>
             ) : null}
           </div>
-          <div className="d-flex gap-2 flex-wrap">
-            <button
+          <Stack direction="horizontal" gap={2} className="flex-wrap">
+            <Button
               type="button"
-              className="btn btn-sm btn-outline-success"
+              size="sm"
+              variant="outline-success"
               onClick={(event) => {
                 event.stopPropagation()
                 onDecision(asset.id, 'KEEP')
@@ -71,10 +75,11 @@ export function AssetList({
               disabled={asset.state === 'DECIDED_KEEP'}
             >
               KEEP
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className="btn btn-sm btn-outline-danger"
+              size="sm"
+              variant="outline-danger"
               onClick={(event) => {
                 event.stopPropagation()
                 onDecision(asset.id, 'REJECT')
@@ -82,10 +87,11 @@ export function AssetList({
               disabled={asset.state === 'DECIDED_REJECT'}
             >
               REJECT
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className="btn btn-sm btn-outline-secondary"
+              size="sm"
+              variant="outline-secondary"
               onClick={(event) => {
                 event.stopPropagation()
                 onDecision(asset.id, 'CLEAR')
@@ -93,10 +99,10 @@ export function AssetList({
               disabled={asset.state === 'DECISION_PENDING'}
             >
               CLEAR
-            </button>
-          </div>
-        </li>
+            </Button>
+          </Stack>
+        </ListGroup.Item>
       ))}
-    </ul>
+    </ListGroup>
   )
 }

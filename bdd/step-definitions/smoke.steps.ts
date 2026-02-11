@@ -1,7 +1,8 @@
-import { After, Before, Given, Then, When } from '@cucumber/cucumber'
+import { After, Before, Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber'
 import { chromium, expect, type Browser, type BrowserContext, type Page } from '@playwright/test'
 
 const APP_URL = 'http://127.0.0.1:4173'
+setDefaultTimeout(15000)
 
 let browser: Browser
 let context: BrowserContext
@@ -64,4 +65,31 @@ Then('l\'état {string} est visible', async (stateLabel: string) => {
 When("j'utilise le raccourci annuler", async () => {
   await page.keyboard.press('Control+z')
   await page.keyboard.press('Meta+z')
+})
+
+When("j'ouvre le premier asset au clavier", async () => {
+  await page.keyboard.press('Enter')
+})
+
+When("j'étends la sélection de plage jusqu'à 3 assets", async () => {
+  await page.keyboard.down('Shift')
+  await page.keyboard.press('ArrowDown')
+  await page.keyboard.press('ArrowDown')
+  await page.keyboard.up('Shift')
+})
+
+When('j\'applique l\'action {string}', async (actionLabel: string) => {
+  await page.locator('button', { hasText: actionLabel }).first().click()
+})
+
+When('je recherche {string}', async (term: string) => {
+  await page.getByLabel('Recherche').fill(term)
+})
+
+When('je clique sur le bouton {string}', async (buttonLabel: string) => {
+  await page.getByRole('button', { name: buttonLabel }).click()
+})
+
+Then('l\'historique disponible affiche {int}', async (count: number) => {
+  await expect(page.getByText(`Historique disponible: ${count}`)).toBeVisible()
 })

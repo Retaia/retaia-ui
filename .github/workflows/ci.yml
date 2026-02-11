@@ -84,3 +84,33 @@ jobs:
 
       - name: NPM security audit
         run: npm run security:audit
+
+  e2e-bdd:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run BDD E2E tests
+        run: npm run e2e:bdd:ci
+
+      - name: Upload BDD artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bdd-test-results
+          path: |
+            test-results/**
