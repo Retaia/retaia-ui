@@ -606,6 +606,8 @@ function App() {
           </Stack>
           {previewStatus ? (
             <p
+              role="status"
+              aria-live="polite"
               className={[
                 'mt-2',
                 'mb-0',
@@ -617,6 +619,8 @@ function App() {
           ) : null}
           {executeStatus ? (
             <p
+              role="status"
+              aria-live="polite"
               className={[
                 'mt-2',
                 'mb-0',
@@ -642,7 +646,9 @@ function App() {
               </p>
             </Stack>
             {reportStatus ? (
-              <p className="small mt-2 mb-0 text-secondary">{reportStatus}</p>
+              <p role="status" aria-live="polite" className="small mt-2 mb-0 text-secondary">
+                {reportStatus}
+              </p>
             ) : null}
             {reportData ? (
               <BatchReportView

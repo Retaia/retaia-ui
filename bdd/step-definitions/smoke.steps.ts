@@ -163,6 +163,24 @@ When("j'étends la sélection de plage jusqu'à 3 assets", async () => {
   await page.keyboard.up('Shift')
 })
 
+When("j'ajoute l'asset sélectionné au batch via Shift+Espace", async () => {
+  await page.evaluate(() => {
+    window.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: ' ',
+        code: 'Space',
+        shiftKey: true,
+        bubbles: true,
+      }),
+    )
+  })
+})
+
+When(/^je sélectionne tous les assets visibles via Ctrl\/Cmd\+A$/, async () => {
+  await page.keyboard.press('Control+a')
+  await page.keyboard.press('Meta+a')
+})
+
 When('j\'applique l\'action {string}', async (actionLabel: string) => {
   await page.locator('button', { hasText: actionLabel }).first().click()
 })
