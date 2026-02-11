@@ -130,6 +130,12 @@ Feature: Workflow de review desktop-like
     When j'appuie sur la touche "/"
     Then le champ de recherche a le focus
 
+  Scenario: Vider la recherche avec Escape
+    Given je suis sur la page d'accueil
+    When je recherche "behind"
+    And j'appuie sur la touche "Escape"
+    Then le titre principal "Assets (3)" est visible
+
   Scenario: Fermer la sélection au clavier
     Given je suis sur la page d'accueil
     When j'ouvre le premier asset au clavier
