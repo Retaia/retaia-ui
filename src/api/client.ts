@@ -11,10 +11,7 @@ type MovePreviewPayload =
   paths['/batches/moves/preview']['post']['requestBody']['content']['application/json']
 type MoveExecutePayload =
   paths['/batches/moves']['post']['requestBody']['content']['application/json']
-type MoveExecuteResponse =
-  paths['/batches/moves']['post']['responses'][200]['content'] extends never
-    ? Record<string, unknown> | void
-    : paths['/batches/moves']['post']['responses'][200]['content']['application/json']
+type MoveExecuteResponse = Record<string, unknown> | void
 type MoveStatusResponse =
   paths['/batches/moves/{batch_id}']['get']['responses'][200]['content']['application/json']
 
