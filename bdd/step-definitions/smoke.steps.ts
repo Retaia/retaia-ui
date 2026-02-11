@@ -23,7 +23,7 @@ Before(async () => {
   context = await browser.newContext()
   page = await context.newPage()
 
-  await page.route('**/api/v1/batches/moves/preview', async (route) => {
+  await page.route('**/batches/moves/preview', async (route) => {
     if (previewShouldFailScope) {
       await route.fulfill({
         status: 403,
@@ -44,7 +44,7 @@ Before(async () => {
     })
   })
 
-  await page.route('**/api/v1/batches/moves/batch-e2e-1', async (route) => {
+  await page.route('**/batches/moves/batch-e2e-1', async (route) => {
     if (reportShouldFailTemporary) {
       await route.fulfill({
         status: 503,
@@ -65,7 +65,7 @@ Before(async () => {
     })
   })
 
-  await page.route('**/api/v1/batches/moves', async (route) => {
+  await page.route('**/batches/moves', async (route) => {
     if (executeShouldFailStateConflict) {
       await route.fulfill({
         status: 409,

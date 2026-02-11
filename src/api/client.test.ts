@@ -65,4 +65,52 @@ describe('api client', () => {
     const error = new ApiError(500, 'oops')
     expect(error.name).toBe('ApiError')
   })
+
+  it('adds bearer auth and credentials when configured', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ items: [], next_cursor: null }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+
+    const api = createApiClient({
+      baseUrl: '/api/v1',
+      fetchImpl: fetchMock,
+      getAccessToken: () => 'token-123',
+    })
+
+    await api.listAssets()
+    const requestInit = fetchMock.mock.calls[0]?.[1]
+    expect(requestInit?.credentials).toBe('include')
+    expect(requestInit?.headers).toMatchObject({
+      Authorization: 'Bearer token-123',
+    })
+  })
+
+  it('calls onAuthError for 401 and 403', async () => {
+    const onAuthError = vi.fn()
+    const fetch401 = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          code: 'FORBIDDEN_SCOPE',
+          message: 'forbidden',
+          retryable: false,
+          correlation_id: 'c-1',
+        }),
+        { status: 403, headers: { 'content-type': 'application/json' } },
+      ),
+    )
+    const api = createApiClient({
+      baseUrl: '/api/v1',
+      fetchImpl: fetch401,
+      onAuthError,
+    })
+
+    await expect(api.previewMoveBatch({ include: 'KEEP' })).rejects.toBeInstanceOf(ApiError)
+    expect(onAuthError).toHaveBeenCalledWith(
+      403,
+      expect.objectContaining({ code: 'FORBIDDEN_SCOPE' }),
+    )
+  })
 })

@@ -27,6 +27,10 @@ Donner un cadre d'implémentation local pour `retaia-ui` avec React + TypeScript
   - `npm run api:types:generate`
 - Fichier généré: `src/api/generated/openapi.ts`
 - Client HTTP typé local: `src/api/client.ts`
+- Auth API côté UI:
+  - session cookie envoyée par défaut (`credentials: include`)
+  - token Bearer optionnel via `VITE_API_TOKEN` (dev/CI) ou `localStorage["retaia_api_token"]`
+  - hook central `onAuthError(401|403)` dans le client pour gérer les redirects/login
 
 ## UI Desktop-like (référence locale)
 
