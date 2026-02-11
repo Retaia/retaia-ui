@@ -80,6 +80,7 @@ Règles UX:
 - navigation clavier: garder la ligne active visible (`scrollIntoView` en mode `nearest`)
 - retours asynchrones (preview/execute/report): exposer des live regions (`role="status"` + `aria-live="polite"`)
 - exécution batch: déclencher un chargement automatique du rapport quand `batch_id` est disponible
+- pendant preview/exécution batch: verrouiller temporairement les décisions batch (`KEEP/REJECT/Vider`)
 
 ## TDD (obligatoire par défaut)
 
