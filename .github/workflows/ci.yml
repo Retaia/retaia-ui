@@ -107,8 +107,12 @@ jobs:
       - name: Run BDD E2E tests
         run: npm run e2e:bdd:ci
 
-      - name: Upload BDD artifacts on failure
-        if: failure()
+      - name: Generate BDD HTML report
+        if: always()
+        run: npm run bdd:report:ci
+
+      - name: Upload BDD artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bdd-test-results
