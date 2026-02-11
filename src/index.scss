@@ -1,9 +1,13 @@
+$font-family-sans-serif: Inter, "Segoe UI", sans-serif;
+$body-bg: #f3f4f6;
+$body-color: #111827;
+$border-radius: 0.5rem;
+
+@import "bootstrap/scss/bootstrap";
+
 :root {
-  font-family: Inter, "Segoe UI", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #111827;
-  background: #f3f4f6;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -18,18 +22,6 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  padding: 8px 12px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  font-family: inherit;
-  color: #111827;
-  background: #f9fafb;
-  cursor: pointer;
 }
 
 button:disabled {

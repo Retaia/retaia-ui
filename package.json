@@ -21,8 +21,10 @@
     "security:audit": "npm audit --omit=dev"
   },
   "dependencies": {
+    "bootstrap": "^5.3.8",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "sass": "^1.97.3"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.1",

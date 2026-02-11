@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import './App.css'
+import './App.scss'
 import { AssetList } from './components/AssetList'
 import { ReviewSummary } from './components/ReviewSummary'
 import { ReviewToolbar } from './components/ReviewToolbar'

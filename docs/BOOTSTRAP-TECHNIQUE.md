@@ -6,6 +6,7 @@
 ## Stack cible
 
 - Runtime UI: React 19 + TypeScript + Vite
+- UI/CSS: Bootstrap 5 + Sass (SCSS)
 - Lint: ESLint
 - Tests TDD: Vitest + Testing Library + MSW
 - Tests BDD: Cucumber.js + Playwright (TypeScript)
@@ -15,19 +16,12 @@
 Présent:
 
 - React + TypeScript + Vite
+- Bootstrap 5 + Sass (SCSS)
 - ESLint
 
 À ajouter pour TDD/BDD TypeScript:
 
-- `vitest`
-- `@testing-library/react`
-- `@testing-library/user-event`
-- `@testing-library/jest-dom`
-- `msw`
-- `@vitest/coverage-v8`
-- `@cucumber/cucumber`
-- `playwright`
-- `tsx` (runtime TS pour steps Cucumber)
+- rien de bloquant (stack de tests déjà intégrée)
 
 ## Scripts npm recommandés
 
