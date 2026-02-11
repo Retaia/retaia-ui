@@ -461,4 +461,49 @@ describe('App', () => {
     expect(screen.getByTestId('asset-purge-status')).toHaveTextContent('scope manquant')
     fetchSpy.mockRestore()
   })
+  it('shows purge error when confirmation fails with state conflict', async () => {
+    const user = userEvent.setup()
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = String(input)
+      if (url.endsWith('/assets/A-003/purge/preview')) {
+        return Promise.resolve(new Response(null, { status: 200 }))
+      }
+      if (url.endsWith('/assets/A-003/purge')) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              code: 'STATE_CONFLICT',
+              message: 'state conflict',
+              retryable: false,
+              correlation_id: 'c-4',
+            }),
+            { status: 409, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      }
+      return Promise.resolve(new Response(null, { status: 200 }))
+    })
+
+    render(<App />)
+
+    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
+    await user.click(screen.getByRole('button', { name: 'Prévisualiser purge' }))
+    await user.click(screen.getByRole('button', { name: 'Confirmer purge' }))
+
+    expect(screen.getByTestId('asset-purge-status')).toHaveTextContent("Conflit d'état")
+    expect(within(getAssetsPanel()).getByText('behind-the-scenes.jpg')).toBeInTheDocument()
+    fetchSpy.mockRestore()
+  })
+
+  it('keeps purge confirmation disabled until preview is successful', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
+    expect(screen.getByRole('button', { name: 'Confirmer purge' })).toBeDisabled()
+
+    await user.click(within(getDetailPanel()).getByRole('button', { name: 'KEEP' }))
+    expect(screen.getByRole('button', { name: 'Prévisualiser purge' })).toBeDisabled()
+  })
 })
