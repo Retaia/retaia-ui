@@ -15,6 +15,12 @@
 - le rapport se charge automatiquement après exécution.
 - `Rafraîchir rapport`: relancer la lecture du rapport si besoin.
 
+## Vues enregistrées
+
+- `Standard`: revient à la vue globale.
+- `À traiter`: applique la vue `DECISION_PENDING`.
+- `Batch`: active la vue `batch seul`.
+
 ## Purge d'un asset rejeté
 
 - ouvrir le détail d'un asset en `DECIDED_REJECT`

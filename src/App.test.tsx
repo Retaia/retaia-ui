@@ -115,6 +115,29 @@ describe('App', () => {
     expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
   })
 
+  it('applies saved pending view', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'À traiter' }))
+
+    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+  })
+
+  it('applies saved batch view', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.keyboard('{/Shift}')
+    await user.click(screen.getByRole('button', { name: 'Batch' }))
+
+    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+    expect(within(getAssetsPanel()).getByText('interview-camera-a.mov')).toBeInTheDocument()
+  })
+
   it('renders separate panels for general and batch actions', () => {
     render(<App />)
 
