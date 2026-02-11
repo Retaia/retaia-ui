@@ -52,6 +52,11 @@ Feature: Workflow de review desktop-like
     When je sélectionne tous les assets visibles via Ctrl/Cmd+A
     Then le batch sélectionné affiche 3
 
+  Scenario: Ouvrir le prochain asset à traiter via raccourci
+    Given je suis sur la page d'accueil
+    When j'ouvre le prochain asset à traiter via la touche n
+    Then le panneau détail affiche l'asset "interview-camera-a.mov"
+
   Scenario: Vider le journal d'actions
     Given je suis sur la page d'accueil
     When je clique sur le bouton "KEEP visibles"

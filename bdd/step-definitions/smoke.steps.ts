@@ -210,6 +210,10 @@ When("j'ouvre le premier asset au clavier", async () => {
   await page.keyboard.press('Enter')
 })
 
+When("j'ouvre le prochain asset à traiter via la touche n", async () => {
+  await page.keyboard.press('n')
+})
+
 When("j'étends la sélection de plage jusqu'à 3 assets", async () => {
   await page.keyboard.down('Shift')
   await page.keyboard.press('ArrowDown')
