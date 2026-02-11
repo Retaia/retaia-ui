@@ -142,4 +142,64 @@ describe('api client', () => {
     })
     expect(requestInit?.body).toBe(JSON.stringify({ confirm: true }))
   })
+
+  it('skips nullish query params when building query string', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ items: [], next_cursor: null }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+
+    const api = createApiClient('/api/v1', fetchMock)
+    await api.listAssets({ state: 'DECISION_PENDING', cursor: null, limit: undefined })
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/assets?state=DECISION_PENDING',
+      expect.any(Object),
+    )
+  })
+
+  it('falls back to generic HTTP message when error payload is invalid', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response('oops', {
+        status: 500,
+        headers: { 'content-type': 'text/plain' },
+      }),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await expect(api.listAssets()).rejects.toMatchObject({
+      status: 500,
+      message: 'HTTP 500',
+    })
+  })
+
+  it('returns undefined for 204 and non-json responses', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+      .mockResolvedValueOnce(
+        new Response('ok', {
+          status: 200,
+          headers: { 'content-type': 'text/plain' },
+        }),
+      )
+
+    const api = createApiClient('/api/v1', fetchMock)
+    await expect(api.previewMoveBatch({ include: 'KEEP' })).resolves.toBeUndefined()
+    await expect(api.previewMoveBatch({ include: 'REJECT' })).resolves.toBeUndefined()
+  })
+
+  it('returns an empty list when items is missing in listAssetSummaries', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ next_cursor: null }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await expect(api.listAssetSummaries()).resolves.toEqual([])
+  })
 })
