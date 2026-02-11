@@ -9,6 +9,8 @@ let browser: Browser
 let context: BrowserContext
 let page: Page
 let previewShouldFailScope = false
+let previewTemporaryOnce = false
+let previewTemporaryCalls = 0
 let executeShouldFailStateConflict = false
 let reportShouldFailTemporary = false
 let purgePreviewShouldFailScope = false
@@ -16,6 +18,8 @@ let purgeExecuteShouldFailStateConflict = false
 
 Before(async () => {
   previewShouldFailScope = false
+  previewTemporaryOnce = false
+  previewTemporaryCalls = 0
   executeShouldFailStateConflict = false
   reportShouldFailTemporary = false
   purgePreviewShouldFailScope = false
@@ -37,6 +41,20 @@ Before(async () => {
           message: 'forbidden',
           retryable: false,
           correlation_id: 'bdd-corr-1',
+        }),
+      })
+      return
+    }
+    if (previewTemporaryOnce && previewTemporaryCalls === 0) {
+      previewTemporaryCalls += 1
+      await route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'TEMPORARY_UNAVAILABLE',
+          message: 'temporary unavailable',
+          retryable: true,
+          correlation_id: 'bdd-corr-retry-preview',
         }),
       })
       return
@@ -144,6 +162,10 @@ Given("je suis sur la page d'accueil", async () => {
 
 Given('le mock API retourne FORBIDDEN_SCOPE sur la preview batch', async () => {
   previewShouldFailScope = true
+})
+
+Given('le mock API retourne TEMPORARY_UNAVAILABLE une fois sur la preview batch', async () => {
+  previewTemporaryOnce = true
 })
 
 Given('le mock API retourne STATE_CONFLICT sur l\'exécution batch', async () => {
