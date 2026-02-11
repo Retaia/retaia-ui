@@ -113,6 +113,12 @@ Feature: Workflow de review desktop-like
     When j'appuie sur la touche "d"
     Then le bouton "Densité: compacte" est visible
 
+  Scenario: Appliquer un preset rapide au clavier
+    Given je suis sur la page d'accueil
+    When j'appuie sur la touche "2"
+    Then le titre principal "Assets (1)" est visible
+    And l'état "A-003 - DECIDED_REJECT" est visible
+
   Scenario: Focus recherche avec slash
     Given je suis sur la page d'accueil
     When j'appuie sur la touche "/"
