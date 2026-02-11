@@ -166,7 +166,9 @@ describe('App', () => {
     await user.keyboard('{Enter}')
     await user.keyboard('{Shift>}{Space}{/Shift}')
 
-    expect(screen.getByText(/Batch sélectionné:\s*1/)).toBeInTheDocument()
+    expect(
+      screen.getByText((_, element) => element?.textContent === 'Batch sélectionné: 1'),
+    ).toBeInTheDocument()
   })
 
   it('adds all visible assets to batch with Ctrl+A', async () => {
