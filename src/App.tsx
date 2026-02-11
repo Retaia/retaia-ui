@@ -489,6 +489,14 @@ function App() {
 
       if (!event.metaKey && !event.ctrlKey && !event.shiftKey) {
         const key = event.key.toLowerCase()
+        if (key === 'escape') {
+          event.preventDefault()
+          setSelectedAssetId(null)
+          setSelectionAnchorId(null)
+          setPurgePreviewAssetId(null)
+          setPurgeStatus(null)
+          return
+        }
         if (key === 'g') {
           event.preventDefault()
           applyDecisionToSelected('KEEP')
