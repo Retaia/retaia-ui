@@ -21,6 +21,13 @@ Donner un cadre d'implémentation local pour `retaia-ui` avec React + TypeScript
 - Préférer composants simples + hooks isolés.
 - Mettre la logique testable hors JSX quand elle devient complexe.
 
+## API typée (OpenAPI)
+
+- Générer les types API depuis `specs/api/openapi/v1.yaml`:
+  - `npm run api:types:generate`
+- Fichier généré: `src/api/generated/openapi.ts`
+- Client HTTP typé local: `src/api/client.ts`
+
 ## UI Desktop-like (référence locale)
 
 Objectif:
