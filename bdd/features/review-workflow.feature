@@ -57,6 +57,13 @@ Feature: Workflow de review desktop-like
     When j'ouvre le prochain asset à traiter via la touche n
     Then le panneau détail affiche l'asset "interview-camera-a.mov"
 
+  Scenario: Filtrer la liste sur le batch via raccourci clavier
+    Given je suis sur la page d'accueil
+    When je fais Maj+clic sur l'asset "interview-camera-a.mov"
+    And je fais Maj+clic sur l'asset "behind-the-scenes.jpg"
+    And j'appuie sur la touche "b"
+    Then le titre principal "Assets (2)" est visible
+
   Scenario: Décider KEEP/REJECT/CLEAR au clavier
     Given je suis sur la page d'accueil
     When j'ouvre le premier asset au clavier

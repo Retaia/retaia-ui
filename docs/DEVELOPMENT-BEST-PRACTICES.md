@@ -66,6 +66,8 @@ Raccourcis clavier desktop:
 - `Ctrl/Cmd+A`: ajoute tous les assets visibles au batch
 - `Ctrl/Cmd+Z`: annule la dernière action (décision/batch/filtre)
 - `n`: ouvre le prochain asset en `DECISION_PENDING` et recentre le contexte
+- `b`: bascule l'affichage "batch seul" sans quitter le contexte courant
+- `n`: ouvre le prochain asset en `DECISION_PENDING` et recentre le contexte
 
 Règles UX:
 
