@@ -35,10 +35,19 @@ function App() {
   >([])
   const [activityLog, setActivityLog] = useState<Array<{ id: number; label: string }>>([])
   const [previewingBatch, setPreviewingBatch] = useState(false)
+  const [executingBatch, setExecutingBatch] = useState(false)
   const [previewStatus, setPreviewStatus] = useState<{
     kind: 'success' | 'error'
     message: string
   } | null>(null)
+  const [executeStatus, setExecuteStatus] = useState<{
+    kind: 'success' | 'error'
+    message: string
+  } | null>(null)
+  const [reportBatchId, setReportBatchId] = useState<string | null>(null)
+  const [reportLoading, setReportLoading] = useState(false)
+  const [reportStatus, setReportStatus] = useState<string | null>(null)
+  const [reportData, setReportData] = useState<string | null>(null)
   const activityId = useRef(1)
 
   const visibleAssets = useMemo(() => {
@@ -289,6 +298,68 @@ function App() {
     }
   }, [apiClient, batchIds.length, previewingBatch, t])
 
+  const executeBatchMove = useCallback(async () => {
+    if (batchIds.length === 0 || executingBatch) {
+      return
+    }
+
+    setExecutingBatch(true)
+    setExecuteStatus(null)
+
+    try {
+      const response = await apiClient.executeMoveBatch(
+        {
+          mode: 'EXECUTE',
+          selection: { asset_ids: batchIds },
+        },
+        crypto.randomUUID(),
+      )
+      const batchId =
+        response && typeof response === 'object' && 'batch_id' in response
+          ? String(response.batch_id)
+          : null
+      setReportBatchId(batchId)
+      setExecuteStatus({
+        kind: 'success',
+        message: t('actions.executeResult'),
+      })
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? `${error.payload?.code ?? 'UNKNOWN'} (${error.status})`
+          : 'UNKNOWN'
+      setExecuteStatus({
+        kind: 'error',
+        message: t('actions.executeError', { message }),
+      })
+    } finally {
+      setExecutingBatch(false)
+    }
+  }, [apiClient, batchIds, executingBatch, t])
+
+  const refreshBatchReport = useCallback(async () => {
+    if (!reportBatchId || reportLoading) {
+      return
+    }
+
+    setReportLoading(true)
+    setReportStatus(null)
+
+    try {
+      const report = await apiClient.getMoveBatchReport(reportBatchId)
+      setReportData(JSON.stringify(report, null, 2))
+      setReportStatus(t('actions.reportReady', { batchId: reportBatchId }))
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? `${error.payload?.code ?? 'UNKNOWN'} (${error.status})`
+          : 'UNKNOWN'
+      setReportStatus(t('actions.reportError', { message }))
+    } finally {
+      setReportLoading(false)
+    }
+  }, [apiClient, reportBatchId, reportLoading, t])
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null
@@ -507,6 +578,14 @@ function App() {
             >
               {previewingBatch ? t('actions.previewing') : t('actions.previewBatch')}
             </Button>
+            <Button
+              type="button"
+              variant="info"
+              onClick={() => void executeBatchMove()}
+              disabled={batchIds.length === 0 || executingBatch}
+            >
+              {executingBatch ? t('actions.executing') : t('actions.executeBatch')}
+            </Button>
           </Stack>
           {previewStatus ? (
             <p
@@ -519,6 +598,39 @@ function App() {
               {previewStatus.message}
             </p>
           ) : null}
+          {executeStatus ? (
+            <p
+              className={[
+                'mt-2',
+                'mb-0',
+                executeStatus.kind === 'success' ? 'text-success' : 'text-danger',
+              ].join(' ')}
+            >
+              {executeStatus.message}
+            </p>
+          ) : null}
+          <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
+            <h3 className="h6 mb-2">{t('actions.reportTitle')}</h3>
+            <Stack direction="horizontal" className="flex-wrap align-items-center gap-2">
+              <Button
+                type="button"
+                variant="outline-info"
+                onClick={() => void refreshBatchReport()}
+                disabled={!reportBatchId || reportLoading}
+              >
+                {t('actions.reportFetch')}
+              </Button>
+              <p className="small text-secondary mb-0">
+                {reportBatchId ? `batch_id: ${reportBatchId}` : t('actions.reportEmpty')}
+              </p>
+            </Stack>
+            {reportStatus ? (
+              <p className="small mt-2 mb-0 text-secondary">{reportStatus}</p>
+            ) : null}
+            {reportData ? (
+              <pre className="small mt-2 mb-0 p-2 border rounded">{reportData}</pre>
+            ) : null}
+          </section>
           <Stack direction="horizontal" className="flex-wrap align-items-center gap-2 mt-3">
             <Button
               type="button"
