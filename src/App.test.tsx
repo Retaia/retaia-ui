@@ -441,6 +441,23 @@ describe('App', () => {
     expect(listbox).toHaveAttribute('aria-activedescendant', 'asset-option-A-002')
   })
 
+  it('scrolls selected asset row into view when keyboard navigation changes focus', async () => {
+    const user = userEvent.setup()
+    const scrollIntoViewMock = vi.fn()
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView
+    HTMLElement.prototype.scrollIntoView = scrollIntoViewMock
+
+    try {
+      render(<App />)
+      await user.keyboard('{Enter}')
+      await user.keyboard('j')
+
+      expect(scrollIntoViewMock).toHaveBeenCalled()
+    } finally {
+      HTMLElement.prototype.scrollIntoView = originalScrollIntoView
+    }
+  })
+
   it('keeps undo disabled when no action has been recorded', () => {
     render(<App />)
 

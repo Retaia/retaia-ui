@@ -690,6 +690,9 @@ function App() {
     const activeElement = document.activeElement
     if (!isTypingContext(activeElement) && activeElement !== target) {
       target.focus()
+      if (typeof target.scrollIntoView === 'function') {
+        target.scrollIntoView({ block: 'nearest' })
+      }
     }
   }, [selectedAssetId, visibleAssets])
 
