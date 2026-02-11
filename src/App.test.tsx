@@ -210,6 +210,40 @@ describe('App', () => {
     expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
   })
 
+  it('keeps undo disabled when no action has been recorded', () => {
+    render(<App />)
+
+    expect(screen.getByRole('button', { name: 'Annuler dernière action' })).toBeDisabled()
+    expect(screen.getByText('Historique disponible: 0')).toBeInTheDocument()
+  })
+
+  it('does not log when reset filters is a no-op', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+    const activityPanel = screen.getByLabelText("Journal d'actions")
+
+    await user.click(screen.getByRole('button', { name: 'Réinitialiser filtres' }))
+
+    expect(within(activityPanel).getByText('Aucune action pour le moment.')).toBeInTheDocument()
+    expect(screen.getByText('Historique disponible: 0')).toBeInTheDocument()
+  })
+
+  it('ignores global shortcuts when focus is inside search input', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.keyboard('{Enter}')
+    await user.keyboard('{Shift>}{Space}{/Shift}')
+    expect(screen.getByText('Batch sélectionné: 1')).toBeInTheDocument()
+
+    await user.click(screen.getByLabelText('Recherche'))
+    await user.keyboard('{Control>}a{/Control}')
+
+    expect(screen.getByText('Batch sélectionné: 1')).toBeInTheDocument()
+  })
+
   it('selects a range in batch with Shift+ArrowDown', async () => {
     const user = userEvent.setup()
 
