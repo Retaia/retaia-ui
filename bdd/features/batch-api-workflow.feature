@@ -11,6 +11,7 @@ Feature: Workflow batch API
     When je clique sur le bouton "Prévisualiser batch"
     Then le statut de prévisualisation contient "BOTH"
     When je clique sur le bouton "Exécuter batch"
+    And je clique sur le bouton "Exécuter maintenant"
     Then le statut d'exécution contient "acceptée"
     When je clique sur le bouton "Rafraîchir rapport"
     Then le rapport batch affiche le statut "DONE"
@@ -22,6 +23,7 @@ Feature: Workflow batch API
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je fais Maj+clic sur l'asset "behind-the-scenes.jpg"
     And je clique sur le bouton "Exécuter batch"
+    And je clique sur le bouton "Exécuter maintenant"
     Then le statut d'exécution contient "acceptée"
     And le rapport batch affiche le statut "DONE"
 
@@ -32,5 +34,6 @@ Feature: Workflow batch API
     And j'appuie sur la touche "b"
     Then le titre principal "Assets (2)" est visible
     When je clique sur le bouton "Exécuter batch"
+    And je clique sur le bouton "Exécuter maintenant"
     Then le statut d'exécution contient "acceptée"
     And le rapport batch affiche le statut "DONE"
