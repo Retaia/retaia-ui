@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { AssetList } from './components/AssetList'
 import { ReviewSummary } from './components/ReviewSummary'
 import { ReviewToolbar } from './components/ReviewToolbar'
+import { ApiError, createApiClient } from './api/client'
 import { INITIAL_ASSETS } from './data/mockAssets'
 import {
   type Asset,
@@ -19,6 +20,10 @@ import { type Locale } from './i18n/resources'
 function App() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t, i18n } = useTranslation()
+  const apiClient = useMemo(
+    () => createApiClient(import.meta.env.VITE_API_BASE_URL ?? '/api/v1'),
+    [],
+  )
   const [filter, setFilter] = useState<AssetFilter>('ALL')
   const [search, setSearch] = useState('')
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
@@ -29,6 +34,11 @@ function App() {
     Array<{ assets: Asset[]; selectedAssetId: string | null; batchIds: string[] }>
   >([])
   const [activityLog, setActivityLog] = useState<Array<{ id: number; label: string }>>([])
+  const [previewingBatch, setPreviewingBatch] = useState(false)
+  const [previewStatus, setPreviewStatus] = useState<{
+    kind: 'success' | 'error'
+    message: string
+  } | null>(null)
   const activityId = useRef(1)
 
   const visibleAssets = useMemo(() => {
@@ -245,6 +255,40 @@ function App() {
     toggleBatchAsset(selectedAssetId)
   }, [selectedAssetId, toggleBatchAsset])
 
+  const previewBatchMove = useCallback(async () => {
+    if (batchIds.length === 0 || previewingBatch) {
+      return
+    }
+
+    setPreviewingBatch(true)
+    setPreviewStatus(null)
+
+    try {
+      await apiClient.previewMoveBatch({
+        include: 'BOTH',
+        limit: batchIds.length,
+      })
+      setPreviewStatus({
+        kind: 'success',
+        message: t('actions.previewResult', {
+          include: 'BOTH',
+          count: batchIds.length,
+        }),
+      })
+    } catch (error) {
+      const message =
+        error instanceof ApiError
+          ? `${error.payload?.code ?? 'UNKNOWN'} (${error.status})`
+          : 'UNKNOWN'
+      setPreviewStatus({
+        kind: 'error',
+        message: t('actions.previewError', { message }),
+      })
+    } finally {
+      setPreviewingBatch(false)
+    }
+  }, [apiClient, batchIds.length, previewingBatch, t])
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null
@@ -455,7 +499,26 @@ function App() {
           >
             {t('actions.clearBatch')}
             </Button>
+            <Button
+              type="button"
+              variant="outline-info"
+              onClick={() => void previewBatchMove()}
+              disabled={batchIds.length === 0 || previewingBatch}
+            >
+              {previewingBatch ? t('actions.previewing') : t('actions.previewBatch')}
+            </Button>
           </Stack>
+          {previewStatus ? (
+            <p
+              className={[
+                'mt-2',
+                'mb-0',
+                previewStatus.kind === 'success' ? 'text-success' : 'text-danger',
+              ].join(' ')}
+            >
+              {previewStatus.message}
+            </p>
+          ) : null}
           <Stack direction="horizontal" className="flex-wrap align-items-center gap-2 mt-3">
             <Button
               type="button"
