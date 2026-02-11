@@ -6,6 +6,10 @@ on:
       - master
   pull_request:
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   no-black-magic:
     runs-on: ubuntu-latest
@@ -91,6 +95,7 @@ jobs:
   e2e-bdd:
     runs-on: ubuntu-latest
     needs: test
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
@@ -116,12 +121,20 @@ jobs:
         env:
           APP_URL: http://127.0.0.1:4173
           PW_BROWSER: ${{ matrix.browser }}
+          CI: true
+          TZ: UTC
+          LANG: C.UTF-8
         run: npm run e2e:bdd:ci
+
+      - name: Print BDD failure summary
+        if: failure()
+        run: node scripts/ci/print-bdd-failures.mjs
 
       - name: Upload BDD artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bdd-test-results-${{ matrix.browser }}
+          retention-days: 14
           path: |
             test-results/**
