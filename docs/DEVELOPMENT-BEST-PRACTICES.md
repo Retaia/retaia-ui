@@ -103,6 +103,12 @@ Mapping recommandé:
 - Unit/Integration: Vitest + Testing Library + MSW.
 - BDD/E2E: Playwright + Cucumber (Gherkin TypeScript).
 
+Scénarios BDD minimum à garder verts:
+
+- clic asset -> ouverture du panneau détail
+- `Shift+clic` -> création/extension du batch
+- `Ctrl/Cmd+Z` -> annulation de la dernière action
+
 ## I18N
 
 - `en` et `fr` obligatoires.
