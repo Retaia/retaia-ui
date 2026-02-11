@@ -133,6 +133,18 @@ function App() {
     ],
   )
   const locale = (i18n.resolvedLanguage ?? 'fr') as Locale
+  const emptyAssetsMessage = useMemo(() => {
+    if (!batchOnly) {
+      if (filter !== 'ALL' || search.trim() !== '') {
+        return t('assets.emptyFiltered')
+      }
+      return t('assets.empty')
+    }
+    if (batchIds.length === 0) {
+      return t('assets.emptyBatchNone')
+    }
+    return t('assets.emptyBatch')
+  }, [batchIds.length, batchOnly, filter, search, t])
 
   const logActivity = useCallback((label: string) => {
     setActivityLog((current) =>
@@ -1020,7 +1032,7 @@ function App() {
                 selectedAssetId={selectedAssetId}
                 batchIds={batchIds}
                 labels={{
-                  empty: t('assets.empty'),
+                  empty: emptyAssetsMessage,
                   batch: t('assets.batchBadge'),
                   keep: 'KEEP',
                   reject: 'REJECT',
