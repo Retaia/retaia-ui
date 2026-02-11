@@ -9,6 +9,14 @@ const assets = [
   { id: 'A-002', name: 'ambiance-plateau.wav', state: 'DECIDED_KEEP' as const },
 ]
 
+const labels = {
+  empty: 'Aucun asset ne correspond aux filtres.',
+  batch: 'Batch',
+  keep: 'KEEP',
+  reject: 'REJECT',
+  clear: 'CLEAR',
+}
+
 describe('AssetList', () => {
   it('renders empty state when no assets', () => {
     render(
@@ -16,6 +24,7 @@ describe('AssetList', () => {
         assets={[]}
         selectedAssetId={null}
         batchIds={[]}
+        labels={labels}
         onDecision={vi.fn()}
         onAssetClick={vi.fn()}
       />, 
@@ -33,6 +42,7 @@ describe('AssetList', () => {
         assets={assets}
         selectedAssetId={null}
         batchIds={[]}
+        labels={labels}
         onDecision={vi.fn()}
         onAssetClick={onAssetClick}
       />,
@@ -57,6 +67,7 @@ describe('AssetList', () => {
         assets={assets}
         selectedAssetId={'A-001'}
         batchIds={['A-002']}
+        labels={labels}
         onDecision={onDecision}
         onAssetClick={onAssetClick}
       />,

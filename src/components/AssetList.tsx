@@ -5,6 +5,13 @@ type AssetListProps = {
   assets: Asset[]
   selectedAssetId: string | null
   batchIds: string[]
+  labels: {
+    empty: string
+    batch: string
+    keep: string
+    reject: string
+    clear: string
+  }
   onDecision: (id: string, action: DecisionAction) => void
   onAssetClick: (id: string, shiftKey: boolean) => void
 }
@@ -13,11 +20,12 @@ export function AssetList({
   assets,
   selectedAssetId,
   batchIds,
+  labels,
   onDecision,
   onAssetClick,
 }: AssetListProps) {
   if (assets.length === 0) {
-    return <p className="text-secondary mb-0">Aucun asset ne correspond aux filtres.</p>
+    return <p className="text-secondary mb-0">{labels.empty}</p>
   }
 
   return (
@@ -59,7 +67,7 @@ export function AssetList({
             </p>
             {batchIds.includes(asset.id) ? (
               <Badge bg="warning" className="mt-2">
-                Batch
+                {labels.batch}
               </Badge>
             ) : null}
           </div>
@@ -74,7 +82,7 @@ export function AssetList({
               }}
               disabled={asset.state === 'DECIDED_KEEP'}
             >
-              KEEP
+              {labels.keep}
             </Button>
             <Button
               type="button"
@@ -86,7 +94,7 @@ export function AssetList({
               }}
               disabled={asset.state === 'DECIDED_REJECT'}
             >
-              REJECT
+              {labels.reject}
             </Button>
             <Button
               type="button"
@@ -98,7 +106,7 @@ export function AssetList({
               }}
               disabled={asset.state === 'DECISION_PENDING'}
             >
-              CLEAR
+              {labels.clear}
             </Button>
           </Stack>
         </ListGroup.Item>

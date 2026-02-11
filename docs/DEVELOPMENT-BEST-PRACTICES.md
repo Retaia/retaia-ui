@@ -117,6 +117,12 @@ Scénarios BDD minimum à garder verts:
 - Fallback strict: `locale utilisateur -> en -> clé brute`.
 - Les libellés destructifs (move/purge/reject) doivent être explicites.
 
+Implémentation locale actuelle:
+
+- dictionnaire i18n TypeScript dans `src/i18n/messages.ts`
+- helper `t(locale, key, params)` avec fallback strict `locale -> en -> key`
+- switch de langue `FR/EN` dans l'en-tête UI desktop-like
+
 ## Checklist PR
 
 - Objectif unique.

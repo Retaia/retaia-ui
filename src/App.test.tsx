@@ -19,6 +19,18 @@ describe('App', () => {
     expect(within(getDetailPanel()).getByText('Clique un asset pour ouvrir le détail.')).toBeInTheDocument()
   })
 
+  it('switches UI language to english', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Anglais' }))
+
+    expect(screen.getByText('Simple review UI for KEEP or REJECT decisions')).toBeInTheDocument()
+    expect(screen.getByLabelText('Search')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Show pending' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Asset detail')).toBeInTheDocument()
+  })
+
   it('filters assets by state', async () => {
     const user = userEvent.setup()
 
