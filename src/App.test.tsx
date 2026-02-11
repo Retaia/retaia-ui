@@ -209,4 +209,17 @@ describe('App', () => {
     await user.keyboard('{Control>}z{/Control}')
     expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
   })
+
+  it('selects a range in batch with Shift+ArrowDown', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.keyboard('{Enter}')
+    await user.keyboard('{Shift>}{ArrowDown}{ArrowDown}{/Shift}')
+
+    expect(screen.getByText('Batch sélectionné: 3')).toBeInTheDocument()
+    const activityPanel = screen.getByLabelText("Journal d'actions")
+    expect(within(activityPanel).getByText('Sélection plage (1)')).toBeInTheDocument()
+  })
 })

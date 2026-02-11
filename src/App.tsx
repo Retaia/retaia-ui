@@ -19,6 +19,7 @@ function App() {
   const [search, setSearch] = useState('')
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
+  const [selectionAnchorId, setSelectionAnchorId] = useState<string | null>(null)
   const [batchIds, setBatchIds] = useState<string[]>([])
   const [undoStack, setUndoStack] = useState<
     Array<{ assets: Asset[]; selectedAssetId: string | null; batchIds: string[] }>
@@ -122,6 +123,7 @@ function App() {
       return
     }
     setSelectedAssetId(id)
+    setSelectionAnchorId(id)
   }
 
   const focusPending = () => {
@@ -169,19 +171,21 @@ function App() {
   }, [logActivity])
 
   const selectVisibleByOffset = useCallback(
-    (offset: -1 | 1) => {
+    (offset: -1 | 1, extendBatchRange = false) => {
       if (visibleAssets.length === 0) {
         return
       }
 
       if (!selectedAssetId) {
         setSelectedAssetId(visibleAssets[0].id)
+        setSelectionAnchorId(visibleAssets[0].id)
         return
       }
 
       const currentIndex = visibleAssets.findIndex((asset) => asset.id === selectedAssetId)
       if (currentIndex < 0) {
         setSelectedAssetId(visibleAssets[0].id)
+        setSelectionAnchorId(visibleAssets[0].id)
         return
       }
 
@@ -189,9 +193,40 @@ function App() {
         visibleAssets.length - 1,
         Math.max(0, currentIndex + offset),
       )
-      setSelectedAssetId(visibleAssets[nextIndex].id)
+      const nextId = visibleAssets[nextIndex].id
+
+      if (!extendBatchRange) {
+        setSelectedAssetId(nextId)
+        setSelectionAnchorId(nextId)
+        return
+      }
+
+      const anchorId = selectionAnchorId ?? selectedAssetId
+      const anchorIndex = visibleAssets.findIndex((asset) => asset.id === anchorId)
+      if (anchorIndex < 0) {
+        setSelectedAssetId(nextId)
+        setSelectionAnchorId(nextId)
+        return
+      }
+
+      const startIndex = Math.min(anchorIndex, nextIndex)
+      const endIndex = Math.max(anchorIndex, nextIndex)
+      const rangeIds = visibleAssets
+        .slice(startIndex, endIndex + 1)
+        .map((asset) => asset.id)
+
+      setSelectedAssetId(nextId)
+      setSelectionAnchorId(anchorId)
+      setBatchIds((current) => {
+        const merged = new Set([...current, ...rangeIds])
+        const addedCount = merged.size - current.length
+        if (addedCount > 0) {
+          recordAction(`Sélection plage (${addedCount})`)
+        }
+        return [...merged]
+      })
     },
-    [selectedAssetId, visibleAssets],
+    [recordAction, selectedAssetId, selectionAnchorId, visibleAssets],
   )
 
   const toggleBatchForSelectedAsset = useCallback(() => {
@@ -245,6 +280,18 @@ function App() {
       if (event.key === 'k') {
         event.preventDefault()
         selectVisibleByOffset(-1)
+        return
+      }
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        selectVisibleByOffset(1, event.shiftKey)
+        return
+      }
+
+      if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        selectVisibleByOffset(-1, event.shiftKey)
         return
       }
 
@@ -347,8 +394,9 @@ function App() {
           )}
         </section>
         <p className="keyboard-hint">
-          Raccourcis desktop: j/k (navigation), Entrée (ouvrir), Shift+Espace (batch),
-          Ctrl/Cmd+A (batch visible), Ctrl/Cmd+Z (annuler)
+          Raccourcis desktop: j/k (navigation), Flèches (navigation), Shift+Flèches
+          (sélection plage), Entrée (ouvrir), Shift+Espace (batch), Ctrl/Cmd+A (batch
+          visible), Ctrl/Cmd+Z (annuler)
         </p>
       </section>
 
