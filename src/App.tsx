@@ -96,6 +96,23 @@ function App() {
     () => assets.find((asset) => asset.id === selectedAssetId) ?? null,
     [assets, selectedAssetId],
   )
+  const batchScope = useMemo(() => {
+    const summary = { pending: 0, keep: 0, reject: 0 }
+    const selectedSet = new Set(batchIds)
+    for (const asset of assets) {
+      if (!selectedSet.has(asset.id)) {
+        continue
+      }
+      if (asset.state === 'DECISION_PENDING') {
+        summary.pending += 1
+      } else if (asset.state === 'DECIDED_KEEP') {
+        summary.keep += 1
+      } else if (asset.state === 'DECIDED_REJECT') {
+        summary.reject += 1
+      }
+    }
+    return summary
+  }, [assets, batchIds])
   const nextPendingAsset = useMemo(
     () => assets.find((asset) => asset.state === 'DECISION_PENDING') ?? null,
     [assets],
@@ -830,6 +847,18 @@ function App() {
               {executingBatch ? t('actions.executing') : t('actions.executeBatch')}
             </Button>
           </Stack>
+          <section className="mt-2" aria-label={t('actions.batchScope')}>
+            <p className="mb-1 small text-secondary">
+              {t('actions.batchScopeCount', { count: batchIds.length })}
+            </p>
+            <p className="mb-0 small text-secondary">
+              {[
+                t('actions.batchScopePending', { count: batchScope.pending }),
+                t('actions.batchScopeKeep', { count: batchScope.keep }),
+                t('actions.batchScopeReject', { count: batchScope.reject }),
+              ].join(' · ')}
+            </p>
+          </section>
           {previewStatus ? (
             <p
               data-testid="batch-preview-status"

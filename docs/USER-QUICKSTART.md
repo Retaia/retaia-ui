@@ -9,6 +9,7 @@
 ## Batch desktop-like
 
 - `Shift+clic`: ajouter/retirer un asset du batch.
+- lire le bloc `Périmètre d'exécution` pour vérifier le scope avant action.
 - `Prévisualiser batch`: valider le scope.
 - `Exécuter batch`: lancer le traitement.
 - le rapport se charge automatiquement après exécution.

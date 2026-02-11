@@ -139,6 +139,19 @@ describe('App', () => {
     expect(within(getAssetsPanel()).queryByText('ambiance-plateau.wav')).not.toBeInTheDocument()
   })
 
+  it('shows batch execution scope summary before execute', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
+    await user.keyboard('{/Shift}')
+
+    expect(screen.getByText('À exécuter: 2')).toBeInTheDocument()
+    expect(screen.getByText('En attente: 1 · KEEP: 0 · REJECT: 1')).toBeInTheDocument()
+  })
+
   it('previews selected batch with API call', async () => {
     const user = userEvent.setup()
     const fetchSpy = vi
