@@ -64,6 +64,7 @@ Raccourcis clavier desktop:
 - `Shift+Espace`: ajoute/retire l'asset sélectionné au batch
 - `Ctrl/Cmd+A`: ajoute tous les assets visibles au batch
 - `Ctrl/Cmd+Z`: annule la dernière action (décision/batch/filtre)
+- `n`: ouvre le prochain asset en `DECISION_PENDING` et recentre le contexte
 
 Règles UX:
 

@@ -25,6 +25,7 @@
 
 - `j` / `k`: navigation.
 - `p`: filtre rapide sur les assets à traiter.
+- `n`: ouvre le prochain asset à traiter.
 - `/`: focus direct sur la recherche.
 - `Shift+Flèches`: extension de sélection batch.
 - `Ctrl/Cmd+A`: ajouter visibles au batch.

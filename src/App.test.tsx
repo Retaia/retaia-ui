@@ -254,6 +254,15 @@ describe('App', () => {
     expect(screen.getByText('Plus aucun asset en attente.')).toBeInTheDocument()
   })
 
+  it('opens next pending asset with n shortcut', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.keyboard('n')
+
+    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
+  })
+
   it('opens first visible asset with Enter shortcut', async () => {
     const user = userEvent.setup()
 

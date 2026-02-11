@@ -202,6 +202,20 @@ function App() {
     setSearch('')
   }, [filter, recordAction, search, t])
 
+  const openNextPending = useCallback(() => {
+    const target = assets.find((asset) => asset.state === 'DECISION_PENDING')
+    if (!target) {
+      return
+    }
+    if (filter !== 'ALL' || search !== '') {
+      recordAction(t('activity.openNextPending'))
+      setFilter('ALL')
+      setSearch('')
+    }
+    setSelectedAssetId(target.id)
+    setSelectionAnchorId(target.id)
+  }, [assets, filter, recordAction, search, t])
+
   const clearFilters = () => {
     if (filter === 'ALL' && search === '') {
       return
@@ -502,6 +516,11 @@ function App() {
           focusPending()
           return
         }
+        if (key === 'n') {
+          event.preventDefault()
+          openNextPending()
+          return
+        }
         if (event.key === '/') {
           event.preventDefault()
           const searchInput = document.getElementById('asset-search')
@@ -565,6 +584,7 @@ function App() {
     selectedAssetId,
     visibleAssets,
     focusPending,
+    openNextPending,
     selectAllVisibleInBatch,
     selectVisibleByOffset,
     toggleBatchForSelectedAsset,
@@ -830,6 +850,13 @@ function App() {
                 <p className="text-secondary mb-0">{nextPendingAsset.id}</p>
               </div>
               <Stack direction="horizontal" gap={2}>
+                <Button
+                  type="button"
+                  variant="outline-primary"
+                  onClick={openNextPending}
+                >
+                  {t('next.open')}
+                </Button>
                 <Button
                   type="button"
                   variant="outline-success"
