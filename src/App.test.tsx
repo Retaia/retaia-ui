@@ -403,6 +403,33 @@ describe('App', () => {
     expect(within(activityPanel).getByText('Sélection plage (1)')).toBeInTheDocument()
   })
 
+  it('applies KEEP REJECT and CLEAR to selected asset with g v x shortcuts', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.keyboard('{Enter}')
+    await user.keyboard('v')
+    expect(screen.getByText('A-001 - DECIDED_REJECT')).toBeInTheDocument()
+
+    await user.keyboard('g')
+    expect(screen.getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
+
+    await user.keyboard('x')
+    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+  })
+
+  it('ignores g v x shortcuts when typing in search input', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.click(screen.getByLabelText('Recherche'))
+    await user.keyboard('v')
+
+    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+  })
+
   it('applies pending filter with p shortcut', async () => {
     const user = userEvent.setup()
 

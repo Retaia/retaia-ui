@@ -18,6 +18,7 @@ import {
   updateAssetsState,
 } from './domain/assets'
 import { type Locale } from './i18n/resources'
+import { isTypingContext } from './ui/keyboard'
 
 function App() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
@@ -113,7 +114,7 @@ function App() {
     [logActivity, pushUndoSnapshot],
   )
 
-  const handleDecision = (id: string, action: DecisionAction) => {
+  const handleDecision = useCallback((id: string, action: DecisionAction) => {
     const target = assets.find((asset) => asset.id === id)
     if (!target) {
       return
@@ -135,7 +136,7 @@ function App() {
         }
       }),
     )
-  }
+  }, [assets, recordAction, t])
 
   const applyDecisionToVisible = (action: 'KEEP' | 'REJECT') => {
     const targetIds = visibleAssets.map((asset) => asset.id)
@@ -181,6 +182,16 @@ function App() {
     setSelectedAssetId(id)
     setSelectionAnchorId(id)
   }
+
+  const applyDecisionToSelected = useCallback(
+    (action: DecisionAction) => {
+      if (!selectedAssetId) {
+        return
+      }
+      handleDecision(selectedAssetId, action)
+    },
+    [selectedAssetId, handleDecision],
+  )
 
   const focusPending = useCallback(() => {
     if (filter === 'DECISION_PENDING' && search === '') {
@@ -451,15 +462,7 @@ function App() {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null
-      const isTypingContext =
-        !!target &&
-        (target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.tagName === 'SELECT' ||
-          target.isContentEditable)
-
-      if (isTypingContext) {
+      if (isTypingContext(event.target)) {
         return
       }
 
@@ -484,20 +487,37 @@ function App() {
         return
       }
 
-      if (!event.metaKey && !event.ctrlKey && !event.shiftKey && event.key.toLowerCase() === 'p') {
-        event.preventDefault()
-        focusPending()
-        return
-      }
-
-      if (!event.metaKey && !event.ctrlKey && !event.shiftKey && event.key === '/') {
-        event.preventDefault()
-        const searchInput = document.getElementById('asset-search')
-        if (searchInput instanceof HTMLInputElement) {
-          searchInput.focus()
-          searchInput.select()
+      if (!event.metaKey && !event.ctrlKey && !event.shiftKey) {
+        const key = event.key.toLowerCase()
+        if (key === 'p') {
+          event.preventDefault()
+          focusPending()
+          return
         }
-        return
+        if (event.key === '/') {
+          event.preventDefault()
+          const searchInput = document.getElementById('asset-search')
+          if (searchInput instanceof HTMLInputElement) {
+            searchInput.focus()
+            searchInput.select()
+          }
+          return
+        }
+        if (key === 'g') {
+          event.preventDefault()
+          applyDecisionToSelected('KEEP')
+          return
+        }
+        if (key === 'v') {
+          event.preventDefault()
+          applyDecisionToSelected('REJECT')
+          return
+        }
+        if (key === 'x') {
+          event.preventDefault()
+          applyDecisionToSelected('CLEAR')
+          return
+        }
       }
 
       if (event.key === 'j') {
@@ -540,6 +560,7 @@ function App() {
     selectAllVisibleInBatch,
     selectVisibleByOffset,
     toggleBatchForSelectedAsset,
+    applyDecisionToSelected,
     undoLastAction,
   ])
 
@@ -553,15 +574,8 @@ function App() {
     if (!target) {
       return
     }
-    const activeElement = document.activeElement as HTMLElement | null
-    const isTypingContext =
-      !!activeElement &&
-      (activeElement.tagName === 'INPUT' ||
-        activeElement.tagName === 'TEXTAREA' ||
-        activeElement.tagName === 'SELECT' ||
-        activeElement.isContentEditable)
-
-    if (!isTypingContext && activeElement !== target) {
+    const activeElement = document.activeElement
+    if (!isTypingContext(activeElement) && activeElement !== target) {
       target.focus()
     }
   }, [selectedAssetId, visibleAssets])
