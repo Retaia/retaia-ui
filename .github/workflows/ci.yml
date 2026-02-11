@@ -115,8 +115,8 @@ jobs:
           PW_BROWSER: ${{ matrix.browser }}
         run: npm run e2e:bdd:ci
 
-      - name: Upload BDD artifacts on failure
-        if: failure()
+      - name: Upload BDD artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: bdd-test-results-${{ matrix.browser }}

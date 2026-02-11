@@ -28,6 +28,7 @@ Jobs:
 - `npm run test:coverage`
 - `npm run security:audit`
 - `npm run e2e:bdd:ci`
+  (génère aussi `test-results/bdd-report.json` et `test-results/bdd-report.html` via les formatters Cucumber)
 
 ## Gates de conformité specs
 
@@ -47,6 +48,10 @@ Jobs:
 - `test`
 - `security-audit`
 - `e2e-bdd`
+
+Artefacts CI:
+
+- le job `e2e-bdd` publie `test-results/**` en succès et en échec
 
 ## Politique de couverture
 
