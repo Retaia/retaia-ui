@@ -265,6 +265,10 @@ Then('le message {string} est visible', async (message: string) => {
   await expect(page.getByText(message, { exact: false })).toBeVisible()
 })
 
+Then('le bouton {string} est visible', async (buttonLabel: string) => {
+  await expect(page.getByRole('button', { name: buttonLabel })).toBeVisible()
+})
+
 Then('le rapport de batch contient {string}', async (text: string) => {
   await expect(page.getByText(text, { exact: false }).first()).toBeVisible()
 })

@@ -5,6 +5,7 @@ type AssetListProps = {
   assets: Asset[]
   selectedAssetId: string | null
   batchIds: string[]
+  density: 'COMFORTABLE' | 'COMPACT'
   labels: {
     empty: string
     batch: string
@@ -20,6 +21,7 @@ export function AssetList({
   assets,
   selectedAssetId,
   batchIds,
+  density,
   labels,
   onDecision,
   onAssetClick,
@@ -31,6 +33,7 @@ export function AssetList({
   const activeOptionId = selectedAssetId
     ? `asset-option-${selectedAssetId}`
     : `asset-option-${assets[0].id}`
+  const compact = density === 'COMPACT'
 
   return (
     <ListGroup as="ul" variant="flush" role="listbox" aria-activedescendant={activeOptionId}>
@@ -46,7 +49,7 @@ export function AssetList({
             'justify-content-between',
             'align-items-center',
             'gap-3',
-            'py-3',
+            compact ? 'py-2' : 'py-3',
             selectedAssetId === asset.id ? 'active border-primary' : '',
             batchIds.includes(asset.id) ? 'list-group-item-warning' : '',
           ]
@@ -65,7 +68,7 @@ export function AssetList({
           aria-selected={selectedAssetId === asset.id}
         >
           <div className="flex-grow-1">
-            <strong className="d-block">{asset.name}</strong>
+            <strong className={compact ? 'd-block small' : 'd-block'}>{asset.name}</strong>
             <p className={selectedAssetId === asset.id ? 'mb-0 text-white-50' : 'mb-0 text-secondary'}>
               {asset.id} - {asset.state}
             </p>

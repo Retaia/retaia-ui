@@ -738,6 +738,27 @@ describe('App', () => {
     expect(within(getAssetsPanel()).queryByText('ambiance-plateau.wav')).not.toBeInTheDocument()
   })
 
+  it('toggles compact density with d shortcut', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    expect(screen.getByRole('option', { name: /interview-camera-a\.mov/i })).toHaveClass('py-3')
+    expect(screen.getByRole('button', { name: 'Densité: confortable' })).toBeInTheDocument()
+
+    await user.keyboard('d')
+
+    expect(screen.getByRole('option', { name: /interview-camera-a\.mov/i })).toHaveClass('py-2')
+    expect(screen.getByRole('button', { name: 'Densité: compacte' })).toBeInTheDocument()
+  })
+
+  it('loads persisted density mode on startup', () => {
+    window.localStorage.setItem('retaia_ui_density_mode', 'COMPACT')
+    render(<App />)
+
+    expect(screen.getByRole('option', { name: /interview-camera-a\.mov/i })).toHaveClass('py-2')
+    expect(screen.getByRole('button', { name: 'Densité: compacte' })).toBeInTheDocument()
+  })
+
   it('toggles shortcuts help panel with dedicated button', async () => {
     const user = userEvent.setup()
 

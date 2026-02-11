@@ -25,6 +25,8 @@ import { type Locale } from './i18n/resources'
 import { isTypingContext } from './ui/keyboard'
 
 const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
+const DENSITY_MODE_KEY = 'retaia_ui_density_mode'
+type DensityMode = 'COMFORTABLE' | 'COMPACT'
 const QUICK_FILTER_PRESET_KEY = 'retaia_ui_quick_filter_preset'
 
 type QuickFilterPreset = 'DEFAULT' | 'PENDING_RECENT' | 'IMAGES_REJECTED' | 'MEDIA_REVIEW'
@@ -103,6 +105,7 @@ function App() {
     message: string
   } | null>(null)
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
+  const [densityMode, setDensityMode] = useState<DensityMode>('COMFORTABLE')
   const activityId = useRef(1)
 
   const visibleAssets = useMemo(() => {
@@ -201,6 +204,20 @@ function App() {
       window.localStorage.setItem(SHORTCUTS_HELP_SEEN_KEY, '1')
     } catch {
       // Ignore storage access errors and keep default UI behavior.
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    try {
+      const saved = window.localStorage.getItem(DENSITY_MODE_KEY)
+      if (saved === 'COMPACT' || saved === 'COMFORTABLE') {
+        setDensityMode(saved)
+      }
+    } catch {
+      // Ignore storage access errors and keep default behavior.
     }
   }, [])
 
@@ -443,6 +460,18 @@ function App() {
     }
     setActivityLog([])
   }, [activityLog.length])
+
+  const toggleDensityMode = useCallback(() => {
+    setDensityMode((current) => {
+      const next = current === 'COMPACT' ? 'COMFORTABLE' : 'COMPACT'
+      try {
+        window.localStorage.setItem(DENSITY_MODE_KEY, next)
+      } catch {
+        // Ignore storage access errors and keep default behavior.
+      }
+      return next
+    })
+  }, [])
 
   const toggleBatchOnly = useCallback(() => {
     recordAction(
@@ -780,6 +809,11 @@ function App() {
           openNextPending()
           return
         }
+        if (key === 'd') {
+          event.preventDefault()
+          toggleDensityMode()
+          return
+        }
         if (event.key === '/') {
           event.preventDefault()
           const searchInput = document.getElementById('asset-search')
@@ -851,6 +885,7 @@ function App() {
     focusPending,
     toggleBatchOnly,
     openNextPending,
+    toggleDensityMode,
     selectAllVisibleInBatch,
     selectVisibleByOffset,
     toggleBatchForSelectedAsset,
@@ -1023,6 +1058,11 @@ function App() {
               </Button>
               <Button type="button" variant="outline-secondary" onClick={clearFilters}>
                 {t('actions.clearFilters')}
+              </Button>
+              <Button type="button" variant="outline-secondary" onClick={toggleDensityMode}>
+                {densityMode === 'COMPACT'
+                  ? t('actions.densityCompact')
+                  : t('actions.densityComfortable')}
               </Button>
             </Stack>
           </section>
@@ -1275,6 +1315,7 @@ function App() {
                 assets={visibleAssets}
                 selectedAssetId={selectedAssetId}
                 batchIds={batchIds}
+                density={densityMode}
                 labels={{
                   empty: emptyAssetsMessage,
                   batch: t('assets.batchBadge'),
