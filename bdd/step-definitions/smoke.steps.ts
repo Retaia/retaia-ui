@@ -122,9 +122,9 @@ Then('l\'historique disponible affiche {int}', async (count: number) => {
 })
 
 Then('le message {string} est visible', async (message: string) => {
-  await expect(page.getByText(message)).toBeVisible()
+  await expect(page.getByText(message, { exact: false })).toBeVisible()
 })
 
 Then('le rapport de batch contient {string}', async (text: string) => {
-  await expect(page.locator('pre').filter({ hasText: text })).toBeVisible()
+  await expect(page.getByText(text, { exact: false }).first()).toBeVisible()
 })

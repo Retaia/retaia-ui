@@ -32,7 +32,11 @@ function App() {
             return envToken
           }
           if (typeof window !== 'undefined') {
-            return window.localStorage.getItem('retaia_api_token')
+            try {
+              return window.localStorage.getItem('retaia_api_token')
+            } catch {
+              return null
+            }
           }
           return null
         },
