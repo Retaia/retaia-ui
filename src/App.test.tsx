@@ -210,6 +210,29 @@ describe('App', () => {
     expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
   })
 
+  it('uses roving tabindex and selected option semantics for asset rows', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    const listItems = within(getAssetsPanel()).getAllByRole('option')
+    expect(listItems[0]).toHaveAttribute('tabIndex', '0')
+    expect(listItems[1]).toHaveAttribute('tabIndex', '-1')
+    expect(listItems[0]).toHaveAttribute('aria-selected', 'false')
+
+    await user.keyboard('{Enter}')
+
+    const updatedItems = within(getAssetsPanel()).getAllByRole('option')
+    expect(updatedItems[0]).toHaveAttribute('aria-selected', 'true')
+    expect(updatedItems[0]).toHaveFocus()
+
+    await user.keyboard('j')
+
+    const movedItems = within(getAssetsPanel()).getAllByRole('option')
+    expect(movedItems[1]).toHaveAttribute('aria-selected', 'true')
+    expect(movedItems[1]).toHaveAttribute('tabIndex', '0')
+    expect(movedItems[1]).toHaveFocus()
+  })
+
   it('keeps undo disabled when no action has been recorded', () => {
     render(<App />)
 

@@ -59,6 +59,7 @@ Règles UX:
 - les raccourcis ne doivent pas interférer avec la saisie dans les champs (`input`, `textarea`, `select`)
 - journal d'actions: afficher des libellés compréhensibles côté utilisateur (`KEEP visibles`, `REJECT batch`, etc.)
 - undo borné: limiter l'historique pour éviter la croissance mémoire côté client
+- navigation clavier: préférer un modèle `listbox/option` avec `aria-selected` et roving `tabIndex`
 
 ## TDD (obligatoire par défaut)
 
