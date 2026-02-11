@@ -21,6 +21,19 @@ Donner un cadre d'implémentation local pour `retaia-ui` avec React + TypeScript
 - Préférer composants simples + hooks isolés.
 - Mettre la logique testable hors JSX quand elle devient complexe.
 
+## Interaction Desktop (référence locale)
+
+Comportement cible pour la review desktop:
+
+- `clic` sur une ligne asset: ouvre le panneau détail (sans modifier le batch)
+- `Shift+clic` sur une ligne asset: ajoute/retire l'asset du batch
+- actions batch explicites: `KEEP batch`, `REJECT batch`, `Vider batch`
+- layout desktop en split view: liste à gauche, détail à droite
+
+Règle UX:
+
+- les boutons d'action d'une ligne (`KEEP/REJECT/CLEAR`) ne doivent pas déclencher l'ouverture du détail par propagation d'événement
+
 ## TDD (obligatoire par défaut)
 
 Cycle standard:

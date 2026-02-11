@@ -76,6 +76,20 @@
   gap: 8px;
 }
 
+.batch-actions {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.batch-actions p {
+  margin: 0;
+  color: #4b5563;
+  font-weight: 600;
+}
+
 label {
   display: block;
   margin-bottom: 8px;
@@ -110,6 +124,7 @@ input {
   gap: 16px;
   border-top: 1px solid #f1f5f9;
   padding: 12px 0;
+  cursor: pointer;
 }
 
 .asset-row:first-child {
@@ -120,6 +135,30 @@ input {
 .asset-row p {
   margin: 4px 0 0;
   color: #6b7280;
+}
+
+.asset-row:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+.asset-row--selected {
+  background: #eff6ff;
+}
+
+.asset-row--batch {
+  background: #fff7ed;
+}
+
+.asset-row-main {
+  min-width: 0;
+}
+
+.batch-chip {
+  display: inline-block;
+  margin-top: 6px;
+  color: #9a3412;
 }
 
 .decision-actions {
@@ -146,4 +185,26 @@ input {
 .empty-state {
   margin: 0;
   color: #6b7280;
+}
+
+.desktop-hint {
+  margin: 0 0 8px;
+  color: #6b7280;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 16px;
+}
+
+.asset-detail p {
+  margin: 6px 0;
+  color: #6b7280;
+}
+
+@media (max-width: 980px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
 }
