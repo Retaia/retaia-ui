@@ -42,6 +42,11 @@
 - indisponibilité temporaire: réessayer plus tard.
 - purge désactivée: vérifier que l'asset est bien en état `DECIDED_REJECT`.
 
+## États vides
+
+- si le filtre/recherche est trop restrictif, ajuster ou réinitialiser les filtres.
+- en mode `batch seul`, ajouter des assets via `Shift+clic` pour remplir la liste.
+
 ## Journal d'actions
 
 - le journal trace les dernières actions utilisateur.

@@ -89,7 +89,19 @@ describe('App', () => {
     await user.type(screen.getByLabelText('Recherche'), 'no-match')
 
     expect(screen.getByRole('heading', { name: 'Assets (0)' })).toBeInTheDocument()
-    expect(screen.getByText('Aucun asset ne correspond aux filtres.')).toBeInTheDocument()
+    expect(screen.getByText('Aucun résultat pour la recherche ou le filtre actif.')).toBeInTheDocument()
+  })
+
+  it('shows guidance when batch-only mode is active with empty batch', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.keyboard('b')
+
+    expect(screen.getByRole('heading', { name: 'Assets (0)' })).toBeInTheDocument()
+    expect(
+      screen.getByText('Mode batch seul actif. Ajoute des assets au batch via Shift+clic.'),
+    ).toBeInTheDocument()
   })
 
   it('focuses pending assets using quick action', async () => {
