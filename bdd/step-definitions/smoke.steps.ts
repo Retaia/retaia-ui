@@ -1,7 +1,7 @@
 import { After, Before, Given, setDefaultTimeout, Then, When } from '@cucumber/cucumber'
 import { chromium, expect, firefox, type Browser, type BrowserContext, type Page, webkit } from '@playwright/test'
 
-const APP_URL = 'http://127.0.0.1:4173'
+const APP_URL = process.env.APP_URL ?? 'http://127.0.0.1:4173'
 const BROWSER_NAME = process.env.PW_BROWSER ?? 'chromium'
 setDefaultTimeout(15000)
 

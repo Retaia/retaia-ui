@@ -111,6 +111,7 @@ jobs:
 
       - name: Run BDD E2E tests
         env:
+          APP_URL: http://127.0.0.1:4173
           PW_BROWSER: ${{ matrix.browser }}
         run: npm run e2e:bdd:ci
 
