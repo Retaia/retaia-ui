@@ -21,6 +21,17 @@
 - `À traiter`: applique la vue `DECISION_PENDING`.
 - `Batch`: active la vue `batch seul`.
 
+## Filtres rapides
+
+- `Filtrer par état`: `ALL`, `DECISION_PENDING`, `DECIDED_KEEP`, `DECIDED_REJECT`.
+- `Type`: `VIDEO`, `AUDIO`, `IMAGE`, `OTHER`.
+- `Date de capture`: `7 derniers jours` ou `30 derniers jours`.
+- Presets rapides:
+  - `À traiter (7j)`
+  - `Images rejetées`
+  - `Review média (30j)`
+- Le dernier preset appliqué est persisté localement et rechargé au prochain lancement.
+
 ## Purge d'un asset rejeté
 
 - ouvrir le détail d'un asset en `DECIDED_REJECT`

@@ -138,6 +138,36 @@ describe('App', () => {
     expect(within(getAssetsPanel()).getByText('interview-camera-a.mov')).toBeInTheDocument()
   })
 
+  it('applies quick filter preset with status type and date', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'À traiter (7j)' }))
+
+    expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECISION_PENDING')
+    expect(screen.getByLabelText('Type')).toHaveValue('ALL')
+    expect(screen.getByLabelText('Date de capture')).toHaveValue('LAST_7_DAYS')
+    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+  })
+
+  it('loads persisted quick filter preset from local storage', async () => {
+    const user = userEvent.setup()
+    const firstRender = render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Images rejetées' }))
+    firstRender.unmount()
+
+    render(<App />)
+
+    expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECIDED_REJECT')
+    expect(screen.getByLabelText('Type')).toHaveValue('IMAGE')
+    expect(screen.getByLabelText('Date de capture')).toHaveValue('ALL')
+    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+    expect(within(getAssetsPanel()).getByText('behind-the-scenes.jpg')).toBeInTheDocument()
+    window.localStorage.removeItem('retaia_ui_quick_filter_preset')
+  })
+
   it('renders separate panels for general and batch actions', () => {
     render(<App />)
 
