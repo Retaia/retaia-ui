@@ -113,7 +113,7 @@ function App() {
     [logActivity, pushUndoSnapshot],
   )
 
-  const handleDecision = (id: string, action: DecisionAction) => {
+  const handleDecision = useCallback((id: string, action: DecisionAction) => {
     const target = assets.find((asset) => asset.id === id)
     if (!target) {
       return
@@ -135,7 +135,7 @@ function App() {
         }
       }),
     )
-  }
+  }, [assets, recordAction, t])
 
   const applyDecisionToVisible = (action: 'KEEP' | 'REJECT') => {
     const targetIds = visibleAssets.map((asset) => asset.id)
@@ -181,6 +181,16 @@ function App() {
     setSelectedAssetId(id)
     setSelectionAnchorId(id)
   }
+
+  const applyDecisionToSelected = useCallback(
+    (action: DecisionAction) => {
+      if (!selectedAssetId) {
+        return
+      }
+      handleDecision(selectedAssetId, action)
+    },
+    [selectedAssetId, handleDecision],
+  )
 
   const focusPending = () => {
     if (filter === 'DECISION_PENDING' && search === '') {
@@ -484,6 +494,25 @@ function App() {
         return
       }
 
+      if (!event.metaKey && !event.ctrlKey && !event.shiftKey) {
+        const key = event.key.toLowerCase()
+        if (key === 'g') {
+          event.preventDefault()
+          applyDecisionToSelected('KEEP')
+          return
+        }
+        if (key === 'v') {
+          event.preventDefault()
+          applyDecisionToSelected('REJECT')
+          return
+        }
+        if (key === 'x') {
+          event.preventDefault()
+          applyDecisionToSelected('CLEAR')
+          return
+        }
+      }
+
       if (event.key === 'j') {
         event.preventDefault()
         selectVisibleByOffset(1)
@@ -523,6 +552,7 @@ function App() {
     selectAllVisibleInBatch,
     selectVisibleByOffset,
     toggleBatchForSelectedAsset,
+    applyDecisionToSelected,
     undoLastAction,
   ])
 
