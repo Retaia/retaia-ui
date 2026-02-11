@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import './App.css'
 import { AssetList } from './components/AssetList'
 import { ReviewSummary } from './components/ReviewSummary'
@@ -92,6 +92,103 @@ function App() {
     setSearch('')
   }
 
+  const selectAllVisibleInBatch = useCallback(() => {
+    setBatchIds((current) => {
+      const merged = new Set([...current, ...visibleAssets.map((asset) => asset.id)])
+      return [...merged]
+    })
+  }, [visibleAssets])
+
+  const selectVisibleByOffset = useCallback(
+    (offset: -1 | 1) => {
+      if (visibleAssets.length === 0) {
+        return
+      }
+
+      if (!selectedAssetId) {
+        setSelectedAssetId(visibleAssets[0].id)
+        return
+      }
+
+      const currentIndex = visibleAssets.findIndex((asset) => asset.id === selectedAssetId)
+      if (currentIndex < 0) {
+        setSelectedAssetId(visibleAssets[0].id)
+        return
+      }
+
+      const nextIndex = Math.min(
+        visibleAssets.length - 1,
+        Math.max(0, currentIndex + offset),
+      )
+      setSelectedAssetId(visibleAssets[nextIndex].id)
+    },
+    [selectedAssetId, visibleAssets],
+  )
+
+  const toggleBatchForSelectedAsset = useCallback(() => {
+    if (!selectedAssetId) {
+      return
+    }
+    toggleBatchAsset(selectedAssetId)
+  }, [selectedAssetId])
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null
+      const isTypingContext =
+        !!target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable)
+
+      if (isTypingContext) {
+        return
+      }
+
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
+        event.preventDefault()
+        selectAllVisibleInBatch()
+        return
+      }
+
+      if (
+        event.shiftKey &&
+        (event.key === ' ' || event.key === 'Spacebar' || event.key === 'Space' || event.code === 'Space')
+      ) {
+        event.preventDefault()
+        toggleBatchForSelectedAsset()
+        return
+      }
+
+      if (event.key === 'j') {
+        event.preventDefault()
+        selectVisibleByOffset(1)
+        return
+      }
+
+      if (event.key === 'k') {
+        event.preventDefault()
+        selectVisibleByOffset(-1)
+        return
+      }
+
+      if (event.key === 'Enter' && !selectedAssetId && visibleAssets.length > 0) {
+        event.preventDefault()
+        setSelectedAssetId(visibleAssets[0].id)
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [
+    selectedAssetId,
+    visibleAssets,
+    selectAllVisibleInBatch,
+    selectVisibleByOffset,
+    toggleBatchForSelectedAsset,
+  ])
+
   return (
     <main className="app">
       <header className="app__header">
@@ -155,6 +252,10 @@ function App() {
             Vider batch
           </button>
         </div>
+        <p className="keyboard-hint">
+          Raccourcis desktop: j/k (navigation), Entrée (ouvrir), Shift+Espace (batch),
+          Ctrl/Cmd+A (batch visible)
+        </p>
       </section>
 
       <section className="panel" aria-label="Prochain asset">

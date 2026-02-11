@@ -27,6 +27,10 @@ Comportement cible pour la review desktop:
 
 - `clic` sur une ligne asset: ouvre le panneau détail (sans modifier le batch)
 - `Shift+clic` sur une ligne asset: ajoute/retire l'asset du batch
+- `j` / `k`: navigation dans la liste visible
+- `Entrée`: ouvre le premier asset visible si aucun détail n'est ouvert
+- `Shift+Espace`: ajoute/retire l'asset sélectionné au batch
+- `Ctrl/Cmd+A`: ajoute tous les assets visibles au batch
 - actions batch explicites: `KEEP batch`, `REJECT batch`, `Vider batch`
 - layout desktop en split view: liste à gauche, détail à droite
 

@@ -134,4 +134,48 @@ describe('App', () => {
 
     expect(screen.getByText('Plus aucun asset en attente.')).toBeInTheDocument()
   })
+
+  it('opens first visible asset with Enter shortcut', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.keyboard('{Enter}')
+
+    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
+  })
+
+  it('navigates visible assets with j and k shortcuts', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.keyboard('j')
+    await user.keyboard('j')
+    expect(within(getDetailPanel()).getByText('ID: A-002')).toBeInTheDocument()
+
+    await user.keyboard('k')
+    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
+  })
+
+  it('toggles selected asset in batch with Shift+Space', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.keyboard('{Enter}')
+    await user.keyboard('{Shift>}{Space}{/Shift}')
+
+    expect(screen.getByText(/Batch sélectionné:\s*1/)).toBeInTheDocument()
+  })
+
+  it('adds all visible assets to batch with Ctrl+A', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.keyboard('{Control>}a{/Control}')
+
+    expect(screen.getByText('Batch sélectionné: 3')).toBeInTheDocument()
+  })
 })
