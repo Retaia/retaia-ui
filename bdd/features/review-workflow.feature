@@ -94,6 +94,11 @@ Feature: Workflow de review desktop-like
     When j'appuie sur la touche "p"
     Then l'état "A-001 - DECISION_PENDING" est visible
 
+  Scenario: Basculer la densité de liste au clavier
+    Given je suis sur la page d'accueil
+    When j'appuie sur la touche "d"
+    Then le bouton "Densité: compacte" est visible
+
   Scenario: Focus recherche avec slash
     Given je suis sur la page d'accueil
     When j'appuie sur la touche "/"

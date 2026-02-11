@@ -24,6 +24,7 @@ describe('AssetList', () => {
         assets={[]}
         selectedAssetId={null}
         batchIds={[]}
+        density="COMFORTABLE"
         labels={labels}
         onDecision={vi.fn()}
         onAssetClick={vi.fn()}
@@ -42,6 +43,7 @@ describe('AssetList', () => {
         assets={assets}
         selectedAssetId={null}
         batchIds={[]}
+        density="COMFORTABLE"
         labels={labels}
         onDecision={vi.fn()}
         onAssetClick={onAssetClick}
@@ -67,6 +69,7 @@ describe('AssetList', () => {
         assets={assets}
         selectedAssetId={'A-001'}
         batchIds={['A-002']}
+        density="COMFORTABLE"
         labels={labels}
         onDecision={onDecision}
         onAssetClick={onAssetClick}
@@ -95,6 +98,7 @@ describe('AssetList', () => {
         assets={assets}
         selectedAssetId={'A-002'}
         batchIds={[]}
+        density="COMFORTABLE"
         labels={labels}
         onDecision={vi.fn()}
         onAssetClick={vi.fn()}
@@ -110,5 +114,23 @@ describe('AssetList', () => {
     expect(option2).toHaveAttribute('id', 'asset-option-A-002')
     expect(option2).toHaveAttribute('aria-selected', 'true')
     expect(option2).not.toHaveAttribute('aria-pressed')
+  })
+
+  it('renders compact density classes when mode is compact', () => {
+    render(
+      <AssetList
+        assets={assets}
+        selectedAssetId={'A-001'}
+        batchIds={[]}
+        density="COMPACT"
+        labels={labels}
+        onDecision={vi.fn()}
+        onAssetClick={vi.fn()}
+      />,
+    )
+
+    const option = screen.getByRole('option', { name: /interview-camera-a\.mov/i })
+    expect(option).toHaveClass('py-2')
+    expect(option.querySelector('strong')).toHaveClass('small')
   })
 })
