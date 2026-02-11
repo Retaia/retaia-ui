@@ -102,6 +102,7 @@ function App() {
   const [reportLoading, setReportLoading] = useState(false)
   const [reportStatus, setReportStatus] = useState<string | null>(null)
   const [reportData, setReportData] = useState<unknown>(null)
+  const [reportExportStatus, setReportExportStatus] = useState<string | null>(null)
   const [previewingPurge, setPreviewingPurge] = useState(false)
   const [executingPurge, setExecutingPurge] = useState(false)
   const [purgePreviewAssetId, setPurgePreviewAssetId] = useState<string | null>(null)
@@ -794,6 +795,50 @@ function App() {
     }
   }, [apiClient, reportBatchId, reportLoading, t])
 
+  const exportBatchReport = useCallback(
+    (format: 'json' | 'csv') => {
+      if (!reportData || !reportBatchId || typeof document === 'undefined') {
+        return
+      }
+
+      const fallbackName = `batch-${reportBatchId}`
+      let content = ''
+      let mimeType = ''
+      let extension = ''
+
+      if (format === 'json') {
+        content = `${JSON.stringify(reportData, null, 2)}\n`
+        mimeType = 'application/json'
+        extension = 'json'
+      } else {
+        const rows =
+          typeof reportData === 'object' && reportData !== null
+            ? Object.entries(reportData as Record<string, unknown>).map(
+                ([key, value]) => `"${key.replaceAll('"', '""')}","${String(typeof value === 'object' ? JSON.stringify(value) : value).replaceAll('"', '""')}"`,
+              )
+            : [`"value","${String(reportData).replaceAll('"', '""')}"`]
+        content = ['key,value', ...rows].join('\n')
+        mimeType = 'text/csv'
+        extension = 'csv'
+      }
+
+      const blob = new Blob([content], { type: mimeType })
+      const objectUrl = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = objectUrl
+      link.download = `${fallbackName}.${extension}`
+      link.click()
+      URL.revokeObjectURL(objectUrl)
+
+      setReportExportStatus(
+        t('actions.reportExportDone', {
+          format: extension.toUpperCase(),
+        }),
+      )
+    },
+    [reportBatchId, reportData, t],
+  )
+
   const previewSelectedAssetPurge = useCallback(async () => {
     if (!selectedAsset || selectedAsset.state !== 'DECIDED_REJECT' || previewingPurge) {
       return
@@ -1340,6 +1385,22 @@ function App() {
               >
                 {t('actions.reportFetch')}
               </Button>
+              <Button
+                type="button"
+                variant="outline-secondary"
+                onClick={() => exportBatchReport('json')}
+                disabled={!reportData}
+              >
+                {t('actions.reportExportJson')}
+              </Button>
+              <Button
+                type="button"
+                variant="outline-secondary"
+                onClick={() => exportBatchReport('csv')}
+                disabled={!reportData}
+              >
+                {t('actions.reportExportCsv')}
+              </Button>
               <p className="small text-secondary mb-0">
                 {reportBatchId ? `batch_id: ${reportBatchId}` : t('actions.reportEmpty')}
               </p>
@@ -1366,6 +1427,11 @@ function App() {
                   noErrors: t('actions.reportNoErrors'),
                 }}
               />
+            ) : null}
+            {reportExportStatus ? (
+              <p data-testid="batch-report-export-status" className="small mt-2 mb-0 text-secondary">
+                {reportExportStatus}
+              </p>
             ) : null}
           </section>
           <Stack direction="horizontal" className="flex-wrap align-items-center gap-2 mt-3">

@@ -17,6 +17,7 @@
 - `Timeline batch`: suit l'état `File d'attente -> En cours -> Terminé/Erreur`.
 - le rapport se charge automatiquement après exécution.
 - `Rafraîchir rapport`: relancer la lecture du rapport si besoin.
+- `Exporter JSON` / `Exporter CSV`: exporter le rapport batch courant.
 
 ## Vues enregistrées
 
