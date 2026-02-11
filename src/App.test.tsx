@@ -169,7 +169,11 @@ describe('App', () => {
     await user.keyboard('{/Shift}')
     await user.click(screen.getByRole('button', { name: 'Prévisualiser batch' }))
 
-    expect(screen.getByText('Prévisualisation en échec: FORBIDDEN_SCOPE (403)')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        "Prévisualisation en échec: Droit insuffisant pour cette action (scope manquant).",
+      ),
+    ).toBeInTheDocument()
     fetchSpy.mockRestore()
   })
 
