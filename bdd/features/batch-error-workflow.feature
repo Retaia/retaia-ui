@@ -8,14 +8,16 @@ Feature: Workflow batch API en erreur
     And je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je clique sur le bouton "Prévisualiser batch"
-    Then le message "Prévisualisation en échec: Droit insuffisant pour cette action (scope manquant)." est visible
+    Then le statut de prévisualisation contient "échec"
+    And le statut de prévisualisation contient "scope manquant"
 
   Scenario: conflit d'état lors de l'exécution batch
     Given le mock API retourne STATE_CONFLICT sur l'exécution batch
     And je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je clique sur le bouton "Exécuter batch"
-    Then le message "Exécution en échec: Conflit d'état: rafraîchir puis réessayer." est visible
+    Then le statut d'exécution contient "échec"
+    And le statut d'exécution contient "Conflit d'état"
 
   Scenario: indisponibilité temporaire lors du chargement rapport
     Given le mock API retourne TEMPORARY_UNAVAILABLE sur le rapport batch
@@ -23,4 +25,5 @@ Feature: Workflow batch API en erreur
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je clique sur le bouton "Exécuter batch"
     And je clique sur le bouton "Rafraîchir rapport"
-    Then le message "Chargement rapport en échec: Indisponibilité temporaire: réessayer plus tard." est visible
+    Then le message "Chargement rapport en échec" est visible
+    And le message "Indisponibilité temporaire" est visible

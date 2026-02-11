@@ -606,6 +606,7 @@ function App() {
           </Stack>
           {previewStatus ? (
             <p
+              data-testid="batch-preview-status"
               className={[
                 'mt-2',
                 'mb-0',
@@ -617,6 +618,7 @@ function App() {
           ) : null}
           {executeStatus ? (
             <p
+              data-testid="batch-execute-status"
               className={[
                 'mt-2',
                 'mb-0',
@@ -642,7 +644,9 @@ function App() {
               </p>
             </Stack>
             {reportStatus ? (
-              <p className="small mt-2 mb-0 text-secondary">{reportStatus}</p>
+              <p data-testid="batch-report-status" className="small mt-2 mb-0 text-secondary">
+                {reportStatus}
+              </p>
             ) : null}
             {reportData ? (
               <BatchReportView
