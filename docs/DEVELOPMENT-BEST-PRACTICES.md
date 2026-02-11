@@ -45,6 +45,8 @@ Interactions souris:
 Raccourcis clavier desktop:
 
 - `j` / `k`: navigation dans la liste visible
+- `Flèche haut` / `Flèche bas`: navigation dans la liste visible
+- `Shift + Flèche haut/bas`: étend une sélection de plage dans le batch
 - `Entrée`: ouvre le premier asset visible si aucun détail n'est ouvert
 - `Shift+Espace`: ajoute/retire l'asset sélectionné au batch
 - `Ctrl/Cmd+A`: ajoute tous les assets visibles au batch
