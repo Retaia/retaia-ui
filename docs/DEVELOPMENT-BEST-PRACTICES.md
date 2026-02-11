@@ -165,3 +165,22 @@ Implémentation locale actuelle:
 - ouvrir la PR immédiatement après le premier push
 - garder des commits atomiques (un objectif clair par commit)
 - rebaser/merger `master` régulièrement pour éviter les conflits tardifs
+
+Exemple recommandé (feature courte):
+
+- `git checkout master`
+- `git pull --ff-only origin master`
+- `git checkout -b codex/feature-x-master`
+- implémentation + tests
+- `git add ... && git commit -m "feat(ui): ..."`
+- `git push -u origin codex/feature-x-master`
+- `gh pr create --base master --title "feat(ui): ..." --body "..."`
+
+Exemple recommandé (branche longue, anti-conflit):
+
+- `git checkout codex/feature-x-master`
+- `git fetch origin`
+- `git merge origin/master`
+- résoudre conflits + `npm run qa`
+- `git commit -m "chore(merge): resolve master conflicts in feature-x"`
+- `git push`
