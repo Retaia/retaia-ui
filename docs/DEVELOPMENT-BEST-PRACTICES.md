@@ -6,6 +6,7 @@
 ## Objectif
 
 Donner un cadre d'implémentation local pour `retaia-ui` avec React + TypeScript, en priorité TDD et BDD.
+Pour le workflow quotidien branch/PR/checks, voir aussi `docs/UI-QUALITY-RUNBOOK.md`.
 
 ## Principes
 

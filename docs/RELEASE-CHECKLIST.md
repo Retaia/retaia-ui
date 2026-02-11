@@ -6,6 +6,7 @@
 - `npm run qa`
 - `npm run e2e:bdd:ci`
 - `npm run visual:test`
+- vérifier le runbook `docs/UI-QUALITY-RUNBOOK.md`
 - vérifier `.env.example` (`VITE_API_BASE_URL`, `VITE_API_TOKEN`)
 
 ## GitHub

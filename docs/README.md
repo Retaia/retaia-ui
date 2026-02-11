@@ -12,6 +12,7 @@
 - `docs/DOCKER-DEVELOPMENT.md`
 - `docs/USER-QUICKSTART.md`
 - `docs/RELEASE-CHECKLIST.md`
+- `docs/UI-QUALITY-RUNBOOK.md`
 - `bdd/features/`
 
 ## Lecture minimale avant de coder
