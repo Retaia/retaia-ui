@@ -80,6 +80,13 @@ Feature: Workflow de review desktop-like
     When je clique sur le bouton "Annuler exécution"
     Then le message "annulée avant l'appel API" est visible
 
+  Scenario: Confirmer une exécution batch avec Shift+Entrée
+    Given je suis sur la page d'accueil
+    When je fais Maj+clic sur l'asset "interview-camera-a.mov"
+    And je clique sur le bouton "Exécuter batch"
+    And j'appuie sur la touche "Shift+Enter"
+    Then le message "Exécution du batch acceptée" est visible
+
   Scenario: Filtrer la liste sur le batch via raccourci clavier
     Given je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"

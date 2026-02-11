@@ -926,6 +926,12 @@ function App() {
         return
       }
 
+      if (event.shiftKey && event.key === 'Enter' && pendingBatchExecution) {
+        event.preventDefault()
+        void executeBatchMove()
+        return
+      }
+
       if (
         event.shiftKey &&
         (event.key === ' ' || event.key === 'Spacebar' || event.key === 'Space' || event.code === 'Space')
@@ -1055,6 +1061,8 @@ function App() {
     toggleBatchOnly,
     openNextPending,
     toggleDensityMode,
+    pendingBatchExecution,
+    executeBatchMove,
     selectAllVisibleInBatch,
     selectVisibleByOffset,
     toggleBatchForSelectedAsset,
