@@ -180,4 +180,33 @@ describe('App', () => {
 
     expect(screen.getByText('Batch sélectionné: 3')).toBeInTheDocument()
   })
+
+  it('logs actions and allows undo with the dedicated button', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
+
+    const activityPanel = screen.getByLabelText("Journal d'actions")
+    expect(within(activityPanel).getByText('KEEP visibles (3)')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Annuler dernière action' }))
+
+    expect(within(activityPanel).getByText('Annulation')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+  })
+
+  it('supports undo with Ctrl+Z shortcut', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.click(screen.getAllByRole('button', { name: 'REJECT' })[0])
+    expect(screen.getByText('A-001 - DECIDED_REJECT')).toBeInTheDocument()
+
+    await user.keyboard('{Control>}z{/Control}')
+    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+  })
 })
