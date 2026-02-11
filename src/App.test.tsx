@@ -103,6 +103,13 @@ describe('App', () => {
     expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
   })
 
+  it('renders separate panels for general and batch actions', () => {
+    render(<App />)
+
+    expect(screen.getByRole('heading', { name: 'Actions générales' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Actions batch' })).toBeInTheDocument()
+  })
+
   it('adds assets to batch with shift+click and applies batch action', async () => {
     const user = userEvent.setup()
 
