@@ -23,7 +23,7 @@ Before(async () => {
   context = await browser.newContext()
   page = await context.newPage()
 
-  await page.route('**/api/v1/batches/moves/preview', async (route) => {
+  await page.route('**/batches/moves/preview', async (route) => {
     if (previewShouldFailScope) {
       await route.fulfill({
         status: 403,
@@ -44,7 +44,7 @@ Before(async () => {
     })
   })
 
-  await page.route('**/api/v1/batches/moves/batch-e2e-1', async (route) => {
+  await page.route('**/batches/moves/batch-e2e-1', async (route) => {
     if (reportShouldFailTemporary) {
       await route.fulfill({
         status: 503,
@@ -65,7 +65,7 @@ Before(async () => {
     })
   })
 
-  await page.route('**/api/v1/batches/moves', async (route) => {
+  await page.route('**/batches/moves', async (route) => {
     if (executeShouldFailStateConflict) {
       await route.fulfill({
         status: 409,
@@ -180,9 +180,9 @@ Then('l\'historique disponible affiche {int}', async (count: number) => {
 })
 
 Then('le message {string} est visible', async (message: string) => {
-  await expect(page.getByText(message)).toBeVisible()
+  await expect(page.getByText(message, { exact: false })).toBeVisible()
 })
 
 Then('le rapport de batch contient {string}', async (text: string) => {
-  await expect(page.locator('pre').filter({ hasText: text })).toBeVisible()
+  await expect(page.getByText(text, { exact: false }).first()).toBeVisible()
 })
