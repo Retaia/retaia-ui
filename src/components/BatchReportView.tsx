@@ -69,7 +69,7 @@ export function BatchReportView({ report, labels }: BatchReportViewProps) {
   const errors = parseErrors(parsed).sort((a, b) => a.assetId.localeCompare(b.assetId))
 
   return (
-    <section className="mt-2" aria-label={labels.summary}>
+    <section className="mt-2" aria-label={labels.summary} data-testid="batch-report-summary">
       <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
         <span className={`badge text-bg-${statusVariant}`}>{status}</span>
         <span className="badge text-bg-success">{`${labels.moved}: ${moved}`}</span>
@@ -86,11 +86,9 @@ export function BatchReportView({ report, labels }: BatchReportViewProps) {
           </thead>
           <tbody>
             <tr>
-              <td>
-                <span className={`badge text-bg-${statusVariant}`}>{status}</span>
-              </td>
-              <td>{moved}</td>
-              <td>{failed}</td>
+              <td data-testid="batch-report-status-value">{status}</td>
+              <td data-testid="batch-report-moved-value">{moved}</td>
+              <td data-testid="batch-report-failed-value">{failed}</td>
             </tr>
           </tbody>
         </table>

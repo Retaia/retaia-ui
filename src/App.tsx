@@ -606,6 +606,7 @@ function App() {
           </Stack>
           {previewStatus ? (
             <p
+              data-testid="batch-preview-status"
               role="status"
               aria-live="polite"
               className={[
@@ -619,6 +620,7 @@ function App() {
           ) : null}
           {executeStatus ? (
             <p
+              data-testid="batch-execute-status"
               role="status"
               aria-live="polite"
               className={[
@@ -646,7 +648,12 @@ function App() {
               </p>
             </Stack>
             {reportStatus ? (
-              <p role="status" aria-live="polite" className="small mt-2 mb-0 text-secondary">
+              <p
+                data-testid="batch-report-status"
+                role="status"
+                aria-live="polite"
+                className="small mt-2 mb-0 text-secondary"
+              >
                 {reportStatus}
               </p>
             ) : null}

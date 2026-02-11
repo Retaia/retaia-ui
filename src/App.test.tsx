@@ -169,11 +169,9 @@ describe('App', () => {
     await user.keyboard('{/Shift}')
     await user.click(screen.getByRole('button', { name: 'Prévisualiser batch' }))
 
-    expect(
-      screen.getByText(
-        "Prévisualisation en échec: Droit insuffisant pour cette action (scope manquant).",
-      ),
-    ).toBeInTheDocument()
+    expect(screen.getByTestId('batch-preview-status')).toHaveTextContent(
+      'scope manquant',
+    )
     expect(screen.getByRole('status')).toHaveTextContent('scope manquant')
     fetchSpy.mockRestore()
   })
@@ -209,14 +207,18 @@ describe('App', () => {
     await user.keyboard('{/Shift}')
 
     await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
-    expect(screen.getByText('Exécution du batch acceptée')).toBeInTheDocument()
+    expect(screen.getByTestId('batch-execute-status')).toHaveTextContent('acceptée')
 
     await user.click(screen.getByRole('button', { name: 'Rafraîchir rapport' }))
-    expect(screen.getByText('Rapport chargé pour batch-123')).toBeInTheDocument()
+    expect(screen.getByTestId('batch-report-status')).toHaveTextContent(
+      'Rapport chargé pour batch-123',
+    )
     const reportSummary = screen.getByLabelText('Synthèse batch')
     expect(reportSummary).toBeInTheDocument()
     expect(within(reportSummary).getAllByText('DONE').length).toBeGreaterThan(0)
     expect(within(reportSummary).getByText('2')).toBeInTheDocument()
+    expect(screen.getByTestId('batch-report-status-value')).toHaveTextContent('DONE')
+    expect(screen.getByTestId('batch-report-moved-value')).toHaveTextContent('2')
     const liveRegions = screen.getAllByRole('status')
     expect(liveRegions.some((node) => node.textContent?.includes('Exécution du batch acceptée'))).toBe(
       true,
