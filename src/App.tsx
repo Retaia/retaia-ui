@@ -182,14 +182,14 @@ function App() {
     setSelectionAnchorId(id)
   }
 
-  const focusPending = () => {
+  const focusPending = useCallback(() => {
     if (filter === 'DECISION_PENDING' && search === '') {
       return
     }
     recordAction(t('activity.filterPending'))
     setFilter('DECISION_PENDING')
     setSearch('')
-  }
+  }, [filter, recordAction, search, t])
 
   const clearFilters = () => {
     if (filter === 'ALL' && search === '') {
@@ -484,6 +484,22 @@ function App() {
         return
       }
 
+      if (!event.metaKey && !event.ctrlKey && !event.shiftKey && event.key.toLowerCase() === 'p') {
+        event.preventDefault()
+        focusPending()
+        return
+      }
+
+      if (!event.metaKey && !event.ctrlKey && !event.shiftKey && event.key === '/') {
+        event.preventDefault()
+        const searchInput = document.getElementById('asset-search')
+        if (searchInput instanceof HTMLInputElement) {
+          searchInput.focus()
+          searchInput.select()
+        }
+        return
+      }
+
       if (event.key === 'j') {
         event.preventDefault()
         selectVisibleByOffset(1)
@@ -520,6 +536,7 @@ function App() {
   }, [
     selectedAssetId,
     visibleAssets,
+    focusPending,
     selectAllVisibleInBatch,
     selectVisibleByOffset,
     toggleBatchForSelectedAsset,

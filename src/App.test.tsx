@@ -403,6 +403,28 @@ describe('App', () => {
     expect(within(activityPanel).getByText('Sélection plage (1)')).toBeInTheDocument()
   })
 
+  it('applies pending filter with p shortcut', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.keyboard('p')
+
+    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+  })
+
+  it('focuses search input with slash shortcut', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+    const searchInput = screen.getByLabelText('Recherche')
+
+    await user.keyboard('/')
+
+    expect(searchInput).toHaveFocus()
+  })
+
   it('previews then confirms purge on rejected asset', async () => {
     const user = userEvent.setup()
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
