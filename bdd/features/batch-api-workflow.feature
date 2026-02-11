@@ -24,3 +24,13 @@ Feature: Workflow batch API
     And je clique sur le bouton "Exécuter batch"
     Then le statut d'exécution contient "acceptée"
     And le rapport batch affiche le statut "DONE"
+
+  Scenario: Fast-path desktop avec filtre batch-only puis exécution
+    Given je suis sur la page d'accueil
+    When je fais Maj+clic sur l'asset "interview-camera-a.mov"
+    And je fais Maj+clic sur l'asset "behind-the-scenes.jpg"
+    And j'appuie sur la touche "b"
+    Then le titre principal "Assets (2)" est visible
+    When je clique sur le bouton "Exécuter batch"
+    Then le statut d'exécution contient "acceptée"
+    And le rapport batch affiche le statut "DONE"

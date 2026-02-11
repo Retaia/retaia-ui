@@ -25,5 +25,5 @@
 
 ## Post-release
 
-- valider la smoke-prod (review -> batch preview -> execute -> report)
+- valider la smoke-prod (review -> batch-only -> execute -> report)
 - archiver les notes de release dans l’outil de suivi
