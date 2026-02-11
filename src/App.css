@@ -66,6 +66,16 @@
   gap: 12px;
 }
 
+.productivity-panel h2 {
+  margin-top: 0;
+}
+
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 label {
   display: block;
   margin-bottom: 8px;
@@ -119,6 +129,18 @@ input {
 
 .decision-actions button {
   min-width: 72px;
+}
+
+.next-asset {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.next-asset p {
+  margin: 4px 0 0;
+  color: #6b7280;
 }
 
 .empty-state {

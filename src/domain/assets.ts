@@ -52,6 +52,17 @@ export const updateAssetState = (
   )
 }
 
+export const updateAssetsState = (
+  assets: Asset[],
+  ids: string[],
+  nextState: AssetState,
+): Asset[] => {
+  const idSet = new Set(ids)
+  return assets.map((asset) =>
+    idSet.has(asset.id) ? { ...asset, state: nextState } : asset,
+  )
+}
+
 export const getStateFromDecision = (
   action: DecisionAction,
   currentState: AssetState,
