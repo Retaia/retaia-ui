@@ -64,6 +64,9 @@ export const resources = {
       'actions.history': 'Undo history: {count}',
       'actions.journal': 'Activity log',
       'actions.journalEmpty': 'No action yet.',
+      'actions.shortcutsTitle': 'Keyboard shortcuts',
+      'actions.shortcutsToggleShow': 'Show shortcuts',
+      'actions.shortcutsToggleHide': 'Hide shortcuts',
       'actions.shortcuts':
         'Desktop shortcuts: j/k (move), Arrows (move), Shift+Arrows (range), Enter (open), Shift+Space (batch), g/v/x (KEEP/REJECT/CLEAR selected), Escape (close selection), p (pending filter), / (search focus), Ctrl/Cmd+A (visible batch), Ctrl/Cmd+Z (undo)',
       'next.region': 'Next asset',
@@ -155,6 +158,9 @@ export const resources = {
       'actions.history': 'Historique disponible: {count}',
       'actions.journal': "Journal d'actions",
       'actions.journalEmpty': 'Aucune action pour le moment.',
+      'actions.shortcutsTitle': 'Raccourcis clavier',
+      'actions.shortcutsToggleShow': 'Voir raccourcis',
+      'actions.shortcutsToggleHide': 'Masquer raccourcis',
       'actions.shortcuts':
         'Raccourcis desktop: j/k (navigation), Flèches (navigation), Shift+Flèches (sélection plage), Entrée (ouvrir), Shift+Espace (batch), g/v/x (KEEP/REJECT/CLEAR sélectionné), Escape (fermer sélection), p (filtre à traiter), / (focus recherche), Ctrl/Cmd+A (batch visible), Ctrl/Cmd+Z (annuler)',
       'next.region': 'Prochain asset',

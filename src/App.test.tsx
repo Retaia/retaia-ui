@@ -464,6 +464,29 @@ describe('App', () => {
     expect(searchInput).toHaveFocus()
   })
 
+  it('toggles shortcuts help panel with dedicated button', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Voir raccourcis' }))
+    expect(screen.getByText(/Raccourcis desktop:/)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Masquer raccourcis' }))
+    expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
+  })
+
+  it('toggles shortcuts help panel with question mark shortcut', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.keyboard('?')
+    expect(screen.getByText(/Raccourcis desktop:/)).toBeInTheDocument()
+    await user.keyboard('?')
+    expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
+  })
+
   it('previews then confirms purge on rejected asset', async () => {
     const user = userEvent.setup()
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
