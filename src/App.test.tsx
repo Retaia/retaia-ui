@@ -403,6 +403,18 @@ describe('App', () => {
     expect(within(activityPanel).getByText('Sélection plage (1)')).toBeInTheDocument()
   })
 
+  it('clears current selection with Escape shortcut', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.keyboard('{Enter}')
+    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
+
+    await user.keyboard('{Escape}')
+    expect(within(getDetailPanel()).getByText('Clique un asset pour ouvrir le détail.')).toBeInTheDocument()
+  })
+
   it('previews then confirms purge on rejected asset', async () => {
     const user = userEvent.setup()
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {

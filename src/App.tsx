@@ -484,6 +484,15 @@ function App() {
         return
       }
 
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setSelectedAssetId(null)
+        setSelectionAnchorId(null)
+        setPurgePreviewAssetId(null)
+        setPurgeStatus(null)
+        return
+      }
+
       if (event.key === 'j') {
         event.preventDefault()
         selectVisibleByOffset(1)
