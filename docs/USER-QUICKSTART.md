@@ -11,7 +11,8 @@
 - `Shift+clic`: ajouter/retirer un asset du batch.
 - `Prévisualiser batch`: valider le scope.
 - `Exécuter batch`: lancer le traitement.
-- `Rafraîchir rapport`: charger le statut et les échecs.
+- le rapport se charge automatiquement après exécution.
+- `Rafraîchir rapport`: relancer la lecture du rapport si besoin.
 
 ## Purge d'un asset rejeté
 
@@ -24,6 +25,7 @@
 ## Raccourcis
 
 - `j` / `k`: navigation.
+- `?`: ouvrir/fermer l'aide des raccourcis.
 - `p`: filtre rapide sur les assets à traiter.
 - `/`: focus direct sur la recherche.
 - `Shift+Flèches`: extension de sélection batch.

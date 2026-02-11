@@ -21,6 +21,7 @@ Donner un cadre d'implémentation local pour `retaia-ui` avec React + TypeScript
 - Préférer composants simples + hooks isolés.
 - Mettre la logique testable hors JSX quand elle devient complexe.
 - Extraire les helpers transverses (ex: clavier) dans des modules courts (`src/ui/*`) avec tests unitaires dédiés.
+- Centraliser les règles d'activation/désactivation des actions UI dans des helpers purs (`src/domain/*`) testés.
 
 ## API typée (OpenAPI)
 
@@ -75,6 +76,7 @@ Règles UX:
 - undo borné: limiter l'historique pour éviter la croissance mémoire côté client
 - navigation clavier: préférer un modèle `listbox/option` avec `aria-selected` et roving `tabIndex`
 - retours asynchrones (preview/execute/report): exposer des live regions (`role="status"` + `aria-live="polite"`)
+- exécution batch: déclencher un chargement automatique du rapport quand `batch_id` est disponible
 
 ## TDD (obligatoire par défaut)
 
