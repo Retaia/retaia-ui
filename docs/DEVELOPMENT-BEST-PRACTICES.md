@@ -117,6 +117,14 @@ Scénarios BDD minimum à garder verts:
 - Fallback strict: `locale utilisateur -> en -> clé brute`.
 - Les libellés destructifs (move/purge/reject) doivent être explicites.
 
+Implémentation locale actuelle:
+
+- stack standard `i18next` + `react-i18next`
+- ressources i18n dans `src/i18n/resources.ts`
+- instance i18n partagée dans `src/i18n/index.ts`
+- fallback strict `locale -> en -> key`
+- switch de langue `FR/EN` dans l'en-tête UI desktop-like
+
 ## Checklist PR
 
 - Objectif unique.

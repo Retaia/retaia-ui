@@ -4,6 +4,12 @@ import { Card, Col, Form, Row } from 'react-bootstrap'
 type ReviewToolbarProps = {
   filter: AssetFilter
   search: string
+  labels: {
+    filter: string
+    search: string
+    searchPlaceholder: string
+    all: string
+  }
   onFilterChange: (filter: AssetFilter) => void
   onSearchChange: (search: string) => void
 }
@@ -11,6 +17,7 @@ type ReviewToolbarProps = {
 export function ReviewToolbar({
   filter,
   search,
+  labels,
   onFilterChange,
   onSearchChange,
 }: ReviewToolbarProps) {
@@ -20,14 +27,14 @@ export function ReviewToolbar({
         <Row className="g-3">
           <Col xs={12} md={6}>
             <Form.Label className="fw-semibold" htmlFor="state-filter">
-              Filtrer par état
+              {labels.filter}
             </Form.Label>
             <Form.Select
               id="state-filter"
               value={filter}
               onChange={(event) => onFilterChange(event.target.value as AssetFilter)}
             >
-              <option value="ALL">Tous</option>
+              <option value="ALL">{labels.all}</option>
               <option value="DECISION_PENDING">DECISION_PENDING</option>
               <option value="DECIDED_KEEP">DECIDED_KEEP</option>
               <option value="DECIDED_REJECT">DECIDED_REJECT</option>
@@ -36,13 +43,13 @@ export function ReviewToolbar({
 
           <Col xs={12} md={6}>
             <Form.Label className="fw-semibold" htmlFor="asset-search">
-              Recherche
+              {labels.search}
             </Form.Label>
             <Form.Control
               id="asset-search"
               value={search}
               onChange={(event) => onSearchChange(event.target.value)}
-              placeholder="Nom ou identifiant"
+              placeholder={labels.searchPlaceholder}
             />
           </Col>
         </Row>

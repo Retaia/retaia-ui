@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "i18n:check": "tsx scripts/check-i18n-keys.ts",
     "bdd:test": "cucumber-js \"bdd/features/**/*.feature\" --require-module tsx/cjs --require \"bdd/step-definitions/**/*.ts\" --format progress",
     "bdd:test:ci": "cucumber-js \"bdd/features/**/*.feature\" --require-module tsx/cjs --require \"bdd/step-definitions/**/*.ts\" --format progress --format json:test-results/bdd-report.json --format html:test-results/bdd-report.html",
     "bdd:test:headed": "PW_HEADLESS=false cucumber-js \"bdd/features/**/*.feature\" --require-module tsx/cjs --require \"bdd/step-definitions/**/*.ts\" --format progress",
@@ -18,7 +19,7 @@
     "e2e:bdd:ci": "start-server-and-test \"vite --host 127.0.0.1 --port 4173\" http://127.0.0.1:4173 \"npm run bdd:test:ci\"",
     "visual:test": "start-server-and-test \"vite --host 127.0.0.1 --port 4173\" http://127.0.0.1:4173 \"playwright test -c playwright.visual.config.ts\"",
     "visual:test:update": "start-server-and-test \"vite --host 127.0.0.1 --port 4173\" http://127.0.0.1:4173 \"playwright test -c playwright.visual.config.ts --update-snapshots\"",
-    "qa": "npm run lint && npm run test:coverage",
+    "qa": "npm run i18n:check && npm run lint && npm run test:coverage",
     "prepare": "husky",
     "hooks:install": "husky",
     "typecheck": "tsc -b --pretty false",
@@ -27,9 +28,11 @@
   "dependencies": {
     "bootstrap": "^5.3.8",
     "bootswatch": "^5.3.8",
+    "i18next": "^25.8.5",
     "react": "^19.2.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.2.0",
+    "react-i18next": "^16.5.4",
     "sass": "^1.97.3"
   },
   "devDependencies": {

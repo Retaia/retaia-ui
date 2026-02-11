@@ -25,6 +25,7 @@ Jobs:
 - `./scripts/no-black-magic.sh`
 - `npm run lint`
 - `npm run typecheck`
+- `npm run i18n:check`
 - `npm run test:coverage`
 - `npm run security:audit`
 - `npm run e2e:bdd:ci`
