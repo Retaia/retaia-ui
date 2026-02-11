@@ -211,6 +211,13 @@ function App() {
     setSearch('')
   }
 
+  const clearActivityLog = useCallback(() => {
+    if (activityLog.length === 0) {
+      return
+    }
+    setActivityLog([])
+  }, [activityLog.length])
+
   const selectAllVisibleInBatch = useCallback(() => {
     const missingCount = visibleAssets.filter((asset) => !batchIds.includes(asset.id)).length
     if (missingCount === 0) {
@@ -803,7 +810,18 @@ function App() {
             </p>
           </Stack>
           <section className="border border-2 border-secondary-subtle rounded p-3 mt-3" aria-label={t('actions.journal')}>
-            <h3 className="h6 mb-2">{t('actions.journal')}</h3>
+            <Stack direction="horizontal" className="justify-content-between align-items-center gap-2 mb-2">
+              <h3 className="h6 mb-0">{t('actions.journal')}</h3>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline-secondary"
+                onClick={clearActivityLog}
+                disabled={activityLog.length === 0}
+              >
+                {t('actions.journalClear')}
+              </Button>
+            </Stack>
             {activityLog.length === 0 ? (
               <p className="text-secondary mb-0">{t('actions.journalEmpty')}</p>
             ) : (

@@ -63,6 +63,7 @@ export const resources = {
       'actions.undo': 'Undo last action',
       'actions.history': 'Undo history: {count}',
       'actions.journal': 'Activity log',
+      'actions.journalClear': 'Clear log',
       'actions.journalEmpty': 'No action yet.',
       'actions.shortcuts':
         'Desktop shortcuts: j/k (move), Arrows (move), Shift+Arrows (range), Enter (open), Shift+Space (batch), g/v/x (KEEP/REJECT/CLEAR selected), Escape (close selection), p (pending filter), / (search focus), Ctrl/Cmd+A (visible batch), Ctrl/Cmd+Z (undo)',
@@ -154,6 +155,7 @@ export const resources = {
       'actions.undo': 'Annuler dernière action',
       'actions.history': 'Historique disponible: {count}',
       'actions.journal': "Journal d'actions",
+      'actions.journalClear': 'Vider journal',
       'actions.journalEmpty': 'Aucune action pour le moment.',
       'actions.shortcuts':
         'Raccourcis desktop: j/k (navigation), Flèches (navigation), Shift+Flèches (sélection plage), Entrée (ouvrir), Shift+Espace (batch), g/v/x (KEEP/REJECT/CLEAR sélectionné), Escape (fermer sélection), p (filtre à traiter), / (focus recherche), Ctrl/Cmd+A (batch visible), Ctrl/Cmd+Z (annuler)',

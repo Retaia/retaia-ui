@@ -71,6 +71,7 @@ Règles UX:
 - garder un état visuel clair pour l'item sélectionné (focus détail) et pour l'item présent dans le batch
 - les raccourcis ne doivent pas interférer avec la saisie dans les champs (`input`, `textarea`, `select`)
 - journal d'actions: afficher des libellés compréhensibles côté utilisateur (`KEEP visibles`, `REJECT batch`, etc.)
+- fournir une action explicite pour vider le journal sans impacter les données métier
 - undo borné: limiter l'historique pour éviter la croissance mémoire côté client
 - navigation clavier: préférer un modèle `listbox/option` avec `aria-selected` et roving `tabIndex`
 - retours asynchrones (preview/execute/report): exposer des live regions (`role="status"` + `aria-live="polite"`)
