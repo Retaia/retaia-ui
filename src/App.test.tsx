@@ -430,6 +430,18 @@ describe('App', () => {
     expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
   })
 
+  it('clears current selection with Escape shortcut', async () => {
+    const user = userEvent.setup()
+
+    render(<App />)
+
+    await user.keyboard('{Enter}')
+    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
+
+    await user.keyboard('{Escape}')
+    expect(within(getDetailPanel()).getByText('Clique un asset pour ouvrir le détail.')).toBeInTheDocument()
+  })
+
   it('applies pending filter with p shortcut', async () => {
     const user = userEvent.setup()
 
