@@ -16,6 +16,8 @@
     "bdd:test:headed": "PW_HEADLESS=false cucumber-js \"bdd/features/**/*.feature\" --require-module tsx/cjs --require \"bdd/step-definitions/**/*.ts\" --format progress",
     "e2e:bdd": "start-server-and-test \"vite --host 127.0.0.1 --port 4173\" http://127.0.0.1:4173 \"npm run bdd:test\"",
     "e2e:bdd:ci": "start-server-and-test \"vite --host 127.0.0.1 --port 4173\" http://127.0.0.1:4173 \"npm run bdd:test:ci\"",
+    "visual:test": "start-server-and-test \"vite --host 127.0.0.1 --port 4173\" http://127.0.0.1:4173 \"playwright test -c playwright.visual.config.ts\"",
+    "visual:test:update": "start-server-and-test \"vite --host 127.0.0.1 --port 4173\" http://127.0.0.1:4173 \"playwright test -c playwright.visual.config.ts --update-snapshots\"",
     "qa": "npm run lint && npm run test:coverage",
     "prepare": "husky",
     "hooks:install": "husky",
