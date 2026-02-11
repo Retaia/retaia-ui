@@ -13,6 +13,14 @@
 - `Exécuter batch`: lancer le traitement.
 - `Rafraîchir rapport`: charger le statut et les échecs.
 
+## Purge d'un asset rejeté
+
+- ouvrir le détail d'un asset en `DECIDED_REJECT`
+- cliquer `Prévisualiser purge`
+- vérifier le message de preview
+- cliquer `Confirmer purge`
+- vérifier le message de résultat (succès ou erreur)
+
 ## Raccourcis
 
 - `j` / `k`: navigation.
@@ -25,3 +33,4 @@
 - scope manquant: vérifier les droits API (`batches:execute`).
 - conflit d'état: rafraîchir et relancer.
 - indisponibilité temporaire: réessayer plus tard.
+- purge désactivée: vérifier que l'asset est bien en état `DECIDED_REJECT`.

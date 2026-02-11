@@ -461,6 +461,7 @@ describe('App', () => {
     expect(screen.getByTestId('asset-purge-status')).toHaveTextContent('scope manquant')
     fetchSpy.mockRestore()
   })
+
   it('shows purge error when confirmation fails with state conflict', async () => {
     const user = userEvent.setup()
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
