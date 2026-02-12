@@ -154,6 +154,16 @@ Implémentation locale actuelle:
 - fallback strict `locale -> en -> key`
 - switch de langue `FR/EN` dans l'en-tête UI desktop-like
 
+## Branching & PR
+
+- Ne jamais développer une feature sur `master`.
+- Créer une branche dédiée par feature.
+- Convention de nommage locale: `codex/<feature>-master` (ou équivalent explicite).
+- Pousser la branche dès que la feature (ou premier incrément livrable) est créée.
+- Créer la PR immédiatement après le push de la branche.
+- Base de PR: `master` sauf consigne contraire.
+- Garder des commits atomiques dans la branche.
+
 ## Checklist PR
 
 - Objectif unique.
