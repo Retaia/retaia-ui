@@ -19,6 +19,7 @@ Jobs:
 3. `test`
 4. `security-audit`
 5. `e2e-bdd`
+6. `ci-required` (gate final, recommandé en check obligatoire unique)
 
 ## Gates bloquants
 
@@ -49,10 +50,12 @@ Jobs:
 - `test`
 - `security-audit`
 - `e2e-bdd`
+- `ci-required` (si vous préférez un seul check bloquant côté règle GitHub)
 
 Artefacts CI:
 
 - le job `e2e-bdd` publie `test-results/**` en succès et en échec
+- le job `test` publie `coverage/**`
 
 ## Politique de couverture
 
