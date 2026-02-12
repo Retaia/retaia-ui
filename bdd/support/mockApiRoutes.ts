@@ -1,6 +1,8 @@
-import type { Page } from '@playwright/test'
+import type { Page, Route } from '@playwright/test'
 
 export type MockApiState = {
+  assetsListShouldFail: boolean
+  assetsListDelayMs: number
   previewShouldFailScope: boolean
   previewTemporaryOnce: boolean
   previewTemporaryCalls: number
@@ -11,6 +13,8 @@ export type MockApiState = {
 }
 
 export const createMockApiState = (): MockApiState => ({
+  assetsListShouldFail: false,
+  assetsListDelayMs: 0,
   previewShouldFailScope: false,
   previewTemporaryOnce: false,
   previewTemporaryCalls: 0,
@@ -21,6 +25,8 @@ export const createMockApiState = (): MockApiState => ({
 })
 
 export const resetMockApiState = (state: MockApiState) => {
+  state.assetsListShouldFail = false
+  state.assetsListDelayMs = 0
   state.previewShouldFailScope = false
   state.previewTemporaryOnce = false
   state.previewTemporaryCalls = 0
@@ -31,6 +37,53 @@ export const resetMockApiState = (state: MockApiState) => {
 }
 
 export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
+  const handleAssetsList = async (route: Route) => {
+    if (state.assetsListDelayMs > 0) {
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, state.assetsListDelayMs)
+      })
+    }
+    if (state.assetsListShouldFail) {
+      await route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'TEMPORARY_UNAVAILABLE',
+          message: 'temporary unavailable',
+          retryable: true,
+          correlation_id: 'bdd-corr-assets-1',
+        }),
+      })
+      return
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        items: [
+          {
+            uuid: 'A-001',
+            media_type: 'VIDEO',
+            state: 'DECISION_PENDING',
+            created_at: new Date().toISOString(),
+            captured_at: new Date().toISOString(),
+          },
+          {
+            uuid: 'A-003',
+            media_type: 'PHOTO',
+            state: 'DECIDED_REJECT',
+            created_at: new Date().toISOString(),
+            captured_at: new Date().toISOString(),
+          },
+        ],
+        next_cursor: null,
+      }),
+    })
+  }
+
+  await page.route('**/assets', handleAssetsList)
+  await page.route('**/assets?*', handleAssetsList)
+
   await page.route('**/batches/moves/preview', async (route) => {
     if (state.previewShouldFailScope) {
       await route.fulfill({

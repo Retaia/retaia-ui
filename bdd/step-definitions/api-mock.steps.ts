@@ -5,6 +5,14 @@ Given('le mock API retourne FORBIDDEN_SCOPE sur la preview batch', async () => {
   mockApiState.previewShouldFailScope = true
 })
 
+Given('le mock API retourne une erreur sur la liste assets', async () => {
+  mockApiState.assetsListShouldFail = true
+})
+
+Given('le mock API retarde la liste assets de {int} ms', async (delayMs: number) => {
+  mockApiState.assetsListDelayMs = delayMs
+})
+
 Given('le mock API retourne TEMPORARY_UNAVAILABLE une fois sur la preview batch', async () => {
   mockApiState.previewTemporaryOnce = true
 })

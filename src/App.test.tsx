@@ -79,6 +79,69 @@ describe('App', () => {
     expect(detailCard).toHaveClass('sticky-xl-top')
   })
 
+  it('shows loading status when API source mode is enabled', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      const fetchMock = vi.fn(
+        () =>
+          new Promise<Response>((resolve) => {
+            setTimeout(() => {
+              resolve(
+                new Response(
+                  JSON.stringify({
+                    items: [],
+                    next_cursor: null,
+                  }),
+                  {
+                    status: 200,
+                    headers: { 'content-type': 'application/json' },
+                  },
+                ),
+              )
+            }, 30)
+          }),
+      )
+      vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+
+      setupApp('/review?source=api')
+
+      expect(await screen.findByTestId('assets-loading-status')).toBeVisible()
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
+  it('shows API error status when API source fails', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            code: 'TEMPORARY_UNAVAILABLE',
+            message: 'temporary unavailable',
+            retryable: true,
+            correlation_id: 'test-assets-1',
+          }),
+          {
+            status: 503,
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
+      )
+
+      setupApp('/review?source=api')
+
+      expect(await screen.findByTestId('assets-error-status')).toBeVisible()
+      expect(screen.getByRole('heading', { name: 'Assets (3)' })).toBeInTheDocument()
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
   it('filters assets with free-text search', async () => {
     const { user } = setupApp()
 

@@ -8,8 +8,20 @@ Given("je suis sur la page d'accueil", async () => {
   await getPage().goto(APP_URL, { waitUntil: 'networkidle' })
 })
 
+Given('je suis sur la page {string}', async (path: string) => {
+  await getPage().goto(`${APP_URL}${path}`, { waitUntil: 'networkidle' })
+})
+
+Given("je suis sur la page d'accueil en mode source API", async () => {
+  await getPage().goto(`${APP_URL}/review?source=api`, { waitUntil: 'domcontentloaded' })
+})
+
 Then('le titre principal {string} est visible', async (title: string) => {
   await expect(getPage().getByRole('heading', { name: title })).toBeVisible()
+})
+
+Then('l\'URL courante contient {string}', async (value: string) => {
+  await expect(getPage()).toHaveURL(new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
 })
 
 When("je clique sur l'asset {string}", async (assetName: string) => {
@@ -103,12 +115,41 @@ When('j\'appuie sur la touche {string}', async (key: string) => {
   await getPage().keyboard.press(key)
 })
 
+When("je reviens en arrière dans l'historique navigateur", async () => {
+  await getPage().goBack({ waitUntil: 'networkidle' })
+})
+
+When("j'avance dans l'historique navigateur", async () => {
+  await getPage().goForward({ waitUntil: 'networkidle' })
+})
+
 Then('l\'historique disponible affiche {int}', async (count: number) => {
   await expect(getPage().getByText(`Historique disponible: ${count}`)).toBeVisible()
 })
 
 Then('le message {string} est visible', async (message: string) => {
   await expect(getPage().getByText(message, { exact: false })).toBeVisible()
+})
+
+Then('le statut de sélection affiche {string}', async (text: string) => {
+  await expect(getPage().getByTestId('selection-status')).toContainText(text)
+})
+
+Then('le statut batch affiche {int}', async (count: number) => {
+  await expect(getPage().getByTestId('batch-status')).toContainText(String(count))
+})
+
+Then('le panneau détail est sticky en desktop', async () => {
+  const detailPanel = getPage().locator('section[aria-label="Détail de l\'asset"]')
+  await expect(detailPanel.locator('.card').first()).toHaveClass(/sticky-xl-top/)
+})
+
+Then('le statut de chargement assets API est visible', async () => {
+  await expect(getPage().getByTestId('assets-loading-status')).toBeVisible()
+})
+
+Then('le statut d\'erreur assets API est visible', async () => {
+  await expect(getPage().getByTestId('assets-error-status')).toBeVisible()
 })
 
 Then('le bouton {string} est visible', async (buttonLabel: string) => {
