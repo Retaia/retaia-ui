@@ -448,6 +448,43 @@ describe('App', () => {
     fetchSpy.mockRestore()
   })
 
+  it('confirms queued batch execution with Shift+Enter', async () => {
+    const user = userEvent.setup()
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = String(input)
+      if (url.endsWith('/batches/moves')) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ batch_id: 'batch-123' }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+        )
+      }
+      if (url.endsWith('/batches/moves/batch-123')) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ status: 'DONE', moved: 1 }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+        )
+      }
+      return Promise.resolve(new Response(null, { status: 200 }))
+    })
+
+    render(<App />)
+
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.keyboard('{/Shift}')
+    await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
+    expect(screen.getByTestId('batch-execute-undo-status')).toBeInTheDocument()
+
+    await user.keyboard('{Shift>}{Enter}{/Shift}')
+    expect(screen.getByTestId('batch-execute-status')).toHaveTextContent('acceptée')
+
+    fetchSpy.mockRestore()
+  })
+
   it('loads batch report automatically after execution', async () => {
     const user = userEvent.setup()
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {

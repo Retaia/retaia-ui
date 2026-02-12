@@ -14,6 +14,7 @@
 - `Exécuter batch`: programme l'exécution avec une fenêtre d'annulation de 6s.
 - `Annuler exécution`: annule avant l'appel API.
 - `Exécuter maintenant`: confirme immédiatement sans attendre la fin des 6s.
+- `Shift+Entrée`: confirme immédiatement l'exécution programmée.
 - `Timeline batch`: suit l'état `File d'attente -> En cours -> Terminé/Erreur`.
 - le rapport se charge automatiquement après exécution.
 - `Rafraîchir rapport`: relancer la lecture du rapport si besoin.
@@ -61,6 +62,7 @@
 - `1` / `2` / `3`: applique les presets rapides enregistrés.
 - `/`: focus direct sur la recherche.
 - `Shift+Flèches`: extension de sélection batch.
+- `Shift+Entrée`: exécuter immédiatement un batch en attente.
 - `Ctrl/Cmd+A`: ajouter visibles au batch.
 - `Ctrl/Cmd+Z`: annuler dernière action.
 - `Escape`: ferme la sélection, ou vide la recherche si le focus est dans le champ.
