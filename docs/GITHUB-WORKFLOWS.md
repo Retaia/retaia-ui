@@ -15,15 +15,17 @@ Le workflow CI est défini dans:
 Jobs:
 
 1. `no-black-magic`
-2. `lint`
-3. `test`
-4. `security-audit`
-5. `e2e-bdd`
-6. `ci-required` (gate final, recommandé en check obligatoire unique)
+2. `pr-up-to-date` (vérifie qu'une PR inclut bien le dernier commit de base)
+3. `lint`
+4. `test`
+5. `security-audit`
+6. `e2e-bdd`
+7. `ci-required` (gate final, recommandé en check obligatoire unique)
 
 ## Gates bloquants
 
 - `./scripts/no-black-magic.sh`
+- `node scripts/ci/check-pr-up-to-date.mjs` (sur événement PR)
 - `npm run lint`
 - `npm run typecheck`
 - `npm run i18n:check`
@@ -46,6 +48,7 @@ Jobs:
 ## Checks requis avant merge
 
 - `no-black-magic`
+- `pr-up-to-date`
 - `lint`
 - `test`
 - `security-audit`
