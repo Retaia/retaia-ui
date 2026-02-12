@@ -107,7 +107,7 @@ export const resources = {
       'actions.shortcutsToggleShow': 'Show shortcuts',
       'actions.shortcutsToggleHide': 'Hide shortcuts',
       'actions.shortcuts':
-        'Desktop shortcuts: j/k (move), Arrows (move), Shift+Arrows (range), Enter (open), Shift+Space (batch), g/v/x (KEEP/REJECT/CLEAR selected), Escape (close selection / clear search when focused), p (pending filter), b (batch only), n (open next pending), d (density), r (refresh report), l (clear log), 1/2/3 (saved presets), / (search focus), Ctrl/Cmd+A (visible batch), Ctrl/Cmd+Z (undo)',
+        'Desktop shortcuts: j/k (move), Arrows (move), Home/End (first/last), Shift+Arrows (range), Enter (open), Shift+Space (batch), g/v/x (KEEP/REJECT/CLEAR selected), Escape (close selection / clear search when focused), p (pending filter), b (batch only), n (open next pending), d (density), r (refresh report), l (clear log), 1/2/3 (saved presets), / (search focus), Ctrl/Cmd+A (visible batch), Ctrl/Cmd+Z (undo)',
       'actions.shortcutsNavTitle': 'Navigation',
       'actions.shortcutsNavList': 'j/k, arrows, Enter, Escape, /',
       'actions.shortcutsBatchTitle': 'Batch',
@@ -256,7 +256,7 @@ export const resources = {
       'actions.shortcutsToggleShow': 'Voir raccourcis',
       'actions.shortcutsToggleHide': 'Masquer raccourcis',
       'actions.shortcuts':
-        'Raccourcis desktop: j/k (navigation), Flèches (navigation), Shift+Flèches (sélection plage), Entrée (ouvrir), Shift+Espace (batch), g/v/x (KEEP/REJECT/CLEAR sélectionné), Escape (fermer sélection / vider recherche si focus), p (filtre à traiter), b (batch seul), n (ouvrir prochain), d (densité), r (rafraîchir rapport), l (vider journal), 1/2/3 (presets enregistrés), / (focus recherche), Ctrl/Cmd+A (batch visible), Ctrl/Cmd+Z (annuler)',
+        'Raccourcis desktop: j/k (navigation), Flèches (navigation), Home/End (premier/dernier), Shift+Flèches (sélection plage), Entrée (ouvrir), Shift+Espace (batch), g/v/x (KEEP/REJECT/CLEAR sélectionné), Escape (fermer sélection / vider recherche si focus), p (filtre à traiter), b (batch seul), n (ouvrir prochain), d (densité), r (rafraîchir rapport), l (vider journal), 1/2/3 (presets enregistrés), / (focus recherche), Ctrl/Cmd+A (batch visible), Ctrl/Cmd+Z (annuler)',
       'actions.shortcutsNavTitle': 'Navigation',
       'actions.shortcutsNavList': 'j/k, flèches, Entrée, Escape, /',
       'actions.shortcutsBatchTitle': 'Batch',
