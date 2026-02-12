@@ -1,6 +1,6 @@
 import type { Asset, DecisionAction } from '../domain/assets'
 import { Badge, Button, ListGroup, Stack } from 'react-bootstrap'
-import { BsCheckCircleFill, BsEraser, BsXCircle } from 'react-icons/bs'
+import { BsCheck2Circle, BsEraser, BsInbox, BsXCircle } from 'react-icons/bs'
 
 type AssetListProps = {
   assets: Asset[]
@@ -28,7 +28,12 @@ export function AssetList({
   onAssetClick,
 }: AssetListProps) {
   if (assets.length === 0) {
-    return <p className="text-secondary mb-0">{labels.empty}</p>
+    return (
+      <p className="text-secondary mb-0">
+        <BsInbox className="me-1" aria-hidden="true" />
+        {labels.empty}
+      </p>
+    )
   }
 
   const activeOptionId = selectedAssetId
@@ -90,7 +95,7 @@ export function AssetList({
               }}
               disabled={asset.state === 'DECIDED_KEEP'}
             >
-              <BsCheckCircleFill className="me-1" aria-hidden="true" />
+              <BsCheck2Circle className="me-1" aria-hidden="true" />
               {labels.keep}
             </Button>
             <Button

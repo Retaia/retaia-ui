@@ -1,4 +1,4 @@
-import { BsCheckCircleFill, BsExclamationTriangle, BsXCircle } from 'react-icons/bs'
+import { BsCheckCircleFill, BsExclamationTriangle, BsInfoCircle, BsXCircle } from 'react-icons/bs'
 
 type BatchReportViewProps = {
   report: unknown
@@ -107,7 +107,10 @@ export function BatchReportView({ report, labels }: BatchReportViewProps) {
         {`${labels.errors} (${errors.length})`}
       </h4>
       {errors.length === 0 ? (
-        <p className="small mb-0 text-secondary">{labels.noErrors}</p>
+        <p className="small mb-0 text-secondary">
+          <BsInfoCircle className="me-1" aria-hidden="true" />
+          {labels.noErrors}
+        </p>
       ) : (
         <div className="table-responsive">
           <table className="table table-sm table-striped align-middle mb-0">

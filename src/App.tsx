@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Card, Col, Container, Row } from 'react-bootstrap'
+import {
+  BsCollection,
+  BsCrosshair,
+  BsExclamationTriangle,
+  BsGrid3X3Gap,
+  BsInfoCircle,
+  BsQuestionCircle,
+} from 'react-icons/bs'
 import { useTranslation } from 'react-i18next'
 import { AssetList } from './components/AssetList'
 import { ActionPanels } from './components/app/ActionPanels'
@@ -666,11 +674,13 @@ function App() {
       />
       {isApiAssetSource && assetsLoadState === 'loading' ? (
         <Alert variant="info" className="py-2 mt-3 mb-0" data-testid="assets-loading-status">
+          <BsInfoCircle className="me-2" aria-hidden="true" />
           {t('assets.loading')}
         </Alert>
       ) : null}
       {isApiAssetSource && assetsLoadState === 'error' ? (
         <Alert variant="warning" className="py-2 mt-3 mb-0" data-testid="assets-error-status">
+          <BsExclamationTriangle className="me-2" aria-hidden="true" />
           {t('assets.loadError')}
         </Alert>
       ) : null}
@@ -734,33 +744,41 @@ function App() {
           aria-label={t('assets.region')}
           ref={assetListRegionRef}
         >
-          <Card className="shadow-sm border-0 h-100">
-            <Card.Body>
-              <h2 className="h5">{t('assets.title', { count: visibleAssets.length })}</h2>
-              <p className="small mb-1 text-secondary" data-testid="selection-status">
-                {selectionStatusLabel}
-              </p>
-              <p className="small mb-2 text-secondary" data-testid="batch-status">
-                {t('assets.batchStatus', { count: batchIds.length })}
-              </p>
-              <p className="small text-secondary">{t('assets.help')}</p>
-              <AssetList
-                assets={visibleAssets}
-                selectedAssetId={selectedAssetId}
-                batchIds={batchIds}
-                density={densityMode}
-                labels={{
-                  empty: emptyAssetsMessage,
-                  batch: t('assets.batchBadge'),
-                  keep: 'KEEP',
-                  reject: 'REJECT',
-                  clear: 'CLEAR',
-                }}
-                onDecision={handleDecision}
-                onAssetClick={handleAssetClick}
-              />
-            </Card.Body>
-          </Card>
+            <Card className="shadow-sm border-0 h-100">
+              <Card.Body>
+                <h2 className="h5">
+                  <BsGrid3X3Gap className="me-2" aria-hidden="true" />
+                  {t('assets.title', { count: visibleAssets.length })}
+                </h2>
+                <p className="small mb-1 text-secondary" data-testid="selection-status">
+                  <BsCrosshair className="me-1" aria-hidden="true" />
+                  {selectionStatusLabel}
+                </p>
+                <p className="small mb-2 text-secondary" data-testid="batch-status">
+                  <BsCollection className="me-1" aria-hidden="true" />
+                  {t('assets.batchStatus', { count: batchIds.length })}
+                </p>
+                <p className="small text-secondary">
+                  <BsQuestionCircle className="me-1" aria-hidden="true" />
+                  {t('assets.help')}
+                </p>
+                <AssetList
+                  assets={visibleAssets}
+                  selectedAssetId={selectedAssetId}
+                  batchIds={batchIds}
+                  density={densityMode}
+                  labels={{
+                    empty: emptyAssetsMessage,
+                    batch: t('assets.batchBadge'),
+                    keep: 'KEEP',
+                    reject: 'REJECT',
+                    clear: 'CLEAR',
+                  }}
+                  onDecision={handleDecision}
+                  onAssetClick={handleAssetClick}
+                />
+              </Card.Body>
+            </Card>
         </Col>
 
         <AssetDetailPanel
