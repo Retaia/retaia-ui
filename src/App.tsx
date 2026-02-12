@@ -42,6 +42,7 @@ import { useReviewKeyboardShortcuts } from './hooks/useReviewKeyboardShortcuts'
 import { useSelectionFlow } from './hooks/useSelectionFlow'
 import { type Locale } from './i18n/resources'
 import { isTypingContext } from './ui/keyboard'
+import { reportUiIssue } from './ui/telemetry'
 
 const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
 const SELECTED_ASSET_QUERY_KEY = 'asset'
@@ -256,6 +257,14 @@ function App() {
       canceled = true
     }
   }, [apiClient, isApiAssetSource])
+
+  useEffect(() => {
+    if (isApiAssetSource && assetsLoadState === 'error') {
+      reportUiIssue('api.assets.load.error', {
+        source: 'api',
+      })
+    }
+  }, [assetsLoadState, isApiAssetSource])
 
   const batchScope = useMemo(() => {
     const summary = { pending: 0, keep: 0, reject: 0 }

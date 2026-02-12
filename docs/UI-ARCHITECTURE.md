@@ -22,6 +22,8 @@ La logique métier est déplacée autant que possible dans des hooks dédiés.
 
 - `src/components/app/AppHeader.tsx`
   Header, langue, titre.
+- `src/components/app/AppErrorBoundary.tsx`
+  Filet de sécurité global avec fallback utilisateur.
 - `src/components/app/ActionPanels.tsx`
   Actions rapides, batch, rapport, historique, aide raccourcis.
 - `src/components/app/NextPendingCard.tsx`
@@ -76,6 +78,15 @@ La logique métier est déplacée autant que possible dans des hooks dédiés.
 - `src/app.shortcuts.test.tsx`: raccourcis clavier
 - `src/components/*.test.tsx`: composants isolés
 - `src/domain/*.test.ts`: logique domaine
+- `src/components/app/AppErrorBoundary.test.tsx`: fallback global en cas de crash UI
+
+## Instrumentation UI
+
+- `src/ui/telemetry.ts`
+  Emet des événements `window` (`retaia:ui-issue`) pour erreurs UI importantes.
+- Cas couverts:
+  - crash React attrapé par `AppErrorBoundary`
+  - échec de chargement initial des assets API
 
 ### BDD (Cucumber + Playwright)
 
