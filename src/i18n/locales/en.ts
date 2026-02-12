@@ -120,6 +120,8 @@ export const enTranslation = {
   'assets.region': 'Asset list',
   'assets.title': 'Assets ({count})',
   'assets.help': 'Click: detail | Shift+click: add to batch',
+  'assets.loading': 'Loading assets from API...',
+  'assets.loadError': 'Unable to load API assets. Showing local snapshot.',
   'assets.empty': 'No asset matches current filters.',
   'assets.emptyFiltered': 'No result for current search/filter.',
   'assets.emptyBatch': 'Batch-only mode is active but no selected asset is visible.',
