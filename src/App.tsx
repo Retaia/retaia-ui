@@ -34,6 +34,7 @@ import { type Locale } from './i18n/resources'
 import { isTypingContext } from './ui/keyboard'
 
 const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
+const SELECTED_ASSET_QUERY_KEY = 'asset'
 
 function App() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
@@ -80,7 +81,17 @@ function App() {
   const [search, setSearch] = useState('')
   const [batchOnly, setBatchOnly] = useState(false)
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
-  const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
+  const [selectedAssetId, setSelectedAssetId] = useState<string | null>(() => {
+    if (typeof window === 'undefined') {
+      return null
+    }
+    const params = new URLSearchParams(window.location.search)
+    const urlAssetId = params.get(SELECTED_ASSET_QUERY_KEY)
+    if (!urlAssetId) {
+      return null
+    }
+    return INITIAL_ASSETS.some((asset) => asset.id === urlAssetId) ? urlAssetId : null
+  })
   const [selectionAnchorId, setSelectionAnchorId] = useState<string | null>(null)
   const [batchIds, setBatchIds] = useState<string[]>([])
   const [undoStack, setUndoStack] = useState<
@@ -104,6 +115,39 @@ function App() {
   })
   const { densityMode, toggleDensityMode } = useDensityMode()
   const activityId = useRef(1)
+  const updateSelectedAssetSearchParam = useCallback(
+    (nextAssetId: string | null, mode: 'push' | 'replace' = 'push') => {
+      if (typeof window === 'undefined') {
+        return
+      }
+      const params = new URLSearchParams(window.location.search)
+      const currentAssetId = params.get(SELECTED_ASSET_QUERY_KEY)
+      if (currentAssetId === nextAssetId) {
+        return
+      }
+      if (nextAssetId) {
+        params.set(SELECTED_ASSET_QUERY_KEY, nextAssetId)
+      } else {
+        params.delete(SELECTED_ASSET_QUERY_KEY)
+      }
+      const nextSearch = params.toString()
+      const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}${window.location.hash}`
+      if (mode === 'replace') {
+        window.history.replaceState(window.history.state, '', nextUrl)
+        return
+      }
+      window.history.pushState(window.history.state, '', nextUrl)
+    },
+    [],
+  )
+  const applySelectedAssetId = useCallback(
+    (nextAssetId: string | null, mode: 'push' | 'replace' = 'push') => {
+      setSelectedAssetId(nextAssetId)
+      setSelectionAnchorId(nextAssetId)
+      updateSelectedAssetSearchParam(nextAssetId, mode)
+    },
+    [updateSelectedAssetSearchParam],
+  )
 
   const visibleAssets = useMemo(() => {
     const filtered = filterAssets(assets, filter, search, {
@@ -121,6 +165,32 @@ function App() {
     () => assets.find((asset) => asset.id === selectedAssetId) ?? null,
     [assets, selectedAssetId],
   )
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search)
+      const urlAssetId = params.get(SELECTED_ASSET_QUERY_KEY)
+      const exists = !!urlAssetId && assets.some((asset) => asset.id === urlAssetId)
+      if (exists) {
+        setSelectedAssetId(urlAssetId)
+        setSelectionAnchorId(urlAssetId)
+        return
+      }
+      if (urlAssetId) {
+        updateSelectedAssetSearchParam(null, 'replace')
+      }
+      setSelectedAssetId(null)
+      setSelectionAnchorId(null)
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [assets, updateSelectedAssetSearchParam])
+
   const batchScope = useMemo(() => {
     const summary = { pending: 0, keep: 0, reject: 0 }
     const selectedSet = new Set(batchIds)
@@ -288,9 +358,8 @@ function App() {
       setSearch('')
       setBatchOnly(false)
     }
-    setSelectedAssetId(target.id)
-    setSelectionAnchorId(target.id)
-  }, [assets, batchOnly, dateFilter, filter, mediaTypeFilter, recordAction, search, t])
+    applySelectedAssetId(target.id)
+  }, [applySelectedAssetId, assets, batchOnly, dateFilter, filter, mediaTypeFilter, recordAction, search, t])
 
   const {
     clearFilters,
@@ -343,8 +412,11 @@ function App() {
     onPurgeSuccess: (assetId) => {
       setAssets((current) => current.filter((asset) => asset.id !== assetId))
       setBatchIds((current) => current.filter((id) => id !== assetId))
-      setSelectedAssetId((current) => (current === assetId ? null : current))
-      setSelectionAnchorId((current) => (current === assetId ? null : current))
+      if (selectedAssetId === assetId) {
+        applySelectedAssetId(null, 'replace')
+      } else if (selectionAnchorId === assetId) {
+        setSelectionAnchorId(null)
+      }
     },
   })
 
@@ -361,7 +433,7 @@ function App() {
     selectionAnchorId,
     recordAction,
     t,
-    setSelectedAssetId,
+    setSelectedAssetId: applySelectedAssetId,
     setSelectionAnchorId,
     setBatchIds,
     setPurgePreviewAssetId,
@@ -394,12 +466,12 @@ function App() {
       }
       const [last, ...rest] = current
       setAssets(last.assets)
-      setSelectedAssetId(last.selectedAssetId)
+      applySelectedAssetId(last.selectedAssetId)
       setBatchIds(last.batchIds)
       logActivity(t('activity.undo'))
       return rest
     })
-  }, [logActivity, t])
+  }, [applySelectedAssetId, logActivity, t])
 
   const toggleShortcutsHelp = useCallback(() => {
     setShowShortcutsHelp((current) => !current)
