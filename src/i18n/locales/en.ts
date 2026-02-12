@@ -92,6 +92,7 @@ export const enTranslation = {
   'error.scope': 'Missing scope permission for this action.',
   'error.stateConflict': 'State conflict: refresh data and try again.',
   'error.idempotency': 'Duplicate action detected (idempotency conflict).',
+  'error.validation': 'Invalid API payload received. Please retry or contact support.',
   'error.temporary': 'Temporary unavailability: retry later.',
   'error.fallback': 'Request failed: {message}',
   'actions.undo': 'Undo last action',

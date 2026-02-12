@@ -203,6 +203,36 @@ describe('api client', () => {
     await expect(api.listAssetSummaries()).resolves.toEqual([])
   })
 
+  it('throws validation error when listAssetSummaries payload shape is invalid', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ items: 'nope' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await expect(api.listAssetSummaries()).rejects.toMatchObject({
+      status: 502,
+      payload: { code: 'VALIDATION_FAILED' },
+    })
+  })
+
+  it('throws validation error when batch report payload is not an object', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(['invalid']), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await expect(api.getMoveBatchReport('batch-1')).rejects.toMatchObject({
+      status: 502,
+      payload: { code: 'VALIDATION_FAILED' },
+    })
+  })
+
   it('retries retryable temporary errors and notifies onRetry', async () => {
     const onRetry = vi.fn()
     const fetchMock = vi
