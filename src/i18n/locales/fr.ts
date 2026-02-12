@@ -96,6 +96,7 @@ export const frTranslation = {
   'error.stateConflict': "Conflit d'état: rafraîchir puis réessayer.",
   'error.idempotency': 'Action dupliquée détectée (conflit idempotence).',
   'error.validation': 'Payload API invalide reçu. Réessaie ou contacte le support.',
+  'error.lock': 'Conflit de verrouillage: rafraîchir puis réessayer.',
   'error.temporary': 'Indisponibilité temporaire: réessayer plus tard.',
   'error.fallback': 'Requête en échec: {message}',
   'actions.undo': 'Annuler dernière action',

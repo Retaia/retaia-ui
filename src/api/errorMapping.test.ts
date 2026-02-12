@@ -8,6 +8,7 @@ const t = (key: string, params?: Record<string, string | number>) => {
     'error.stateConflict': 'state',
     'error.idempotency': 'idempotency',
     'error.validation': 'validation',
+    'error.lock': 'lock',
     'error.temporary': 'temporary',
     'error.fallback': `fallback:${params?.message ?? ''}`,
   }
@@ -42,8 +43,31 @@ describe('mapApiErrorToMessage', () => {
     expect(mapApiErrorToMessage(idem, t)).toBe('idempotency')
   })
 
+  it('maps lock-related conflicts', () => {
+    const invalid = new ApiError(409, 'invalid lock', {
+      code: 'LOCK_INVALID',
+      message: 'invalid',
+      retryable: false,
+      correlation_id: 'c-lock-1',
+    })
+    const required = new ApiError(409, 'required lock', {
+      code: 'LOCK_REQUIRED',
+      message: 'required',
+      retryable: false,
+      correlation_id: 'c-lock-2',
+    })
+    expect(mapApiErrorToMessage(invalid, t)).toBe('lock')
+    expect(mapApiErrorToMessage(required, t)).toBe('lock')
+  })
+
   it('maps temporary, validation and fallback errors', () => {
     const temporary = new ApiError(503, 'down')
+    const rateLimited = new ApiError(429, 'rate limited', {
+      code: 'RATE_LIMITED',
+      message: 'rate',
+      retryable: true,
+      correlation_id: 'c-rate',
+    })
     const validation = new ApiError(418, 'teapot', {
       code: 'VALIDATION_FAILED',
       message: 'teapot',
@@ -52,6 +76,7 @@ describe('mapApiErrorToMessage', () => {
     })
     const fallback = new ApiError(418, 'teapot')
     expect(mapApiErrorToMessage(temporary, t)).toBe('temporary')
+    expect(mapApiErrorToMessage(rateLimited, t)).toBe('temporary')
     expect(mapApiErrorToMessage(validation, t)).toBe('validation')
     expect(mapApiErrorToMessage(fallback, t)).toBe('fallback:HTTP 418')
   })
