@@ -25,6 +25,7 @@ import {
 } from './domain/assets'
 import { getActionAvailability } from './domain/actionAvailability'
 import { useDensityMode } from './hooks/useDensityMode'
+import { useBatchExecution } from './hooks/useBatchExecution'
 import { useQuickFilters } from './hooks/useQuickFilters'
 import { useReviewKeyboardShortcuts } from './hooks/useReviewKeyboardShortcuts'
 import { useSelectionFlow } from './hooks/useSelectionFlow'
@@ -32,7 +33,6 @@ import { type Locale } from './i18n/resources'
 import { isTypingContext } from './ui/keyboard'
 
 const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
-const BATCH_EXECUTION_UNDO_WINDOW_MS = 6000
 
 function App() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
@@ -86,25 +86,6 @@ function App() {
     Array<{ assets: Asset[]; selectedAssetId: string | null; batchIds: string[] }>
   >([])
   const [activityLog, setActivityLog] = useState<Array<{ id: number; label: string }>>([])
-  const [previewingBatch, setPreviewingBatch] = useState(false)
-  const [executingBatch, setExecutingBatch] = useState(false)
-  const [pendingBatchExecution, setPendingBatchExecution] = useState<{
-    assetIds: string[]
-    expiresAt: number
-  } | null>(null)
-  const [previewStatus, setPreviewStatus] = useState<{
-    kind: 'success' | 'error'
-    message: string
-  } | null>(null)
-  const [executeStatus, setExecuteStatus] = useState<{
-    kind: 'success' | 'error'
-    message: string
-  } | null>(null)
-  const [reportBatchId, setReportBatchId] = useState<string | null>(null)
-  const [reportLoading, setReportLoading] = useState(false)
-  const [reportStatus, setReportStatus] = useState<string | null>(null)
-  const [reportData, setReportData] = useState<unknown>(null)
-  const [reportExportStatus, setReportExportStatus] = useState<string | null>(null)
   const [previewingPurge, setPreviewingPurge] = useState(false)
   const [executingPurge, setExecutingPurge] = useState(false)
   const [purgePreviewAssetId, setPurgePreviewAssetId] = useState<string | null>(null)
@@ -115,7 +96,6 @@ function App() {
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
   const { densityMode, toggleDensityMode } = useDensityMode()
   const activityId = useRef(1)
-  const pendingBatchExecutionTimer = useRef<number | null>(null)
 
   const visibleAssets = useMemo(() => {
     const filtered = filterAssets(assets, filter, search, {
@@ -155,6 +135,35 @@ function App() {
     [assets],
   )
   const selectedAssetState = selectedAsset?.state ?? null
+  const mapBatchErrorToMessage = useCallback(
+    (error: unknown) => mapApiErrorToMessage(error, t),
+    [t],
+  )
+  const {
+    previewingBatch,
+    executingBatch,
+    pendingBatchExecution,
+    previewStatus,
+    executeStatus,
+    reportBatchId,
+    reportLoading,
+    reportStatus,
+    reportData,
+    reportExportStatus,
+    batchTimeline,
+    pendingBatchUndoSeconds,
+    previewBatchMove,
+    executeBatchMove,
+    cancelPendingBatchExecution,
+    refreshBatchReport,
+    exportBatchReport,
+  } = useBatchExecution({
+    apiClient,
+    batchIds,
+    t,
+    setRetryStatus,
+    mapErrorToMessage: mapBatchErrorToMessage,
+  })
   const availability = useMemo(
     () =>
       getActionAvailability({
@@ -202,41 +211,6 @@ function App() {
     return t('assets.emptyBatch')
   }, [batchIds.length, batchOnly, filter, search, t])
 
-  const batchTimeline = useMemo(() => {
-    const queued = !!pendingBatchExecution
-    const running = executingBatch
-    const failed = executeStatus?.kind === 'error'
-    const done = executeStatus?.kind === 'success' && !queued && !running
-
-    return [
-      {
-        key: 'queued',
-        active: queued,
-        done: !queued && (running || done || failed),
-        label: t('actions.timelineQueued'),
-      },
-      {
-        key: 'running',
-        active: running,
-        done: !running && (done || failed),
-        label: t('actions.timelineRunning'),
-      },
-      {
-        key: 'done',
-        active: done,
-        done,
-        error: failed,
-        label: failed ? t('actions.timelineError') : t('actions.timelineDone'),
-      },
-    ]
-  }, [executeStatus?.kind, executingBatch, pendingBatchExecution, t])
-  const pendingBatchUndoSeconds = pendingBatchExecution
-    ? Math.max(
-      0,
-      Math.ceil((pendingBatchExecution.expiresAt - Date.now()) / 1000),
-    )
-    : 0
-
   useEffect(() => {
     if (typeof window === 'undefined') {
       return
@@ -252,15 +226,6 @@ function App() {
       // Ignore storage access errors and keep default UI behavior.
     }
   }, [])
-
-  useEffect(
-    () => () => {
-      if (pendingBatchExecutionTimer.current !== null) {
-        window.clearTimeout(pendingBatchExecutionTimer.current)
-      }
-    },
-    [],
-  )
   const logActivity = useCallback((label: string) => {
     setActivityLog((current) =>
       [{ id: activityId.current++, label }, ...current].slice(0, 8),
@@ -447,227 +412,6 @@ function App() {
       return rest
     })
   }, [logActivity, t])
-
-  const previewBatchMove = useCallback(async () => {
-    if (batchIds.length === 0 || previewingBatch) {
-      return
-    }
-
-    setPreviewingBatch(true)
-    setPreviewStatus(null)
-    setRetryStatus(null)
-
-    try {
-      await apiClient.previewMoveBatch({
-        include: 'BOTH',
-        limit: batchIds.length,
-      })
-      setPreviewStatus({
-        kind: 'success',
-        message: t('actions.previewResult', {
-          include: 'BOTH',
-          count: batchIds.length,
-        }),
-      })
-    } catch (error) {
-      setPreviewStatus({
-        kind: 'error',
-        message: t('actions.previewError', {
-          message: mapApiErrorToMessage(error, t),
-        }),
-      })
-    } finally {
-      setPreviewingBatch(false)
-      setRetryStatus(null)
-    }
-  }, [apiClient, batchIds.length, previewingBatch, t])
-
-  const runBatchExecution = useCallback(
-    async (assetIds: string[]) => {
-      if (assetIds.length === 0 || executingBatch) {
-        return
-      }
-
-      setExecutingBatch(true)
-      setExecuteStatus(null)
-      setRetryStatus(null)
-
-      try {
-        const response = await apiClient.executeMoveBatch(
-          {
-            mode: 'EXECUTE',
-            selection: { asset_ids: assetIds },
-          },
-          crypto.randomUUID(),
-        )
-        const batchId =
-          response && typeof response === 'object' && 'batch_id' in response
-            ? String(response.batch_id)
-            : null
-        setReportBatchId(batchId)
-        setExecuteStatus({
-          kind: 'success',
-          message: t('actions.executeResult'),
-        })
-        if (!batchId) {
-          return
-        }
-        setReportLoading(true)
-        setReportStatus(null)
-        try {
-          const report = await apiClient.getMoveBatchReport(batchId)
-          setReportData(report)
-          setReportStatus(t('actions.reportReady', { batchId }))
-        } catch (error) {
-          setReportStatus(
-            t('actions.reportError', {
-              message: mapApiErrorToMessage(error, t),
-            }),
-          )
-        } finally {
-          setReportLoading(false)
-        }
-      } catch (error) {
-        setExecuteStatus({
-          kind: 'error',
-          message: t('actions.executeError', {
-            message: mapApiErrorToMessage(error, t),
-          }),
-        })
-      } finally {
-        setExecutingBatch(false)
-        setRetryStatus(null)
-      }
-    },
-    [apiClient, executingBatch, t],
-  )
-
-  const cancelPendingBatchExecution = useCallback(() => {
-    if (!pendingBatchExecution) {
-      return
-    }
-    if (pendingBatchExecutionTimer.current !== null) {
-      window.clearTimeout(pendingBatchExecutionTimer.current)
-      pendingBatchExecutionTimer.current = null
-    }
-    setPendingBatchExecution(null)
-    setExecuteStatus({
-      kind: 'success',
-      message: t('actions.executeCanceled'),
-    })
-  }, [pendingBatchExecution, t])
-
-  const executeBatchMove = useCallback(async () => {
-    if (executingBatch) {
-      return
-    }
-
-    if (pendingBatchExecution) {
-      if (pendingBatchExecutionTimer.current !== null) {
-        window.clearTimeout(pendingBatchExecutionTimer.current)
-        pendingBatchExecutionTimer.current = null
-      }
-      const selection = pendingBatchExecution.assetIds
-      setPendingBatchExecution(null)
-      await runBatchExecution(selection)
-      return
-    }
-
-    if (batchIds.length === 0) {
-      return
-    }
-
-    const selection = [...batchIds]
-    setExecuteStatus({
-      kind: 'success',
-      message: t('actions.executeQueued', {
-        seconds: Math.round(BATCH_EXECUTION_UNDO_WINDOW_MS / 1000),
-      }),
-    })
-    setPendingBatchExecution({
-      assetIds: selection,
-      expiresAt: Date.now() + BATCH_EXECUTION_UNDO_WINDOW_MS,
-    })
-    pendingBatchExecutionTimer.current = window.setTimeout(() => {
-      pendingBatchExecutionTimer.current = null
-      setPendingBatchExecution((current) => {
-        if (!current) {
-          return current
-        }
-        void runBatchExecution(current.assetIds)
-        return null
-      })
-    }, BATCH_EXECUTION_UNDO_WINDOW_MS)
-  }, [batchIds, executingBatch, pendingBatchExecution, runBatchExecution, t])
-
-  const refreshBatchReport = useCallback(async () => {
-    if (!reportBatchId || reportLoading) {
-      return
-    }
-
-    setReportLoading(true)
-    setReportStatus(null)
-    setRetryStatus(null)
-
-    try {
-      const report = await apiClient.getMoveBatchReport(reportBatchId)
-      setReportData(report)
-      setReportStatus(t('actions.reportReady', { batchId: reportBatchId }))
-    } catch (error) {
-      setReportStatus(
-        t('actions.reportError', {
-          message: mapApiErrorToMessage(error, t),
-        }),
-      )
-    } finally {
-      setReportLoading(false)
-      setRetryStatus(null)
-    }
-  }, [apiClient, reportBatchId, reportLoading, t])
-
-  const exportBatchReport = useCallback(
-    (format: 'json' | 'csv') => {
-      if (!reportData || !reportBatchId || typeof document === 'undefined') {
-        return
-      }
-
-      const fallbackName = `batch-${reportBatchId}`
-      let content = ''
-      let mimeType = ''
-      let extension = ''
-
-      if (format === 'json') {
-        content = `${JSON.stringify(reportData, null, 2)}\n`
-        mimeType = 'application/json'
-        extension = 'json'
-      } else {
-        const rows =
-          typeof reportData === 'object' && reportData !== null
-            ? Object.entries(reportData as Record<string, unknown>).map(
-                ([key, value]) => `"${key.replaceAll('"', '""')}","${String(typeof value === 'object' ? JSON.stringify(value) : value).replaceAll('"', '""')}"`,
-              )
-            : [`"value","${String(reportData).replaceAll('"', '""')}"`]
-        content = ['key,value', ...rows].join('\n')
-        mimeType = 'text/csv'
-        extension = 'csv'
-      }
-
-      const blob = new Blob([content], { type: mimeType })
-      const objectUrl = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = objectUrl
-      link.download = `${fallbackName}.${extension}`
-      link.click()
-      URL.revokeObjectURL(objectUrl)
-
-      setReportExportStatus(
-        t('actions.reportExportDone', {
-          format: extension.toUpperCase(),
-        }),
-      )
-    },
-    [reportBatchId, reportData, t],
-  )
 
   const previewSelectedAssetPurge = useCallback(async () => {
     if (!selectedAsset || selectedAsset.state !== 'DECIDED_REJECT' || previewingPurge) {
