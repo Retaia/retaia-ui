@@ -1,16 +1,26 @@
 import { Button, Card, Col, Row, Stack } from 'react-bootstrap'
 import {
+  BsArrowRightCircle,
   BsArrowClockwise,
   BsArrowsCollapse,
+  BsCameraVideo,
   BsCheck2Circle,
   BsClockHistory,
   BsColumnsGap,
   BsEraser,
+  BsEye,
+  BsEyeSlash,
   BsFileEarmarkArrowDown,
+  BsFilter,
   BsFilterCircle,
   BsFolderCheck,
+  BsImages,
+  BsKeyboard,
+  BsListUl,
+  BsPinAngle,
   BsSlashCircle,
   BsTrash3,
+  BsTrash3Fill,
   BsXCircle,
 } from 'react-icons/bs'
 import { BatchReportView } from '../BatchReportView'
@@ -151,12 +161,15 @@ export function ActionPanels({
           </Stack>
           <Stack direction="horizontal" className="flex-wrap gap-2 mb-2" aria-label={t('actions.filterPresets')}>
             <Button type="button" size="sm" variant="outline-secondary" onClick={onApplyPresetPendingRecent}>
+              <BsFilter className="me-1" aria-hidden="true" />
               {t('actions.filterPresetPendingRecent')}
             </Button>
             <Button type="button" size="sm" variant="outline-secondary" onClick={onApplyPresetImagesRejected}>
+              <BsImages className="me-1" aria-hidden="true" />
               {t('actions.filterPresetRejectedImages')}
             </Button>
             <Button type="button" size="sm" variant="outline-secondary" onClick={onApplyPresetMediaReview}>
+              <BsCameraVideo className="me-1" aria-hidden="true" />
               {t('actions.filterPresetMediaReview')}
             </Button>
           </Stack>
@@ -166,6 +179,7 @@ export function ActionPanels({
               {t('actions.focusPending')}
             </Button>
             <Button type="button" variant={batchOnly ? 'primary' : 'outline-primary'} onClick={onToggleBatchOnly}>
+              <BsPinAngle className="me-1" aria-hidden="true" />
               {batchOnly ? t('actions.batchOnlyOn') : t('actions.batchOnlyOff')}
             </Button>
             <Button
@@ -419,7 +433,10 @@ export function ActionPanels({
         </Stack>
         <section className="border border-2 border-secondary-subtle rounded p-3 mt-3" aria-label={t('actions.journal')}>
           <Stack direction="horizontal" className="justify-content-between align-items-center gap-2 mb-2">
-            <h3 className="h6 mb-0">{t('actions.journal')}</h3>
+            <h3 className="h6 mb-0">
+              <BsListUl className="me-1" aria-hidden="true" />
+              {t('actions.journal')}
+            </h3>
             <Button
               type="button"
               size="sm"
@@ -427,6 +444,7 @@ export function ActionPanels({
               onClick={onClearActivityLog}
               disabled={activityLog.length === 0}
             >
+              <BsTrash3Fill className="me-1" aria-hidden="true" />
               {t('actions.journalClear')}
             </Button>
           </Stack>
@@ -442,13 +460,21 @@ export function ActionPanels({
         </section>
         <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
           <Stack direction="horizontal" className="justify-content-between align-items-center gap-2">
-            <h3 className="h6 mb-0">{t('actions.shortcutsTitle')}</h3>
+            <h3 className="h6 mb-0">
+              <BsKeyboard className="me-1" aria-hidden="true" />
+              {t('actions.shortcutsTitle')}
+            </h3>
             <Button
               type="button"
               size="sm"
               variant="outline-secondary"
               onClick={onToggleShortcutsHelp}
             >
+              {showShortcutsHelp ? (
+                <BsEyeSlash className="me-1" aria-hidden="true" />
+              ) : (
+                <BsEye className="me-1" aria-hidden="true" />
+              )}
               {showShortcutsHelp
                 ? t('actions.shortcutsToggleHide')
                 : t('actions.shortcutsToggleShow')}
@@ -479,12 +505,15 @@ export function ActionPanels({
               </Row>
               <Stack direction="horizontal" className="flex-wrap gap-2 mt-3">
                 <Button size="sm" variant="outline-primary" onClick={onFocusPending}>
+                  <BsClockHistory className="me-1" aria-hidden="true" />
                   {t('actions.shortcutsActionPending')}
                 </Button>
                 <Button size="sm" variant="outline-primary" onClick={onToggleBatchOnly}>
+                  <BsPinAngle className="me-1" aria-hidden="true" />
                   {t('actions.shortcutsActionBatch')}
                 </Button>
                 <Button size="sm" variant="outline-primary" onClick={onOpenNextPending}>
+                  <BsArrowRightCircle className="me-1" aria-hidden="true" />
                   {t('actions.shortcutsActionNext')}
                 </Button>
               </Stack>
