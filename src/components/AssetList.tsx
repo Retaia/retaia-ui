@@ -36,18 +36,14 @@ export function AssetList({
     )
   }
 
-  const firstAssetId = assets[0]?.id ?? null
-  const activeAssetId = selectedAssetId ?? firstAssetId
-  const activeOptionId = activeAssetId ? `asset-option-${activeAssetId}` : undefined
   const compact = density === 'COMPACT'
 
   return (
-    <ListGroup as="ul" variant="flush" role="listbox" aria-activedescendant={activeOptionId}>
-      {assets.map((asset, index) => (
+    <ListGroup as="ul" variant="flush" role="list" aria-label="asset-list">
+      {assets.map((asset) => (
         <ListGroup.Item
           as="li"
           key={asset.id}
-          id={`asset-option-${asset.id}`}
           data-asset-id={asset.id}
           action
           className={[
@@ -62,19 +58,31 @@ export function AssetList({
             .join(' ')
             .trim()}
           onClick={(event) => onAssetClick(asset.id, event.shiftKey)}
-          onFocus={() => onAssetClick(asset.id, false)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault()
-              onAssetClick(asset.id, event.shiftKey)
-            }
-          }}
-          role="option"
-          tabIndex={selectedAssetId ? (selectedAssetId === asset.id ? 0 : -1) : index === 0 ? 0 : -1}
-          aria-selected={selectedAssetId === asset.id}
+          role="listitem"
+          aria-current={selectedAssetId === asset.id ? 'true' : undefined}
         >
           <div className="flex-grow-1">
-            <strong className={compact ? 'd-block small' : 'd-block'}>{asset.name}</strong>
+            <Button
+              type="button"
+              data-asset-open="true"
+              variant="link"
+              className={[
+                'p-0',
+                'text-start',
+                'fw-semibold',
+                'text-decoration-none',
+                selectedAssetId === asset.id ? 'text-white' : 'text-body',
+                compact ? 'small' : '',
+              ]
+                .join(' ')
+                .trim()}
+              onClick={(event) => {
+                event.stopPropagation()
+                onAssetClick(asset.id, event.shiftKey)
+              }}
+            >
+              {asset.name}
+            </Button>
             <p className={selectedAssetId === asset.id ? 'mb-0 text-white-50' : 'mb-0 text-secondary'}>
               {asset.id} - {asset.state}
             </p>

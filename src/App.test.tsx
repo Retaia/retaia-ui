@@ -257,10 +257,8 @@ describe('App', () => {
     await user.selectOptions(screen.getByLabelText('Filtrer par état'), 'DECISION_PENDING')
 
     await waitFor(() => {
-      const firstVisibleRow = within(getAssetsPanel())
-        .getByText('A-001 - DECISION_PENDING')
-        .closest('li')
-      expect(firstVisibleRow).toHaveFocus()
+      const firstVisibleButton = within(getAssetsPanel()).getByRole('button', { name: 'interview-camera-a.mov' })
+      expect(firstVisibleButton).toHaveFocus()
     })
   })
 
@@ -826,30 +824,35 @@ describe('App', () => {
     expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
   })
 
-  it('uses roving tabindex and selected option semantics for asset rows', async () => {
+  it('keeps selected row state and focuses row action button for keyboard navigation', async () => {
     const { user } = setupApp()
 
-    const listbox = within(getAssetsPanel()).getByRole('listbox')
-    expect(listbox).toHaveAttribute('aria-activedescendant', 'asset-option-A-001')
-
-    const listItems = within(getAssetsPanel()).getAllByRole('option')
-    expect(listItems[0]).toHaveAttribute('tabIndex', '0')
-    expect(listItems[1]).toHaveAttribute('tabIndex', '-1')
-    expect(listItems[0]).toHaveAttribute('aria-selected', 'false')
+    expect(within(getAssetsPanel()).getByRole('list', { name: 'asset-list' })).toBeInTheDocument()
+    const firstRow = within(getAssetsPanel()).getByRole('button', { name: 'interview-camera-a.mov' }).closest('li')
+    if (!firstRow) {
+      throw new Error('expected first row was not found')
+    }
+    expect(firstRow).not.toHaveAttribute('aria-current')
 
     await user.keyboard('{Enter}')
 
-    const updatedItems = within(getAssetsPanel()).getAllByRole('option')
-    expect(updatedItems[0]).toHaveAttribute('aria-selected', 'true')
-    expect(updatedItems[0]).toHaveFocus()
+    const updatedFirstRow = within(getAssetsPanel())
+      .getByRole('button', { name: 'interview-camera-a.mov' })
+      .closest('li')
+    if (!updatedFirstRow) {
+      throw new Error('expected updated first row was not found')
+    }
+    expect(updatedFirstRow).toHaveAttribute('aria-current', 'true')
+    expect(within(getAssetsPanel()).getByRole('button', { name: 'interview-camera-a.mov' })).toHaveFocus()
 
     await user.keyboard('j')
 
-    const movedItems = within(getAssetsPanel()).getAllByRole('option')
-    expect(movedItems[1]).toHaveAttribute('aria-selected', 'true')
-    expect(movedItems[1]).toHaveAttribute('tabIndex', '0')
-    expect(movedItems[1]).toHaveFocus()
-    expect(listbox).toHaveAttribute('aria-activedescendant', 'asset-option-A-002')
+    const secondRow = within(getAssetsPanel()).getByRole('button', { name: 'ambiance-plateau.wav' }).closest('li')
+    if (!secondRow) {
+      throw new Error('expected second row was not found')
+    }
+    expect(secondRow).toHaveAttribute('aria-current', 'true')
+    expect(within(getAssetsPanel()).getByRole('button', { name: 'ambiance-plateau.wav' })).toHaveFocus()
   })
 
   it('scrolls selected asset row into view when keyboard navigation changes focus', async () => {
@@ -974,12 +977,20 @@ describe('App', () => {
   it('toggles compact density with d shortcut', async () => {
     const { user } = setupApp()
 
-    expect(screen.getByRole('option', { name: /interview-camera-a\.mov/i })).toHaveClass('py-3')
+    const defaultRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('li')
+    if (!defaultRow) {
+      throw new Error('expected default row not found')
+    }
+    expect(defaultRow).toHaveClass('py-3')
     expect(screen.getByRole('button', { name: 'Densité: confortable' })).toBeInTheDocument()
 
     await user.keyboard('d')
 
-    expect(screen.getByRole('option', { name: /interview-camera-a\.mov/i })).toHaveClass('py-2')
+    const compactRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('li')
+    if (!compactRow) {
+      throw new Error('expected compact row not found')
+    }
+    expect(compactRow).toHaveClass('py-2')
     expect(screen.getByRole('button', { name: 'Densité: compacte' })).toBeInTheDocument()
   })
 
@@ -987,7 +998,11 @@ describe('App', () => {
     window.localStorage.setItem('retaia_ui_density_mode', 'COMPACT')
     setupApp()
 
-    expect(screen.getByRole('option', { name: /interview-camera-a\.mov/i })).toHaveClass('py-2')
+    const compactRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('li')
+    if (!compactRow) {
+      throw new Error('expected compact row not found')
+    }
+    expect(compactRow).toHaveClass('py-2')
     expect(screen.getByRole('button', { name: 'Densité: compacte' })).toBeInTheDocument()
   })
 

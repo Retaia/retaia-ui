@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -76,11 +76,9 @@ describe('AssetList', () => {
       />,
     )
 
-    const row = screen.getByText('interview-camera-a.mov').closest('li')
-    if (!row) {
-      throw new Error('row not found')
-    }
-    fireEvent.keyDown(row, { key: 'Enter' })
+    const openButton = screen.getByRole('button', { name: 'interview-camera-a.mov' })
+    openButton.focus()
+    await user.keyboard('{Enter}')
     expect(onAssetClick).toHaveBeenCalledWith('A-001', false)
 
     const keepButtons = screen.getAllByRole('button', { name: 'KEEP' })
@@ -102,7 +100,7 @@ describe('AssetList', () => {
     expect(onDecision).toHaveBeenCalledWith('A-002', 'CLEAR')
   })
 
-  it('exposes listbox active descendant and selected option semantics', () => {
+  it('exposes list semantics and selected row state', () => {
     render(
       <AssetList
         assets={assets}
@@ -115,15 +113,16 @@ describe('AssetList', () => {
       />,
     )
 
-    const listbox = screen.getByRole('listbox')
-    expect(listbox).toHaveAttribute('aria-activedescendant', 'asset-option-A-002')
+    const list = screen.getByRole('list', { name: 'asset-list' })
+    expect(list).toBeInTheDocument()
 
-    const option1 = screen.getByRole('option', { name: /interview-camera-a\.mov/i })
-    const option2 = screen.getByRole('option', { name: /ambiance-plateau\.wav/i })
-    expect(option1).toHaveAttribute('id', 'asset-option-A-001')
-    expect(option2).toHaveAttribute('id', 'asset-option-A-002')
-    expect(option2).toHaveAttribute('aria-selected', 'true')
-    expect(option2).not.toHaveAttribute('aria-pressed')
+    const selectedRow = screen.getByRole('button', { name: 'ambiance-plateau.wav' }).closest('li')
+    const unselectedRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('li')
+    if (!selectedRow || !unselectedRow) {
+      throw new Error('expected rows were not found')
+    }
+    expect(selectedRow).toHaveAttribute('aria-current', 'true')
+    expect(unselectedRow).not.toHaveAttribute('aria-current')
   })
 
   it('renders compact density classes when mode is compact', () => {
@@ -139,8 +138,11 @@ describe('AssetList', () => {
       />,
     )
 
-    const option = screen.getByRole('option', { name: /interview-camera-a\.mov/i })
+    const option = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('li')
+    if (!option) {
+      throw new Error('expected row not found')
+    }
     expect(option).toHaveClass('py-2')
-    expect(option.querySelector('strong')).toHaveClass('small')
+    expect(screen.getByRole('button', { name: 'interview-camera-a.mov' })).toHaveClass('small')
   })
 })
