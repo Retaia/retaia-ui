@@ -1521,7 +1521,40 @@ function App() {
               </Button>
             </Stack>
             {showShortcutsHelp ? (
-              <p className="small text-secondary mb-0 mt-2">{t('actions.shortcuts')}</p>
+              <section data-testid="shortcuts-overlay" className="mt-3 border border-secondary rounded p-3">
+                <p className="small text-secondary mb-2">{t('actions.shortcuts')}</p>
+                <Row className="g-3">
+                  <Col xs={12} md={4}>
+                    <h4 className="h6 mb-2">{t('actions.shortcutsNavTitle')}</h4>
+                    <ul className="small mb-0">
+                      <li>{t('actions.shortcutsNavList')}</li>
+                    </ul>
+                  </Col>
+                  <Col xs={12} md={4}>
+                    <h4 className="h6 mb-2">{t('actions.shortcutsBatchTitle')}</h4>
+                    <ul className="small mb-0">
+                      <li>{t('actions.shortcutsBatchList')}</li>
+                    </ul>
+                  </Col>
+                  <Col xs={12} md={4}>
+                    <h4 className="h6 mb-2">{t('actions.shortcutsFlowTitle')}</h4>
+                    <ul className="small mb-0">
+                      <li>{t('actions.shortcutsFlowList')}</li>
+                    </ul>
+                  </Col>
+                </Row>
+                <Stack direction="horizontal" className="flex-wrap gap-2 mt-3">
+                  <Button size="sm" variant="outline-primary" onClick={focusPending}>
+                    {t('actions.shortcutsActionPending')}
+                  </Button>
+                  <Button size="sm" variant="outline-primary" onClick={toggleBatchOnly}>
+                    {t('actions.shortcutsActionBatch')}
+                  </Button>
+                  <Button size="sm" variant="outline-primary" onClick={openNextPending}>
+                    {t('actions.shortcutsActionNext')}
+                  </Button>
+                </Stack>
+              </section>
             ) : null}
           </section>
         </Card.Body>

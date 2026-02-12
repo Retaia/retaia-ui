@@ -1010,6 +1010,21 @@ describe('App', () => {
     expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
   })
 
+  it('shows actionable shortcuts overlay and runs quick actions', async () => {
+    const user = userEvent.setup()
+    window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: 'Voir raccourcis' }))
+    expect(screen.getByTestId('shortcuts-overlay')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Navigation' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Batch' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Flux' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Aller à traiter' }))
+    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+  })
+
   it('previews then confirms purge on rejected asset', async () => {
     const user = userEvent.setup()
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {

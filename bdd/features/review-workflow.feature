@@ -137,6 +137,11 @@ Feature: Workflow de review desktop-like
     When j'appuie sur la touche "/"
     Then le champ de recherche a le focus
 
+  Scenario: Utiliser les actions rapides depuis l'aide raccourcis
+    Given je suis sur la page d'accueil
+    When je clique sur le bouton "Aller à traiter"
+    Then le titre principal "Assets (1)" est visible
+
   Scenario: Vider la recherche avec Escape
     Given je suis sur la page d'accueil
     When je recherche "behind"
