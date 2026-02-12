@@ -19,6 +19,7 @@ Jobs:
 3. `test`
 4. `security-audit`
 5. `e2e-bdd`
+6. `ci-required` (gate final, recommandé en check obligatoire unique)
 
 ## Gates bloquants
 
@@ -49,10 +50,30 @@ Jobs:
 - `test`
 - `security-audit`
 - `e2e-bdd`
+- `ci-required` (si vous préférez un seul check bloquant côté règle GitHub)
 
 Artefacts CI:
 
 - le job `e2e-bdd` publie `test-results/**` en succès et en échec
+- le job `test` publie `coverage/**`
+
+## Protection de `master`
+
+Pour aligner les règles de merge avec les checks requis:
+
+- `npm run gh:protect-master`
+
+Pré-requis:
+
+- droits admin sur le repo GitHub
+- `gh auth login` déjà fait sur la machine
+
+Le script configure:
+
+- statut checks requis (liste CI complète)
+- review PR obligatoire (1 approbation)
+- résolution de conversation obligatoire
+- force-push et suppression de branche interdits
 
 ## Politique de couverture
 
