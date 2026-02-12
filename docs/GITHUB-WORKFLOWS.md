@@ -16,16 +16,18 @@ Jobs:
 
 1. `no-black-magic`
 2. `pr-up-to-date` (vérifie qu'une PR inclut bien le dernier commit de base)
-3. `lint`
-4. `test`
-5. `security-audit`
-6. `e2e-bdd`
-7. `ci-required` (gate final, recommandé en check obligatoire unique)
+3. `commitlint` (valide les commits de la PR selon Conventional Commits)
+4. `lint`
+5. `test`
+6. `security-audit`
+7. `e2e-bdd`
+8. `ci-required` (gate final, recommandé en check obligatoire unique)
 
 ## Gates bloquants
 
 - `./scripts/no-black-magic.sh`
 - `node scripts/ci/check-pr-up-to-date.mjs` (sur événement PR)
+- `npx commitlint --from origin/<base> --to <sha>`
 - `npm run lint`
 - `npm run typecheck`
 - `npm run i18n:check`
@@ -49,6 +51,7 @@ Jobs:
 
 - `no-black-magic`
 - `pr-up-to-date`
+- `commitlint`
 - `lint`
 - `test`
 - `security-audit`
