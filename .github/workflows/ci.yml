@@ -29,9 +29,26 @@ jobs:
       - name: Check forbidden dynamic/runtime patterns
         run: ./scripts/no-black-magic.sh
 
-  lint:
+  pr-up-to-date:
     runs-on: ubuntu-latest
     needs: no-black-magic
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Ensure PR branch includes latest base branch commit
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: node scripts/ci/check-pr-up-to-date.mjs
+
+  lint:
+    runs-on: ubuntu-latest
+    needs:
+      - no-black-magic
+      - pr-up-to-date
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -152,6 +169,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - no-black-magic
+      - pr-up-to-date
       - lint
       - test
       - security-audit
