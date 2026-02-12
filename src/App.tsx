@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Card, Col, Container, Row, Stack } from 'react-bootstrap'
+import { Card, Col, Container, Row } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import { AssetList } from './components/AssetList'
-import { BatchReportView } from './components/BatchReportView'
+import { ActionPanels } from './components/app/ActionPanels'
+import { AppHeader } from './components/app/AppHeader'
+import { AssetDetailPanel } from './components/app/AssetDetailPanel'
+import { NextPendingCard } from './components/app/NextPendingCard'
 import { ReviewSummary } from './components/ReviewSummary'
 import { ReviewToolbar } from './components/ReviewToolbar'
 import { createApiClient } from './api/client'
@@ -226,6 +229,12 @@ function App() {
       },
     ]
   }, [executeStatus?.kind, executingBatch, pendingBatchExecution, t])
+  const pendingBatchUndoSeconds = pendingBatchExecution
+    ? Math.max(
+      0,
+      Math.ceil((pendingBatchExecution.expiresAt - Date.now()) / 1000),
+    )
+    : 0
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -315,6 +324,10 @@ function App() {
     setAssets((current) => updateAssetsState(current, batchIds, nextState))
     setBatchIds([])
   }
+
+  const clearBatch = useCallback(() => {
+    setBatchIds([])
+  }, [])
 
   const toggleBatchAsset = useCallback(
     (id: string) => {
@@ -895,34 +908,13 @@ function App() {
 
   return (
     <Container as="main" className="py-4">
-      <header className="mb-3">
-        <Stack direction="horizontal" className="justify-content-between align-items-start gap-2">
-          <div>
-            <h1 className="display-6 fw-bold mb-1">{t('app.title')}</h1>
-            <p className="text-secondary mb-0">{t('app.subtitle')}</p>
-          </div>
-          <Stack direction="horizontal" gap={2} aria-label={t('app.language')}>
-            <Button
-              type="button"
-              size="sm"
-              variant={locale === 'fr' ? 'primary' : 'outline-primary'}
-              onClick={() => void i18n.changeLanguage('fr')}
-              aria-label={t('app.language.fr')}
-            >
-              FR
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={locale === 'en' ? 'primary' : 'outline-primary'}
-              onClick={() => void i18n.changeLanguage('en')}
-              aria-label={t('app.language.en')}
-            >
-              EN
-            </Button>
-          </Stack>
-        </Stack>
-      </header>
+      <AppHeader
+        locale={locale}
+        t={t}
+        onChangeLanguage={(value) => {
+          void i18n.changeLanguage(value)
+        }}
+      />
 
       <ReviewSummary
         total={assets.length}
@@ -956,408 +948,56 @@ function App() {
         onSearchChange={setSearch}
       />
 
-      <Card as="section" className="shadow-sm border-0 mt-3">
-        <Card.Body>
-          <h2 className="h5 mb-3">{t('actions.title')}</h2>
-          <section className="border border-2 border-secondary-subtle rounded p-3 mt-2">
-            <h3 className="h6 mb-2">{t('actions.quickPanel')}</h3>
-            <Stack direction="horizontal" className="flex-wrap gap-2 mb-2" aria-label={t('actions.savedViews')}>
-              <Button type="button" size="sm" variant="outline-secondary" onClick={() => applySavedView('DEFAULT')}>
-                {t('actions.viewDefault')}
-              </Button>
-              <Button type="button" size="sm" variant="outline-secondary" onClick={() => applySavedView('PENDING')}>
-                {t('actions.viewPending')}
-              </Button>
-              <Button type="button" size="sm" variant="outline-secondary" onClick={() => applySavedView('BATCH')}>
-                {t('actions.viewBatch')}
-              </Button>
-            </Stack>
-            <Stack direction="horizontal" className="flex-wrap gap-2 mb-2" aria-label={t('actions.filterPresets')}>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline-secondary"
-                onClick={applyPresetPendingRecent}
-              >
-                {t('actions.filterPresetPendingRecent')}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline-secondary"
-                onClick={applyPresetImagesRejected}
-              >
-                {t('actions.filterPresetRejectedImages')}
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline-secondary"
-                onClick={applyPresetMediaReview}
-              >
-                {t('actions.filterPresetMediaReview')}
-              </Button>
-            </Stack>
-            <Stack direction="horizontal" className="flex-wrap gap-2">
-              <Button type="button" variant="outline-primary" onClick={focusPending}>
-                {t('actions.focusPending')}
-              </Button>
-              <Button type="button" variant={batchOnly ? 'primary' : 'outline-primary'} onClick={toggleBatchOnly}>
-                {batchOnly ? t('actions.batchOnlyOn') : t('actions.batchOnlyOff')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline-success"
-                onClick={() => applyDecisionToVisible('KEEP')}
-                disabled={availability.keepVisibleDisabled}
-              >
-                {t('actions.keepVisible')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline-danger"
-                onClick={() => applyDecisionToVisible('REJECT')}
-                disabled={availability.rejectVisibleDisabled}
-              >
-                {t('actions.rejectVisible')}
-              </Button>
-              <Button type="button" variant="outline-secondary" onClick={clearFilters}>
-                {t('actions.clearFilters')}
-              </Button>
-              <Button type="button" variant="outline-secondary" onClick={toggleDensityMode}>
-                {densityMode === 'COMPACT'
-                  ? t('actions.densityCompact')
-                  : t('actions.densityComfortable')}
-              </Button>
-            </Stack>
-          </section>
-          <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
-            <h3 className="h6 mb-2">{t('actions.batchPanel')}</h3>
-            <Stack direction="horizontal" className="flex-wrap align-items-center gap-2">
-              <p className="mb-0 fw-semibold text-secondary">
-                {t('actions.batchSelected', { count: batchIds.length })}
-              </p>
-              <Button
-                type="button"
-                variant="outline-success"
-                onClick={() => applyDecisionToBatch('KEEP')}
-                disabled={availability.keepBatchDisabled}
-              >
-                {t('actions.keepBatch')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline-danger"
-                onClick={() => applyDecisionToBatch('REJECT')}
-                disabled={availability.rejectBatchDisabled}
-              >
-                {t('actions.rejectBatch')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline-secondary"
-                onClick={() => setBatchIds([])}
-                disabled={availability.clearBatchDisabled}
-              >
-                {t('actions.clearBatch')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline-info"
-                onClick={() => void previewBatchMove()}
-                disabled={availability.previewBatchDisabled}
-              >
-                {previewingBatch ? t('actions.previewing') : t('actions.previewBatch')}
-              </Button>
-              <Button
-                type="button"
-                variant="info"
-                onClick={() => void executeBatchMove()}
-                disabled={availability.executeBatchDisabled}
-              >
-                {executingBatch
-                  ? t('actions.executing')
-                  : pendingBatchExecution
-                    ? t('actions.executeConfirmNow')
-                    : t('actions.executeBatch')}
-              </Button>
-            </Stack>
-            <section className="mt-2" aria-label={t('actions.batchScope')}>
-              <p className="mb-1 small text-secondary">
-                {t('actions.batchScopeCount', { count: batchIds.length })}
-              </p>
-              <p className="mb-0 small text-secondary">
-                {[
-                  t('actions.batchScopePending', { count: batchScope.pending }),
-                  t('actions.batchScopeKeep', { count: batchScope.keep }),
-                  t('actions.batchScopeReject', { count: batchScope.reject }),
-                ].join(' · ')}
-              </p>
-            </section>
-            <section className="mt-2" aria-label={t('actions.timelineTitle')}>
-              <p className="mb-1 small text-secondary">{t('actions.timelineTitle')}</p>
-              <div data-testid="batch-timeline" className="d-flex flex-wrap gap-2">
-                {batchTimeline.map((step) => (
-                  <span
-                    key={step.key}
-                    className={[
-                      'badge',
-                      step.active ? 'text-bg-info' : step.done ? 'text-bg-success' : 'text-bg-secondary',
-                      step.error ? 'text-bg-danger' : '',
-                    ].join(' ')}
-                  >
-                    {step.label}
-                  </span>
-                ))}
-              </div>
-            </section>
-            {previewingBatch || executingBatch ? (
-              <p data-testid="batch-busy-status" className="small text-secondary mt-2 mb-0">
-                {t('actions.batchBusy')}
-              </p>
-            ) : null}
-            {pendingBatchExecution ? (
-              <Stack direction="horizontal" className="flex-wrap gap-2 mt-2">
-                <p data-testid="batch-execute-undo-status" className="small text-warning mb-0">
-                  {t('actions.executeUndoWindow', {
-                    seconds: Math.max(
-                      0,
-                      Math.ceil((pendingBatchExecution.expiresAt - Date.now()) / 1000),
-                    ),
-                  })}
-                </p>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline-warning"
-                  onClick={cancelPendingBatchExecution}
-                >
-                  {t('actions.executeCancel')}
-                </Button>
-              </Stack>
-            ) : null}
-          </section>
-          {previewStatus ? (
-            <p
-              data-testid="batch-preview-status"
-              role="status"
-              aria-live="polite"
-              className={[
-                'mt-2',
-                'mb-0',
-                previewStatus.kind === 'success' ? 'text-success' : 'text-danger',
-              ].join(' ')}
-            >
-              {previewStatus.message}
-            </p>
-          ) : null}
-          {executeStatus ? (
-            <p
-              data-testid="batch-execute-status"
-              role="status"
-              aria-live="polite"
-              className={[
-                'mt-2',
-                'mb-0',
-                executeStatus.kind === 'success' ? 'text-success' : 'text-danger',
-              ].join(' ')}
-            >
-              {executeStatus.message}
-            </p>
-          ) : null}
-          {retryStatus ? (
-            <p data-testid="api-retry-status" role="status" aria-live="polite" className="small mt-2 mb-0 text-warning">
-              {retryStatus}
-            </p>
-          ) : null}
-          <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
-            <h3 className="h6 mb-2">{t('actions.reportTitle')}</h3>
-            <Stack direction="horizontal" className="flex-wrap align-items-center gap-2">
-              <Button
-                type="button"
-                variant="outline-info"
-                onClick={() => void refreshBatchReport()}
-                disabled={availability.refreshReportDisabled}
-              >
-                {t('actions.reportFetch')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline-secondary"
-                onClick={() => exportBatchReport('json')}
-                disabled={!reportData}
-              >
-                {t('actions.reportExportJson')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline-secondary"
-                onClick={() => exportBatchReport('csv')}
-                disabled={!reportData}
-              >
-                {t('actions.reportExportCsv')}
-              </Button>
-              <p className="small text-secondary mb-0">
-                {reportBatchId ? `batch_id: ${reportBatchId}` : t('actions.reportEmpty')}
-              </p>
-            </Stack>
-            {reportStatus ? (
-              <p
-                data-testid="batch-report-status"
-                role="status"
-                aria-live="polite"
-                className="small mt-2 mb-0 text-secondary"
-              >
-                {reportStatus}
-              </p>
-            ) : null}
-            {reportData ? (
-              <BatchReportView
-                report={reportData}
-                labels={{
-                  summary: t('actions.reportSummary'),
-                  status: t('actions.reportStatusLabel'),
-                  moved: t('actions.reportMovedLabel'),
-                  failed: t('actions.reportFailedLabel'),
-                  errors: t('actions.reportErrorsLabel'),
-                  noErrors: t('actions.reportNoErrors'),
-                }}
-              />
-            ) : null}
-            {reportExportStatus ? (
-              <p data-testid="batch-report-export-status" className="small mt-2 mb-0 text-secondary">
-                {reportExportStatus}
-              </p>
-            ) : null}
-          </section>
-          <Stack direction="horizontal" className="flex-wrap align-items-center gap-2 mt-3">
-            <Button
-              type="button"
-              variant="warning"
-              onClick={undoLastAction}
-              disabled={availability.undoDisabled}
-            >
-              {t('actions.undo')}
-            </Button>
-            <p className="mb-0 fw-semibold text-secondary">
-              {t('actions.history', { count: undoStack.length })}
-            </p>
-          </Stack>
-          <section className="border border-2 border-secondary-subtle rounded p-3 mt-3" aria-label={t('actions.journal')}>
-            <Stack direction="horizontal" className="justify-content-between align-items-center gap-2 mb-2">
-              <h3 className="h6 mb-0">{t('actions.journal')}</h3>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline-secondary"
-                onClick={clearActivityLog}
-                disabled={activityLog.length === 0}
-              >
-                {t('actions.journalClear')}
-              </Button>
-            </Stack>
-            {activityLog.length === 0 ? (
-              <p className="text-secondary mb-0">{t('actions.journalEmpty')}</p>
-            ) : (
-              <ul className="mb-0">
-                {activityLog.map((entry) => (
-                  <li key={entry.id}>{entry.label}</li>
-                ))}
-              </ul>
-            )}
-          </section>
-          <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
-            <Stack direction="horizontal" className="justify-content-between align-items-center gap-2">
-              <h3 className="h6 mb-0">{t('actions.shortcutsTitle')}</h3>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline-secondary"
-                onClick={() => setShowShortcutsHelp((current) => !current)}
-              >
-                {showShortcutsHelp
-                  ? t('actions.shortcutsToggleHide')
-                  : t('actions.shortcutsToggleShow')}
-              </Button>
-            </Stack>
-            {showShortcutsHelp ? (
-              <section data-testid="shortcuts-overlay" className="mt-3 border border-secondary rounded p-3">
-                <p className="small text-secondary mb-2">{t('actions.shortcuts')}</p>
-                <Row className="g-3">
-                  <Col xs={12} md={4}>
-                    <h4 className="h6 mb-2">{t('actions.shortcutsNavTitle')}</h4>
-                    <ul className="small mb-0">
-                      <li>{t('actions.shortcutsNavList')}</li>
-                    </ul>
-                  </Col>
-                  <Col xs={12} md={4}>
-                    <h4 className="h6 mb-2">{t('actions.shortcutsBatchTitle')}</h4>
-                    <ul className="small mb-0">
-                      <li>{t('actions.shortcutsBatchList')}</li>
-                    </ul>
-                  </Col>
-                  <Col xs={12} md={4}>
-                    <h4 className="h6 mb-2">{t('actions.shortcutsFlowTitle')}</h4>
-                    <ul className="small mb-0">
-                      <li>{t('actions.shortcutsFlowList')}</li>
-                    </ul>
-                  </Col>
-                </Row>
-                <Stack direction="horizontal" className="flex-wrap gap-2 mt-3">
-                  <Button size="sm" variant="outline-primary" onClick={focusPending}>
-                    {t('actions.shortcutsActionPending')}
-                  </Button>
-                  <Button size="sm" variant="outline-primary" onClick={toggleBatchOnly}>
-                    {t('actions.shortcutsActionBatch')}
-                  </Button>
-                  <Button size="sm" variant="outline-primary" onClick={openNextPending}>
-                    {t('actions.shortcutsActionNext')}
-                  </Button>
-                </Stack>
-              </section>
-            ) : null}
-          </section>
-        </Card.Body>
-      </Card>
+      <ActionPanels
+        t={t}
+        batchOnly={batchOnly}
+        densityMode={densityMode}
+        availability={availability}
+        batchIdsLength={batchIds.length}
+        batchScope={batchScope}
+        batchTimeline={batchTimeline}
+        pendingBatchExecution={pendingBatchExecution}
+        pendingBatchUndoSeconds={pendingBatchUndoSeconds}
+        previewingBatch={previewingBatch}
+        executingBatch={executingBatch}
+        previewStatus={previewStatus}
+        executeStatus={executeStatus}
+        retryStatus={retryStatus}
+        reportBatchId={reportBatchId}
+        reportStatus={reportStatus}
+        reportData={reportData}
+        reportExportStatus={reportExportStatus}
+        undoStackLength={undoStack.length}
+        activityLog={activityLog}
+        showShortcutsHelp={showShortcutsHelp}
+        onApplySavedView={applySavedView}
+        onApplyPresetPendingRecent={applyPresetPendingRecent}
+        onApplyPresetImagesRejected={applyPresetImagesRejected}
+        onApplyPresetMediaReview={applyPresetMediaReview}
+        onFocusPending={focusPending}
+        onToggleBatchOnly={toggleBatchOnly}
+        onApplyDecisionToVisible={applyDecisionToVisible}
+        onClearFilters={clearFilters}
+        onToggleDensityMode={toggleDensityMode}
+        onApplyDecisionToBatch={applyDecisionToBatch}
+        onClearBatch={clearBatch}
+        onPreviewBatchMove={previewBatchMove}
+        onExecuteBatchMove={executeBatchMove}
+        onCancelPendingBatchExecution={cancelPendingBatchExecution}
+        onRefreshBatchReport={refreshBatchReport}
+        onExportBatchReport={exportBatchReport}
+        onUndoLastAction={undoLastAction}
+        onClearActivityLog={clearActivityLog}
+        onToggleShortcutsHelp={toggleShortcutsHelp}
+        onOpenNextPending={openNextPending}
+      />
 
-      <Card as="section" className="shadow-sm border-0 mt-3" aria-label={t('next.region')}>
-        <Card.Body>
-          <h2 className="h5 mb-3">{t('next.title')}</h2>
-          {nextPendingAsset ? (
-            <Stack direction="horizontal" className="flex-wrap justify-content-between align-items-center gap-3">
-              <div>
-                <strong className="d-block">{nextPendingAsset.name}</strong>
-                <p className="text-secondary mb-0">{nextPendingAsset.id}</p>
-              </div>
-              <Stack direction="horizontal" gap={2}>
-                <Button
-                  type="button"
-                  variant="outline-primary"
-                  onClick={openNextPending}
-                >
-                  {t('next.open')}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline-success"
-                  onClick={() => handleDecision(nextPendingAsset.id, 'KEEP')}
-                >
-                  KEEP
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline-danger"
-                  onClick={() => handleDecision(nextPendingAsset.id, 'REJECT')}
-                >
-                  REJECT
-                </Button>
-              </Stack>
-            </Stack>
-          ) : (
-            <p className="text-secondary mb-0">{t('next.empty')}</p>
-          )}
-        </Card.Body>
-      </Card>
+      <NextPendingCard
+        nextPendingAsset={nextPendingAsset}
+        t={t}
+        onOpenNextPending={openNextPending}
+        onDecision={handleDecision}
+      />
 
       <Row as="section" className="g-3 mt-1">
         <Col
@@ -1390,86 +1030,17 @@ function App() {
           </Card>
         </Col>
 
-        <Col as="section" xs={12} xl={4} aria-label={t('detail.region')}>
-          <Card className="shadow-sm border-0 h-100">
-            <Card.Body>
-              <h2 className="h5">{t('detail.title')}</h2>
-              {selectedAsset ? (
-                <div>
-                  <strong className="d-block">{selectedAsset.name}</strong>
-                  <p className="text-secondary mb-1">
-                    {t('detail.id', { id: selectedAsset.id })}
-                  </p>
-                  <p className="text-secondary mb-3">
-                    {t('detail.state', { state: selectedAsset.state })}
-                  </p>
-                  <Stack direction="horizontal" className="flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      variant="outline-success"
-                      onClick={() => handleDecision(selectedAsset.id, 'KEEP')}
-                    >
-                      KEEP
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline-danger"
-                      onClick={() => handleDecision(selectedAsset.id, 'REJECT')}
-                    >
-                      REJECT
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline-secondary"
-                      onClick={() => handleDecision(selectedAsset.id, 'CLEAR')}
-                    >
-                      CLEAR
-                    </Button>
-                  </Stack>
-                  <section className="border border-2 border-danger-subtle rounded p-3 mt-3">
-                    <h3 className="h6 mb-2">{t('actions.purgeTitle')}</h3>
-                    <p className="small text-secondary mb-2">{t('actions.purgeHelp')}</p>
-                    <Stack direction="horizontal" className="flex-wrap gap-2">
-                      <Button
-                        type="button"
-                        variant="outline-danger"
-                        onClick={() => void previewSelectedAssetPurge()}
-                        disabled={availability.previewPurgeDisabled}
-                      >
-                        {previewingPurge ? t('actions.purgePreviewing') : t('actions.purgePreview')}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="danger"
-                        onClick={() => void executeSelectedAssetPurge()}
-                        disabled={availability.executePurgeDisabled}
-                      >
-                        {executingPurge ? t('actions.purging') : t('actions.purgeConfirm')}
-                      </Button>
-                    </Stack>
-                  </section>
-                </div>
-              ) : (
-                <p className="text-secondary mb-0">{t('detail.empty')}</p>
-              )}
-              {purgeStatus ? (
-                <p
-                  data-testid="asset-purge-status"
-                  role="status"
-                  aria-live="polite"
-                  className={[
-                    'small',
-                    'mt-3',
-                    'mb-0',
-                    purgeStatus.kind === 'success' ? 'text-success' : 'text-danger',
-                  ].join(' ')}
-                >
-                  {purgeStatus.message}
-                </p>
-              ) : null}
-            </Card.Body>
-          </Card>
-        </Col>
+        <AssetDetailPanel
+          selectedAsset={selectedAsset}
+          availability={availability}
+          previewingPurge={previewingPurge}
+          executingPurge={executingPurge}
+          purgeStatus={purgeStatus}
+          t={t}
+          onDecision={handleDecision}
+          onPreviewPurge={previewSelectedAssetPurge}
+          onExecutePurge={executeSelectedAssetPurge}
+        />
       </Row>
     </Container>
   )
