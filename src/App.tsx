@@ -26,6 +26,7 @@ import {
 import { getActionAvailability } from './domain/actionAvailability'
 import { useDensityMode } from './hooks/useDensityMode'
 import { useBatchExecution } from './hooks/useBatchExecution'
+import { usePurgeFlow } from './hooks/usePurgeFlow'
 import { useQuickFilters } from './hooks/useQuickFilters'
 import { useReviewKeyboardShortcuts } from './hooks/useReviewKeyboardShortcuts'
 import { useSelectionFlow } from './hooks/useSelectionFlow'
@@ -86,14 +87,21 @@ function App() {
     Array<{ assets: Asset[]; selectedAssetId: string | null; batchIds: string[] }>
   >([])
   const [activityLog, setActivityLog] = useState<Array<{ id: number; label: string }>>([])
-  const [previewingPurge, setPreviewingPurge] = useState(false)
-  const [executingPurge, setExecutingPurge] = useState(false)
-  const [purgePreviewAssetId, setPurgePreviewAssetId] = useState<string | null>(null)
-  const [purgeStatus, setPurgeStatus] = useState<{
-    kind: 'success' | 'error'
-    message: string
-  } | null>(null)
-  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(() => {
+    if (typeof window === 'undefined') {
+      return false
+    }
+    try {
+      const seen = window.localStorage.getItem(SHORTCUTS_HELP_SEEN_KEY)
+      if (seen) {
+        return false
+      }
+      window.localStorage.setItem(SHORTCUTS_HELP_SEEN_KEY, '1')
+      return true
+    } catch {
+      return false
+    }
+  })
   const { densityMode, toggleDensityMode } = useDensityMode()
   const activityId = useRef(1)
 
@@ -164,39 +172,6 @@ function App() {
     setRetryStatus,
     mapErrorToMessage: mapBatchErrorToMessage,
   })
-  const availability = useMemo(
-    () =>
-      getActionAvailability({
-        visibleCount: visibleAssets.length,
-        batchCount: batchIds.length,
-        previewingBatch,
-        executingBatch,
-        schedulingBatchExecution: !!pendingBatchExecution,
-        reportBatchId,
-        reportLoading,
-        undoCount: undoStack.length,
-        selectedAssetState: selectedAssetState as AssetState | null,
-        previewingPurge,
-        executingPurge,
-        purgePreviewMatchesSelected:
-          !!selectedAsset && purgePreviewAssetId === selectedAsset.id,
-      }),
-    [
-      visibleAssets.length,
-      batchIds.length,
-      previewingBatch,
-      executingBatch,
-      pendingBatchExecution,
-      reportBatchId,
-      reportLoading,
-      undoStack.length,
-      selectedAsset,
-      selectedAssetState,
-      previewingPurge,
-      executingPurge,
-      purgePreviewAssetId,
-    ],
-  )
   const locale = (i18n.resolvedLanguage ?? 'fr') as Locale
   const emptyAssetsMessage = useMemo(() => {
     if (!batchOnly) {
@@ -211,21 +186,6 @@ function App() {
     return t('assets.emptyBatch')
   }, [batchIds.length, batchOnly, filter, search, t])
 
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-    try {
-      const seen = window.localStorage.getItem(SHORTCUTS_HELP_SEEN_KEY)
-      if (seen) {
-        return
-      }
-      setShowShortcutsHelp(true)
-      window.localStorage.setItem(SHORTCUTS_HELP_SEEN_KEY, '1')
-    } catch {
-      // Ignore storage access errors and keep default UI behavior.
-    }
-  }, [])
   const logActivity = useCallback((label: string) => {
     setActivityLog((current) =>
       [{ id: activityId.current++, label }, ...current].slice(0, 8),
@@ -360,6 +320,34 @@ function App() {
     setActivityLog([])
   }, [activityLog.length])
 
+  const mapPurgeErrorToMessage = useCallback(
+    (error: unknown) => mapApiErrorToMessage(error, t),
+    [t],
+  )
+  const {
+    previewingPurge,
+    executingPurge,
+    purgePreviewAssetId,
+    purgeStatus,
+    setPurgePreviewAssetId,
+    setPurgeStatus,
+    previewSelectedAssetPurge,
+    executeSelectedAssetPurge,
+  } = usePurgeFlow({
+    apiClient,
+    selectedAsset,
+    t,
+    setRetryStatus,
+    mapErrorToMessage: mapPurgeErrorToMessage,
+    recordAction,
+    onPurgeSuccess: (assetId) => {
+      setAssets((current) => current.filter((asset) => asset.id !== assetId))
+      setBatchIds((current) => current.filter((id) => id !== assetId))
+      setSelectedAssetId((current) => (current === assetId ? null : current))
+      setSelectionAnchorId((current) => (current === assetId ? null : current))
+    },
+  })
+
   const {
     handleAssetClick,
     selectVisibleByOffset,
@@ -413,78 +401,42 @@ function App() {
     })
   }, [logActivity, t])
 
-  const previewSelectedAssetPurge = useCallback(async () => {
-    if (!selectedAsset || selectedAsset.state !== 'DECIDED_REJECT' || previewingPurge) {
-      return
-    }
-
-    setPreviewingPurge(true)
-    setPurgeStatus(null)
-    setRetryStatus(null)
-
-    try {
-      await apiClient.previewAssetPurge(selectedAsset.id)
-      setPurgePreviewAssetId(selectedAsset.id)
-      setPurgeStatus({
-        kind: 'success',
-        message: t('actions.purgePreviewReady', { id: selectedAsset.id }),
-      })
-    } catch (error) {
-      setPurgePreviewAssetId(null)
-      setPurgeStatus({
-        kind: 'error',
-        message: t('actions.purgePreviewError', {
-          message: mapApiErrorToMessage(error, t),
-        }),
-      })
-    } finally {
-      setPreviewingPurge(false)
-      setRetryStatus(null)
-    }
-  }, [apiClient, previewingPurge, selectedAsset, t])
-
-  const executeSelectedAssetPurge = useCallback(async () => {
-    if (
-      !selectedAsset ||
-      selectedAsset.state !== 'DECIDED_REJECT' ||
-      purgePreviewAssetId !== selectedAsset.id ||
-      executingPurge
-    ) {
-      return
-    }
-
-    setExecutingPurge(true)
-    setPurgeStatus(null)
-    setRetryStatus(null)
-
-    try {
-      await apiClient.executeAssetPurge(selectedAsset.id, crypto.randomUUID())
-      recordAction(t('activity.purge', { id: selectedAsset.id }))
-      setAssets((current) => current.filter((asset) => asset.id !== selectedAsset.id))
-      setBatchIds((current) => current.filter((id) => id !== selectedAsset.id))
-      setSelectedAssetId((current) => (current === selectedAsset.id ? null : current))
-      setSelectionAnchorId((current) => (current === selectedAsset.id ? null : current))
-      setPurgePreviewAssetId(null)
-      setPurgeStatus({
-        kind: 'success',
-        message: t('actions.purgeResult', { id: selectedAsset.id }),
-      })
-    } catch (error) {
-      setPurgeStatus({
-        kind: 'error',
-        message: t('actions.purgeError', {
-          message: mapApiErrorToMessage(error, t),
-        }),
-      })
-    } finally {
-      setExecutingPurge(false)
-      setRetryStatus(null)
-    }
-  }, [apiClient, executingPurge, purgePreviewAssetId, recordAction, selectedAsset, t])
-
   const toggleShortcutsHelp = useCallback(() => {
     setShowShortcutsHelp((current) => !current)
   }, [])
+  const availability = useMemo(
+    () =>
+      getActionAvailability({
+        visibleCount: visibleAssets.length,
+        batchCount: batchIds.length,
+        previewingBatch,
+        executingBatch,
+        schedulingBatchExecution: !!pendingBatchExecution,
+        reportBatchId,
+        reportLoading,
+        undoCount: undoStack.length,
+        selectedAssetState: selectedAssetState as AssetState | null,
+        previewingPurge,
+        executingPurge,
+        purgePreviewMatchesSelected:
+          !!selectedAsset && purgePreviewAssetId === selectedAsset.id,
+      }),
+    [
+      visibleAssets.length,
+      batchIds.length,
+      previewingBatch,
+      executingBatch,
+      pendingBatchExecution,
+      reportBatchId,
+      reportLoading,
+      undoStack.length,
+      selectedAsset,
+      selectedAssetState,
+      previewingPurge,
+      executingPurge,
+      purgePreviewAssetId,
+    ],
+  )
 
   const executeBatchMoveNow = useCallback(() => {
     void executeBatchMove()
@@ -548,13 +500,6 @@ function App() {
       }
     }
   }, [selectedAssetId, visibleAssets])
-
-  useEffect(() => {
-    if (!selectedAsset || selectedAsset.id === purgePreviewAssetId) {
-      return
-    }
-    setPurgePreviewAssetId(null)
-  }, [purgePreviewAssetId, selectedAsset])
 
   return (
     <Container as="main" className="py-4">
