@@ -7,6 +7,7 @@ const t = (key: string, params?: Record<string, string | number>) => {
     'error.scope': 'scope',
     'error.stateConflict': 'state',
     'error.idempotency': 'idempotency',
+    'error.validation': 'validation',
     'error.temporary': 'temporary',
     'error.fallback': `fallback:${params?.message ?? ''}`,
   }
@@ -41,15 +42,17 @@ describe('mapApiErrorToMessage', () => {
     expect(mapApiErrorToMessage(idem, t)).toBe('idempotency')
   })
 
-  it('maps temporary and fallback errors', () => {
+  it('maps temporary, validation and fallback errors', () => {
     const temporary = new ApiError(503, 'down')
-    const fallback = new ApiError(418, 'teapot', {
+    const validation = new ApiError(418, 'teapot', {
       code: 'VALIDATION_FAILED',
       message: 'teapot',
       retryable: false,
       correlation_id: 'c4',
     })
+    const fallback = new ApiError(418, 'teapot')
     expect(mapApiErrorToMessage(temporary, t)).toBe('temporary')
-    expect(mapApiErrorToMessage(fallback, t)).toBe('fallback:VALIDATION_FAILED (418)')
+    expect(mapApiErrorToMessage(validation, t)).toBe('validation')
+    expect(mapApiErrorToMessage(fallback, t)).toBe('fallback:HTTP 418')
   })
 })

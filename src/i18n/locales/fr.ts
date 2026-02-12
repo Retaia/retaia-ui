@@ -92,6 +92,7 @@ export const frTranslation = {
   'error.scope': "Droit insuffisant pour cette action (scope manquant).",
   'error.stateConflict': "Conflit d'état: rafraîchir puis réessayer.",
   'error.idempotency': 'Action dupliquée détectée (conflit idempotence).',
+  'error.validation': 'Payload API invalide reçu. Réessaie ou contacte le support.',
   'error.temporary': 'Indisponibilité temporaire: réessayer plus tard.',
   'error.fallback': 'Requête en échec: {message}',
   'actions.undo': 'Annuler dernière action',

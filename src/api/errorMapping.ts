@@ -19,6 +19,9 @@ export function mapApiErrorToMessage(error: unknown, t: TranslateFn) {
   if (code === 'IDEMPOTENCY_CONFLICT') {
     return t('error.idempotency')
   }
+  if (code === 'VALIDATION_FAILED') {
+    return t('error.validation')
+  }
   if (code === 'TEMPORARY_UNAVAILABLE' || error.status >= 500) {
     return t('error.temporary')
   }

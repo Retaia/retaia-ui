@@ -87,6 +87,53 @@ function buildQueryString(query: Record<string, unknown> | undefined) {
   return result ? `?${result}` : ''
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function createValidationError(path: string, detail: string) {
+  return new ApiError(502, `Invalid API response for ${path}: ${detail}`, {
+    code: 'VALIDATION_FAILED',
+    message: `Invalid API response for ${path}: ${detail}`,
+    retryable: false,
+    correlation_id: 'client-validation',
+  })
+}
+
+function parseAssetSummariesResponse(payload: unknown, path: string): AssetSummary[] {
+  if (!isRecord(payload)) {
+    throw createValidationError(path, 'expected object')
+  }
+  const items = payload.items
+  if (items === undefined || items === null) {
+    return []
+  }
+  if (!Array.isArray(items)) {
+    throw createValidationError(path, 'expected items array')
+  }
+  if (items.some((item) => !isRecord(item))) {
+    throw createValidationError(path, 'expected each item to be an object')
+  }
+  return items as AssetSummary[]
+}
+
+function parseMoveExecuteResponse(payload: unknown, path: string) {
+  if (payload === undefined) {
+    return undefined
+  }
+  if (!isRecord(payload)) {
+    throw createValidationError(path, 'expected object or empty response')
+  }
+  return payload
+}
+
+function parseMoveReportResponse(payload: unknown, path: string) {
+  if (!isRecord(payload)) {
+    throw createValidationError(path, 'expected object')
+  }
+  return payload as MoveStatusResponse
+}
+
 async function parseApiError(response: Response) {
   try {
     const payload = (await response.json()) as ApiErrorPayload
@@ -198,8 +245,9 @@ export function createApiClient(
       request<ListAssetsResponse>(`/assets${buildQueryString(query)}`),
 
     listAssetSummaries: async (query?: ListAssetsQuery): Promise<AssetSummary[]> => {
-      const result = await request<ListAssetsResponse>(`/assets${buildQueryString(query)}`)
-      return result.items ?? []
+      const path = `/assets${buildQueryString(query)}`
+      const result = await request<unknown>(path)
+      return parseAssetSummariesResponse(result, path)
     },
 
     previewMoveBatch: (payload: MovePreviewPayload) =>
@@ -208,17 +256,23 @@ export function createApiClient(
         body: JSON.stringify(payload),
       }),
 
-    executeMoveBatch: (payload: MoveExecutePayload, idempotencyKey: string) =>
-      request<MoveExecuteResponse>('/batches/moves', {
+    executeMoveBatch: async (payload: MoveExecutePayload, idempotencyKey: string) => {
+      const path = '/batches/moves'
+      const response = await request<unknown>(path, {
         method: 'POST',
         headers: {
           'Idempotency-Key': idempotencyKey,
         },
         body: JSON.stringify(payload),
-      }),
+      })
+      return parseMoveExecuteResponse(response, path) as MoveExecuteResponse
+    },
 
-    getMoveBatchReport: (batchId: string) =>
-      request<MoveStatusResponse>(`/batches/moves/${batchId}`),
+    getMoveBatchReport: async (batchId: string) => {
+      const path = `/batches/moves/${batchId}`
+      const response = await request<unknown>(path)
+      return parseMoveReportResponse(response, path)
+    },
 
     previewAssetPurge: (assetId: string) =>
       request<void>(`/assets/${assetId}/purge/preview`, {
