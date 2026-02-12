@@ -1,10 +1,16 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { BrowserRouter } from 'react-router-dom'
 import App from '../App'
 
 export const setupApp = () => {
+  window.history.replaceState({}, '', '/')
   const user = userEvent.setup()
-  const rendered = render(<App />)
+  const rendered = render(
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>,
+  )
   return { user, ...rendered }
 }
 

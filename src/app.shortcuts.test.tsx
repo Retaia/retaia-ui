@@ -1,6 +1,6 @@
-import { screen, within } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { getDetailPanel, setupApp } from './test-utils/appTestUtils'
+import { getAssetsPanel, getDetailPanel, setupApp } from './test-utils/appTestUtils'
 
 describe('App keyboard shortcuts', () => {
   it('opens next pending asset with n shortcut', async () => {
@@ -76,5 +76,21 @@ describe('App keyboard shortcuts', () => {
     await user.keyboard('/')
 
     expect(searchInput).toHaveFocus()
+  })
+
+  it('supports browser history back for selected asset detail', async () => {
+    const { user } = setupApp()
+
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
+    expect(within(getDetailPanel()).getByText('ID: A-003')).toBeInTheDocument()
+
+    act(() => {
+      window.history.back()
+    })
+
+    await waitFor(() => {
+      expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
+    })
   })
 })
