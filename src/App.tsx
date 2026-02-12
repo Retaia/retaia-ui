@@ -28,6 +28,7 @@ import { useDensityMode } from './hooks/useDensityMode'
 import { useBatchExecution } from './hooks/useBatchExecution'
 import { usePurgeFlow } from './hooks/usePurgeFlow'
 import { useQuickFilters } from './hooks/useQuickFilters'
+import { useReviewHistory } from './hooks/useReviewHistory'
 import { useReviewKeyboardShortcuts } from './hooks/useReviewKeyboardShortcuts'
 import { useSelectionFlow } from './hooks/useSelectionFlow'
 import { type Locale } from './i18n/resources'
@@ -94,10 +95,6 @@ function App() {
   })
   const [selectionAnchorId, setSelectionAnchorId] = useState<string | null>(null)
   const [batchIds, setBatchIds] = useState<string[]>([])
-  const [undoStack, setUndoStack] = useState<
-    Array<{ assets: Asset[]; selectedAssetId: string | null; batchIds: string[] }>
-  >([])
-  const [activityLog, setActivityLog] = useState<Array<{ id: number; label: string }>>([])
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(() => {
     if (typeof window === 'undefined') {
       return false
@@ -114,7 +111,6 @@ function App() {
     }
   })
   const { densityMode, toggleDensityMode } = useDensityMode()
-  const activityId = useRef(1)
   const updateSelectedAssetSearchParam = useCallback(
     (nextAssetId: string | null, mode: 'push' | 'replace' = 'push') => {
       if (typeof window === 'undefined') {
@@ -256,25 +252,21 @@ function App() {
     return t('assets.emptyBatch')
   }, [batchIds.length, batchOnly, filter, search, t])
 
-  const logActivity = useCallback((label: string) => {
-    setActivityLog((current) =>
-      [{ id: activityId.current++, label }, ...current].slice(0, 8),
-    )
-  }, [])
-
-  const pushUndoSnapshot = useCallback(() => {
-    setUndoStack((current) =>
-      [{ assets, selectedAssetId, batchIds }, ...current].slice(0, 30),
-    )
-  }, [assets, selectedAssetId, batchIds])
-
-  const recordAction = useCallback(
-    (label: string) => {
-      pushUndoSnapshot()
-      logActivity(label)
-    },
-    [logActivity, pushUndoSnapshot],
-  )
+  const {
+    undoStack,
+    activityLog,
+    recordAction,
+    clearActivityLog,
+    undoLastAction,
+  } = useReviewHistory({
+    assets,
+    selectedAssetId,
+    batchIds,
+    setAssets,
+    setSelectedAssetId: applySelectedAssetId,
+    setBatchIds,
+    t,
+  })
 
   const handleDecision = useCallback((id: string, action: DecisionAction) => {
     const target = assets.find((asset) => asset.id === id)
@@ -382,13 +374,6 @@ function App() {
     setBatchOnly,
   })
 
-  const clearActivityLog = useCallback(() => {
-    if (activityLog.length === 0) {
-      return
-    }
-    setActivityLog([])
-  }, [activityLog.length])
-
   const mapPurgeErrorToMessage = useCallback(
     (error: unknown) => mapApiErrorToMessage(error, t),
     [t],
@@ -468,20 +453,6 @@ function App() {
       return [...merged]
     })
   }, [batchIds, recordAction, t, visibleAssets])
-
-  const undoLastAction = useCallback(() => {
-    setUndoStack((current) => {
-      if (current.length === 0) {
-        return current
-      }
-      const [last, ...rest] = current
-      setAssets(last.assets)
-      applySelectedAssetId(last.selectedAssetId)
-      setBatchIds(last.batchIds)
-      logActivity(t('activity.undo'))
-      return rest
-    })
-  }, [applySelectedAssetId, logActivity, t])
 
   const toggleShortcutsHelp = useCallback(() => {
     setShowShortcutsHelp((current) => !current)

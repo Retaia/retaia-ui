@@ -41,6 +41,8 @@ La logique métier est déplacée autant que possible dans des hooks dédiés.
   Preview/exécution batch, timeline, fenêtre d'annulation, rapport/export.
 - `src/hooks/usePurgeFlow.ts`
   Preview/confirmation purge et statut d'exécution.
+- `src/hooks/useReviewHistory.ts`
+  Snapshots undo + journal d'activité (séparation du state history hors `App.tsx`).
 - `src/hooks/useReviewKeyboardShortcuts.ts`
   Mapping des raccourcis desktop-like vers callbacks UI.
 
