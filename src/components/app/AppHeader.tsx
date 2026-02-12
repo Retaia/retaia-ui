@@ -1,5 +1,5 @@
 import { Button, Stack } from 'react-bootstrap'
-import { BsGrid3X3GapFill, BsTranslate } from 'react-icons/bs'
+import { BsFlagFill, BsGlobe2, BsGrid3X3GapFill } from 'react-icons/bs'
 import type { Locale } from '../../i18n/resources'
 
 type Props = {
@@ -27,7 +27,7 @@ export function AppHeader({ locale, t, onChangeLanguage }: Props) {
             onClick={() => onChangeLanguage('fr')}
             aria-label={t('app.language.fr')}
           >
-            <BsTranslate className="me-1" aria-hidden="true" />
+            <BsFlagFill className="me-1" aria-hidden="true" />
             FR
           </Button>
           <Button
@@ -37,7 +37,7 @@ export function AppHeader({ locale, t, onChangeLanguage }: Props) {
             onClick={() => onChangeLanguage('en')}
             aria-label={t('app.language.en')}
           >
-            <BsTranslate className="me-1" aria-hidden="true" />
+            <BsGlobe2 className="me-1" aria-hidden="true" />
             EN
           </Button>
         </Stack>
