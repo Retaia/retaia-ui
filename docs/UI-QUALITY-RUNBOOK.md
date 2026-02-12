@@ -37,9 +37,12 @@ Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de 
 
 - Exécution CI-friendly avec rapports:
   - `npm run bdd:test:ci`
+  - `npm run bdd:test:critical:ci` (suite smoke `@critical`)
 - Artifacts produits:
   - `test-results/bdd-report.json`
   - `test-results/bdd-report.html`
+  - `test-results/bdd-critical-report.json`
+  - `test-results/bdd-critical-report.html`
 
 ## Gestion des conflits PR
 
