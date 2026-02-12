@@ -57,6 +57,13 @@ Feature: Workflow de review desktop-like
     When j'ouvre le prochain asset à traiter via la touche n
     Then le panneau détail affiche l'asset "interview-camera-a.mov"
 
+  Scenario: Aller au premier et dernier asset via Home/End
+    Given je suis sur la page d'accueil
+    When j'appuie sur la touche "End"
+    Then le panneau détail affiche l'asset "behind-the-scenes.jpg"
+    When j'appuie sur la touche "Home"
+    Then le panneau détail affiche l'asset "interview-camera-a.mov"
+
   Scenario: Sortir du mode batch-only puis ouvrir le prochain asset via n
     Given je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "behind-the-scenes.jpg"

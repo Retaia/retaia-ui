@@ -49,6 +49,7 @@
 
 - au premier lancement, le panneau raccourcis s'ouvre automatiquement.
 - `j` / `k`: navigation.
+- `Home` / `End`: aller au premier/dernier asset visible.
 - `?`: ouvrir/fermer l'aide des raccourcis.
 - `p`: filtre rapide sur les assets à traiter.
 - `b`: bascule filtre "batch seul".
