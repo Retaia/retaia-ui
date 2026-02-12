@@ -419,6 +419,16 @@ function App() {
       }
     },
   })
+  const setSelectedAssetIdFromSelectionFlow = useCallback(
+    (value: string | null | ((current: string | null) => string | null)) => {
+      if (typeof value === 'function') {
+        setSelectedAssetId(value)
+        return
+      }
+      applySelectedAssetId(value)
+    },
+    [applySelectedAssetId],
+  )
 
   const {
     handleAssetClick,
@@ -433,7 +443,7 @@ function App() {
     selectionAnchorId,
     recordAction,
     t,
-    setSelectedAssetId: applySelectedAssetId,
+    setSelectedAssetId: setSelectedAssetIdFromSelectionFlow,
     setSelectionAnchorId,
     setBatchIds,
     setPurgePreviewAssetId,
