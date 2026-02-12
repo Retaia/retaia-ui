@@ -3,6 +3,7 @@ import type { Page, Route } from '@playwright/test'
 export type MockApiState = {
   assetsListShouldFail: boolean
   assetsListDelayMs: number
+  assetsListMalformed: boolean
   previewShouldFailScope: boolean
   previewTemporaryOnce: boolean
   previewTemporaryCalls: number
@@ -15,6 +16,7 @@ export type MockApiState = {
 export const createMockApiState = (): MockApiState => ({
   assetsListShouldFail: false,
   assetsListDelayMs: 0,
+  assetsListMalformed: false,
   previewShouldFailScope: false,
   previewTemporaryOnce: false,
   previewTemporaryCalls: 0,
@@ -27,6 +29,7 @@ export const createMockApiState = (): MockApiState => ({
 export const resetMockApiState = (state: MockApiState) => {
   state.assetsListShouldFail = false
   state.assetsListDelayMs = 0
+  state.assetsListMalformed = false
   state.previewShouldFailScope = false
   state.previewTemporaryOnce = false
   state.previewTemporaryCalls = 0
@@ -60,22 +63,28 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        items: [
-          {
-            uuid: 'A-001',
-            media_type: 'VIDEO',
-            state: 'DECISION_PENDING',
-            created_at: new Date().toISOString(),
-            captured_at: new Date().toISOString(),
-          },
-          {
-            uuid: 'A-003',
-            media_type: 'PHOTO',
-            state: 'DECIDED_REJECT',
-            created_at: new Date().toISOString(),
-            captured_at: new Date().toISOString(),
-          },
-        ],
+        items: state.assetsListMalformed
+          ? [
+            {
+              created_at: null,
+            },
+          ]
+          : [
+            {
+              uuid: 'A-001',
+              media_type: 'VIDEO',
+              state: 'DECISION_PENDING',
+              created_at: new Date().toISOString(),
+              captured_at: new Date().toISOString(),
+            },
+            {
+              uuid: 'A-003',
+              media_type: 'PHOTO',
+              state: 'DECIDED_REJECT',
+              created_at: new Date().toISOString(),
+              captured_at: new Date().toISOString(),
+            },
+          ],
         next_cursor: null,
       }),
     })

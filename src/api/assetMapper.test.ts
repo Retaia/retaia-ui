@@ -39,5 +39,23 @@ describe('assetMapper', () => {
       }).state,
     ).toBe('DECIDED_REJECT')
   })
-})
 
+  it('falls back safely when api payload is partially malformed', () => {
+    const result = mapApiSummaryToAsset(
+      {
+        media_type: undefined,
+        state: undefined,
+        created_at: undefined,
+      },
+      0,
+    )
+
+    expect(result).toEqual({
+      id: 'UNKNOWN-ASSET-1',
+      name: 'UNKNOWN-ASSET-1',
+      state: 'DECISION_PENDING',
+      mediaType: 'OTHER',
+      capturedAt: '1970-01-01T00:00:00.000Z',
+    })
+  })
+})
