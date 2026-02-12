@@ -73,6 +73,15 @@ jobs:
       - name: Run tests and enforce coverage
         run: npm run test:coverage
 
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          retention-days: 14
+          path: |
+            coverage/**
+
   security-audit:
     runs-on: ubuntu-latest
     needs: lint
@@ -138,3 +147,15 @@ jobs:
           retention-days: 14
           path: |
             test-results/**
+
+  ci-required:
+    runs-on: ubuntu-latest
+    needs:
+      - no-black-magic
+      - lint
+      - test
+      - security-audit
+      - e2e-bdd
+    steps:
+      - name: Required CI gate
+        run: echo "All required CI jobs passed."
