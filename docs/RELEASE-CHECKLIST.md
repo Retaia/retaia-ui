@@ -3,6 +3,7 @@
 ## Pré-release
 
 - `npm ci`
+- `npm run qa:v1:go-no-go`
 - `npm run qa`
 - `npm run qa:v1:flows`
 - `npm run e2e:bdd:ci`
