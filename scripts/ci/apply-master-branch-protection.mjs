@@ -19,6 +19,7 @@ function getOwnerRepo() {
 const requiredChecks = [
   'no-black-magic',
   'pr-up-to-date',
+  'commitlint',
   'lint',
   'test',
   'security-audit',
