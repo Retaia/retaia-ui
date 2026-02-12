@@ -132,8 +132,7 @@ Feature: Workflow de review desktop-like
 
   Scenario: Utiliser les actions rapides depuis l'aide raccourcis
     Given je suis sur la page d'accueil
-    When je clique sur le bouton "Voir raccourcis"
-    And je clique sur le bouton "Aller à traiter"
+    When je clique sur le bouton "Aller à traiter"
     Then le titre principal "Assets (1)" est visible
 
   Scenario: Vider la recherche avec Escape
