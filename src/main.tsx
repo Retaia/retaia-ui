@@ -12,6 +12,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/" element={<Navigate to="/review" replace />} />
         <Route path="/review" element={<App />} />
         <Route path="/review/:assetId" element={<App />} />
+        <Route path="*" element={<Navigate to="/review" replace />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

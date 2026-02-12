@@ -111,6 +111,10 @@ When('je clique sur le bouton {string}', async (buttonLabel: string) => {
   await button.click()
 })
 
+When("je bascule la langue en anglais", async () => {
+  await getPage().getByRole('button', { name: 'Anglais' }).click()
+})
+
 When('j\'appuie sur la touche {string}', async (key: string) => {
   await getPage().keyboard.press(key)
 })
@@ -129,6 +133,10 @@ Then('l\'historique disponible affiche {int}', async (count: number) => {
 
 Then('le message {string} est visible', async (message: string) => {
   await expect(getPage().getByText(message, { exact: false })).toBeVisible()
+})
+
+Then('le libellé de recherche anglais est visible', async () => {
+  await expect(getPage().getByLabel('Search')).toBeVisible()
 })
 
 Then('le statut de sélection affiche {string}', async (text: string) => {
@@ -193,4 +201,26 @@ Then('l\'asset {string} n\'est plus visible dans la liste', async (assetName: st
 
 Then('le champ de recherche a le focus', async () => {
   await expect(getPage().getByLabel('Recherche')).toBeFocused()
+})
+
+When('je filtre par état {string}', async (state: string) => {
+  await getPage().getByLabel('Filtrer par état').selectOption(state)
+})
+
+Then('la ligne asset {string} a aria-selected {string}', async (assetId: string, selected: string) => {
+  const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
+  const row = assetsPanel.locator('li.list-group-item', { hasText: assetId }).first()
+  await expect(row).toHaveAttribute('aria-selected', selected)
+})
+
+Then('la ligne asset {string} a tabindex {string}', async (assetId: string, tabIndex: string) => {
+  const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
+  const row = assetsPanel.locator('li.list-group-item', { hasText: assetId }).first()
+  await expect(row).toHaveAttribute('tabindex', tabIndex)
+})
+
+Then('la ligne asset {string} a le focus', async (assetId: string) => {
+  const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
+  const row = assetsPanel.locator('li.list-group-item', { hasText: assetId }).first()
+  await expect(row).toBeFocused()
 })

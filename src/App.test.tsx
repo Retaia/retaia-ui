@@ -142,6 +142,77 @@ describe('App', () => {
     }
   })
 
+  it('renders API asset list when source mode succeeds', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            items: [
+              {
+                uuid: 'A-010',
+                media_type: 'VIDEO',
+                state: 'DECISION_PENDING',
+                created_at: '2026-02-12T10:00:00Z',
+                captured_at: '2026-02-12T10:00:00Z',
+              },
+            ],
+            next_cursor: null,
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
+      )
+
+      setupApp('/review?source=api')
+
+      expect(await screen.findByText('A-010 - DECISION_PENDING')).toBeInTheDocument()
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
+  it('shows retry status when assets API list retries once', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              code: 'TEMPORARY_UNAVAILABLE',
+              message: 'temporary unavailable',
+              retryable: true,
+              correlation_id: 'retry-assets-1',
+            }),
+            { status: 503, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+        .mockResolvedValueOnce(
+          new Response(
+            JSON.stringify({
+              items: [],
+              next_cursor: null,
+            }),
+            { status: 200, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+
+      setupApp('/review?source=api')
+
+      expect(await screen.findByTestId('api-retry-status')).toHaveTextContent('Nouvelle tentative')
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
   it('filters assets with free-text search', async () => {
     const { user } = setupApp()
 
