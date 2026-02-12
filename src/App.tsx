@@ -982,6 +982,11 @@ function App() {
           toggleDensityMode()
           return
         }
+        if (key === 'r') {
+          event.preventDefault()
+          void refreshBatchReport()
+          return
+        }
         if (key === 'l') {
           event.preventDefault()
           clearActivityLog()
@@ -1079,6 +1084,7 @@ function App() {
     toggleDensityMode,
     pendingBatchExecution,
     executeBatchMove,
+    refreshBatchReport,
     clearActivityLog,
     selectAllVisibleInBatch,
     selectVisibleByOffset,

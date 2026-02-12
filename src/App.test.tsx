@@ -547,7 +547,6 @@ describe('App', () => {
       }
       return Promise.resolve(new Response(null, { status: 200 }))
     })
-
     const createObjectURL = vi.fn(() => 'blob:test')
     const revokeObjectURL = vi.fn()
     Object.defineProperty(URL, 'createObjectURL', {
@@ -570,7 +569,6 @@ describe('App', () => {
     await user.keyboard('{/Shift}')
     await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
     await user.click(screen.getByRole('button', { name: 'Exécuter maintenant' }))
-
     await user.click(screen.getByRole('button', { name: 'Exporter JSON' }))
     await user.click(screen.getByRole('button', { name: 'Exporter CSV' }))
 
@@ -580,6 +578,48 @@ describe('App', () => {
     expect(screen.getByTestId('batch-report-export-status')).toHaveTextContent('CSV')
 
     clickSpy.mockRestore()
+    fetchSpy.mockRestore()
+  })
+
+  it('refreshes batch report with r shortcut', async () => {
+    const user = userEvent.setup()
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
+      const url = String(input)
+      if (url.endsWith('/batches/moves')) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ batch_id: 'batch-123' }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+        )
+      }
+      if (url.endsWith('/batches/moves/batch-123')) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ status: 'DONE', moved: 2, failed: 0 }), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+        )
+      }
+      return Promise.resolve(new Response(null, { status: 200 }))
+    })
+
+    render(<App />)
+    await user.keyboard('{Shift>}')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.keyboard('{/Shift}')
+    await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
+    await user.click(screen.getByRole('button', { name: 'Exécuter maintenant' }))
+
+    const before = fetchSpy.mock.calls.filter(([input]) =>
+      String(input).endsWith('/batches/moves/batch-123'),
+    ).length
+    await user.keyboard('r')
+    const after = fetchSpy.mock.calls.filter(([input]) =>
+      String(input).endsWith('/batches/moves/batch-123'),
+    ).length
+
+    expect(after).toBeGreaterThan(before)
     fetchSpy.mockRestore()
   })
 
