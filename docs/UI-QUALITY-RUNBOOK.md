@@ -25,8 +25,15 @@ Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de 
 ## Gates qualité locales (avant push)
 
 - `npm run qa`
+- `npm run typecheck`
 - `npm run e2e:bdd:ci` pour les changements de comportement utilisateur.
 - `npm run visual:test` pour les changements UI visibles.
+
+## Durcissement TypeScript
+
+- `strict` actif + `noUncheckedIndexedAccess` + `noImplicitReturns` + `useUnknownInCatchVariables`.
+- ESLint bloque `@typescript-eslint/no-explicit-any`.
+- En cas d'acces indexe (`array[index]`), verifier explicitement `undefined`.
 
 ## Couverture
 

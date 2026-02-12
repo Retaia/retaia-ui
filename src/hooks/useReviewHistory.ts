@@ -61,10 +61,11 @@ export function useReviewHistory({
 
   const undoLastAction = useCallback(() => {
     setUndoStack((current) => {
-      if (current.length === 0) {
+      const last = current[0]
+      if (!last) {
         return current
       }
-      const [last, ...rest] = current
+      const rest = current.slice(1)
       setAssets(last.assets)
       setSelectedAssetId(last.selectedAssetId)
       setBatchIds(last.batchIds)
@@ -81,4 +82,3 @@ export function useReviewHistory({
     undoLastAction,
   } as const
 }
-

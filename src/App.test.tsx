@@ -39,14 +39,21 @@ describe('App', () => {
 
   it('supports keep reject clear actions', async () => {
     const { user } = setupApp()
+    const assetsPanel = getAssetsPanel()
+    const assetRow = within(assetsPanel)
+      .getByText('interview-camera-a.mov')
+      .closest('li')
+    if (!assetRow) {
+      throw new Error('expected first asset row was not found')
+    }
 
-    await user.click(screen.getAllByRole('button', { name: 'REJECT' })[0])
+    await user.click(within(assetRow).getByRole('button', { name: 'REJECT' }))
     expect(screen.getByText('A-001 - DECIDED_REJECT')).toBeInTheDocument()
 
-    await user.click(screen.getAllByRole('button', { name: 'CLEAR' })[0])
+    await user.click(within(assetRow).getByRole('button', { name: 'CLEAR' }))
     expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
 
-    await user.click(screen.getAllByRole('button', { name: 'KEEP' })[0])
+    await user.click(within(assetRow).getByRole('button', { name: 'KEEP' }))
     expect(screen.getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
   })
 
@@ -733,9 +740,14 @@ describe('App', () => {
     const { user } = setupApp()
 
     expect(screen.getByRole('heading', { name: 'Prochain asset à traiter' })).toBeInTheDocument()
-    expect(screen.getAllByText('interview-camera-a.mov')[0]).toBeInTheDocument()
+    const firstPendingName = screen.getAllByText('interview-camera-a.mov')[0]
+    const rejectButton = screen.getAllByRole('button', { name: 'REJECT' })[0]
+    if (!firstPendingName || !rejectButton) {
+      throw new Error('expected pending asset controls were not found')
+    }
+    expect(firstPendingName).toBeInTheDocument()
 
-    await user.click(screen.getAllByRole('button', { name: 'REJECT' })[0])
+    await user.click(rejectButton)
 
     expect(screen.getByText('Plus aucun asset en attente.')).toBeInTheDocument()
   })
@@ -803,7 +815,11 @@ describe('App', () => {
   it('supports undo with Ctrl+Z shortcut', async () => {
     const { user } = setupApp()
 
-    await user.click(screen.getAllByRole('button', { name: 'REJECT' })[0])
+    const rejectButton = screen.getAllByRole('button', { name: 'REJECT' })[0]
+    if (!rejectButton) {
+      throw new Error('expected reject button was not found')
+    }
+    await user.click(rejectButton)
     expect(screen.getByText('A-001 - DECIDED_REJECT')).toBeInTheDocument()
 
     await user.keyboard('{Control>}z{/Control}')

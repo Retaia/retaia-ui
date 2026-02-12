@@ -63,15 +63,20 @@ describe('assets domain', () => {
 
   it('updates state for a single asset', () => {
     const result = updateAssetState(assets, 'A-001', 'DECIDED_KEEP')
-    expect(result[0].state).toBe('DECIDED_KEEP')
-    expect(result[1].state).toBe('DECIDED_KEEP')
+    expect(result[0]).toBeDefined()
+    expect(result[1]).toBeDefined()
+    expect(result[0]!.state).toBe('DECIDED_KEEP')
+    expect(result[1]!.state).toBe('DECIDED_KEEP')
   })
 
   it('updates state for a list of assets', () => {
     const result = updateAssetsState(assets, ['A-001', 'A-003'], 'DECIDED_KEEP')
-    expect(result[0].state).toBe('DECIDED_KEEP')
-    expect(result[1].state).toBe('DECIDED_KEEP')
-    expect(result[2].state).toBe('DECIDED_KEEP')
+    expect(result[0]).toBeDefined()
+    expect(result[1]).toBeDefined()
+    expect(result[2]).toBeDefined()
+    expect(result[0]!.state).toBe('DECIDED_KEEP')
+    expect(result[1]!.state).toBe('DECIDED_KEEP')
+    expect(result[2]!.state).toBe('DECIDED_KEEP')
   })
 
   it('maps decision actions to states', () => {
