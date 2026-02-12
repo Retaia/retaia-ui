@@ -1,5 +1,6 @@
 import type { AssetDateFilter, AssetFilter, AssetMediaTypeFilter } from '../domain/assets'
 import { Card, Col, Form, Row } from 'react-bootstrap'
+import { BsCalendar3, BsFunnel, BsSearch, BsSliders2 } from 'react-icons/bs'
 
 type ReviewToolbarProps = {
   filter: AssetFilter
@@ -39,6 +40,7 @@ export function ReviewToolbar({
         <Row className="g-3">
           <Col xs={12} md={4}>
             <Form.Label className="fw-semibold" htmlFor="state-filter">
+              <BsFunnel className="me-1" aria-hidden="true" />
               {labels.filter}
             </Form.Label>
             <Form.Select
@@ -55,6 +57,7 @@ export function ReviewToolbar({
 
           <Col xs={12} md={4}>
             <Form.Label className="fw-semibold" htmlFor="media-type-filter">
+              <BsSliders2 className="me-1" aria-hidden="true" />
               {labels.mediaType}
             </Form.Label>
             <Form.Select
@@ -72,6 +75,7 @@ export function ReviewToolbar({
 
           <Col xs={12} md={4}>
             <Form.Label className="fw-semibold" htmlFor="captured-date-filter">
+              <BsCalendar3 className="me-1" aria-hidden="true" />
               {labels.date}
             </Form.Label>
             <Form.Select
@@ -87,6 +91,7 @@ export function ReviewToolbar({
 
           <Col xs={12}>
             <Form.Label className="fw-semibold" htmlFor="asset-search">
+              <BsSearch className="me-1" aria-hidden="true" />
               {labels.search}
             </Form.Label>
             <Form.Control

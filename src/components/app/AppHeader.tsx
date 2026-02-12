@@ -1,4 +1,5 @@
 import { Button, Stack } from 'react-bootstrap'
+import { BsGrid3X3GapFill, BsTranslate } from 'react-icons/bs'
 import type { Locale } from '../../i18n/resources'
 
 type Props = {
@@ -12,7 +13,10 @@ export function AppHeader({ locale, t, onChangeLanguage }: Props) {
     <header className="mb-3">
       <Stack direction="horizontal" className="justify-content-between align-items-start gap-2">
         <div>
-          <h1 className="display-6 fw-bold mb-1">{t('app.title')}</h1>
+          <h1 className="display-6 fw-bold mb-1">
+            <BsGrid3X3GapFill className="me-2" aria-hidden="true" />
+            {t('app.title')}
+          </h1>
           <p className="text-secondary mb-0">{t('app.subtitle')}</p>
         </div>
         <Stack direction="horizontal" gap={2} aria-label={t('app.language')}>
@@ -23,6 +27,7 @@ export function AppHeader({ locale, t, onChangeLanguage }: Props) {
             onClick={() => onChangeLanguage('fr')}
             aria-label={t('app.language.fr')}
           >
+            <BsTranslate className="me-1" aria-hidden="true" />
             FR
           </Button>
           <Button
@@ -32,6 +37,7 @@ export function AppHeader({ locale, t, onChangeLanguage }: Props) {
             onClick={() => onChangeLanguage('en')}
             aria-label={t('app.language.en')}
           >
+            <BsTranslate className="me-1" aria-hidden="true" />
             EN
           </Button>
         </Stack>
