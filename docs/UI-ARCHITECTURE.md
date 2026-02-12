@@ -7,7 +7,13 @@ modulaire et testable (TDD + BDD).
 
 ## Entrée principale
 
-- `src/App.tsx`
+- `src/main.tsx` (routing browser)
+- `src/App.tsx` (écran review)
+
+Routes UI:
+
+- `/review`
+- `/review/:assetId` (deep-link détail)
 
 `App.tsx` orchestre les états globaux de review et compose les blocs UI.
 La logique métier est déplacée autant que possible dans des hooks dédiés.

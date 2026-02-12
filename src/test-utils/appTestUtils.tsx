@@ -3,8 +3,8 @@ import userEvent from '@testing-library/user-event'
 import { BrowserRouter } from 'react-router-dom'
 import App from '../App'
 
-export const setupApp = () => {
-  window.history.replaceState({}, '', '/')
+export const setupApp = (path = '/review') => {
+  window.history.replaceState({}, '', path)
   const user = userEvent.setup()
   const rendered = render(
     <BrowserRouter>
