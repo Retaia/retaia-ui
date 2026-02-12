@@ -129,7 +129,16 @@ function App() {
     }
   })
   const { densityMode, toggleDensityMode } = useDensityMode()
-  const isApiAssetSource = import.meta.env.VITE_ASSET_SOURCE === 'api'
+  const isApiAssetSource = useMemo(() => {
+    if (import.meta.env.VITE_ASSET_SOURCE === 'api') {
+      return true
+    }
+    if (typeof window === 'undefined') {
+      return false
+    }
+    const params = new URLSearchParams(window.location.search)
+    return params.get('source') === 'api'
+  }, [])
   const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>(
     isApiAssetSource ? 'loading' : 'idle',
   )
