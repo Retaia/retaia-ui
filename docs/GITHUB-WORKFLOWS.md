@@ -54,6 +54,24 @@ Artefacts CI:
 
 - le job `e2e-bdd` publie `test-results/**` en succès et en échec
 
+## Protection de `master`
+
+Pour aligner les règles de merge avec les checks requis:
+
+- `npm run gh:protect-master`
+
+Pré-requis:
+
+- droits admin sur le repo GitHub
+- `gh auth login` déjà fait sur la machine
+
+Le script configure:
+
+- statut checks requis (liste CI complète)
+- review PR obligatoire (1 approbation)
+- résolution de conversation obligatoire
+- force-push et suppression de branche interdits
+
 ## Politique de couverture
 
 - Pas de baisse de couverture sur les fichiers modifiés.
