@@ -26,6 +26,7 @@ Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de 
 
 - `npm run qa`
 - `npm run typecheck`
+- `npm run api:contract:check`
 - `npm run e2e:bdd:ci` pour les changements de comportement utilisateur.
 - `npm run visual:test` pour les changements UI visibles.
 
@@ -34,6 +35,15 @@ Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de 
 - `strict` actif + `noUncheckedIndexedAccess` + `noImplicitReturns` + `useUnknownInCatchVariables`.
 - ESLint bloque `@typescript-eslint/no-explicit-any`.
 - En cas d'acces indexe (`array[index]`), verifier explicitement `undefined`.
+
+## Contrat API v1
+
+- Le schema `specs/api/openapi/v1.yaml` est verrouille par hash (`contracts/openapi-v1.sha256`).
+- Verification locale/CI: `npm run api:contract:check`.
+- Si un changement API est volontaire:
+  1. `npm run api:types:generate`
+  2. `npm run api:contract:freeze`
+  3. commit des types generes + hash.
 
 ## Couverture
 
