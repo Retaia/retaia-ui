@@ -23,6 +23,10 @@ Pour le workflow quotidien branch/PR/checks, voir aussi `docs/UI-QUALITY-RUNBOOK
 - Mettre la logique testable hors JSX quand elle devient complexe.
 - Extraire les helpers transverses (ex: clavier) dans des modules courts (`src/ui/*`) avec tests unitaires dédiés.
 - Centraliser les règles d'activation/désactivation des actions UI dans des helpers purs (`src/domain/*`) testés.
+- Si un composant devient trop long (ordre de grandeur > 600 lignes), extraire en priorité:
+  - hooks de comportement (`src/hooks/*`)
+  - fonctions de mapping/formatage pures
+  - sections UI répétitives en sous-composants
 
 ## API typée (OpenAPI)
 

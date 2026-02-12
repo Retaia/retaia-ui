@@ -21,6 +21,7 @@ import {
   updateAssetsState,
 } from './domain/assets'
 import { getActionAvailability } from './domain/actionAvailability'
+import { useReviewKeyboardShortcuts } from './hooks/useReviewKeyboardShortcuts'
 import { type Locale } from './i18n/resources'
 import { isTypingContext } from './ui/keyboard'
 
@@ -908,205 +909,92 @@ function App() {
     }
   }, [apiClient, executingPurge, purgePreviewAssetId, recordAction, selectedAsset, t])
 
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (isTypingContext(event.target)) {
-        const target = event.target
-        if (
-          event.key === 'Escape' &&
-          target instanceof HTMLInputElement &&
-          target.id === 'asset-search' &&
-          target.value !== ''
-        ) {
-          event.preventDefault()
-          setSearch('')
-          return
-        }
-        return
-      }
+  const clearSelection = useCallback(() => {
+    setSelectedAssetId(null)
+    setSelectionAnchorId(null)
+    setPurgePreviewAssetId(null)
+    setPurgeStatus(null)
+  }, [])
 
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
-        event.preventDefault()
-        selectAllVisibleInBatch()
-        return
-      }
-
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
-        event.preventDefault()
-        undoLastAction()
-        return
-      }
-
-      if (event.shiftKey && event.key === 'Enter' && pendingBatchExecution) {
-        event.preventDefault()
-        void executeBatchMove()
-        return
-      }
-
-      if (
-        event.shiftKey &&
-        (event.key === ' ' || event.key === 'Spacebar' || event.key === 'Space' || event.code === 'Space')
-      ) {
-        event.preventDefault()
-        toggleBatchForSelectedAsset()
-        return
-      }
-
-      if (!event.metaKey && !event.ctrlKey && !event.shiftKey) {
-        const key = event.key.toLowerCase()
-        if (key === 'escape') {
-          event.preventDefault()
-          setSelectedAssetId(null)
-          setSelectionAnchorId(null)
-          setPurgePreviewAssetId(null)
-          setPurgeStatus(null)
-          return
-        }
-        if (key === 'p') {
-          event.preventDefault()
-          focusPending()
-          return
-        }
-        if (key === 'b') {
-          event.preventDefault()
-          toggleBatchOnly()
-          return
-        }
-        if (key === 'n') {
-          event.preventDefault()
-          openNextPending()
-          return
-        }
-        if (key === 'd') {
-          event.preventDefault()
-          toggleDensityMode()
-          return
-        }
-        if (event.key === 'Home' && visibleAssets.length > 0) {
-          event.preventDefault()
-          setSelectedAssetId(visibleAssets[0].id)
-          setSelectionAnchorId(visibleAssets[0].id)
-          return
-        }
-        if (event.key === 'End' && visibleAssets.length > 0) {
-          event.preventDefault()
-          const last = visibleAssets[visibleAssets.length - 1]
-          setSelectedAssetId(last.id)
-          setSelectionAnchorId(last.id)
-          return
-        }
-        if (key === 'r') {
-          event.preventDefault()
-          void refreshBatchReport()
-          return
-        }
-        if (key === 'l') {
-          event.preventDefault()
-          clearActivityLog()
-          return
-        }
-        if (key === '1') {
-          event.preventDefault()
-          saveQuickFilterPreset('PENDING_RECENT')
-          applyQuickFilterPreset('PENDING_RECENT')
-          return
-        }
-        if (key === '2') {
-          event.preventDefault()
-          saveQuickFilterPreset('IMAGES_REJECTED')
-          applyQuickFilterPreset('IMAGES_REJECTED')
-          return
-        }
-        if (key === '3') {
-          event.preventDefault()
-          saveQuickFilterPreset('MEDIA_REVIEW')
-          applyQuickFilterPreset('MEDIA_REVIEW')
-          return
-        }
-        if (event.key === '/') {
-          event.preventDefault()
-          const searchInput = document.getElementById('asset-search')
-          if (searchInput instanceof HTMLInputElement) {
-            searchInput.focus()
-            searchInput.select()
-          }
-          return
-        }
-        if (key === 'g') {
-          event.preventDefault()
-          applyDecisionToSelected('KEEP')
-          return
-        }
-        if (key === 'v') {
-          event.preventDefault()
-          applyDecisionToSelected('REJECT')
-          return
-        }
-        if (key === 'x') {
-          event.preventDefault()
-          applyDecisionToSelected('CLEAR')
-          return
-        }
-      }
-
-      if (event.key === '?') {
-        event.preventDefault()
-        setShowShortcutsHelp((current) => !current)
-        return
-      }
-
-      if (event.key === 'j') {
-        event.preventDefault()
-        selectVisibleByOffset(1)
-        return
-      }
-
-      if (event.key === 'k') {
-        event.preventDefault()
-        selectVisibleByOffset(-1)
-        return
-      }
-
-      if (event.key === 'ArrowDown') {
-        event.preventDefault()
-        selectVisibleByOffset(1, event.shiftKey)
-        return
-      }
-
-      if (event.key === 'ArrowUp') {
-        event.preventDefault()
-        selectVisibleByOffset(-1, event.shiftKey)
-        return
-      }
-
-      if (event.key === 'Enter' && !selectedAssetId && visibleAssets.length > 0) {
-        event.preventDefault()
-        setSelectedAssetId(visibleAssets[0].id)
-        setSelectionAnchorId(visibleAssets[0].id)
-      }
+  const selectFirstVisibleAsset = useCallback(() => {
+    if (visibleAssets.length === 0) {
+      return
     }
+    setSelectedAssetId(visibleAssets[0].id)
+    setSelectionAnchorId(visibleAssets[0].id)
+  }, [visibleAssets])
 
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [
+  const selectLastVisibleAsset = useCallback(() => {
+    if (visibleAssets.length === 0) {
+      return
+    }
+    const last = visibleAssets[visibleAssets.length - 1]
+    setSelectedAssetId(last.id)
+    setSelectionAnchorId(last.id)
+  }, [visibleAssets])
+
+  const toggleShortcutsHelp = useCallback(() => {
+    setShowShortcutsHelp((current) => !current)
+  }, [])
+
+  const executeBatchMoveNow = useCallback(() => {
+    void executeBatchMove()
+  }, [executeBatchMove])
+
+  const applyPresetPendingRecent = useCallback(() => {
+    saveQuickFilterPreset('PENDING_RECENT')
+    applyQuickFilterPreset('PENDING_RECENT')
+  }, [applyQuickFilterPreset, saveQuickFilterPreset])
+
+  const applyPresetImagesRejected = useCallback(() => {
+    saveQuickFilterPreset('IMAGES_REJECTED')
+    applyQuickFilterPreset('IMAGES_REJECTED')
+  }, [applyQuickFilterPreset, saveQuickFilterPreset])
+
+  const applyPresetMediaReview = useCallback(() => {
+    saveQuickFilterPreset('MEDIA_REVIEW')
+    applyQuickFilterPreset('MEDIA_REVIEW')
+  }, [applyQuickFilterPreset, saveQuickFilterPreset])
+
+  const applyDecisionKeepToSelected = useCallback(() => {
+    applyDecisionToSelected('KEEP')
+  }, [applyDecisionToSelected])
+
+  const applyDecisionRejectToSelected = useCallback(() => {
+    applyDecisionToSelected('REJECT')
+  }, [applyDecisionToSelected])
+
+  const applyDecisionClearToSelected = useCallback(() => {
+    applyDecisionToSelected('CLEAR')
+  }, [applyDecisionToSelected])
+
+  useReviewKeyboardShortcuts({
     selectedAssetId,
     visibleAssets,
-    focusPending,
-    toggleBatchOnly,
-    openNextPending,
-    toggleDensityMode,
-    saveQuickFilterPreset,
-    applyQuickFilterPreset,
-    pendingBatchExecution,
-    executeBatchMove,
-    refreshBatchReport,
-    clearActivityLog,
-    selectAllVisibleInBatch,
-    selectVisibleByOffset,
-    toggleBatchForSelectedAsset,
-    applyDecisionToSelected,
-    undoLastAction,
-  ])
+    hasPendingBatchExecution: !!pendingBatchExecution,
+    onSetSearch: setSearch,
+    onSelectAllVisibleInBatch: selectAllVisibleInBatch,
+    onUndoLastAction: undoLastAction,
+    onExecuteBatchMoveNow: executeBatchMoveNow,
+    onToggleBatchForSelectedAsset: toggleBatchForSelectedAsset,
+    onClearSelection: clearSelection,
+    onFocusPending: focusPending,
+    onToggleBatchOnly: toggleBatchOnly,
+    onOpenNextPending: openNextPending,
+    onToggleDensityMode: toggleDensityMode,
+    onSelectFirstVisible: selectFirstVisibleAsset,
+    onSelectLastVisible: selectLastVisibleAsset,
+    onRefreshBatchReport: refreshBatchReport,
+    onClearActivityLog: clearActivityLog,
+    onApplyPresetPendingRecent: applyPresetPendingRecent,
+    onApplyPresetImagesRejected: applyPresetImagesRejected,
+    onApplyPresetMediaReview: applyPresetMediaReview,
+    onApplyDecisionKeep: applyDecisionKeepToSelected,
+    onApplyDecisionReject: applyDecisionRejectToSelected,
+    onApplyDecisionClear: applyDecisionClearToSelected,
+    onToggleShortcutsHelp: toggleShortcutsHelp,
+    onSelectVisibleByOffset: selectVisibleByOffset,
+  })
 
   useEffect(() => {
     if (!selectedAssetId || !assetListRegionRef.current) {
