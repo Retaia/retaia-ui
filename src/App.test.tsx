@@ -59,6 +59,26 @@ describe('App', () => {
     expect(within(getDetailPanel()).getByText('ID: A-003')).toBeInTheDocument()
   })
 
+  it('shows desktop selection and batch status hints', async () => {
+    const { user } = setupApp()
+
+    expect(screen.getByTestId('selection-status')).toHaveTextContent('Aucun asset sélectionné')
+    expect(screen.getByTestId('batch-status')).toHaveTextContent('Taille batch active: 0')
+
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.keyboard('{Shift>}{Space}{/Shift}')
+
+    expect(screen.getByTestId('selection-status')).toHaveTextContent('Sélection active: A-001')
+    expect(screen.getByTestId('batch-status')).toHaveTextContent('Taille batch active: 1')
+  })
+
+  it('keeps detail panel sticky on desktop viewport', () => {
+    setupApp()
+
+    const detailCard = within(getDetailPanel()).getByText('Détail').closest('.card')
+    expect(detailCard).toHaveClass('sticky-xl-top')
+  })
+
   it('filters assets with free-text search', async () => {
     const { user } = setupApp()
 

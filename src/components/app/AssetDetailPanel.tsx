@@ -32,7 +32,7 @@ export function AssetDetailPanel({
 }: Props) {
   return (
     <Col as="section" xs={12} xl={4} aria-label={t('detail.region')}>
-      <Card className="shadow-sm border-0 h-100">
+      <Card className="shadow-sm border-0 h-100 sticky-xl-top">
         <Card.Body>
           <h2 className="h5">{t('detail.title')}</h2>
           {selectedAsset ? (

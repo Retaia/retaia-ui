@@ -9,6 +9,7 @@
 ## Batch desktop-like
 
 - `Shift+clic`: ajouter/retirer un asset du batch.
+- barre de statut liste: affiche en continu la sélection active et la taille batch.
 - lire le bloc `Périmètre d'exécution` pour vérifier le scope avant action.
 - `Prévisualiser batch`: valider le scope.
 - `Exécuter batch`: programme l'exécution avec une fenêtre d'annulation de 6s.
@@ -78,6 +79,11 @@
 
 - si le filtre/recherche est trop restrictif, ajuster ou réinitialiser les filtres.
 - en mode `batch seul`, ajouter des assets via `Shift+clic` pour remplir la liste.
+
+## Détail sticky (desktop)
+
+- sur écran large, le panneau détail reste sticky pour accélérer la revue.
+- la liste peut défiler pendant que les actions KEEP/REJECT/CLEAR restent visibles.
 
 ## Journal d'actions
 

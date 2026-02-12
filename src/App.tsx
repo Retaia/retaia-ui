@@ -255,6 +255,9 @@ function App() {
     }
     return t('assets.emptyBatch')
   }, [batchIds.length, batchOnly, filter, search, t])
+  const selectionStatusLabel = selectedAssetId
+    ? t('assets.selectionStatusOne', { id: selectedAssetId })
+    : t('assets.selectionStatusNone')
 
   const logActivity = useCallback((label: string) => {
     setActivityLog((current) =>
@@ -687,6 +690,12 @@ function App() {
           <Card className="shadow-sm border-0 h-100">
             <Card.Body>
               <h2 className="h5">{t('assets.title', { count: visibleAssets.length })}</h2>
+              <p className="small mb-1 text-secondary" data-testid="selection-status">
+                {selectionStatusLabel}
+              </p>
+              <p className="small mb-2 text-secondary" data-testid="batch-status">
+                {t('assets.batchStatus', { count: batchIds.length })}
+              </p>
               <p className="small text-secondary">{t('assets.help')}</p>
               <AssetList
                 assets={visibleAssets}
