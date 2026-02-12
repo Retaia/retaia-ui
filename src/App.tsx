@@ -21,17 +21,14 @@ import {
   updateAssetsState,
 } from './domain/assets'
 import { getActionAvailability } from './domain/actionAvailability'
+import { useDensityMode } from './hooks/useDensityMode'
+import { useQuickFilters } from './hooks/useQuickFilters'
 import { useReviewKeyboardShortcuts } from './hooks/useReviewKeyboardShortcuts'
 import { type Locale } from './i18n/resources'
 import { isTypingContext } from './ui/keyboard'
 
 const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
 const BATCH_EXECUTION_UNDO_WINDOW_MS = 6000
-const DENSITY_MODE_KEY = 'retaia_ui_density_mode'
-type DensityMode = 'COMFORTABLE' | 'COMPACT'
-const QUICK_FILTER_PRESET_KEY = 'retaia_ui_quick_filter_preset'
-
-type QuickFilterPreset = 'DEFAULT' | 'PENDING_RECENT' | 'IMAGES_REJECTED' | 'MEDIA_REVIEW'
 
 function App() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
@@ -112,7 +109,7 @@ function App() {
     message: string
   } | null>(null)
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false)
-  const [densityMode, setDensityMode] = useState<DensityMode>('COMFORTABLE')
+  const { densityMode, toggleDensityMode } = useDensityMode()
   const activityId = useRef(1)
   const pendingBatchExecutionTimer = useRef<number | null>(null)
 
@@ -254,20 +251,6 @@ function App() {
     },
     [],
   )
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-    try {
-      const saved = window.localStorage.getItem(DENSITY_MODE_KEY)
-      if (saved === 'COMPACT' || saved === 'COMFORTABLE') {
-        setDensityMode(saved)
-      }
-    } catch {
-      // Ignore storage access errors and keep default behavior.
-    }
-  }, [])
-
   const logActivity = useCallback((label: string) => {
     setActivityLog((current) =>
       [{ id: activityId.current++, label }, ...current].slice(0, 8),
@@ -395,111 +378,26 @@ function App() {
     setSelectionAnchorId(target.id)
   }, [assets, batchOnly, dateFilter, filter, mediaTypeFilter, recordAction, search, t])
 
-  const clearFilters = () => {
-    if (filter === 'ALL' && mediaTypeFilter === 'ALL' && dateFilter === 'ALL' && search === '' && !batchOnly) {
-      return
-    }
-    recordAction(t('activity.filterReset'))
-    setFilter('ALL')
-    setMediaTypeFilter('ALL')
-    setDateFilter('ALL')
-    setSearch('')
-    setBatchOnly(false)
-  }
-
-  const applySavedView = useCallback(
-    (view: 'DEFAULT' | 'PENDING' | 'BATCH') => {
-      if (view === 'DEFAULT') {
-        setFilter('ALL')
-        setMediaTypeFilter('ALL')
-        setDateFilter('ALL')
-        setSearch('')
-        setBatchOnly(false)
-        return
-      }
-      if (view === 'PENDING') {
-        setFilter('DECISION_PENDING')
-        setMediaTypeFilter('ALL')
-        setDateFilter('ALL')
-        setSearch('')
-        setBatchOnly(false)
-        return
-      }
-      setFilter('ALL')
-      setMediaTypeFilter('ALL')
-      setDateFilter('ALL')
-      setSearch('')
-      setBatchOnly(true)
-    },
-    [],
-  )
-
-  const applyQuickFilterPreset = useCallback((preset: QuickFilterPreset) => {
-    if (preset === 'DEFAULT') {
-      setFilter('ALL')
-      setMediaTypeFilter('ALL')
-      setDateFilter('ALL')
-      setSearch('')
-      setBatchOnly(false)
-      return
-    }
-    if (preset === 'PENDING_RECENT') {
-      setFilter('DECISION_PENDING')
-      setMediaTypeFilter('ALL')
-      setDateFilter('LAST_7_DAYS')
-      setSearch('')
-      setBatchOnly(false)
-      return
-    }
-    if (preset === 'IMAGES_REJECTED') {
-      setFilter('DECIDED_REJECT')
-      setMediaTypeFilter('IMAGE')
-      setDateFilter('ALL')
-      setSearch('')
-      setBatchOnly(false)
-      return
-    }
-    setFilter('ALL')
-    setMediaTypeFilter('VIDEO')
-    setDateFilter('LAST_30_DAYS')
-    setSearch('')
-    setBatchOnly(false)
-  }, [])
-
-  const saveQuickFilterPreset = useCallback((preset: QuickFilterPreset) => {
-    if (typeof window === 'undefined') {
-      return
-    }
-    try {
-      window.localStorage.setItem(QUICK_FILTER_PRESET_KEY, preset)
-    } catch {
-      // Ignore storage access errors and keep default behavior.
-    }
-  }, [])
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-    try {
-      const raw = window.localStorage.getItem(QUICK_FILTER_PRESET_KEY)
-      if (!raw) {
-        return
-      }
-      const preset = raw as QuickFilterPreset
-      if (
-        preset !== 'DEFAULT' &&
-        preset !== 'PENDING_RECENT' &&
-        preset !== 'IMAGES_REJECTED' &&
-        preset !== 'MEDIA_REVIEW'
-      ) {
-        return
-      }
-      applyQuickFilterPreset(preset)
-    } catch {
-      // Ignore storage access errors and keep default behavior.
-    }
-  }, [applyQuickFilterPreset])
+  const {
+    clearFilters,
+    applySavedView,
+    applyPresetPendingRecent,
+    applyPresetImagesRejected,
+    applyPresetMediaReview,
+  } = useQuickFilters({
+    filter,
+    mediaTypeFilter,
+    dateFilter,
+    search,
+    batchOnly,
+    t,
+    recordAction,
+    setFilter,
+    setMediaTypeFilter,
+    setDateFilter,
+    setSearch,
+    setBatchOnly,
+  })
 
   const clearActivityLog = useCallback(() => {
     if (activityLog.length === 0) {
@@ -507,18 +405,6 @@ function App() {
     }
     setActivityLog([])
   }, [activityLog.length])
-
-  const toggleDensityMode = useCallback(() => {
-    setDensityMode((current) => {
-      const next = current === 'COMPACT' ? 'COMFORTABLE' : 'COMPACT'
-      try {
-        window.localStorage.setItem(DENSITY_MODE_KEY, next)
-      } catch {
-        // Ignore storage access errors and keep default behavior.
-      }
-      return next
-    })
-  }, [])
 
   const toggleBatchOnly = useCallback(() => {
     recordAction(
@@ -941,21 +827,6 @@ function App() {
     void executeBatchMove()
   }, [executeBatchMove])
 
-  const applyPresetPendingRecent = useCallback(() => {
-    saveQuickFilterPreset('PENDING_RECENT')
-    applyQuickFilterPreset('PENDING_RECENT')
-  }, [applyQuickFilterPreset, saveQuickFilterPreset])
-
-  const applyPresetImagesRejected = useCallback(() => {
-    saveQuickFilterPreset('IMAGES_REJECTED')
-    applyQuickFilterPreset('IMAGES_REJECTED')
-  }, [applyQuickFilterPreset, saveQuickFilterPreset])
-
-  const applyPresetMediaReview = useCallback(() => {
-    saveQuickFilterPreset('MEDIA_REVIEW')
-    applyQuickFilterPreset('MEDIA_REVIEW')
-  }, [applyQuickFilterPreset, saveQuickFilterPreset])
-
   const applyDecisionKeepToSelected = useCallback(() => {
     applyDecisionToSelected('KEEP')
   }, [applyDecisionToSelected])
@@ -1106,10 +977,7 @@ function App() {
                 type="button"
                 size="sm"
                 variant="outline-secondary"
-                onClick={() => {
-                  saveQuickFilterPreset('PENDING_RECENT')
-                  applyQuickFilterPreset('PENDING_RECENT')
-                }}
+                onClick={applyPresetPendingRecent}
               >
                 {t('actions.filterPresetPendingRecent')}
               </Button>
@@ -1117,10 +985,7 @@ function App() {
                 type="button"
                 size="sm"
                 variant="outline-secondary"
-                onClick={() => {
-                  saveQuickFilterPreset('IMAGES_REJECTED')
-                  applyQuickFilterPreset('IMAGES_REJECTED')
-                }}
+                onClick={applyPresetImagesRejected}
               >
                 {t('actions.filterPresetRejectedImages')}
               </Button>
@@ -1128,10 +993,7 @@ function App() {
                 type="button"
                 size="sm"
                 variant="outline-secondary"
-                onClick={() => {
-                  saveQuickFilterPreset('MEDIA_REVIEW')
-                  applyQuickFilterPreset('MEDIA_REVIEW')
-                }}
+                onClick={applyPresetMediaReview}
               >
                 {t('actions.filterPresetMediaReview')}
               </Button>
