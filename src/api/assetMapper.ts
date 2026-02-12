@@ -3,17 +3,20 @@ import type { Asset, AssetMediaType, AssetState } from '../domain/assets'
 
 type ApiAssetSummary = components['schemas']['AssetSummary']
 
-function mapMediaType(mediaType: ApiAssetSummary['media_type']): AssetMediaType {
+function mapMediaType(mediaType: ApiAssetSummary['media_type'] | undefined): AssetMediaType {
   if (mediaType === 'VIDEO') {
     return 'VIDEO'
   }
   if (mediaType === 'AUDIO') {
     return 'AUDIO'
   }
-  return 'IMAGE'
+  if (mediaType === 'PHOTO') {
+    return 'IMAGE'
+  }
+  return 'OTHER'
 }
 
-function mapState(state: ApiAssetSummary['state']): AssetState {
+function mapState(state: ApiAssetSummary['state'] | undefined): AssetState {
   if (state === 'DECIDED_KEEP' || state === 'ARCHIVED') {
     return 'DECIDED_KEEP'
   }
@@ -23,13 +26,24 @@ function mapState(state: ApiAssetSummary['state']): AssetState {
   return 'DECISION_PENDING'
 }
 
-export function mapApiSummaryToAsset(summary: ApiAssetSummary): Asset {
+export function mapApiSummaryToAsset(
+  summary: Partial<ApiAssetSummary>,
+  fallbackIndex = 0,
+): Asset {
+  const fallbackId = `UNKNOWN-ASSET-${fallbackIndex + 1}`
+  const id = typeof summary.uuid === 'string' && summary.uuid.trim() !== '' ? summary.uuid : fallbackId
+  const capturedAt =
+    typeof summary.captured_at === 'string'
+      ? summary.captured_at
+      : typeof summary.created_at === 'string'
+        ? summary.created_at
+        : new Date(0).toISOString()
+
   return {
-    id: summary.uuid,
-    name: summary.uuid,
+    id,
+    name: id,
     state: mapState(summary.state),
     mediaType: mapMediaType(summary.media_type),
-    capturedAt: summary.captured_at ?? summary.created_at,
+    capturedAt,
   }
 }
-

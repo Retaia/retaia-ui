@@ -233,7 +233,7 @@ function App() {
         if (canceled) {
           return
         }
-        setAssets(summaries.map(mapApiSummaryToAsset))
+        setAssets(summaries.map((summary, index) => mapApiSummaryToAsset(summary, index)))
         setAssetsLoadState('idle')
       } catch {
         if (canceled) {
@@ -604,18 +604,22 @@ function App() {
     if (!selectedAssetId || !assetListRegionRef.current) {
       return
     }
-    const target = assetListRegionRef.current.querySelector<HTMLElement>(
+    const activeElement = document.activeElement
+    const selectedTarget = assetListRegionRef.current.querySelector<HTMLElement>(
       `[data-asset-id="${selectedAssetId}"]`,
     )
-    if (!target) {
+    if (selectedTarget && isTypingContext(activeElement)) {
       return
     }
-    const activeElement = document.activeElement
-    if (!isTypingContext(activeElement) && activeElement !== target) {
-      target.focus()
-      if (typeof target.scrollIntoView === 'function') {
-        target.scrollIntoView({ block: 'nearest' })
-      }
+    const focusTarget =
+      selectedTarget
+      ?? assetListRegionRef.current.querySelector<HTMLElement>('[data-asset-id]')
+    if (!focusTarget || activeElement === focusTarget) {
+      return
+    }
+    focusTarget.focus()
+    if (typeof focusTarget.scrollIntoView === 'function') {
+      focusTarget.scrollIntoView({ block: 'nearest' })
     }
   }, [selectedAssetId, visibleAssets])
 
