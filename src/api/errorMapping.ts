@@ -3,6 +3,8 @@ import { ApiError } from './client'
 type TranslateFn = (key: string, params?: Record<string, string | number>) => string
 
 const AUTHZ_CODES = new Set(['FORBIDDEN_SCOPE', 'FORBIDDEN_ACTOR'])
+const TEMPORARY_CODES = new Set(['TEMPORARY_UNAVAILABLE', 'RATE_LIMITED'])
+const LOCK_CODES = new Set(['LOCK_REQUIRED', 'LOCK_INVALID', 'STALE_LOCK_TOKEN'])
 
 export function mapApiErrorToMessage(error: unknown, t: TranslateFn) {
   if (!(error instanceof ApiError)) {
@@ -22,7 +24,13 @@ export function mapApiErrorToMessage(error: unknown, t: TranslateFn) {
   if (code === 'VALIDATION_FAILED') {
     return t('error.validation')
   }
-  if (code === 'TEMPORARY_UNAVAILABLE' || error.status >= 500) {
+  if (code && LOCK_CODES.has(code)) {
+    return t('error.lock')
+  }
+  if (code && TEMPORARY_CODES.has(code)) {
+    return t('error.temporary')
+  }
+  if (error.status >= 500) {
     return t('error.temporary')
   }
 
