@@ -23,6 +23,8 @@
     "e2e:bdd:critical:ci": "start-server-and-test \"vite --host 127.0.0.1 --port 4173\" http://127.0.0.1:4173 \"npm run bdd:test:critical:ci\"",
     "visual:test": "start-server-and-test \"vite --host 127.0.0.1 --port 4173\" http://127.0.0.1:4173 \"playwright test -c playwright.visual.config.ts\"",
     "visual:test:update": "start-server-and-test \"vite --host 127.0.0.1 --port 4173\" http://127.0.0.1:4173 \"playwright test -c playwright.visual.config.ts --update-snapshots\"",
+    "perf:budget": "node scripts/ci/check-performance-budget.mjs",
+    "perf:ci": "npm run build && npm run perf:budget",
     "qa": "npm run i18n:check && npm run lint && npm run test:coverage",
     "prepare": "husky",
     "hooks:install": "husky",

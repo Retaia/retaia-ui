@@ -40,6 +40,12 @@ Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de 
 - Seuil minimal global: `80%`.
 - Toute PR doit maintenir le seuil et augmenter la couverture des zones modifiées.
 
+## Performance v1
+
+- Budgets versionnes dans `contracts/perf-budget.json`.
+- Verification locale: `npm run perf:ci`.
+- Le CI bloque si le bundle JS/CSS depasse le budget brut ou gzip.
+
 ## BDD et rapports
 
 - Exécution CI-friendly avec rapports:

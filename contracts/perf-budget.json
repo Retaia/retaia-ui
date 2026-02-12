@@ -1,0 +1,6 @@
+{
+  "jsMaxBytes": 450000,
+  "jsGzipMaxBytes": 130000,
+  "cssMaxBytes": 240000,
+  "cssGzipMaxBytes": 35000
+}
