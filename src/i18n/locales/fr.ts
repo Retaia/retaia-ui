@@ -120,6 +120,8 @@ export const frTranslation = {
   'assets.region': 'Liste des assets',
   'assets.title': 'Assets ({count})',
   'assets.help': 'Clic: détail | Shift+clic: ajouter au batch',
+  'assets.loading': 'Chargement des assets depuis l’API...',
+  'assets.loadError': 'Impossible de charger les assets API. Affichage du snapshot local.',
   'assets.empty': 'Aucun asset ne correspond aux filtres.',
   'assets.emptyFiltered': 'Aucun résultat pour la recherche ou le filtre actif.',
   'assets.emptyBatch': "Mode batch seul actif, mais aucun asset sélectionné n'est visible.",

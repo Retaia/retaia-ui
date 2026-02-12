@@ -6,6 +6,13 @@
 2. Sélectionner un asset dans la liste (clic).
 3. Utiliser `KEEP`, `REJECT` ou `CLEAR`.
 
+## Source des assets
+
+- défaut local: snapshot mock embarqué (rapide pour dev UI).
+- source API réelle: lancer avec `VITE_ASSET_SOURCE=api npm run dev`.
+- en mode API, l'UI lit `GET /assets` via le client OpenAPI typé.
+- si l'API échoue, l'app garde un état utilisable et affiche un message de fallback.
+
 ## Batch desktop-like
 
 - `Shift+clic`: ajouter/retirer un asset du batch.
