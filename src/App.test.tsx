@@ -679,6 +679,17 @@ describe('App', () => {
     expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
   })
 
+  it('jumps to first and last visible asset with Home and End', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.keyboard('{End}')
+    expect(within(getDetailPanel()).getByText('ID: A-003')).toBeInTheDocument()
+
+    await user.keyboard('{Home}')
+    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
+  })
+
   it('toggles selected asset in batch with Shift+Space', async () => {
     const user = userEvent.setup()
 
