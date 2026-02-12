@@ -1095,6 +1095,8 @@ function App() {
     toggleBatchOnly,
     openNextPending,
     toggleDensityMode,
+    saveQuickFilterPreset,
+    applyQuickFilterPreset,
     pendingBatchExecution,
     executeBatchMove,
     refreshBatchReport,
