@@ -29,6 +29,16 @@ Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de 
 - `npm run e2e:bdd:ci` pour les changements de comportement utilisateur.
 - `npm run visual:test` pour les changements UI visibles.
 
+## Gate go/no-go v1 (pré-release)
+
+- Commande unique:
+  - `npm run qa:v1:go-no-go`
+- Exécute dans l'ordre:
+  - `npm run qa`
+  - `npm run qa:v1:flows`
+  - `npm run e2e:bdd:critical:ci`
+  - `npm run visual:test`
+
 ## Durcissement TypeScript
 
 - `strict` actif + `noUncheckedIndexedAccess` + `noImplicitReturns` + `useUnknownInCatchVariables`.
