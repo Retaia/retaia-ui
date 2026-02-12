@@ -13,6 +13,10 @@ Given('le mock API retarde la liste assets de {int} ms', async (delayMs: number)
   mockApiState.assetsListDelayMs = delayMs
 })
 
+Given('le mock API retourne une liste assets partiellement invalide', async () => {
+  mockApiState.assetsListMalformed = true
+})
+
 Given('le mock API retourne TEMPORARY_UNAVAILABLE une fois sur la preview batch', async () => {
   mockApiState.previewTemporaryOnce = true
 })

@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -211,6 +211,50 @@ describe('App', () => {
       import.meta.env.VITE_ASSET_SOURCE = previous
       vi.restoreAllMocks()
     }
+  })
+
+  it('keeps UI stable when API assets payload is partially invalid', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            items: [
+              {
+                created_at: null,
+              },
+            ],
+            next_cursor: null,
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
+      )
+
+      setupApp('/review?source=api')
+
+      expect(await screen.findByText('UNKNOWN-ASSET-1 - DECISION_PENDING')).toBeInTheDocument()
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
+  it('moves focus to first visible asset when filter hides selected one', async () => {
+    const { user } = setupApp()
+
+    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
+    await user.selectOptions(screen.getByLabelText('Filtrer par état'), 'DECISION_PENDING')
+
+    await waitFor(() => {
+      const firstVisibleRow = within(getAssetsPanel())
+        .getByText('A-001 - DECISION_PENDING')
+        .closest('li')
+      expect(firstVisibleRow).toHaveFocus()
+    })
   })
 
   it('filters assets with free-text search', async () => {
