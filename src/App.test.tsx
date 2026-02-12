@@ -1,15 +1,12 @@
-import { render, screen, within } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
-import App from './App'
+import { getAssetsPanel, getDetailPanel, setupApp } from './test-utils/appTestUtils'
 
 describe('App', () => {
-  const getAssetsPanel = () => screen.getByLabelText('Liste des assets')
-  const getDetailPanel = () => screen.getByLabelText("Détail de l'asset")
-
   it('renders a simple user review UI with assets', () => {
-    render(<App />)
+    setupApp()
 
     expect(screen.getByRole('heading', { name: 'Retaia UI' })).toBeInTheDocument()
     expect(screen.getByText('Review simple pour décider KEEP ou REJECT')).toBeInTheDocument()
@@ -20,8 +17,7 @@ describe('App', () => {
   })
 
   it('switches UI language to english', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const { user } = setupApp()
 
     await user.click(screen.getByRole('button', { name: 'Anglais' }))
 
@@ -32,9 +28,7 @@ describe('App', () => {
   })
 
   it('filters assets by state', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.selectOptions(screen.getByLabelText('Filtrer par état'), 'DECISION_PENDING')
 
@@ -44,9 +38,7 @@ describe('App', () => {
   })
 
   it('supports keep reject clear actions', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.click(screen.getAllByRole('button', { name: 'REJECT' })[0])
     expect(screen.getByText('A-001 - DECIDED_REJECT')).toBeInTheDocument()
@@ -59,9 +51,7 @@ describe('App', () => {
   })
 
   it('opens detail panel on click', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
 
@@ -70,9 +60,7 @@ describe('App', () => {
   })
 
   it('filters assets with free-text search', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.type(screen.getByLabelText('Recherche'), 'behind')
 
@@ -82,9 +70,7 @@ describe('App', () => {
   })
 
   it('shows an empty state when filters match no asset', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.type(screen.getByLabelText('Recherche'), 'no-match')
 
@@ -93,8 +79,7 @@ describe('App', () => {
   })
 
   it('shows guidance when batch-only mode is active with empty batch', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('b')
 
@@ -105,9 +90,7 @@ describe('App', () => {
   })
 
   it('focuses pending assets using quick action', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.click(screen.getByRole('button', { name: 'Voir à traiter' }))
 
@@ -116,8 +99,7 @@ describe('App', () => {
   })
 
   it('applies saved pending view', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const { user } = setupApp()
 
     await user.click(screen.getByRole('button', { name: 'À traiter' }))
 
@@ -126,8 +108,7 @@ describe('App', () => {
   })
 
   it('applies saved batch view', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
@@ -139,8 +120,7 @@ describe('App', () => {
   })
 
   it('applies quick filter preset with status type and date', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const { user } = setupApp()
 
     await user.click(screen.getByRole('button', { name: 'À traiter (7j)' }))
 
@@ -153,12 +133,12 @@ describe('App', () => {
 
   it('loads persisted quick filter preset from local storage', async () => {
     const user = userEvent.setup()
-    const firstRender = render(<App />)
+    const firstRender = setupApp()
 
     await user.click(screen.getByRole('button', { name: 'Images rejetées' }))
     firstRender.unmount()
 
-    render(<App />)
+    setupApp()
 
     expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECIDED_REJECT')
     expect(screen.getByLabelText('Type')).toHaveValue('IMAGE')
@@ -169,8 +149,7 @@ describe('App', () => {
   })
 
   it('applies quick presets with keyboard shortcuts 1 2 3', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('1')
     expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECISION_PENDING')
@@ -186,16 +165,14 @@ describe('App', () => {
   })
 
   it('renders separate panels for general and batch actions', () => {
-    render(<App />)
+    setupApp()
 
     expect(screen.getByRole('heading', { name: 'Actions générales' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Actions batch' })).toBeInTheDocument()
   })
 
   it('adds assets to batch with shift+click and applies batch action', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
@@ -212,9 +189,7 @@ describe('App', () => {
   })
 
   it('filters visible assets to current batch with batch-only toggle', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
@@ -229,8 +204,7 @@ describe('App', () => {
   })
 
   it('shows batch execution scope summary before execute', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
@@ -247,7 +221,7 @@ describe('App', () => {
       .spyOn(globalThis, 'fetch')
       .mockResolvedValue(new Response(null, { status: 200 }))
 
-    render(<App />)
+    setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
@@ -281,7 +255,7 @@ describe('App', () => {
       ),
     )
 
-    render(<App />)
+    setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
@@ -318,7 +292,7 @@ describe('App', () => {
       return Promise.resolve(new Response(null, { status: 200 }))
     })
 
-    render(<App />)
+    setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
@@ -342,7 +316,7 @@ describe('App', () => {
       return Promise.resolve(new Response(null, { status: 200 }))
     })
 
-    render(<App />)
+    setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
@@ -381,7 +355,7 @@ describe('App', () => {
       return Promise.resolve(new Response(null, { status: 200 }))
     })
 
-    render(<App />)
+    setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
@@ -435,7 +409,7 @@ describe('App', () => {
       return Promise.resolve(new Response(null, { status: 200 }))
     })
 
-    render(<App />)
+    setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
@@ -471,7 +445,7 @@ describe('App', () => {
       return Promise.resolve(new Response(null, { status: 200 }))
     })
 
-    render(<App />)
+    setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
@@ -508,7 +482,7 @@ describe('App', () => {
       return Promise.resolve(new Response(null, { status: 200 }))
     })
 
-    render(<App />)
+    setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
@@ -561,7 +535,7 @@ describe('App', () => {
       .spyOn(HTMLAnchorElement.prototype, 'click')
       .mockImplementation(() => {})
 
-    render(<App />)
+    setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
@@ -604,7 +578,7 @@ describe('App', () => {
       return Promise.resolve(new Response(null, { status: 200 }))
     })
 
-    render(<App />)
+    setupApp()
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
     await user.keyboard('{/Shift}')
@@ -627,7 +601,7 @@ describe('App', () => {
     const user = userEvent.setup()
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 200 }))
 
-    render(<App />)
+    setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
@@ -644,9 +618,7 @@ describe('App', () => {
   })
 
   it('applies KEEP to all visible assets', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
 
@@ -656,9 +628,7 @@ describe('App', () => {
   })
 
   it('handles next pending asset actions', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     expect(screen.getByRole('heading', { name: 'Prochain asset à traiter' })).toBeInTheDocument()
     expect(screen.getAllByText('interview-camera-a.mov')[0]).toBeInTheDocument()
@@ -669,8 +639,7 @@ describe('App', () => {
   })
 
   it('opens next pending asset with n shortcut', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('n')
 
@@ -678,8 +647,7 @@ describe('App', () => {
   })
 
   it('resets batch-only mode when opening next pending with n', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
@@ -694,9 +662,7 @@ describe('App', () => {
   })
 
   it('opens first visible asset with Enter shortcut', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('{Enter}')
 
@@ -704,9 +670,7 @@ describe('App', () => {
   })
 
   it('navigates visible assets with j and k shortcuts', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('j')
     await user.keyboard('j')
@@ -717,8 +681,7 @@ describe('App', () => {
   })
 
   it('jumps to first and last visible asset with Home and End', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('{End}')
     expect(within(getDetailPanel()).getByText('ID: A-003')).toBeInTheDocument()
@@ -728,9 +691,7 @@ describe('App', () => {
   })
 
   it('toggles selected asset in batch with Shift+Space', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('{Enter}')
     await user.keyboard('{Shift>}{Space}{/Shift}')
@@ -741,9 +702,7 @@ describe('App', () => {
   })
 
   it('adds all visible assets to batch with Ctrl+A', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('{Control>}a{/Control}')
 
@@ -751,9 +710,7 @@ describe('App', () => {
   })
 
   it('logs actions and allows undo with the dedicated button', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
 
@@ -768,8 +725,7 @@ describe('App', () => {
   })
 
   it('clears activity log with dedicated action', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const { user } = setupApp()
 
     await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
     const activityPanel = screen.getByLabelText("Journal d'actions")
@@ -781,8 +737,7 @@ describe('App', () => {
   })
 
   it('clears activity log with l shortcut', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const { user } = setupApp()
 
     await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
     const activityPanel = screen.getByLabelText("Journal d'actions")
@@ -794,9 +749,7 @@ describe('App', () => {
   })
 
   it('supports undo with Ctrl+Z shortcut', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.click(screen.getAllByRole('button', { name: 'REJECT' })[0])
     expect(screen.getByText('A-001 - DECIDED_REJECT')).toBeInTheDocument()
@@ -806,8 +759,7 @@ describe('App', () => {
   })
 
   it('uses roving tabindex and selected option semantics for asset rows', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const { user } = setupApp()
 
     const listbox = within(getAssetsPanel()).getByRole('listbox')
     expect(listbox).toHaveAttribute('aria-activedescendant', 'asset-option-A-001')
@@ -839,7 +791,7 @@ describe('App', () => {
     HTMLElement.prototype.scrollIntoView = scrollIntoViewMock
 
     try {
-      render(<App />)
+      setupApp()
       await user.keyboard('{Enter}')
       await user.keyboard('j')
 
@@ -850,16 +802,14 @@ describe('App', () => {
   })
 
   it('keeps undo disabled when no action has been recorded', () => {
-    render(<App />)
+    setupApp()
 
     expect(screen.getByRole('button', { name: 'Annuler dernière action' })).toBeDisabled()
     expect(screen.getByText('Historique disponible: 0')).toBeInTheDocument()
   })
 
   it('does not log when reset filters is a no-op', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
     const activityPanel = screen.getByLabelText("Journal d'actions")
 
     await user.click(screen.getByRole('button', { name: 'Réinitialiser filtres' }))
@@ -869,9 +819,7 @@ describe('App', () => {
   })
 
   it('ignores global shortcuts when focus is inside search input', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('{Enter}')
     await user.keyboard('{Shift>}{Space}{/Shift}')
@@ -884,8 +832,7 @@ describe('App', () => {
   })
 
   it('clears search with Escape when search input is focused', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const { user } = setupApp()
 
     const searchInput = screen.getByLabelText('Recherche')
     await user.click(searchInput)
@@ -899,9 +846,7 @@ describe('App', () => {
   })
 
   it('selects a range in batch with Shift+ArrowDown', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('{Enter}')
     await user.keyboard('{Shift>}{ArrowDown}{ArrowDown}{/Shift}')
@@ -912,9 +857,7 @@ describe('App', () => {
   })
 
   it('applies KEEP REJECT and CLEAR to selected asset with g v x shortcuts', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('{Enter}')
     await user.keyboard('v')
@@ -928,9 +871,7 @@ describe('App', () => {
   })
 
   it('ignores g v x shortcuts when typing in search input', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.click(screen.getByLabelText('Recherche'))
     await user.keyboard('v')
@@ -939,9 +880,7 @@ describe('App', () => {
   })
 
   it('clears current selection with Escape shortcut', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('{Enter}')
     expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
@@ -951,9 +890,7 @@ describe('App', () => {
   })
 
   it('applies pending filter with p shortcut', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('p')
 
@@ -962,9 +899,7 @@ describe('App', () => {
   })
 
   it('focuses search input with slash shortcut', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
     const searchInput = screen.getByLabelText('Recherche')
 
     await user.keyboard('/')
@@ -973,9 +908,7 @@ describe('App', () => {
   })
 
   it('toggles batch-only mode with b shortcut', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
@@ -988,8 +921,7 @@ describe('App', () => {
   })
 
   it('toggles compact density with d shortcut', async () => {
-    const user = userEvent.setup()
-    render(<App />)
+    const { user } = setupApp()
 
     expect(screen.getByRole('option', { name: /interview-camera-a\.mov/i })).toHaveClass('py-3')
     expect(screen.getByRole('button', { name: 'Densité: confortable' })).toBeInTheDocument()
@@ -1002,7 +934,7 @@ describe('App', () => {
 
   it('loads persisted density mode on startup', () => {
     window.localStorage.setItem('retaia_ui_density_mode', 'COMPACT')
-    render(<App />)
+    setupApp()
 
     expect(screen.getByRole('option', { name: /interview-camera-a\.mov/i })).toHaveClass('py-2')
     expect(screen.getByRole('button', { name: 'Densité: compacte' })).toBeInTheDocument()
@@ -1012,7 +944,7 @@ describe('App', () => {
     const user = userEvent.setup()
 
     window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
-    render(<App />)
+    setupApp()
 
     expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Voir raccourcis' }))
@@ -1025,7 +957,7 @@ describe('App', () => {
     const user = userEvent.setup()
 
     window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
-    render(<App />)
+    setupApp()
 
     await user.keyboard('?')
     expect(screen.getByText(/Raccourcis desktop:/)).toBeInTheDocument()
@@ -1035,14 +967,14 @@ describe('App', () => {
 
   it('opens shortcuts help automatically on first launch', () => {
     window.localStorage.removeItem('retaia_ui_shortcuts_help_seen')
-    render(<App />)
+    setupApp()
 
     expect(screen.getByText(/Raccourcis desktop:/)).toBeInTheDocument()
   })
 
   it('keeps shortcuts help closed by default once seen', () => {
     window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
-    render(<App />)
+    setupApp()
 
     expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
   })
@@ -1050,7 +982,7 @@ describe('App', () => {
   it('shows actionable shortcuts overlay and runs quick actions', async () => {
     const user = userEvent.setup()
     window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
-    render(<App />)
+    setupApp()
 
     await user.click(screen.getByRole('button', { name: 'Voir raccourcis' }))
     expect(screen.getByTestId('shortcuts-overlay')).toBeInTheDocument()
@@ -1075,7 +1007,7 @@ describe('App', () => {
       return Promise.resolve(new Response(null, { status: 200 }))
     })
 
-    render(<App />)
+    setupApp()
 
     await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
     await user.click(screen.getByRole('button', { name: 'Prévisualiser purge' }))
@@ -1112,7 +1044,7 @@ describe('App', () => {
       return Promise.resolve(new Response(null, { status: 200 }))
     })
 
-    render(<App />)
+    setupApp()
 
     await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
     await user.click(screen.getByRole('button', { name: 'Prévisualiser purge' }))
@@ -1144,7 +1076,7 @@ describe('App', () => {
       return Promise.resolve(new Response(null, { status: 200 }))
     })
 
-    render(<App />)
+    setupApp()
 
     await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
     await user.click(screen.getByRole('button', { name: 'Prévisualiser purge' }))
@@ -1156,9 +1088,7 @@ describe('App', () => {
   })
 
   it('keeps purge confirmation disabled until preview is successful', async () => {
-    const user = userEvent.setup()
-
-    render(<App />)
+    const { user } = setupApp()
 
     await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
     expect(screen.getByRole('button', { name: 'Confirmer purge' })).toBeDisabled()
