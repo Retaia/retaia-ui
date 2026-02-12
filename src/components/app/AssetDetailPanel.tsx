@@ -1,4 +1,5 @@
 import { Button, Card, Col, Stack } from 'react-bootstrap'
+import { BsCheck2Circle, BsFilterCircle, BsTrash3, BsXCircle } from 'react-icons/bs'
 import type { Asset, DecisionAction } from '../../domain/assets'
 import { getActionAvailability } from '../../domain/actionAvailability'
 
@@ -48,6 +49,7 @@ export function AssetDetailPanel({
                   variant="outline-success"
                   onClick={() => onDecision(selectedAsset.id, 'KEEP')}
                 >
+                  <BsCheck2Circle className="me-1" aria-hidden="true" />
                   KEEP
                 </Button>
                 <Button
@@ -55,6 +57,7 @@ export function AssetDetailPanel({
                   variant="outline-danger"
                   onClick={() => onDecision(selectedAsset.id, 'REJECT')}
                 >
+                  <BsXCircle className="me-1" aria-hidden="true" />
                   REJECT
                 </Button>
                 <Button
@@ -62,6 +65,7 @@ export function AssetDetailPanel({
                   variant="outline-secondary"
                   onClick={() => onDecision(selectedAsset.id, 'CLEAR')}
                 >
+                  <BsTrash3 className="me-1" aria-hidden="true" />
                   CLEAR
                 </Button>
               </Stack>
@@ -75,6 +79,7 @@ export function AssetDetailPanel({
                     onClick={() => void onPreviewPurge()}
                     disabled={availability.previewPurgeDisabled}
                   >
+                    <BsFilterCircle className="me-1" aria-hidden="true" />
                     {previewingPurge ? t('actions.purgePreviewing') : t('actions.purgePreview')}
                   </Button>
                   <Button
@@ -83,6 +88,7 @@ export function AssetDetailPanel({
                     onClick={() => void onExecutePurge()}
                     disabled={availability.executePurgeDisabled}
                   >
+                    <BsTrash3 className="me-1" aria-hidden="true" />
                     {executingPurge ? t('actions.purging') : t('actions.purgeConfirm')}
                   </Button>
                 </Stack>

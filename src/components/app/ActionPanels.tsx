@@ -1,4 +1,18 @@
 import { Button, Card, Col, Row, Stack } from 'react-bootstrap'
+import {
+  BsArrowClockwise,
+  BsArrowsCollapse,
+  BsCheck2Circle,
+  BsClockHistory,
+  BsColumnsGap,
+  BsEraser,
+  BsFileEarmarkArrowDown,
+  BsFilterCircle,
+  BsFolderCheck,
+  BsSlashCircle,
+  BsTrash3,
+  BsXCircle,
+} from 'react-icons/bs'
 import { BatchReportView } from '../BatchReportView'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import { useQuickFilters } from '../../hooks/useQuickFilters'
@@ -123,12 +137,15 @@ export function ActionPanels({
           <h3 className="h6 mb-2">{t('actions.quickPanel')}</h3>
           <Stack direction="horizontal" className="flex-wrap gap-2 mb-2" aria-label={t('actions.savedViews')}>
             <Button type="button" size="sm" variant="outline-secondary" onClick={() => onApplySavedView('DEFAULT')}>
+              <BsColumnsGap className="me-1" aria-hidden="true" />
               {t('actions.viewDefault')}
             </Button>
             <Button type="button" size="sm" variant="outline-secondary" onClick={() => onApplySavedView('PENDING')}>
+              <BsClockHistory className="me-1" aria-hidden="true" />
               {t('actions.viewPending')}
             </Button>
             <Button type="button" size="sm" variant="outline-secondary" onClick={() => onApplySavedView('BATCH')}>
+              <BsFolderCheck className="me-1" aria-hidden="true" />
               {t('actions.viewBatch')}
             </Button>
           </Stack>
@@ -145,6 +162,7 @@ export function ActionPanels({
           </Stack>
           <Stack direction="horizontal" className="flex-wrap gap-2">
             <Button type="button" variant="outline-primary" onClick={onFocusPending}>
+              <BsClockHistory className="me-1" aria-hidden="true" />
               {t('actions.focusPending')}
             </Button>
             <Button type="button" variant={batchOnly ? 'primary' : 'outline-primary'} onClick={onToggleBatchOnly}>
@@ -156,6 +174,7 @@ export function ActionPanels({
               onClick={() => onApplyDecisionToVisible('KEEP')}
               disabled={availability.keepVisibleDisabled}
             >
+              <BsCheck2Circle className="me-1" aria-hidden="true" />
               {t('actions.keepVisible')}
             </Button>
             <Button
@@ -164,12 +183,15 @@ export function ActionPanels({
               onClick={() => onApplyDecisionToVisible('REJECT')}
               disabled={availability.rejectVisibleDisabled}
             >
+              <BsXCircle className="me-1" aria-hidden="true" />
               {t('actions.rejectVisible')}
             </Button>
             <Button type="button" variant="outline-secondary" onClick={onClearFilters}>
+              <BsEraser className="me-1" aria-hidden="true" />
               {t('actions.clearFilters')}
             </Button>
             <Button type="button" variant="outline-secondary" onClick={onToggleDensityMode}>
+              <BsArrowsCollapse className="me-1" aria-hidden="true" />
               {densityMode === 'COMPACT'
                 ? t('actions.densityCompact')
                 : t('actions.densityComfortable')}
@@ -188,6 +210,7 @@ export function ActionPanels({
               onClick={() => onApplyDecisionToBatch('KEEP')}
               disabled={availability.keepBatchDisabled}
             >
+              <BsCheck2Circle className="me-1" aria-hidden="true" />
               {t('actions.keepBatch')}
             </Button>
             <Button
@@ -196,6 +219,7 @@ export function ActionPanels({
               onClick={() => onApplyDecisionToBatch('REJECT')}
               disabled={availability.rejectBatchDisabled}
             >
+              <BsXCircle className="me-1" aria-hidden="true" />
               {t('actions.rejectBatch')}
             </Button>
             <Button
@@ -204,6 +228,7 @@ export function ActionPanels({
               onClick={onClearBatch}
               disabled={availability.clearBatchDisabled}
             >
+              <BsTrash3 className="me-1" aria-hidden="true" />
               {t('actions.clearBatch')}
             </Button>
             <Button
@@ -212,6 +237,7 @@ export function ActionPanels({
               onClick={() => void onPreviewBatchMove()}
               disabled={availability.previewBatchDisabled}
             >
+              <BsFilterCircle className="me-1" aria-hidden="true" />
               {previewingBatch ? t('actions.previewing') : t('actions.previewBatch')}
             </Button>
             <Button
@@ -220,6 +246,7 @@ export function ActionPanels({
               onClick={() => void onExecuteBatchMove()}
               disabled={availability.executeBatchDisabled}
             >
+              <BsCheck2Circle className="me-1" aria-hidden="true" />
               {executingBatch
                 ? t('actions.executing')
                 : pendingBatchExecution
@@ -274,6 +301,7 @@ export function ActionPanels({
                 variant="outline-warning"
                 onClick={onCancelPendingBatchExecution}
               >
+                <BsSlashCircle className="me-1" aria-hidden="true" />
                 {t('actions.executeCancel')}
               </Button>
             </Stack>
@@ -321,6 +349,7 @@ export function ActionPanels({
               onClick={() => void onRefreshBatchReport()}
               disabled={availability.refreshReportDisabled}
             >
+              <BsArrowClockwise className="me-1" aria-hidden="true" />
               {t('actions.reportFetch')}
             </Button>
             <Button
@@ -329,6 +358,7 @@ export function ActionPanels({
               onClick={() => onExportBatchReport('json')}
               disabled={!reportData}
             >
+              <BsFileEarmarkArrowDown className="me-1" aria-hidden="true" />
               {t('actions.reportExportJson')}
             </Button>
             <Button
@@ -337,6 +367,7 @@ export function ActionPanels({
               onClick={() => onExportBatchReport('csv')}
               disabled={!reportData}
             >
+              <BsFileEarmarkArrowDown className="me-1" aria-hidden="true" />
               {t('actions.reportExportCsv')}
             </Button>
             <p className="small text-secondary mb-0">
@@ -379,6 +410,7 @@ export function ActionPanels({
             onClick={onUndoLastAction}
             disabled={availability.undoDisabled}
           >
+            <BsArrowClockwise className="me-1" aria-hidden="true" />
             {t('actions.undo')}
           </Button>
           <p className="mb-0 fw-semibold text-secondary">

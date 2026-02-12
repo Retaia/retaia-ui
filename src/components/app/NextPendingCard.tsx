@@ -1,4 +1,5 @@
 import { Button, Card, Stack } from 'react-bootstrap'
+import { BsArrowRightCircle, BsCheck2Circle, BsXCircle } from 'react-icons/bs'
 import type { Asset, DecisionAction } from '../../domain/assets'
 
 type Props = {
@@ -26,6 +27,7 @@ export function NextPendingCard({
             </div>
             <Stack direction="horizontal" gap={2}>
               <Button type="button" variant="outline-primary" onClick={onOpenNextPending}>
+                <BsArrowRightCircle className="me-1" aria-hidden="true" />
                 {t('next.open')}
               </Button>
               <Button
@@ -33,6 +35,7 @@ export function NextPendingCard({
                 variant="outline-success"
                 onClick={() => onDecision(nextPendingAsset.id, 'KEEP')}
               >
+                <BsCheck2Circle className="me-1" aria-hidden="true" />
                 KEEP
               </Button>
               <Button
@@ -40,6 +43,7 @@ export function NextPendingCard({
                 variant="outline-danger"
                 onClick={() => onDecision(nextPendingAsset.id, 'REJECT')}
               >
+                <BsXCircle className="me-1" aria-hidden="true" />
                 REJECT
               </Button>
             </Stack>
