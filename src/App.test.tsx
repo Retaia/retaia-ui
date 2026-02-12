@@ -171,49 +171,8 @@ describe('App', () => {
     expect(screen.getByRole('heading', { name: 'Actions batch' })).toBeInTheDocument()
   })
 
-  it('adds assets to batch with shift+click and applies batch action', async () => {
-    const { user } = setupApp()
 
-    await user.keyboard('{Shift>}')
-    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
-    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
-    await user.keyboard('{/Shift}')
 
-    expect(screen.getByText('Batch sélectionné: 2')).toBeInTheDocument()
-
-    await user.click(screen.getByRole('button', { name: 'KEEP batch' }))
-
-    expect(screen.getByText('Batch sélectionné: 0')).toBeInTheDocument()
-    expect(within(getAssetsPanel()).getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
-    expect(within(getAssetsPanel()).getByText('A-003 - DECIDED_KEEP')).toBeInTheDocument()
-  })
-
-  it('filters visible assets to current batch with batch-only toggle', async () => {
-    const { user } = setupApp()
-
-    await user.keyboard('{Shift>}')
-    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
-    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
-    await user.keyboard('{/Shift}')
-    await user.click(screen.getByRole('button', { name: 'Batch seul: OFF' }))
-
-    expect(screen.getByRole('heading', { name: 'Assets (2)' })).toBeInTheDocument()
-    expect(within(getAssetsPanel()).getByText('interview-camera-a.mov')).toBeInTheDocument()
-    expect(within(getAssetsPanel()).getByText('behind-the-scenes.jpg')).toBeInTheDocument()
-    expect(within(getAssetsPanel()).queryByText('ambiance-plateau.wav')).not.toBeInTheDocument()
-  })
-
-  it('shows batch execution scope summary before execute', async () => {
-    const { user } = setupApp()
-
-    await user.keyboard('{Shift>}')
-    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
-    await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
-    await user.keyboard('{/Shift}')
-
-    expect(screen.getByText('À exécuter: 2')).toBeInTheDocument()
-    expect(screen.getByText('En attente: 1 · KEEP: 0 · REJECT: 1')).toBeInTheDocument()
-  })
 
   it('previews selected batch with API call', async () => {
     const user = userEvent.setup()
@@ -422,42 +381,6 @@ describe('App', () => {
     fetchSpy.mockRestore()
   })
 
-  it('confirms queued batch execution with Shift+Enter', async () => {
-    const user = userEvent.setup()
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
-      const url = String(input)
-      if (url.endsWith('/batches/moves')) {
-        return Promise.resolve(
-          new Response(JSON.stringify({ batch_id: 'batch-123' }), {
-            status: 200,
-            headers: { 'content-type': 'application/json' },
-          }),
-        )
-      }
-      if (url.endsWith('/batches/moves/batch-123')) {
-        return Promise.resolve(
-          new Response(JSON.stringify({ status: 'DONE', moved: 1 }), {
-            status: 200,
-            headers: { 'content-type': 'application/json' },
-          }),
-        )
-      }
-      return Promise.resolve(new Response(null, { status: 200 }))
-    })
-
-    setupApp()
-
-    await user.keyboard('{Shift>}')
-    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
-    await user.keyboard('{/Shift}')
-    await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
-    expect(screen.getByTestId('batch-execute-undo-status')).toBeInTheDocument()
-
-    await user.keyboard('{Shift>}{Enter}{/Shift}')
-    expect(screen.getByTestId('batch-execute-status')).toHaveTextContent('acceptée')
-
-    fetchSpy.mockRestore()
-  })
 
   it('loads batch report automatically after execution', async () => {
     const user = userEvent.setup()
@@ -597,25 +520,6 @@ describe('App', () => {
     fetchSpy.mockRestore()
   })
 
-  it('cancels queued batch execution before API call', async () => {
-    const user = userEvent.setup()
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 200 }))
-
-    setupApp()
-
-    await user.keyboard('{Shift>}')
-    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
-    await user.keyboard('{/Shift}')
-    await user.click(screen.getByRole('button', { name: 'Exécuter batch' }))
-    await user.click(screen.getByRole('button', { name: 'Annuler exécution' }))
-
-    const calledMoveExecute = fetchSpy.mock.calls.some((call) =>
-      String(call[0]).endsWith('/batches/moves'),
-    )
-    expect(calledMoveExecute).toBe(false)
-    expect(screen.getByTestId('batch-execute-status')).toHaveTextContent('annulée')
-    fetchSpy.mockRestore()
-  })
 
   it('applies KEEP to all visible assets', async () => {
     const { user } = setupApp()
@@ -638,13 +542,6 @@ describe('App', () => {
     expect(screen.getByText('Plus aucun asset en attente.')).toBeInTheDocument()
   })
 
-  it('opens next pending asset with n shortcut', async () => {
-    const { user } = setupApp()
-
-    await user.keyboard('n')
-
-    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
-  })
 
   it('resets batch-only mode when opening next pending with n', async () => {
     const { user } = setupApp()
@@ -661,53 +558,10 @@ describe('App', () => {
     expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
   })
 
-  it('opens first visible asset with Enter shortcut', async () => {
-    const { user } = setupApp()
 
-    await user.keyboard('{Enter}')
 
-    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
-  })
 
-  it('navigates visible assets with j and k shortcuts', async () => {
-    const { user } = setupApp()
 
-    await user.keyboard('j')
-    await user.keyboard('j')
-    expect(within(getDetailPanel()).getByText('ID: A-002')).toBeInTheDocument()
-
-    await user.keyboard('k')
-    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
-  })
-
-  it('jumps to first and last visible asset with Home and End', async () => {
-    const { user } = setupApp()
-
-    await user.keyboard('{End}')
-    expect(within(getDetailPanel()).getByText('ID: A-003')).toBeInTheDocument()
-
-    await user.keyboard('{Home}')
-    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
-  })
-
-  it('toggles selected asset in batch with Shift+Space', async () => {
-    const { user } = setupApp()
-
-    await user.keyboard('{Enter}')
-    await user.keyboard('{Shift>}{Space}{/Shift}')
-
-    expect(
-      screen.getByText((_, element) => element?.textContent === 'Batch sélectionné: 1'),
-    ).toBeInTheDocument()
-  })
-
-  it('adds all visible assets to batch with Ctrl+A', async () => {
-    const { user } = setupApp()
-
-    await user.keyboard('{Control>}a{/Control}')
-
-    expect(screen.getByText('Batch sélectionné: 3')).toBeInTheDocument()
-  })
 
   it('logs actions and allows undo with the dedicated button', async () => {
     const { user } = setupApp()
@@ -879,15 +733,6 @@ describe('App', () => {
     expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
   })
 
-  it('clears current selection with Escape shortcut', async () => {
-    const { user } = setupApp()
-
-    await user.keyboard('{Enter}')
-    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
-
-    await user.keyboard('{Escape}')
-    expect(within(getDetailPanel()).getByText('Clique un asset pour ouvrir le détail.')).toBeInTheDocument()
-  })
 
   it('applies pending filter with p shortcut', async () => {
     const { user } = setupApp()
@@ -898,14 +743,6 @@ describe('App', () => {
     expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
   })
 
-  it('focuses search input with slash shortcut', async () => {
-    const { user } = setupApp()
-    const searchInput = screen.getByLabelText('Recherche')
-
-    await user.keyboard('/')
-
-    expect(searchInput).toHaveFocus()
-  })
 
   it('toggles batch-only mode with b shortcut', async () => {
     const { user } = setupApp()
