@@ -1,5 +1,12 @@
 import { Button, Card, Col, Stack } from 'react-bootstrap'
-import { BsCheck2Circle, BsFilterCircle, BsTrash3, BsXCircle } from 'react-icons/bs'
+import {
+  BsCardChecklist,
+  BsCheck2Circle,
+  BsFilterCircle,
+  BsInbox,
+  BsTrash3,
+  BsXCircle,
+} from 'react-icons/bs'
 import type { Asset, DecisionAction } from '../../domain/assets'
 import { getActionAvailability } from '../../domain/actionAvailability'
 
@@ -35,7 +42,10 @@ export function AssetDetailPanel({
     <Col as="section" xs={12} xl={4} aria-label={t('detail.region')}>
       <Card className="shadow-sm border-0 h-100 sticky-xl-top">
         <Card.Body>
-          <h2 className="h5">{t('detail.title')}</h2>
+          <h2 className="h5">
+            <BsCardChecklist className="me-2" aria-hidden="true" />
+            {t('detail.title')}
+          </h2>
           {selectedAsset ? (
             <div>
               <strong className="d-block">{selectedAsset.name}</strong>
@@ -95,7 +105,10 @@ export function AssetDetailPanel({
               </section>
             </div>
           ) : (
-            <p className="text-secondary mb-0">{t('detail.empty')}</p>
+            <p className="text-secondary mb-0">
+              <BsInbox className="me-1" aria-hidden="true" />
+              {t('detail.empty')}
+            </p>
           )}
           {purgeStatus ? (
             <p

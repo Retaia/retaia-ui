@@ -1,3 +1,5 @@
+import { BsCheckCircleFill, BsExclamationTriangle, BsInfoCircle, BsXCircle } from 'react-icons/bs'
+
 type BatchReportViewProps = {
   report: unknown
   labels: {
@@ -72,8 +74,14 @@ export function BatchReportView({ report, labels }: BatchReportViewProps) {
     <section className="mt-2" aria-label={labels.summary} data-testid="batch-report-summary">
       <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
         <span className={`badge text-bg-${statusVariant}`}>{status}</span>
-        <span className="badge text-bg-success">{`${labels.moved}: ${moved}`}</span>
-        <span className="badge text-bg-danger">{`${labels.failed}: ${failed}`}</span>
+        <span className="badge text-bg-success">
+          <BsCheckCircleFill className="me-1" aria-hidden="true" />
+          {`${labels.moved}: ${moved}`}
+        </span>
+        <span className="badge text-bg-danger">
+          <BsXCircle className="me-1" aria-hidden="true" />
+          {`${labels.failed}: ${failed}`}
+        </span>
       </div>
       <div className="table-responsive">
         <table className="table table-sm table-bordered align-middle mb-2">
@@ -94,9 +102,15 @@ export function BatchReportView({ report, labels }: BatchReportViewProps) {
         </table>
       </div>
 
-      <h4 className="h6 mt-3 mb-2">{`${labels.errors} (${errors.length})`}</h4>
+      <h4 className="h6 mt-3 mb-2">
+        <BsExclamationTriangle className="me-1" aria-hidden="true" />
+        {`${labels.errors} (${errors.length})`}
+      </h4>
       {errors.length === 0 ? (
-        <p className="small mb-0 text-secondary">{labels.noErrors}</p>
+        <p className="small mb-0 text-secondary">
+          <BsInfoCircle className="me-1" aria-hidden="true" />
+          {labels.noErrors}
+        </p>
       ) : (
         <div className="table-responsive">
           <table className="table table-sm table-striped align-middle mb-0">
