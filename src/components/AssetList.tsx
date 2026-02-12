@@ -1,5 +1,6 @@
 import type { Asset, DecisionAction } from '../domain/assets'
 import { Badge, Button, ListGroup, Stack } from 'react-bootstrap'
+import { BsCheckCircleFill, BsEraser, BsXCircle } from 'react-icons/bs'
 
 type AssetListProps = {
   assets: Asset[]
@@ -89,6 +90,7 @@ export function AssetList({
               }}
               disabled={asset.state === 'DECIDED_KEEP'}
             >
+              <BsCheckCircleFill className="me-1" aria-hidden="true" />
               {labels.keep}
             </Button>
             <Button
@@ -101,6 +103,7 @@ export function AssetList({
               }}
               disabled={asset.state === 'DECIDED_REJECT'}
             >
+              <BsXCircle className="me-1" aria-hidden="true" />
               {labels.reject}
             </Button>
             <Button
@@ -113,6 +116,7 @@ export function AssetList({
               }}
               disabled={asset.state === 'DECISION_PENDING'}
             >
+              <BsEraser className="me-1" aria-hidden="true" />
               {labels.clear}
             </Button>
           </Stack>
