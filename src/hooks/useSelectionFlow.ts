@@ -52,20 +52,21 @@ export function useSelectionFlow({
 
   const selectVisibleByOffset = useCallback(
     (offset: -1 | 1, extendBatchRange = false) => {
-      if (visibleAssets.length === 0) {
+      const firstVisible = visibleAssets[0]
+      if (!firstVisible) {
         return
       }
 
       if (!selectedAssetId) {
-        setSelectedAssetId(visibleAssets[0].id)
-        setSelectionAnchorId(visibleAssets[0].id)
+        setSelectedAssetId(firstVisible.id)
+        setSelectionAnchorId(firstVisible.id)
         return
       }
 
       const currentIndex = visibleAssets.findIndex((asset) => asset.id === selectedAssetId)
       if (currentIndex < 0) {
-        setSelectedAssetId(visibleAssets[0].id)
-        setSelectionAnchorId(visibleAssets[0].id)
+        setSelectedAssetId(firstVisible.id)
+        setSelectionAnchorId(firstVisible.id)
         return
       }
 
@@ -73,7 +74,11 @@ export function useSelectionFlow({
         visibleAssets.length - 1,
         Math.max(0, currentIndex + offset),
       )
-      const nextId = visibleAssets[nextIndex].id
+      const nextAsset = visibleAssets[nextIndex]
+      if (!nextAsset) {
+        return
+      }
+      const nextId = nextAsset.id
 
       if (!extendBatchRange) {
         setSelectedAssetId(nextId)
@@ -133,18 +138,19 @@ export function useSelectionFlow({
   }, [setPurgePreviewAssetId, setPurgeStatus, setSelectedAssetId, setSelectionAnchorId])
 
   const selectFirstVisibleAsset = useCallback(() => {
-    if (visibleAssets.length === 0) {
+    const firstVisible = visibleAssets[0]
+    if (!firstVisible) {
       return
     }
-    setSelectedAssetId(visibleAssets[0].id)
-    setSelectionAnchorId(visibleAssets[0].id)
+    setSelectedAssetId(firstVisible.id)
+    setSelectionAnchorId(firstVisible.id)
   }, [setSelectedAssetId, setSelectionAnchorId, visibleAssets])
 
   const selectLastVisibleAsset = useCallback(() => {
-    if (visibleAssets.length === 0) {
+    const last = visibleAssets[visibleAssets.length - 1]
+    if (!last) {
       return
     }
-    const last = visibleAssets[visibleAssets.length - 1]
     setSelectedAssetId(last.id)
     setSelectionAnchorId(last.id)
   }, [setSelectedAssetId, setSelectionAnchorId, visibleAssets])

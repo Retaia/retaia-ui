@@ -36,9 +36,9 @@ export function AssetList({
     )
   }
 
-  const activeOptionId = selectedAssetId
-    ? `asset-option-${selectedAssetId}`
-    : `asset-option-${assets[0].id}`
+  const firstAssetId = assets[0]?.id ?? null
+  const activeAssetId = selectedAssetId ?? firstAssetId
+  const activeOptionId = activeAssetId ? `asset-option-${activeAssetId}` : undefined
   const compact = density === 'COMPACT'
 
   return (

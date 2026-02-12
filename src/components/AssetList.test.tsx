@@ -83,9 +83,19 @@ describe('AssetList', () => {
     fireEvent.keyDown(row, { key: 'Enter' })
     expect(onAssetClick).toHaveBeenCalledWith('A-001', false)
 
-    await user.click(screen.getAllByRole('button', { name: 'KEEP' })[0])
-    await user.click(screen.getAllByRole('button', { name: 'REJECT' })[0])
-    await user.click(screen.getAllByRole('button', { name: 'CLEAR' })[1])
+    const keepButtons = screen.getAllByRole('button', { name: 'KEEP' })
+    const rejectButtons = screen.getAllByRole('button', { name: 'REJECT' })
+    const clearButtons = screen.getAllByRole('button', { name: 'CLEAR' })
+    const keepButton = keepButtons[0]
+    const rejectButton = rejectButtons[0]
+    const clearButton = clearButtons[1]
+    if (!keepButton || !rejectButton || !clearButton) {
+      throw new Error('expected action buttons were not found')
+    }
+
+    await user.click(keepButton)
+    await user.click(rejectButton)
+    await user.click(clearButton)
 
     expect(onDecision).toHaveBeenCalledWith('A-001', 'KEEP')
     expect(onDecision).toHaveBeenCalledWith('A-001', 'REJECT')
