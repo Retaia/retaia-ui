@@ -24,6 +24,7 @@ import { getActionAvailability } from './domain/actionAvailability'
 import { useDensityMode } from './hooks/useDensityMode'
 import { useQuickFilters } from './hooks/useQuickFilters'
 import { useReviewKeyboardShortcuts } from './hooks/useReviewKeyboardShortcuts'
+import { useSelectionFlow } from './hooks/useSelectionFlow'
 import { type Locale } from './i18n/resources'
 import { isTypingContext } from './ui/keyboard'
 
@@ -316,30 +317,6 @@ function App() {
     setBatchIds([])
   }
 
-  const toggleBatchAsset = useCallback(
-    (id: string) => {
-      setBatchIds((current) => {
-        const willAdd = !current.includes(id)
-        recordAction(
-          willAdd
-            ? t('activity.batchAdd', { id })
-            : t('activity.batchRemove', { id }),
-        )
-        return willAdd ? [...current, id] : current.filter((value) => value !== id)
-      })
-    },
-    [recordAction, t],
-  )
-
-  const handleAssetClick = (id: string, shiftKey: boolean) => {
-    if (shiftKey) {
-      toggleBatchAsset(id)
-      return
-    }
-    setSelectedAssetId(id)
-    setSelectionAnchorId(id)
-  }
-
   const applyDecisionToSelected = useCallback(
     (action: DecisionAction) => {
       if (!selectedAssetId) {
@@ -406,6 +383,26 @@ function App() {
     setActivityLog([])
   }, [activityLog.length])
 
+  const {
+    handleAssetClick,
+    selectVisibleByOffset,
+    toggleBatchForSelectedAsset,
+    clearSelection,
+    selectFirstVisibleAsset,
+    selectLastVisibleAsset,
+  } = useSelectionFlow({
+    visibleAssets,
+    selectedAssetId,
+    selectionAnchorId,
+    recordAction,
+    t,
+    setSelectedAssetId,
+    setSelectionAnchorId,
+    setBatchIds,
+    setPurgePreviewAssetId,
+    setPurgeStatus,
+  })
+
   const toggleBatchOnly = useCallback(() => {
     recordAction(
       batchOnly ? t('activity.batchOnlyOff') : t('activity.batchOnlyOn'),
@@ -438,72 +435,6 @@ function App() {
       return rest
     })
   }, [logActivity, t])
-
-  const selectVisibleByOffset = useCallback(
-    (offset: -1 | 1, extendBatchRange = false) => {
-      if (visibleAssets.length === 0) {
-        return
-      }
-
-      if (!selectedAssetId) {
-        setSelectedAssetId(visibleAssets[0].id)
-        setSelectionAnchorId(visibleAssets[0].id)
-        return
-      }
-
-      const currentIndex = visibleAssets.findIndex((asset) => asset.id === selectedAssetId)
-      if (currentIndex < 0) {
-        setSelectedAssetId(visibleAssets[0].id)
-        setSelectionAnchorId(visibleAssets[0].id)
-        return
-      }
-
-      const nextIndex = Math.min(
-        visibleAssets.length - 1,
-        Math.max(0, currentIndex + offset),
-      )
-      const nextId = visibleAssets[nextIndex].id
-
-      if (!extendBatchRange) {
-        setSelectedAssetId(nextId)
-        setSelectionAnchorId(nextId)
-        return
-      }
-
-      const anchorId = selectionAnchorId ?? selectedAssetId
-      const anchorIndex = visibleAssets.findIndex((asset) => asset.id === anchorId)
-      if (anchorIndex < 0) {
-        setSelectedAssetId(nextId)
-        setSelectionAnchorId(nextId)
-        return
-      }
-
-      const startIndex = Math.min(anchorIndex, nextIndex)
-      const endIndex = Math.max(anchorIndex, nextIndex)
-      const rangeIds = visibleAssets
-        .slice(startIndex, endIndex + 1)
-        .map((asset) => asset.id)
-
-      setSelectedAssetId(nextId)
-      setSelectionAnchorId(anchorId)
-      setBatchIds((current) => {
-        const merged = new Set([...current, ...rangeIds])
-        const addedCount = merged.size - current.length
-        if (addedCount > 0) {
-          recordAction(t('activity.range', { count: addedCount }))
-        }
-        return [...merged]
-      })
-    },
-    [recordAction, selectedAssetId, selectionAnchorId, t, visibleAssets],
-  )
-
-  const toggleBatchForSelectedAsset = useCallback(() => {
-    if (!selectedAssetId) {
-      return
-    }
-    toggleBatchAsset(selectedAssetId)
-  }, [selectedAssetId, toggleBatchAsset])
 
   const previewBatchMove = useCallback(async () => {
     if (batchIds.length === 0 || previewingBatch) {
@@ -794,30 +725,6 @@ function App() {
       setRetryStatus(null)
     }
   }, [apiClient, executingPurge, purgePreviewAssetId, recordAction, selectedAsset, t])
-
-  const clearSelection = useCallback(() => {
-    setSelectedAssetId(null)
-    setSelectionAnchorId(null)
-    setPurgePreviewAssetId(null)
-    setPurgeStatus(null)
-  }, [])
-
-  const selectFirstVisibleAsset = useCallback(() => {
-    if (visibleAssets.length === 0) {
-      return
-    }
-    setSelectedAssetId(visibleAssets[0].id)
-    setSelectionAnchorId(visibleAssets[0].id)
-  }, [visibleAssets])
-
-  const selectLastVisibleAsset = useCallback(() => {
-    if (visibleAssets.length === 0) {
-      return
-    }
-    const last = visibleAssets[visibleAssets.length - 1]
-    setSelectedAssetId(last.id)
-    setSelectionAnchorId(last.id)
-  }, [visibleAssets])
 
   const toggleShortcutsHelp = useCallback(() => {
     setShowShortcutsHelp((current) => !current)
