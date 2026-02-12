@@ -35,6 +35,27 @@ import { isTypingContext } from './ui/keyboard'
 
 const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
 const SELECTED_ASSET_QUERY_KEY = 'asset'
+const REVIEW_BASE_PATH = '/review'
+
+function getAssetIdFromLocationPath(pathname: string): string | null {
+  const match = pathname.match(/^\/review\/([^/?#]+)/)
+  if (!match?.[1]) {
+    return null
+  }
+  return decodeURIComponent(match[1])
+}
+
+function getSelectedAssetIdFromLocation() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+  const fromPath = getAssetIdFromLocationPath(window.location.pathname)
+  if (fromPath) {
+    return fromPath
+  }
+  const params = new URLSearchParams(window.location.search)
+  return params.get(SELECTED_ASSET_QUERY_KEY)
+}
 
 function App() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
@@ -82,11 +103,7 @@ function App() {
   const [batchOnly, setBatchOnly] = useState(false)
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(() => {
-    if (typeof window === 'undefined') {
-      return null
-    }
-    const params = new URLSearchParams(window.location.search)
-    const urlAssetId = params.get(SELECTED_ASSET_QUERY_KEY)
+    const urlAssetId = getSelectedAssetIdFromLocation()
     if (!urlAssetId) {
       return null
     }
@@ -121,7 +138,7 @@ function App() {
         return
       }
       const params = new URLSearchParams(window.location.search)
-      const currentAssetId = params.get(SELECTED_ASSET_QUERY_KEY)
+      const currentAssetId = getSelectedAssetIdFromLocation()
       if (currentAssetId === nextAssetId) {
         return
       }
@@ -131,7 +148,10 @@ function App() {
         params.delete(SELECTED_ASSET_QUERY_KEY)
       }
       const nextSearch = params.toString()
-      const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}${window.location.hash}`
+      const nextPathname = nextAssetId
+        ? `${REVIEW_BASE_PATH}/${encodeURIComponent(nextAssetId)}`
+        : REVIEW_BASE_PATH
+      const nextUrl = `${nextPathname}${nextSearch ? `?${nextSearch}` : ''}${window.location.hash}`
       if (mode === 'replace') {
         window.history.replaceState(window.history.state, '', nextUrl)
         return
@@ -171,15 +191,14 @@ function App() {
       return
     }
     const handlePopState = () => {
-      const params = new URLSearchParams(window.location.search)
-      const urlAssetId = params.get(SELECTED_ASSET_QUERY_KEY)
+      const urlAssetId = getSelectedAssetIdFromLocation()
       const exists = !!urlAssetId && assets.some((asset) => asset.id === urlAssetId)
       if (exists) {
         setSelectedAssetId(urlAssetId)
         setSelectionAnchorId(urlAssetId)
         return
       }
-      if (urlAssetId) {
+      if (urlAssetId || window.location.pathname !== REVIEW_BASE_PATH) {
         updateSelectedAssetSearchParam(null, 'replace')
       }
       setSelectedAssetId(null)
