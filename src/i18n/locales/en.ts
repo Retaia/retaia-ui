@@ -123,6 +123,8 @@ export const enTranslation = {
   'assets.selectionStatusNone': 'No asset selected',
   'assets.selectionStatusOne': 'Active selection: {id}',
   'assets.batchStatus': 'Active batch size: {count}',
+  'assets.loading': 'Loading assets from API...',
+  'assets.loadError': 'Unable to load API assets. Showing local snapshot.',
   'assets.empty': 'No asset matches current filters.',
   'assets.emptyFiltered': 'No result for current search/filter.',
   'assets.emptyBatch': 'Batch-only mode is active but no selected asset is visible.',

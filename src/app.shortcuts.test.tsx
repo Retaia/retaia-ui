@@ -93,4 +93,10 @@ describe('App keyboard shortcuts', () => {
       expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
     })
   })
+
+  it('opens detail from deep-link route', () => {
+    setupApp('/review/A-003')
+
+    expect(within(getDetailPanel()).getByText('ID: A-003')).toBeInTheDocument()
+  })
 })
