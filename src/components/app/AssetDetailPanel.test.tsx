@@ -49,6 +49,9 @@ function renderPanel(selectedAsset: Asset) {
       onSaveMetadata={onSaveMetadata}
       onPreviewPurge={async () => {}}
       onExecutePurge={async () => {}}
+      onRefreshAsset={async () => {}}
+      showRefreshAction={false}
+      refreshingAsset={false}
     />,
   )
 }
@@ -153,6 +156,9 @@ describe('AssetDetailPanel media preview', () => {
         onSaveMetadata={onSaveMetadata}
         onPreviewPurge={async () => {}}
         onExecutePurge={async () => {}}
+        onRefreshAsset={async () => {}}
+        showRefreshAction={false}
+        refreshingAsset={false}
       />,
     )
 
@@ -165,5 +171,38 @@ describe('AssetDetailPanel media preview', () => {
       tags: ['existing', 'urgent'],
       notes: 'Needs review',
     })
+  })
+
+  it('shows refresh action and calls handler', async () => {
+    const user = userEvent.setup()
+    const onRefreshAsset = vi.fn(async () => {})
+    render(
+      <AssetDetailPanel
+        selectedAsset={{
+          id: 'A-020',
+          name: 'asset.mov',
+          state: 'DECISION_PENDING',
+          mediaType: 'VIDEO',
+        }}
+        availability={availability}
+        previewingPurge={false}
+        executingPurge={false}
+        purgeStatus={null}
+        decisionStatus={{ kind: 'error', message: 'state conflict' }}
+        savingMetadata={false}
+        metadataStatus={null}
+        t={t}
+        onDecision={() => {}}
+        onSaveMetadata={async () => {}}
+        onPreviewPurge={async () => {}}
+        onExecutePurge={async () => {}}
+        onRefreshAsset={onRefreshAsset}
+        showRefreshAction
+        refreshingAsset={false}
+      />,
+    )
+
+    await user.click(screen.getByTestId('asset-refresh-action'))
+    expect(onRefreshAsset).toHaveBeenCalled()
   })
 })
