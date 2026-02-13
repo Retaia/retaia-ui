@@ -17,3 +17,11 @@ Feature: Workflow décision API
     And j'appuie sur la touche "v"
     Then le message "Conflit d'état" est visible
     And l'état "A-001 - DECISION_PENDING" est visible
+
+  Scenario: Proposer un rafraîchissement asset après conflit d'état
+    Given le mock API retourne STATE_CONFLICT sur la décision asset
+    And je suis sur la page d'accueil en mode source API
+    When je clique sur l'asset "A-001"
+    And j'appuie sur la touche "v"
+    And je clique sur le bouton "Rafraîchir l'asset"
+    Then le message "Détail de l'asset rafraîchi." est visible

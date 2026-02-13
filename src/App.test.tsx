@@ -1415,6 +1415,102 @@ describe('App', () => {
     }
   })
 
+  it('offers refresh action after state conflict and reloads selected asset detail', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      let detailCalls = 0
+      const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input)
+        if (url.endsWith('/assets') || url.includes('/assets?')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                items: [
+                  {
+                    uuid: 'A-001',
+                    media_type: 'VIDEO',
+                    state: 'DECISION_PENDING',
+                    created_at: '2026-02-12T10:00:00Z',
+                    captured_at: '2026-02-12T10:00:00Z',
+                  },
+                ],
+                next_cursor: null,
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        if (url.endsWith('/assets/A-001') && (!init?.method || init.method === 'GET')) {
+          detailCalls += 1
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                summary: {
+                  uuid: 'A-001',
+                  media_type: 'VIDEO',
+                  state: detailCalls > 1 ? 'DECIDED_KEEP' : 'DECISION_PENDING',
+                  created_at: '2026-02-12T10:00:00Z',
+                  captured_at: '2026-02-12T10:00:00Z',
+                  tags: ['baseline'],
+                },
+                transcript: {
+                  status: 'DONE',
+                  text_preview: detailCalls > 1 ? 'fresh transcript' : 'stale transcript',
+                },
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        if (url.endsWith('/assets/A-001/decision') && init?.method === 'POST') {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                code: 'STATE_CONFLICT',
+                message: 'state conflict',
+                retryable: false,
+                correlation_id: 'decision-conflict-refresh',
+              }),
+              {
+                status: 409,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        return Promise.resolve(new Response(null, { status: 200 }))
+      })
+      vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+      const { user } = setupApp('/review?source=api')
+
+      expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      await user.click(within(getAssetsPanel()).getByText('A-001'))
+      await user.click(within(getDetailPanel()).getByRole('button', { name: 'REJECT' }))
+
+      expect(screen.getByTestId('asset-decision-status')).toHaveTextContent("Conflit d'état")
+      await user.click(screen.getByTestId('asset-refresh-action'))
+
+      await waitFor(() => {
+        expect(detailCalls).toBeGreaterThan(1)
+      })
+      expect(screen.getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
+      expect(screen.getByTestId('asset-decision-status')).toHaveTextContent(
+        "Détail de l'asset rafraîchi.",
+      )
+      expect(screen.getByTestId('asset-transcript-preview')).toHaveTextContent('fresh transcript')
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
   it('calls API decisions for KEEP visibles in API source mode', async () => {
     const previous = import.meta.env.VITE_ASSET_SOURCE
     try {

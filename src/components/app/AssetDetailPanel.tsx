@@ -42,6 +42,9 @@ type Props = {
   onSaveMetadata: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
   onPreviewPurge: () => Promise<void>
   onExecutePurge: () => Promise<void>
+  onRefreshAsset: () => Promise<void>
+  showRefreshAction: boolean
+  refreshingAsset: boolean
 }
 
 type MetadataEditorProps = {
@@ -172,6 +175,9 @@ export function AssetDetailPanel({
   onSaveMetadata,
   onPreviewPurge,
   onExecutePurge,
+  onRefreshAsset,
+  showRefreshAction,
+  refreshingAsset,
 }: Props) {
   const mediaUrl =
     selectedAsset?.mediaType === 'VIDEO'
@@ -357,6 +363,20 @@ export function AssetDetailPanel({
             >
               {metadataStatus.message}
             </p>
+          ) : null}
+          {selectedAsset && showRefreshAction ? (
+            <div className="mt-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline-secondary"
+                data-testid="asset-refresh-action"
+                onClick={() => void onRefreshAsset()}
+                disabled={refreshingAsset}
+              >
+                {refreshingAsset ? t('detail.refreshing') : t('detail.refreshAction')}
+              </Button>
+            </div>
           ) : null}
         </Card.Body>
       </Card>
