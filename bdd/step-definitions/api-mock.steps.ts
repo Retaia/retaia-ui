@@ -36,3 +36,7 @@ Given('le mock API retourne FORBIDDEN_SCOPE sur la preview purge', async () => {
 Given('le mock API retourne STATE_CONFLICT sur la confirmation purge', async () => {
   mockApiState.purgeExecuteShouldFailStateConflict = true
 })
+
+Given('le mock API retourne FORBIDDEN_SCOPE sur le patch asset', async () => {
+  mockApiState.assetPatchShouldFailScope = true
+})

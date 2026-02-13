@@ -1,9 +1,11 @@
-import { Button, Card, Col, Stack } from 'react-bootstrap'
+import { useState } from 'react'
+import { Badge, Button, Card, Col, Form, Stack } from 'react-bootstrap'
 import {
   BsCardChecklist,
   BsCheck2Circle,
   BsFilterCircle,
   BsInbox,
+  BsTag,
   BsTrash3,
   BsXCircle,
 } from 'react-icons/bs'
@@ -16,16 +18,138 @@ type PurgeStatus = {
   message: string
 }
 
+type MetadataStatus = {
+  kind: 'success' | 'error'
+  message: string
+}
+
 type Props = {
   selectedAsset: Asset | null
   availability: ReturnType<typeof getActionAvailability>
   previewingPurge: boolean
   executingPurge: boolean
   purgeStatus: PurgeStatus | null
+  savingMetadata: boolean
+  metadataStatus: MetadataStatus | null
   t: (key: string, values?: Record<string, string>) => string
   onDecision: (assetId: string, action: DecisionAction) => void
+  onSaveMetadata: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
   onPreviewPurge: () => Promise<void>
   onExecutePurge: () => Promise<void>
+}
+
+type MetadataEditorProps = {
+  selectedAsset: Asset
+  savingMetadata: boolean
+  t: (key: string, values?: Record<string, string>) => string
+  onSaveMetadata: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
+}
+
+function MetadataEditor({ selectedAsset, savingMetadata, t, onSaveMetadata }: MetadataEditorProps) {
+  const [tagInput, setTagInput] = useState('')
+  const [tagsDraft, setTagsDraft] = useState<string[]>(() => selectedAsset.tags ?? [])
+  const [notesDraft, setNotesDraft] = useState(() => selectedAsset.notes ?? '')
+
+  return (
+    <section className="border rounded p-3 mt-3" aria-label={t('detail.taggingTitle')}>
+      <h3 className="h6 mb-2">
+        <BsTag className="me-1" aria-hidden="true" />
+        {t('detail.taggingTitle')}
+      </h3>
+      <div className="d-flex flex-wrap gap-2 mb-2" data-testid="asset-tag-list">
+        {tagsDraft.length > 0 ? (
+          tagsDraft.map((tag) => (
+            <Badge key={tag} bg="secondary" className="d-inline-flex align-items-center">
+              {tag}
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                className="text-white text-decoration-none ms-1 p-0"
+                onClick={() => {
+                  setTagsDraft((current) => current.filter((value) => value !== tag))
+                }}
+                aria-label={t('detail.removeTag', { tag })}
+              >
+                ×
+              </Button>
+            </Badge>
+          ))
+        ) : (
+          <span className="small text-secondary">{t('detail.noTags')}</span>
+        )}
+      </div>
+      <Form.Label htmlFor="asset-tag-input" className="small mb-1">
+        {t('detail.tagInputLabel')}
+      </Form.Label>
+      <Stack direction="horizontal" className="gap-2 mb-2">
+        <Form.Control
+          id="asset-tag-input"
+          data-testid="asset-tag-input"
+          value={tagInput}
+          onChange={(event) => {
+            setTagInput(event.currentTarget.value)
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== 'Enter') {
+              return
+            }
+            event.preventDefault()
+            const normalized = tagInput.trim()
+            if (!normalized || tagsDraft.includes(normalized)) {
+              return
+            }
+            setTagsDraft((current) => [...current, normalized])
+            setTagInput('')
+          }}
+          placeholder={t('detail.tagInputPlaceholder')}
+        />
+        <Button
+          type="button"
+          variant="outline-secondary"
+          data-testid="asset-tag-add"
+          onClick={() => {
+            const normalized = tagInput.trim()
+            if (!normalized || tagsDraft.includes(normalized)) {
+              return
+            }
+            setTagsDraft((current) => [...current, normalized])
+            setTagInput('')
+          }}
+          disabled={tagInput.trim().length === 0}
+        >
+          {t('detail.addTag')}
+        </Button>
+      </Stack>
+      <Form.Label htmlFor="asset-notes-input" className="small mb-1">
+        {t('detail.notesLabel')}
+      </Form.Label>
+      <Form.Control
+        id="asset-notes-input"
+        as="textarea"
+        rows={3}
+        data-testid="asset-notes-input"
+        value={notesDraft}
+        onChange={(event) => {
+          setNotesDraft(event.currentTarget.value)
+        }}
+      />
+      <div className="mt-2">
+        <Button
+          type="button"
+          variant="primary"
+          data-testid="asset-tag-save"
+          onClick={() => void onSaveMetadata(selectedAsset.id, {
+            tags: tagsDraft,
+            notes: notesDraft,
+          })}
+          disabled={savingMetadata}
+        >
+          {savingMetadata ? t('detail.taggingSaving') : t('detail.taggingSave')}
+        </Button>
+      </div>
+    </section>
+  )
 }
 
 export function AssetDetailPanel({
@@ -34,8 +158,11 @@ export function AssetDetailPanel({
   previewingPurge,
   executingPurge,
   purgeStatus,
+  savingMetadata,
+  metadataStatus,
   t,
   onDecision,
+  onSaveMetadata,
   onPreviewPurge,
   onExecutePurge,
 }: Props) {
@@ -128,6 +255,13 @@ export function AssetDetailPanel({
                   CLEAR
                 </Button>
               </Stack>
+              <MetadataEditor
+                key={selectedAsset.id}
+                selectedAsset={selectedAsset}
+                savingMetadata={savingMetadata}
+                t={t}
+                onSaveMetadata={onSaveMetadata}
+              />
               <section className="border border-2 border-danger-subtle rounded p-3 mt-3">
                 <h3 className="h6 mb-2">{t('actions.purgeTitle')}</h3>
                 <p className="small text-secondary mb-2">{t('actions.purgeHelp')}</p>
@@ -172,6 +306,21 @@ export function AssetDetailPanel({
               ].join(' ')}
             >
               {purgeStatus.message}
+            </p>
+          ) : null}
+          {metadataStatus ? (
+            <p
+              data-testid="asset-metadata-status"
+              role="status"
+              aria-live="polite"
+              className={[
+                'small',
+                'mt-2',
+                'mb-0',
+                metadataStatus.kind === 'success' ? 'text-success' : 'text-danger',
+              ].join(' ')}
+            >
+              {metadataStatus.message}
             </p>
           ) : null}
         </Card.Body>

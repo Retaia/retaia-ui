@@ -143,6 +143,29 @@ describe('api client', () => {
     expect(requestInit?.body).toBe(JSON.stringify({ confirm: true }))
   })
 
+  it('sends asset metadata patch payload with PATCH method', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await api.updateAssetMetadata('A-001', {
+      tags: ['urgent', 'interview'],
+      notes: 'needs manual check',
+      fields: { priority: 'high' },
+    })
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/assets/A-001',
+      expect.objectContaining({
+        method: 'PATCH',
+        body: JSON.stringify({
+          tags: ['urgent', 'interview'],
+          notes: 'needs manual check',
+          fields: { priority: 'high' },
+        }),
+      }),
+    )
+  })
+
   it('skips undefined query params when building query string', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ items: [], next_cursor: null }), {

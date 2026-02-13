@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { AssetDetailPanel } from './AssetDetailPanel'
 import { getActionAvailability } from '../../domain/actionAvailability'
@@ -32,6 +33,7 @@ const availability = getActionAvailability({
 })
 
 function renderPanel(selectedAsset: Asset) {
+  const onSaveMetadata = vi.fn(async () => {})
   return render(
     <AssetDetailPanel
       selectedAsset={selectedAsset}
@@ -39,8 +41,11 @@ function renderPanel(selectedAsset: Asset) {
       previewingPurge={false}
       executingPurge={false}
       purgeStatus={null}
+      savingMetadata={false}
+      metadataStatus={null}
       t={t}
       onDecision={() => {}}
+      onSaveMetadata={onSaveMetadata}
       onPreviewPurge={async () => {}}
       onExecutePurge={async () => {}}
     />,
@@ -106,5 +111,43 @@ describe('AssetDetailPanel media preview', () => {
     })
 
     expect(screen.getByText('detail.previewUnavailable')).toBeInTheDocument()
+  })
+
+  it('adds a tag and submits metadata payload', async () => {
+    const user = userEvent.setup()
+    const onSaveMetadata = vi.fn(async () => {})
+    render(
+      <AssetDetailPanel
+        selectedAsset={{
+          id: 'A-010',
+          name: 'asset.mov',
+          state: 'DECISION_PENDING',
+          mediaType: 'VIDEO',
+          tags: ['existing'],
+          notes: '',
+        }}
+        availability={availability}
+        previewingPurge={false}
+        executingPurge={false}
+        purgeStatus={null}
+        savingMetadata={false}
+        metadataStatus={null}
+        t={t}
+        onDecision={() => {}}
+        onSaveMetadata={onSaveMetadata}
+        onPreviewPurge={async () => {}}
+        onExecutePurge={async () => {}}
+      />,
+    )
+
+    await user.type(screen.getByTestId('asset-tag-input'), 'urgent')
+    await user.click(screen.getByTestId('asset-tag-add'))
+    await user.type(screen.getByTestId('asset-notes-input'), 'Needs review')
+    await user.click(screen.getByTestId('asset-tag-save'))
+
+    expect(onSaveMetadata).toHaveBeenCalledWith('A-010', {
+      tags: ['existing', 'urgent'],
+      notes: 'Needs review',
+    })
   })
 })

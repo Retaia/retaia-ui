@@ -39,11 +39,16 @@ export function mapApiSummaryToAsset(
         ? summary.created_at
         : new Date(0).toISOString()
 
+  const tags = Array.isArray(summary.tags)
+    ? summary.tags.filter((tag): tag is string => typeof tag === 'string')
+    : undefined
+
   return {
     id,
     name: id,
     state: mapState(summary.state),
     mediaType: mapMediaType(summary.media_type),
     capturedAt,
+    ...(tags ? { tags } : {}),
   }
 }
