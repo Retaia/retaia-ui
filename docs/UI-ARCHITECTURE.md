@@ -67,7 +67,7 @@ La logique métier est déplacée autant que possible dans des hooks dédiés.
   Validation runtime des payloads critiques (`listAssetSummaries`, `executeMoveBatch`, `getMoveBatchReport`).
 - En cas de payload invalide, le client lève `ApiError` avec `code: VALIDATION_FAILED` (status `502`).
 - `src/api/errorMapping.ts`
-  Mapping explicite de `VALIDATION_FAILED` vers un message utilisateur dédié.
+  Mapping explicite des codes API v1 vers messages UX (`FORBIDDEN_*`, `STATE_CONFLICT`, `IDEMPOTENCY_CONFLICT`, `LOCK_*`, `RATE_LIMITED`, `VALIDATION_FAILED`).
 
 ## Tests
 

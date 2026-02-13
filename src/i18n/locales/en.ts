@@ -96,6 +96,7 @@ export const enTranslation = {
   'error.stateConflict': 'State conflict: refresh data and try again.',
   'error.idempotency': 'Duplicate action detected (idempotency conflict).',
   'error.validation': 'Invalid API payload received. Please retry or contact support.',
+  'error.lock': 'Resource lock conflict: refresh data and retry.',
   'error.temporary': 'Temporary unavailability: retry later.',
   'error.fallback': 'Request failed: {message}',
   'actions.undo': 'Undo last action',

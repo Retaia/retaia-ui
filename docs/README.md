@@ -14,6 +14,7 @@
 - `docs/USER-QUICKSTART.md`
 - `docs/RELEASE-CHECKLIST.md`
 - `docs/UI-QUALITY-RUNBOOK.md`
+- `docs/UI-ACCESSIBILITY.md`
 - `bdd/features/`
 
 ## Lecture minimale avant de coder

@@ -628,9 +628,12 @@ function App() {
     if (selectedTarget && isTypingContext(activeElement)) {
       return
     }
-    const focusTarget =
-      selectedTarget
-      ?? assetListRegionRef.current.querySelector<HTMLElement>('[data-asset-id]')
+    const selectedFocusTarget =
+      selectedTarget?.querySelector<HTMLElement>('[data-asset-open="true"]') ?? selectedTarget
+    const firstRow = assetListRegionRef.current.querySelector<HTMLElement>('[data-asset-id]')
+    const fallbackFocusTarget =
+      firstRow?.querySelector<HTMLElement>('[data-asset-open="true"]') ?? firstRow
+    const focusTarget = selectedFocusTarget ?? fallbackFocusTarget
     if (!focusTarget || activeElement === focusTarget) {
       return
     }
