@@ -156,6 +156,10 @@ function App() {
     kind: 'success' | 'error'
     message: string
   } | null>(null)
+  const [decisionStatus, setDecisionStatus] = useState<{
+    kind: 'success' | 'error'
+    message: string
+  } | null>(null)
   const updateSelectedAssetSearchParam = useCallback(
     (nextAssetId: string | null, mode: 'push' | 'replace' = 'push') => {
       if (typeof window === 'undefined') {
@@ -297,6 +301,10 @@ function App() {
     (error: unknown) => mapApiErrorToMessage(error, t),
     [t],
   )
+  const mapDecisionErrorToMessage = useCallback(
+    (error: unknown) => mapApiErrorToMessage(error, t),
+    [t],
+  )
   const {
     previewingBatch,
     executingBatch,
@@ -365,19 +373,42 @@ function App() {
       return
     }
 
-    recordAction(t('activity.actionDecision', { action, id }))
-    setAssets((current) =>
-      current.map((asset) => {
-        if (asset.id !== id) {
-          return asset
+    const run = async () => {
+      setDecisionStatus(null)
+      if (isApiAssetSource) {
+        try {
+          await apiClient.submitAssetDecision(id, { action })
+        } catch (error) {
+          setDecisionStatus({
+            kind: 'error',
+            message: t('detail.decisionError', {
+              message: mapDecisionErrorToMessage(error),
+            }),
+          })
+          return
         }
-        return {
-          ...asset,
-          state: nextState,
-        }
-      }),
-    )
-  }, [assets, recordAction, t])
+      }
+
+      recordAction(t('activity.actionDecision', { action, id }))
+      setAssets((current) =>
+        current.map((asset) => {
+          if (asset.id !== id) {
+            return asset
+          }
+          return {
+            ...asset,
+            state: nextState,
+          }
+        }),
+      )
+      setDecisionStatus({
+        kind: 'success',
+        message: t('detail.decisionSaved', { id, action }),
+      })
+    }
+
+    void run()
+  }, [apiClient, assets, isApiAssetSource, mapDecisionErrorToMessage, recordAction, t])
 
   const applyDecisionToVisible = (action: 'KEEP' | 'REJECT') => {
     const targetIds = visibleAssets.map((asset) => asset.id)
@@ -498,6 +529,10 @@ function App() {
 
   useEffect(() => {
     setMetadataStatus(null)
+  }, [selectedAssetId])
+
+  useEffect(() => {
+    setDecisionStatus(null)
   }, [selectedAssetId])
 
   const saveSelectedAssetMetadata = useCallback(
@@ -853,6 +888,7 @@ function App() {
           previewingPurge={previewingPurge}
           executingPurge={executingPurge}
           purgeStatus={purgeStatus}
+          decisionStatus={decisionStatus}
           savingMetadata={savingMetadata}
           metadataStatus={metadataStatus}
           t={t}

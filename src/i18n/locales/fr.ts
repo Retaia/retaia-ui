@@ -152,6 +152,8 @@ export const frTranslation = {
   'detail.taggingSaving': 'Enregistrement...',
   'detail.taggingSaved': 'Tagging enregistré pour {id}',
   'detail.taggingError': 'Enregistrement tagging en échec: {message}',
+  'detail.decisionSaved': 'Décision {action} enregistrée pour {id}',
+  'detail.decisionError': 'Enregistrement décision en échec: {message}',
   'detail.empty': 'Clique un asset pour ouvrir le détail.',
   'activity.actionDecision': '{action} {id}',
   'activity.actionVisible': '{action} visibles ({count})',
