@@ -48,12 +48,22 @@ Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de 
 
 ## Contrat API v1
 
-- Le schema `specs/api/openapi/v1.yaml` est verrouille par hash (`contracts/openapi-v1.sha256`).
+- Le schema local `api/openapi/v1.yaml` est verrouille par hash (`contracts/openapi-v1.sha256`).
 - Verification locale/CI: `npm run api:contract:check`.
 - Si un changement API est volontaire:
-  1. `npm run api:types:generate`
-  2. `npm run api:contract:freeze`
-  3. commit des types generes + hash.
+  1. Mettre a jour la source normative `specs/api/openapi/v1.yaml` (dans `retaia-docs`).
+  2. `npm run api:contract:freeze` (sync vers `api/openapi/v1.yaml` + refresh hash).
+  3. `npm run api:types:generate`
+  4. commit de `api/openapi/v1.yaml`, `contracts/openapi-v1.sha256` et `src/api/generated/openapi.ts`.
+
+### Gouvernance PR OpenAPI (obligatoire)
+
+Toute PR qui modifie `api/openapi/v1.yaml` doit expliciter:
+
+- impact sur `server_policy.feature_flags` et/ou capabilities (si applicable)
+- comportement client en mode feature OFF/ON (safe-by-default)
+- plan d'adoption/migration consommateurs (UI/core/agents/MCP) + refresh snapshot
+- strategie de non-regression sur les comportements `v1` existants
 
 ## Couverture
 
