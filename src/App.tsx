@@ -16,7 +16,7 @@ import { AssetDetailPanel } from './components/app/AssetDetailPanel'
 import { NextPendingCard } from './components/app/NextPendingCard'
 import { ReviewSummary } from './components/ReviewSummary'
 import { ReviewToolbar } from './components/ReviewToolbar'
-import { createApiClient } from './api/client'
+import { ApiError, createApiClient } from './api/client'
 import { mapApiSummaryToAsset } from './api/assetMapper'
 import { mapApiErrorToMessage } from './api/errorMapping'
 import { INITIAL_ASSETS } from './data/mockAssets'
@@ -49,6 +49,17 @@ const SELECTED_ASSET_QUERY_KEY = 'asset'
 const REVIEW_BASE_PATH = '/review'
 const API_TOKEN_STORAGE_KEY = 'retaia_api_token'
 const API_BASE_URL_STORAGE_KEY = 'retaia_api_base_url'
+
+function isStateConflictError(error: unknown) {
+  return error instanceof ApiError && error.payload?.code === 'STATE_CONFLICT'
+}
+
+function toUiDecisionState(state: string | undefined): AssetState | null {
+  if (state === 'DECISION_PENDING' || state === 'DECIDED_KEEP' || state === 'DECIDED_REJECT') {
+    return state
+  }
+  return null
+}
 
 function getAssetIdFromLocationPath(pathname: string): string | null {
   const match = pathname.match(/^\/review\/([^/?#]+)/)
@@ -187,6 +198,8 @@ function App() {
     kind: 'success' | 'error'
     message: string
   } | null>(null)
+  const [shouldRefreshSelectedAsset, setShouldRefreshSelectedAsset] = useState(false)
+  const [refreshingSelectedAsset, setRefreshingSelectedAsset] = useState(false)
   const updateSelectedAssetSearchParam = useCallback(
     (nextAssetId: string | null, mode: 'push' | 'replace' = 'push') => {
       if (typeof window === 'undefined') {
@@ -443,7 +456,12 @@ function App() {
     [t],
   )
   const mapDecisionErrorToMessage = useCallback(
-    (error: unknown) => mapApiErrorToMessage(error, t),
+    (error: unknown) => {
+      if (isStateConflictError(error)) {
+        setShouldRefreshSelectedAsset(true)
+      }
+      return mapApiErrorToMessage(error, t)
+    },
     [t],
   )
   const {
@@ -737,11 +755,21 @@ function App() {
   })
 
   const mapPurgeErrorToMessage = useCallback(
-    (error: unknown) => mapApiErrorToMessage(error, t),
+    (error: unknown) => {
+      if (isStateConflictError(error)) {
+        setShouldRefreshSelectedAsset(true)
+      }
+      return mapApiErrorToMessage(error, t)
+    },
     [t],
   )
   const mapMetadataErrorToMessage = useCallback(
-    (error: unknown) => mapApiErrorToMessage(error, t),
+    (error: unknown) => {
+      if (isStateConflictError(error)) {
+        setShouldRefreshSelectedAsset(true)
+      }
+      return mapApiErrorToMessage(error, t)
+    },
     [t],
   )
   const {
@@ -777,6 +805,7 @@ function App() {
 
   useEffect(() => {
     setDecisionStatus(null)
+    setShouldRefreshSelectedAsset(false)
   }, [selectedAssetId])
 
   const saveSelectedAssetMetadata = useCallback(
@@ -819,6 +848,57 @@ function App() {
     },
     [apiClient, isApiAssetSource, mapMetadataErrorToMessage, recordAction, t],
   )
+
+  const refreshSelectedAsset = useCallback(async () => {
+    if (!isApiAssetSource || !selectedAssetId || refreshingSelectedAsset) {
+      return
+    }
+    setRefreshingSelectedAsset(true)
+    setRetryStatus(null)
+    try {
+      const detail = await apiClient.getAssetDetail(selectedAssetId)
+      const normalizedTags = Array.isArray(detail.summary.tags)
+        ? detail.summary.tags.filter((tag): tag is string => typeof tag === 'string')
+        : undefined
+      setAssets((current) =>
+        current.map((asset) =>
+          asset.id === selectedAssetId
+            ? (() => {
+              const refreshedState = toUiDecisionState(detail.summary.state) ?? asset.state
+              return {
+                ...asset,
+                state: refreshedState,
+                ...(normalizedTags ? { tags: normalizedTags } : {}),
+                proxyVideoUrl: detail.derived?.proxy_video_url ?? asset.proxyVideoUrl ?? null,
+                proxyAudioUrl: detail.derived?.proxy_audio_url ?? asset.proxyAudioUrl ?? null,
+                proxyPhotoUrl: detail.derived?.proxy_photo_url ?? asset.proxyPhotoUrl ?? null,
+                transcriptPreview: detail.transcript?.text_preview ?? asset.transcriptPreview ?? null,
+                transcriptStatus: detail.transcript?.status ?? asset.transcriptStatus,
+              }
+            })()
+            : asset,
+        ),
+      )
+      setAssetDetailLoadState('idle')
+      setPurgeStatus(null)
+      setMetadataStatus(null)
+      setDecisionStatus({
+        kind: 'success',
+        message: t('detail.refreshDone'),
+      })
+      setShouldRefreshSelectedAsset(false)
+    } catch (error) {
+      setDecisionStatus({
+        kind: 'error',
+        message: t('detail.refreshError', {
+          message: mapApiErrorToMessage(error, t),
+        }),
+      })
+    } finally {
+      setRefreshingSelectedAsset(false)
+      setRetryStatus(null)
+    }
+  }, [apiClient, isApiAssetSource, refreshingSelectedAsset, selectedAssetId, setPurgeStatus, t])
   const setSelectedAssetIdFromSelectionFlow = useCallback(
     (value: string | null | ((current: string | null) => string | null)) => {
       if (typeof value === 'function') {
@@ -1222,6 +1302,9 @@ function App() {
           onSaveMetadata={saveSelectedAssetMetadata}
           onPreviewPurge={previewSelectedAssetPurge}
           onExecutePurge={executeSelectedAssetPurge}
+          onRefreshAsset={refreshSelectedAsset}
+          showRefreshAction={shouldRefreshSelectedAsset && isApiAssetSource}
+          refreshingAsset={refreshingSelectedAsset}
         />
       </Row>
     </Container>

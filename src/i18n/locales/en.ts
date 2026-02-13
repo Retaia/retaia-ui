@@ -173,6 +173,10 @@ export const enTranslation = {
   'detail.decisionPartial':
     'Decision update partially saved ({success} ok, {failed} failed): {message}',
   'detail.decisionError': 'Decision save failed: {message}',
+  'detail.refreshAction': 'Refresh asset',
+  'detail.refreshing': 'Refreshing...',
+  'detail.refreshDone': 'Asset detail refreshed.',
+  'detail.refreshError': 'Asset refresh failed: {message}',
   'detail.empty': 'Click an asset to open details.',
   'activity.actionDecision': '{action} {id}',
   'activity.actionVisible': '{action} visible ({count})',

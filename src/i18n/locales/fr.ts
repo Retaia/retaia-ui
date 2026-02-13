@@ -173,6 +173,10 @@ export const frTranslation = {
   'detail.decisionPartial':
     'Décisions partiellement enregistrées ({success} ok, {failed} en échec): {message}',
   'detail.decisionError': 'Enregistrement décision en échec: {message}',
+  'detail.refreshAction': "Rafraîchir l'asset",
+  'detail.refreshing': 'Rafraîchissement...',
+  'detail.refreshDone': "Détail de l'asset rafraîchi.",
+  'detail.refreshError': 'Rafraîchissement asset en échec: {message}',
   'detail.empty': 'Clique un asset pour ouvrir le détail.',
   'activity.actionDecision': '{action} {id}',
   'activity.actionVisible': '{action} visibles ({count})',
