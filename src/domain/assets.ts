@@ -20,6 +20,8 @@ export type Asset = {
   tags?: string[]
   notes?: string
   fields?: Record<string, unknown>
+  transcriptPreview?: string | null
+  transcriptStatus?: 'NONE' | 'RUNNING' | 'DONE' | 'FAILED'
 }
 
 function inferMediaTypeFromName(name: string): AssetMediaType {

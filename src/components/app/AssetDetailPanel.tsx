@@ -229,6 +229,19 @@ export function AssetDetailPanel({
                   <p className="small text-secondary mb-0">{t('detail.previewUnavailable')}</p>
                 )}
               </section>
+              {selectedAsset.transcriptPreview ? (
+                <section className="mb-3" aria-label={t('detail.transcriptTitle')}>
+                  <h3 className="h6 mb-1">{t('detail.transcriptTitle')}</h3>
+                  {selectedAsset.transcriptStatus ? (
+                    <p className="small text-secondary mb-1">
+                      {t('detail.transcriptStatus', { status: selectedAsset.transcriptStatus })}
+                    </p>
+                  ) : null}
+                  <p className="small mb-0" data-testid="asset-transcript-preview">
+                    {selectedAsset.transcriptPreview}
+                  </p>
+                </section>
+              ) : null}
               <Stack direction="horizontal" className="flex-wrap gap-2">
                 <Button
                   type="button"
