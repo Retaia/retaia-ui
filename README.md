@@ -1,73 +1,124 @@
-# React + TypeScript + Vite
+# retaia-ui
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interface web React/TypeScript de review pour le projet Retaia.
 
-Currently, two official plugins are available:
+## Contexte
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Ce repository implémente l'UI de review (liste, détail, décisions, batch move, purge) et consomme le contrat API v1 de Retaia.
 
-## React Compiler
+Règle centrale:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `specs/` est normatif (source de vérité).
+- `docs/` est local et non normatif.
+- En cas de conflit, `specs/` prime.
 
-## Expanding the ESLint configuration
+Références clés:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- `AGENT.md`
+- `specs/README.md`
+- `specs/change-management/CODE-QUALITY.md`
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- React 19 + TypeScript + Vite
+- Bootstrap 5 + Sass
+- i18n: `en` / `fr`
+- Tests unitaires/intégration: Vitest + Testing Library
+- BDD/E2E: Cucumber + Playwright
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Démarrage rapide
+
+Prérequis:
+
+- Node.js LTS
+- npm
+
+Installation et lancement:
+
+```bash
+npm ci
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+App locale (par défaut):
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- [http://localhost:5173](http://localhost:5173)
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Scripts principaux
+
+Développement:
+
+- `npm run dev`
+- `npm run build`
+- `npm run preview`
+
+Qualité:
+
+- `npm run lint`
+- `npm run typecheck`
+- `npm run i18n:check`
+- `npm run test`
+- `npm run test:coverage`
+- `npm run test:a11y`
+- `npm run qa`
+
+BDD / E2E / visuel:
+
+- `npm run bdd:test`
+- `npm run e2e:bdd`
+- `npm run e2e:bdd:ci`
+- `npm run e2e:bdd:critical`
+- `npm run visual:test`
+
+Contrat API:
+
+- `npm run api:types:generate`
+- `npm run api:contract:check`
+- `npm run api:contract:freeze`
+
+Release gates:
+
+- `npm run qa:v1:flows`
+- `npm run qa:v1:go-no-go`
+
+## Variables d'environnement
+
+Voir `.env.example`.
+
+Variables utilisées côté UI:
+
+- `VITE_API_BASE_URL`
+- `VITE_API_TOKEN`
+- `VITE_ASSET_SOURCE` (ex: `api` pour forcer la source API)
+
+## Structure utile
+
+- `src/`: application UI
+- `src/api/generated/openapi.ts`: types OpenAPI générés
+- `docs/`: documentation locale non normative
+- `specs/`: submodule des specs normatives
+- `bdd/features/`: scénarios BDD
+- `tests/visual/`: snapshots visuels
+
+## Règles de contribution
+
+- Pas de modification du submodule `specs/` depuis ce repo.
+- Toute évolution de comportement doit d'abord être spécifiée dans `retaia-docs` (`specs/`).
+- Commits en Conventional Commits.
+- Pas de push direct sur `master`.
+
+Guides locaux:
+
+- `docs/README.md`
+- `docs/DEVELOPMENT-BEST-PRACTICES.md`
+- `docs/UI-QUALITY-RUNBOOK.md`
+- `docs/RELEASE-CHECKLIST.md`
+
+## Commande recommandée avant PR
+
+```bash
+npm run qa
+npm run typecheck
+npm run api:contract:check
+npm run e2e:bdd:ci
 ```
