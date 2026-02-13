@@ -9,6 +9,7 @@ describe('assetMapper', () => {
       state: 'DECISION_PENDING',
       created_at: '2026-02-12T10:00:00Z',
       captured_at: '2026-02-11T10:00:00Z',
+      tags: ['urgent', 'interview'],
     })
 
     expect(result).toEqual({
@@ -17,6 +18,7 @@ describe('assetMapper', () => {
       state: 'DECISION_PENDING',
       mediaType: 'VIDEO',
       capturedAt: '2026-02-11T10:00:00Z',
+      tags: ['urgent', 'interview'],
     })
   })
 

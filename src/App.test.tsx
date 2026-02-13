@@ -1060,6 +1060,86 @@ describe('App', () => {
     expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
   })
 
+  it('saves tags and notes locally in mock mode', async () => {
+    const { user } = setupApp()
+
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.clear(screen.getByTestId('asset-tag-input'))
+    await user.type(screen.getByTestId('asset-tag-input'), 'urgent')
+    await user.click(screen.getByTestId('asset-tag-add'))
+    await user.clear(screen.getByTestId('asset-notes-input'))
+    await user.type(screen.getByTestId('asset-notes-input'), 'Tagging local')
+    await user.click(screen.getByTestId('asset-tag-save'))
+
+    expect(screen.getByTestId('asset-metadata-status')).toHaveTextContent('Tagging enregistré')
+    expect(screen.getByTestId('asset-tag-list')).toHaveTextContent('urgent')
+    expect(screen.getByText('Tagging A-001')).toBeInTheDocument()
+  })
+
+  it('calls PATCH /assets/{uuid} when saving tags in API source mode', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input)
+        if (url.endsWith('/assets') || url.includes('/assets?')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                items: [
+                  {
+                    uuid: 'A-001',
+                    media_type: 'VIDEO',
+                    state: 'DECISION_PENDING',
+                    created_at: '2026-02-12T10:00:00Z',
+                    captured_at: '2026-02-12T10:00:00Z',
+                    tags: ['baseline'],
+                  },
+                ],
+                next_cursor: null,
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        if (url.endsWith('/assets/A-001') && init?.method === 'PATCH') {
+          return Promise.resolve(new Response(null, { status: 200 }))
+        }
+        return Promise.resolve(new Response(null, { status: 200 }))
+      })
+      vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+
+      const { user } = setupApp('/review?source=api')
+
+      expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      await user.click(within(getAssetsPanel()).getByText('A-001'))
+      await user.type(screen.getByTestId('asset-tag-input'), 'urgent')
+      await user.click(screen.getByTestId('asset-tag-add'))
+      await user.clear(screen.getByTestId('asset-notes-input'))
+      await user.type(screen.getByTestId('asset-notes-input'), 'Patch notes')
+      await user.click(screen.getByTestId('asset-tag-save'))
+
+      await waitFor(() => {
+        expect(fetchMock).toHaveBeenCalledWith(
+          '/api/v1/assets/A-001',
+          expect.objectContaining({
+            method: 'PATCH',
+            body: JSON.stringify({
+              tags: ['baseline', 'urgent'],
+              notes: 'Patch notes',
+            }),
+          }),
+        )
+      })
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
   it('previews then confirms purge on rejected asset', async () => {
     const user = userEvent.setup()
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {

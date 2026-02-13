@@ -11,6 +11,13 @@ export type MockApiState = {
   reportShouldFailTemporary: boolean
   purgePreviewShouldFailScope: boolean
   purgeExecuteShouldFailStateConflict: boolean
+  assetPatchShouldFailScope: boolean
+  lastPatchedAssetId: string | null
+  lastPatchedPayload: {
+    tags?: string[]
+    notes?: string
+    fields?: Record<string, unknown>
+  } | null
 }
 
 export const createMockApiState = (): MockApiState => ({
@@ -24,6 +31,9 @@ export const createMockApiState = (): MockApiState => ({
   reportShouldFailTemporary: false,
   purgePreviewShouldFailScope: false,
   purgeExecuteShouldFailStateConflict: false,
+  assetPatchShouldFailScope: false,
+  lastPatchedAssetId: null,
+  lastPatchedPayload: null,
 })
 
 export const resetMockApiState = (state: MockApiState) => {
@@ -37,9 +47,45 @@ export const resetMockApiState = (state: MockApiState) => {
   state.reportShouldFailTemporary = false
   state.purgePreviewShouldFailScope = false
   state.purgeExecuteShouldFailStateConflict = false
+  state.assetPatchShouldFailScope = false
+  state.lastPatchedAssetId = null
+  state.lastPatchedPayload = null
 }
 
 export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
+  await page.route('**/assets/*', async (route) => {
+    if (route.request().method() !== 'PATCH') {
+      await route.fallback()
+      return
+    }
+    const match = route.request().url().match(/\/assets\/([^/?#]+)/)
+    state.lastPatchedAssetId = match?.[1] ?? null
+    const body = route.request().postData()
+    state.lastPatchedPayload = body
+      ? (JSON.parse(body) as MockApiState['lastPatchedPayload'])
+      : null
+
+    if (state.assetPatchShouldFailScope) {
+      await route.fulfill({
+        status: 403,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'FORBIDDEN_SCOPE',
+          message: 'forbidden',
+          retryable: false,
+          correlation_id: 'bdd-corr-tagging-1',
+        }),
+      })
+      return
+    }
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ ok: true }),
+    })
+  })
+
   const handleAssetsList = async (route: Route) => {
     if (state.assetsListDelayMs > 0) {
       await new Promise<void>((resolve) => {
@@ -76,6 +122,7 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
               state: 'DECISION_PENDING',
               created_at: new Date().toISOString(),
               captured_at: new Date().toISOString(),
+              tags: ['baseline'],
             },
             {
               uuid: 'A-003',
@@ -83,6 +130,7 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
               state: 'DECIDED_REJECT',
               created_at: new Date().toISOString(),
               captured_at: new Date().toISOString(),
+              tags: ['photo'],
             },
           ],
         next_cursor: null,

@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@cucumber/cucumber'
 import { expect } from '@playwright/test'
-import { APP_URL, getBrowserRuntime } from '../support/testRuntime'
+import { APP_URL, getBrowserRuntime, mockApiState } from '../support/testRuntime'
 
 const getPage = () => getBrowserRuntime().page
 
@@ -224,3 +224,40 @@ Then('la ligne asset {string} a le focus', async (assetId: string) => {
   const row = assetsPanel.locator('li.list-group-item', { hasText: assetId }).first()
   await expect(row).toBeFocused()
 })
+
+When('je saisis le tag {string}', async (tag: string) => {
+  await getPage().getByTestId('asset-tag-input').fill(tag)
+})
+
+When('je clique sur ajouter tag', async () => {
+  await getPage().getByTestId('asset-tag-add').click()
+})
+
+When('je saisis la note {string}', async (note: string) => {
+  await getPage().getByTestId('asset-notes-input').fill(note)
+})
+
+When('je sauvegarde le tagging', async () => {
+  await getPage().getByTestId('asset-tag-save').click()
+})
+
+Then('le statut tagging contient {string}', async (text: string) => {
+  await expect(getPage().getByTestId('asset-metadata-status')).toContainText(text)
+})
+
+Then('la liste de tags contient {string}', async (tag: string) => {
+  await expect(getPage().getByTestId('asset-tag-list')).toContainText(tag)
+})
+
+Then(
+  'le mock API reçoit un patch asset avec le tag {string} et la note {string}',
+  async (tag: string, note: string) => {
+    expect(mockApiState.lastPatchedAssetId).not.toBeNull()
+    expect(mockApiState.lastPatchedPayload).toEqual(
+      expect.objectContaining({
+        tags: expect.arrayContaining([tag]),
+        notes: note,
+      }),
+    )
+  },
+)
