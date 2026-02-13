@@ -246,6 +246,20 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
   })
 
   await page.route('**/assets/*/decision', async (route) => {
+    const idempotencyKey = route.request().headerValue('idempotency-key')
+    if (!idempotencyKey) {
+      await route.fulfill({
+        status: 409,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'IDEMPOTENCY_CONFLICT',
+          message: 'missing idempotency key',
+          retryable: false,
+          correlation_id: 'bdd-corr-decision-idem',
+        }),
+      })
+      return
+    }
     if (state.decisionShouldFailScope) {
       await route.fulfill({
         status: 403,

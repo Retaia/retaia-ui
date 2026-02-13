@@ -166,16 +166,19 @@ describe('api client', () => {
     )
   })
 
-  it('sends asset decision payload with POST method', async () => {
+  it('sends asset decision payload with POST method and idempotency key', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
     const api = createApiClient('/api/v1', fetchMock)
 
-    await api.submitAssetDecision('A-001', { action: 'REJECT' })
+    await api.submitAssetDecision('A-001', { action: 'REJECT' }, 'idem-decision-1')
 
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/v1/assets/A-001/decision',
       expect.objectContaining({
         method: 'POST',
+        headers: expect.objectContaining({
+          'Idempotency-Key': 'idem-decision-1',
+        }),
         body: JSON.stringify({ action: 'REJECT' }),
       }),
     )

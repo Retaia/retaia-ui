@@ -1185,6 +1185,9 @@ describe('App', () => {
           '/api/v1/assets/A-001/decision',
           expect.objectContaining({
             method: 'POST',
+            headers: expect.objectContaining({
+              'Idempotency-Key': expect.any(String),
+            }),
             body: JSON.stringify({ action: 'REJECT' }),
           }),
         )
