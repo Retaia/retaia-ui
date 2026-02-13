@@ -139,6 +139,8 @@ export const enTranslation = {
   'detail.title': 'Detail',
   'detail.id': 'ID: {id}',
   'detail.state': 'State: {state}',
+  'detail.previewTitle': 'Media preview',
+  'detail.previewUnavailable': 'Preview unavailable for this asset.',
   'detail.empty': 'Click an asset to open details.',
   'activity.actionDecision': '{action} {id}',
   'activity.actionVisible': '{action} visible ({count})',
