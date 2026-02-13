@@ -377,7 +377,7 @@ function App() {
       setDecisionStatus(null)
       if (isApiAssetSource) {
         try {
-          await apiClient.submitAssetDecision(id, { action })
+          await apiClient.submitAssetDecision(id, { action }, crypto.randomUUID())
         } catch (error) {
           setDecisionStatus({
             kind: 'error',

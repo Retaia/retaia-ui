@@ -298,9 +298,12 @@ export function createApiClient(
         body: JSON.stringify(payload),
       }),
 
-    submitAssetDecision: (assetId: string, payload: AssetDecisionPayload) =>
+    submitAssetDecision: (assetId: string, payload: AssetDecisionPayload, idempotencyKey: string) =>
       request<void>(`/assets/${assetId}/decision`, {
         method: 'POST',
+        headers: {
+          'Idempotency-Key': idempotencyKey,
+        },
         body: JSON.stringify(payload),
       }),
   }
