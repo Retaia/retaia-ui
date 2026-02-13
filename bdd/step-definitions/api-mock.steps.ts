@@ -40,3 +40,11 @@ Given('le mock API retourne STATE_CONFLICT sur la confirmation purge', async () 
 Given('le mock API retourne FORBIDDEN_SCOPE sur le patch asset', async () => {
   mockApiState.assetPatchShouldFailScope = true
 })
+
+Given('le mock API retourne FORBIDDEN_SCOPE sur la décision asset', async () => {
+  mockApiState.decisionShouldFailScope = true
+})
+
+Given('le mock API retourne STATE_CONFLICT sur la décision asset', async () => {
+  mockApiState.decisionShouldFailStateConflict = true
+})

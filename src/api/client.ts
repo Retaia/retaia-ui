@@ -23,6 +23,8 @@ type PurgeExecutePayload =
   paths['/assets/{uuid}/purge']['post']['requestBody']['content']['application/json']
 type AssetMetadataPatchPayload =
   paths['/assets/{uuid}']['patch']['requestBody']['content']['application/json']
+type AssetDecisionPayload =
+  paths['/assets/{uuid}/decision']['post']['requestBody']['content']['application/json']
 
 export type ApiErrorPayload = components['schemas']['ErrorResponse']
 
@@ -311,6 +313,12 @@ export function createApiClient(
     updateAssetMetadata: (assetId: string, payload: AssetMetadataPatchPayload) =>
       request<void>(`/assets/${assetId}`, {
         method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+
+    submitAssetDecision: (assetId: string, payload: AssetDecisionPayload) =>
+      request<void>(`/assets/${assetId}/decision`, {
+        method: 'POST',
         body: JSON.stringify(payload),
       }),
   }

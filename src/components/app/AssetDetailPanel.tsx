@@ -23,12 +23,18 @@ type MetadataStatus = {
   message: string
 }
 
+type DecisionStatus = {
+  kind: 'success' | 'error'
+  message: string
+}
+
 type Props = {
   selectedAsset: Asset | null
   availability: ReturnType<typeof getActionAvailability>
   previewingPurge: boolean
   executingPurge: boolean
   purgeStatus: PurgeStatus | null
+  decisionStatus: DecisionStatus | null
   savingMetadata: boolean
   metadataStatus: MetadataStatus | null
   t: (key: string, values?: Record<string, string>) => string
@@ -158,6 +164,7 @@ export function AssetDetailPanel({
   previewingPurge,
   executingPurge,
   purgeStatus,
+  decisionStatus,
   savingMetadata,
   metadataStatus,
   t,
@@ -319,6 +326,21 @@ export function AssetDetailPanel({
               ].join(' ')}
             >
               {purgeStatus.message}
+            </p>
+          ) : null}
+          {decisionStatus ? (
+            <p
+              data-testid="asset-decision-status"
+              role="status"
+              aria-live="polite"
+              className={[
+                'small',
+                'mt-2',
+                'mb-0',
+                decisionStatus.kind === 'success' ? 'text-success' : 'text-danger',
+              ].join(' ')}
+            >
+              {decisionStatus.message}
             </p>
           ) : null}
           {metadataStatus ? (

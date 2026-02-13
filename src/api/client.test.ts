@@ -166,6 +166,21 @@ describe('api client', () => {
     )
   })
 
+  it('sends asset decision payload with POST method', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await api.submitAssetDecision('A-001', { action: 'REJECT' })
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/assets/A-001/decision',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ action: 'REJECT' }),
+      }),
+    )
+  })
+
   it('skips undefined query params when building query string', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ items: [], next_cursor: null }), {
