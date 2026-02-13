@@ -41,6 +41,7 @@ function renderPanel(selectedAsset: Asset) {
       previewingPurge={false}
       executingPurge={false}
       purgeStatus={null}
+      decisionStatus={null}
       savingMetadata={false}
       metadataStatus={null}
       t={t}
@@ -130,6 +131,7 @@ describe('AssetDetailPanel media preview', () => {
         previewingPurge={false}
         executingPurge={false}
         purgeStatus={null}
+        decisionStatus={null}
         savingMetadata={false}
         metadataStatus={null}
         t={t}

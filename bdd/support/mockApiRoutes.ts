@@ -12,6 +12,8 @@ export type MockApiState = {
   purgePreviewShouldFailScope: boolean
   purgeExecuteShouldFailStateConflict: boolean
   assetPatchShouldFailScope: boolean
+  decisionShouldFailScope: boolean
+  decisionShouldFailStateConflict: boolean
   lastPatchedAssetId: string | null
   lastPatchedPayload: {
     tags?: string[]
@@ -32,6 +34,8 @@ export const createMockApiState = (): MockApiState => ({
   purgePreviewShouldFailScope: false,
   purgeExecuteShouldFailStateConflict: false,
   assetPatchShouldFailScope: false,
+  decisionShouldFailScope: false,
+  decisionShouldFailStateConflict: false,
   lastPatchedAssetId: null,
   lastPatchedPayload: null,
 })
@@ -48,6 +52,8 @@ export const resetMockApiState = (state: MockApiState) => {
   state.purgePreviewShouldFailScope = false
   state.purgeExecuteShouldFailStateConflict = false
   state.assetPatchShouldFailScope = false
+  state.decisionShouldFailScope = false
+  state.decisionShouldFailStateConflict = false
   state.lastPatchedAssetId = null
   state.lastPatchedPayload = null
 }
@@ -228,6 +234,40 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
           message: 'forbidden',
           retryable: false,
           correlation_id: 'bdd-corr-4',
+        }),
+      })
+      return
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ ok: true }),
+    })
+  })
+
+  await page.route('**/assets/*/decision', async (route) => {
+    if (state.decisionShouldFailScope) {
+      await route.fulfill({
+        status: 403,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'FORBIDDEN_SCOPE',
+          message: 'forbidden',
+          retryable: false,
+          correlation_id: 'bdd-corr-decision-1',
+        }),
+      })
+      return
+    }
+    if (state.decisionShouldFailStateConflict) {
+      await route.fulfill({
+        status: 409,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'STATE_CONFLICT',
+          message: 'state conflict',
+          retryable: false,
+          correlation_id: 'bdd-corr-decision-2',
         }),
       })
       return

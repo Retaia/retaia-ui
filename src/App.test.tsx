@@ -1140,6 +1140,123 @@ describe('App', () => {
     }
   })
 
+  it('calls POST /assets/{uuid}/decision in API source mode', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input)
+        if (url.endsWith('/assets') || url.includes('/assets?')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                items: [
+                  {
+                    uuid: 'A-001',
+                    media_type: 'VIDEO',
+                    state: 'DECISION_PENDING',
+                    created_at: '2026-02-12T10:00:00Z',
+                    captured_at: '2026-02-12T10:00:00Z',
+                  },
+                ],
+                next_cursor: null,
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        if (url.endsWith('/assets/A-001/decision') && init?.method === 'POST') {
+          return Promise.resolve(new Response(null, { status: 200 }))
+        }
+        return Promise.resolve(new Response(null, { status: 200 }))
+      })
+      vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+      const { user } = setupApp('/review?source=api')
+
+      expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      await user.click(within(getAssetsPanel()).getByText('A-001'))
+      await user.click(within(getDetailPanel()).getByRole('button', { name: 'REJECT' }))
+
+      await waitFor(() => {
+        expect(fetchMock).toHaveBeenCalledWith(
+          '/api/v1/assets/A-001/decision',
+          expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({ action: 'REJECT' }),
+          }),
+        )
+      })
+      expect(screen.getByText('A-001 - DECIDED_REJECT')).toBeInTheDocument()
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
+  it('shows decision error when API decision endpoint fails', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input)
+        if (url.endsWith('/assets') || url.includes('/assets?')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                items: [
+                  {
+                    uuid: 'A-001',
+                    media_type: 'VIDEO',
+                    state: 'DECISION_PENDING',
+                    created_at: '2026-02-12T10:00:00Z',
+                    captured_at: '2026-02-12T10:00:00Z',
+                  },
+                ],
+                next_cursor: null,
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        if (url.endsWith('/assets/A-001/decision') && init?.method === 'POST') {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                code: 'STATE_CONFLICT',
+                message: 'state conflict',
+                retryable: false,
+                correlation_id: 'decision-1',
+              }),
+              {
+                status: 409,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        return Promise.resolve(new Response(null, { status: 200 }))
+      })
+      vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+      const { user } = setupApp('/review?source=api')
+
+      expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      await user.click(within(getAssetsPanel()).getByText('A-001'))
+      await user.click(within(getDetailPanel()).getByRole('button', { name: 'REJECT' }))
+
+      expect(screen.getByTestId('asset-decision-status')).toHaveTextContent("Conflit d'état")
+      expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
   it('previews then confirms purge on rejected asset', async () => {
     const user = userEvent.setup()
     const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation((input) => {
