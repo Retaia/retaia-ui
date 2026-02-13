@@ -14,6 +14,7 @@ export type MockApiState = {
   assetPatchShouldFailScope: boolean
   decisionShouldFailScope: boolean
   decisionShouldFailStateConflict: boolean
+  decisionCalls: number
   lastPatchedAssetId: string | null
   lastPatchedPayload: {
     tags?: string[]
@@ -36,6 +37,7 @@ export const createMockApiState = (): MockApiState => ({
   assetPatchShouldFailScope: false,
   decisionShouldFailScope: false,
   decisionShouldFailStateConflict: false,
+  decisionCalls: 0,
   lastPatchedAssetId: null,
   lastPatchedPayload: null,
 })
@@ -54,6 +56,7 @@ export const resetMockApiState = (state: MockApiState) => {
   state.assetPatchShouldFailScope = false
   state.decisionShouldFailScope = false
   state.decisionShouldFailStateConflict = false
+  state.decisionCalls = 0
   state.lastPatchedAssetId = null
   state.lastPatchedPayload = null
 }
@@ -246,6 +249,7 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
   })
 
   await page.route('**/assets/*/decision', async (route) => {
+    state.decisionCalls += 1
     const idempotencyKey = route.request().headerValue('idempotency-key')
     if (!idempotencyKey) {
       await route.fulfill({
