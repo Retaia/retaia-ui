@@ -11,3 +11,13 @@ Feature: Workflow décisions batch API
     Then le mock API a reçu 2 décisions asset
     And l'état "A-001 - DECIDED_KEEP" est visible
     And l'état "A-003 - DECIDED_KEEP" est visible
+
+  Scenario: KEEP batch conserve les succès quand une décision est en conflit
+    Given le mock API retourne STATE_CONFLICT une seule fois sur la décision asset
+    And je suis sur la page d'accueil en mode source API
+    When je fais Maj+clic sur l'asset "A-001"
+    And je fais Maj+clic sur l'asset "A-003"
+    And je clique sur le bouton "KEEP batch"
+    Then le mock API a reçu 2 décisions asset
+    And le message "Conflit d'état" est visible
+    And l'état "A-003 - DECIDED_KEEP" est visible
