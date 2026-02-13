@@ -149,6 +149,87 @@ describe('App', () => {
     }
   })
 
+  it('shows API connection panel in API source mode and saves settings locally', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            items: [],
+            next_cursor: null,
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
+      )
+      const { user } = setupApp('/review?source=api')
+
+      expect(await screen.findByLabelText('Connexion API')).toBeInTheDocument()
+      await user.clear(screen.getByTestId('api-base-url-input'))
+      await user.type(screen.getByTestId('api-base-url-input'), 'https://api.local/v1')
+      await user.clear(screen.getByTestId('api-token-input'))
+      await user.type(screen.getByTestId('api-token-input'), 'token-123')
+      await user.click(screen.getByTestId('api-connection-save'))
+
+      expect(window.localStorage.getItem('retaia_api_base_url')).toBe('https://api.local/v1')
+      expect(window.localStorage.getItem('retaia_api_token')).toBe('token-123')
+      expect(screen.getByTestId('api-connection-status')).toHaveTextContent(
+        'Configuration API enregistrée.',
+      )
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
+  it('tests API connection with saved base url and token', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      const fetchMock = vi.fn(() =>
+        Promise.resolve(
+          new Response(
+            JSON.stringify({
+              items: [],
+              next_cursor: null,
+            }),
+            {
+              status: 200,
+              headers: { 'content-type': 'application/json' },
+            },
+          ),
+        ))
+      vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+      const { user } = setupApp('/review?source=api')
+
+      expect(await screen.findByLabelText('Connexion API')).toBeInTheDocument()
+      await user.clear(screen.getByTestId('api-base-url-input'))
+      await user.type(screen.getByTestId('api-base-url-input'), 'https://api.local/v1')
+      await user.clear(screen.getByTestId('api-token-input'))
+      await user.type(screen.getByTestId('api-token-input'), 'token-xyz')
+      await user.click(screen.getByTestId('api-connection-save'))
+      await user.click(screen.getByTestId('api-connection-test'))
+
+      await waitFor(() => {
+        expect(fetchMock).toHaveBeenCalledWith(
+          'https://api.local/v1/assets?limit=1',
+          expect.objectContaining({
+            headers: expect.objectContaining({
+              Authorization: 'Bearer token-xyz',
+            }),
+          }),
+        )
+      })
+      expect(screen.getByTestId('api-connection-status')).toHaveTextContent('Connexion API valide.')
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
   it('renders API asset list when source mode succeeds', async () => {
     const previous = import.meta.env.VITE_ASSET_SOURCE
     try {
