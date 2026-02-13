@@ -436,7 +436,7 @@ function App() {
       setDecisionStatus(null)
       if (isApiAssetSource) {
         try {
-          await apiClient.submitAssetDecision(id, { action })
+          await apiClient.submitAssetDecision(id, { action }, crypto.randomUUID())
         } catch (error) {
           setDecisionStatus({
             kind: 'error',
@@ -469,26 +469,129 @@ function App() {
     void run()
   }, [apiClient, assets, isApiAssetSource, mapDecisionErrorToMessage, recordAction, t])
 
-  const applyDecisionToVisible = (action: 'KEEP' | 'REJECT') => {
-    const targetIds = visibleAssets.map((asset) => asset.id)
-    if (targetIds.length === 0) {
-      return
-    }
+  const submitDecisionsForIds = useCallback(
+    async (targetIds: string[], action: 'KEEP' | 'REJECT') => {
+      if (!isApiAssetSource) {
+        return {
+          successIds: targetIds,
+          firstErrorMessage: null as string | null,
+        }
+      }
 
-    recordAction(t('activity.actionVisible', { action, count: targetIds.length }))
-    const nextState = action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT'
-    setAssets((current) => updateAssetsState(current, targetIds, nextState))
-  }
+      const settled = await Promise.allSettled(
+        targetIds.map(async (id) => {
+          await apiClient.submitAssetDecision(id, { action }, crypto.randomUUID())
+          return id
+        }),
+      )
+      const successIds: string[] = []
+      let firstErrorMessage: string | null = null
+      for (const result of settled) {
+        if (result.status === 'fulfilled') {
+          successIds.push(result.value)
+          continue
+        }
+        if (!firstErrorMessage) {
+          firstErrorMessage = mapDecisionErrorToMessage(result.reason)
+        }
+      }
+      return { successIds, firstErrorMessage }
+    },
+    [apiClient, isApiAssetSource, mapDecisionErrorToMessage],
+  )
 
-  const applyDecisionToBatch = (action: 'KEEP' | 'REJECT') => {
-    if (batchIds.length === 0) {
-      return
-    }
-    recordAction(t('activity.actionBatch', { action, count: batchIds.length }))
-    const nextState = action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT'
-    setAssets((current) => updateAssetsState(current, batchIds, nextState))
-    setBatchIds([])
-  }
+  const applyDecisionToVisible = useCallback(
+    (action: 'KEEP' | 'REJECT') => {
+      const targetIds = visibleAssets.map((asset) => asset.id)
+      if (targetIds.length === 0) {
+        return
+      }
+
+      const run = async () => {
+        setDecisionStatus(null)
+        const { successIds, firstErrorMessage } = await submitDecisionsForIds(targetIds, action)
+        if (successIds.length === 0) {
+          if (firstErrorMessage) {
+            setDecisionStatus({
+              kind: 'error',
+              message: t('detail.decisionError', { message: firstErrorMessage }),
+            })
+          }
+          return
+        }
+
+        recordAction(t('activity.actionVisible', { action, count: successIds.length }))
+        const nextState = action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT'
+        setAssets((current) => updateAssetsState(current, successIds, nextState))
+        const failedCount = targetIds.length - successIds.length
+        if (failedCount > 0 && firstErrorMessage) {
+          setDecisionStatus({
+            kind: 'error',
+            message: t('detail.decisionPartial', {
+              success: successIds.length,
+              failed: failedCount,
+              message: firstErrorMessage,
+            }),
+          })
+          return
+        }
+        setDecisionStatus({
+          kind: 'success',
+          message: t('detail.decisionBulkSaved', { action, count: successIds.length }),
+        })
+      }
+
+      void run()
+    },
+    [recordAction, submitDecisionsForIds, t, visibleAssets],
+  )
+
+  const applyDecisionToBatch = useCallback(
+    (action: 'KEEP' | 'REJECT') => {
+      if (batchIds.length === 0) {
+        return
+      }
+
+      const run = async () => {
+        setDecisionStatus(null)
+        const targetIds = [...batchIds]
+        const { successIds, firstErrorMessage } = await submitDecisionsForIds(targetIds, action)
+        if (successIds.length === 0) {
+          if (firstErrorMessage) {
+            setDecisionStatus({
+              kind: 'error',
+              message: t('detail.decisionError', { message: firstErrorMessage }),
+            })
+          }
+          return
+        }
+
+        recordAction(t('activity.actionBatch', { action, count: successIds.length }))
+        const nextState = action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT'
+        setAssets((current) => updateAssetsState(current, successIds, nextState))
+        setBatchIds((current) => current.filter((id) => !successIds.includes(id)))
+        const failedCount = targetIds.length - successIds.length
+        if (failedCount > 0 && firstErrorMessage) {
+          setDecisionStatus({
+            kind: 'error',
+            message: t('detail.decisionPartial', {
+              success: successIds.length,
+              failed: failedCount,
+              message: firstErrorMessage,
+            }),
+          })
+          return
+        }
+        setDecisionStatus({
+          kind: 'success',
+          message: t('detail.decisionBulkSaved', { action, count: successIds.length }),
+        })
+      }
+
+      void run()
+    },
+    [batchIds, recordAction, submitDecisionsForIds, t],
+  )
 
   const clearBatch = useCallback(() => {
     setBatchIds([])

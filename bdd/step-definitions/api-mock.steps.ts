@@ -1,4 +1,5 @@
-import { Given } from '@cucumber/cucumber'
+import { Given, Then } from '@cucumber/cucumber'
+import { expect } from '@playwright/test'
 import { mockApiState } from '../support/testRuntime'
 
 Given('le mock API retourne FORBIDDEN_SCOPE sur la preview batch', async () => {
@@ -47,4 +48,12 @@ Given('le mock API retourne FORBIDDEN_SCOPE sur la décision asset', async () =>
 
 Given('le mock API retourne STATE_CONFLICT sur la décision asset', async () => {
   mockApiState.decisionShouldFailStateConflict = true
+})
+
+Given('le mock API retourne STATE_CONFLICT une seule fois sur la décision asset', async () => {
+  mockApiState.decisionShouldFailStateConflictOnce = true
+})
+
+Then('le mock API a reçu {int} décisions asset', async (count: number) => {
+  expect(mockApiState.decisionCalls).toBe(count)
 })

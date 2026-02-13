@@ -155,6 +155,9 @@ export const enTranslation = {
   'detail.taggingSaved': 'Tagging saved for {id}',
   'detail.taggingError': 'Tagging save failed: {message}',
   'detail.decisionSaved': 'Decision {action} saved for {id}',
+  'detail.decisionBulkSaved': '{count} {action} decisions saved',
+  'detail.decisionPartial':
+    'Decision update partially saved ({success} ok, {failed} failed): {message}',
   'detail.decisionError': 'Decision save failed: {message}',
   'detail.empty': 'Click an asset to open details.',
   'activity.actionDecision': '{action} {id}',

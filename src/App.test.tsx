@@ -1259,6 +1259,9 @@ describe('App', () => {
           '/api/v1/assets/A-001/decision',
           expect.objectContaining({
             method: 'POST',
+            headers: expect.objectContaining({
+              'Idempotency-Key': expect.any(String),
+            }),
             body: JSON.stringify({ action: 'REJECT' }),
           }),
         )
@@ -1325,6 +1328,213 @@ describe('App', () => {
 
       expect(screen.getByTestId('asset-decision-status')).toHaveTextContent("Conflit d'état")
       expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
+  it('calls API decisions for KEEP visibles in API source mode', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input)
+        if (url.endsWith('/assets') || url.includes('/assets?')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                items: [
+                  {
+                    uuid: 'A-001',
+                    media_type: 'VIDEO',
+                    state: 'DECISION_PENDING',
+                    created_at: '2026-02-12T10:00:00Z',
+                    captured_at: '2026-02-12T10:00:00Z',
+                  },
+                  {
+                    uuid: 'A-002',
+                    media_type: 'AUDIO',
+                    state: 'DECISION_PENDING',
+                    created_at: '2026-02-12T11:00:00Z',
+                    captured_at: '2026-02-12T11:00:00Z',
+                  },
+                ],
+                next_cursor: null,
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        if (url.includes('/assets/') && url.endsWith('/decision') && init?.method === 'POST') {
+          return Promise.resolve(new Response(null, { status: 200 }))
+        }
+        return Promise.resolve(new Response(null, { status: 200 }))
+      })
+      vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+      const { user } = setupApp('/review?source=api')
+
+      expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
+
+      await waitFor(() => {
+        const decisionCalls = fetchMock.mock.calls.filter((call) => {
+          const url = String(call[0])
+          const init = call[1] as RequestInit | undefined
+          return url.includes('/assets/') && url.endsWith('/decision') && init?.method === 'POST'
+        })
+        expect(decisionCalls).toHaveLength(2)
+      })
+      expect(screen.getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
+      expect(screen.getByText('A-002 - DECIDED_KEEP')).toBeInTheDocument()
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
+  it('calls API decisions for KEEP batch in API source mode', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input)
+        if (url.endsWith('/assets') || url.includes('/assets?')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                items: [
+                  {
+                    uuid: 'A-001',
+                    media_type: 'VIDEO',
+                    state: 'DECISION_PENDING',
+                    created_at: '2026-02-12T10:00:00Z',
+                    captured_at: '2026-02-12T10:00:00Z',
+                  },
+                  {
+                    uuid: 'A-002',
+                    media_type: 'AUDIO',
+                    state: 'DECISION_PENDING',
+                    created_at: '2026-02-12T11:00:00Z',
+                    captured_at: '2026-02-12T11:00:00Z',
+                  },
+                ],
+                next_cursor: null,
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        if (url.includes('/assets/') && url.endsWith('/decision') && init?.method === 'POST') {
+          return Promise.resolve(new Response(null, { status: 200 }))
+        }
+        return Promise.resolve(new Response(null, { status: 200 }))
+      })
+      vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+      const { user } = setupApp('/review?source=api')
+
+      expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      await user.keyboard('{Shift>}')
+      await user.click(within(getAssetsPanel()).getByText('A-001'))
+      await user.click(within(getAssetsPanel()).getByText('A-002'))
+      await user.keyboard('{/Shift}')
+      await user.click(screen.getByRole('button', { name: 'KEEP batch' }))
+
+      await waitFor(() => {
+        const decisionCalls = fetchMock.mock.calls.filter((call) => {
+          const url = String(call[0])
+          const init = call[1] as RequestInit | undefined
+          return url.includes('/assets/') && url.endsWith('/decision') && init?.method === 'POST'
+        })
+        expect(decisionCalls).toHaveLength(2)
+      })
+      expect(screen.getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
+      expect(screen.getByText('A-002 - DECIDED_KEEP')).toBeInTheDocument()
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
+  it('keeps partial success when one API bulk decision fails', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      let decisionCallCount = 0
+      const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input)
+        if (url.endsWith('/assets') || url.includes('/assets?')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                items: [
+                  {
+                    uuid: 'A-001',
+                    media_type: 'VIDEO',
+                    state: 'DECISION_PENDING',
+                    created_at: '2026-02-12T10:00:00Z',
+                    captured_at: '2026-02-12T10:00:00Z',
+                  },
+                  {
+                    uuid: 'A-003',
+                    media_type: 'PHOTO',
+                    state: 'DECIDED_REJECT',
+                    created_at: '2026-02-12T11:00:00Z',
+                    captured_at: '2026-02-12T11:00:00Z',
+                  },
+                ],
+                next_cursor: null,
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        if (url.includes('/assets/') && url.endsWith('/decision') && init?.method === 'POST') {
+          decisionCallCount += 1
+          if (decisionCallCount === 1) {
+            return Promise.resolve(
+              new Response(
+                JSON.stringify({
+                  code: 'STATE_CONFLICT',
+                  message: 'state conflict',
+                  retryable: false,
+                  correlation_id: 'decision-partial-1',
+                }),
+                {
+                  status: 409,
+                  headers: { 'content-type': 'application/json' },
+                },
+              ),
+            )
+          }
+          return Promise.resolve(new Response(null, { status: 200 }))
+        }
+        return Promise.resolve(new Response(null, { status: 200 }))
+      })
+      vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+      const { user } = setupApp('/review?source=api')
+
+      expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      await user.keyboard('{Shift>}')
+      await user.click(within(getAssetsPanel()).getByText('A-001'))
+      await user.click(within(getAssetsPanel()).getByText('A-003'))
+      await user.keyboard('{/Shift}')
+      await user.click(screen.getByRole('button', { name: 'KEEP batch' }))
+
+      await waitFor(() => {
+        expect(decisionCallCount).toBe(2)
+      })
+      expect(screen.getByText('A-003 - DECIDED_KEEP')).toBeInTheDocument()
+      expect(screen.getByTestId('asset-decision-status')).toHaveTextContent("Conflit d'état")
     } finally {
       import.meta.env.VITE_ASSET_SOURCE = previous
       vi.restoreAllMocks()
