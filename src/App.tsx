@@ -151,6 +151,9 @@ function App() {
   const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>(
     isApiAssetSource ? 'loading' : 'idle',
   )
+  const [assetDetailLoadState, setAssetDetailLoadState] = useState<'idle' | 'loading' | 'error'>(
+    'idle',
+  )
   const [savingMetadata, setSavingMetadata] = useState(false)
   const [metadataStatus, setMetadataStatus] = useState<{
     kind: 'success' | 'error'
@@ -270,6 +273,62 @@ function App() {
       })
     }
   }, [assetsLoadState, isApiAssetSource])
+
+  useEffect(() => {
+    if (!isApiAssetSource || !selectedAssetId) {
+      setAssetDetailLoadState('idle')
+      return
+    }
+
+    let canceled = false
+    const fetchAssetDetail = async () => {
+      setAssetDetailLoadState('loading')
+      try {
+        const detail = await apiClient.getAssetDetail(selectedAssetId)
+        if (canceled) {
+          return
+        }
+        const normalizedTags = Array.isArray(detail.summary.tags)
+          ? detail.summary.tags.filter((tag): tag is string => typeof tag === 'string')
+          : undefined
+        setAssets((current) =>
+          current.map((asset) =>
+            asset.id === selectedAssetId
+              ? {
+                ...asset,
+                ...(normalizedTags ? { tags: normalizedTags } : {}),
+                proxyVideoUrl: detail.derived?.proxy_video_url ?? asset.proxyVideoUrl ?? null,
+                proxyAudioUrl: detail.derived?.proxy_audio_url ?? asset.proxyAudioUrl ?? null,
+                proxyPhotoUrl: detail.derived?.proxy_photo_url ?? asset.proxyPhotoUrl ?? null,
+                transcriptPreview: detail.transcript?.text_preview ?? asset.transcriptPreview ?? null,
+                transcriptStatus: detail.transcript?.status ?? asset.transcriptStatus,
+              }
+              : asset,
+          ),
+        )
+        setAssetDetailLoadState('idle')
+      } catch {
+        if (canceled) {
+          return
+        }
+        setAssetDetailLoadState('error')
+      }
+    }
+
+    void fetchAssetDetail()
+    return () => {
+      canceled = true
+    }
+  }, [apiClient, isApiAssetSource, selectedAssetId])
+
+  useEffect(() => {
+    if (isApiAssetSource && selectedAssetId && assetDetailLoadState === 'error') {
+      reportUiIssue('api.asset.detail.load.error', {
+        source: 'api',
+        assetId: selectedAssetId,
+      })
+    }
+  }, [assetDetailLoadState, isApiAssetSource, selectedAssetId])
 
   const batchScope = useMemo(() => {
     const summary = { pending: 0, keep: 0, reject: 0 }

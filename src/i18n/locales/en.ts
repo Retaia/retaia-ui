@@ -141,6 +141,8 @@ export const enTranslation = {
   'detail.state': 'State: {state}',
   'detail.previewTitle': 'Media preview',
   'detail.previewUnavailable': 'Preview unavailable for this asset.',
+  'detail.transcriptTitle': 'Transcript',
+  'detail.transcriptStatus': 'Status: {status}',
   'detail.taggingTitle': 'Tagging',
   'detail.noTags': 'No tags yet.',
   'detail.tagInputLabel': 'Add a tag',

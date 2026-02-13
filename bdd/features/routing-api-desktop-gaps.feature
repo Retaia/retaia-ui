@@ -42,3 +42,9 @@ Fonctionnalité: Couverture fonctionnelle routing, API source et signaux desktop
     And je suis sur la page d'accueil en mode source API
     Then le statut d'erreur assets API est visible
     And le message "Assets (3)" est visible
+
+  Scénario: Mode source API charge le détail complet au clic
+    Given je suis sur la page d'accueil en mode source API
+    When je clique sur l'asset "A-001"
+    Then le panneau détail affiche l'asset "A-001"
+    And le message "Transcript for A-001" est visible
