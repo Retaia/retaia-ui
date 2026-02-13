@@ -114,6 +114,20 @@ describe('AssetDetailPanel media preview', () => {
     expect(screen.getByText('detail.previewUnavailable')).toBeInTheDocument()
   })
 
+  it('renders transcript preview when available', () => {
+    renderPanel({
+      id: 'A-005',
+      name: 'with-transcript.mov',
+      state: 'DECISION_PENDING',
+      mediaType: 'VIDEO',
+      transcriptStatus: 'DONE',
+      transcriptPreview: 'hello transcript',
+    })
+
+    expect(screen.getByTestId('asset-transcript-preview')).toHaveTextContent('hello transcript')
+    expect(screen.getByText('detail.transcriptTitle')).toBeInTheDocument()
+  })
+
   it('adds a tag and submits metadata payload', async () => {
     const user = userEvent.setup()
     const onSaveMetadata = vi.fn(async () => {})

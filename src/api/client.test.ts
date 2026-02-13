@@ -244,6 +244,45 @@ describe('api client', () => {
     await expect(api.listAssetSummaries()).resolves.toEqual([])
   })
 
+  it('gets one asset detail and validates summary presence', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          summary: {
+            uuid: 'A-001',
+            media_type: 'VIDEO',
+            state: 'DECISION_PENDING',
+            created_at: '2026-02-12T10:00:00Z',
+          },
+          derived: {
+            proxy_video_url: '/derived/A-001/proxy.mp4',
+          },
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    const detail = await api.getAssetDetail('A-001')
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/assets/A-001', expect.any(Object))
+    expect(detail.summary.uuid).toBe('A-001')
+  })
+
+  it('throws validation error when asset detail payload has no summary', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ derived: {} }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await expect(api.getAssetDetail('A-001')).rejects.toMatchObject({
+      status: 502,
+      payload: { code: 'VALIDATION_FAILED' },
+    })
+  })
+
   it('throws validation error when listAssetSummaries payload shape is invalid', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ items: 'nope' }), {

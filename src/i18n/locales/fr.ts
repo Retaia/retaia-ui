@@ -141,6 +141,8 @@ export const frTranslation = {
   'detail.state': 'État: {state}',
   'detail.previewTitle': 'Aperçu média',
   'detail.previewUnavailable': 'Aperçu indisponible pour cet asset.',
+  'detail.transcriptTitle': 'Transcription',
+  'detail.transcriptStatus': 'Statut: {status}',
   'detail.taggingTitle': 'Tagging',
   'detail.noTags': 'Aucun tag pour le moment.',
   'detail.tagInputLabel': 'Ajouter un tag',

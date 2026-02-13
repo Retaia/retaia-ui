@@ -9,6 +9,8 @@ type ListAssetsQuery = NonNullable<paths['/assets']['get']['parameters']['query'
 type ListAssetsResponse =
   paths['/assets']['get']['responses'][200]['content']['application/json']
 type AssetSummary = components['schemas']['AssetSummary']
+type AssetDetail =
+  paths['/assets/{uuid}']['get']['responses'][200]['content']['application/json']
 
 type MovePreviewPayload =
   paths['/batches/moves/preview']['post']['requestBody']['content']['application/json']
@@ -138,6 +140,16 @@ function parseMoveReportResponse(payload: unknown, path: string) {
   return payload as MoveStatusResponse
 }
 
+function parseAssetDetailResponse(payload: unknown, path: string) {
+  if (!isRecord(payload)) {
+    throw createValidationError(path, 'expected object')
+  }
+  if (!isRecord(payload.summary)) {
+    throw createValidationError(path, 'expected summary object')
+  }
+  return payload as AssetDetail
+}
+
 async function parseApiError(response: Response) {
   try {
     const payload = (await response.json()) as ApiErrorPayload
@@ -252,6 +264,12 @@ export function createApiClient(
       const path = `/assets${buildQueryString(query)}`
       const result = await request<unknown>(path)
       return parseAssetSummariesResponse(result, path)
+    },
+
+    getAssetDetail: async (assetId: string) => {
+      const path = `/assets/${assetId}`
+      const result = await request<unknown>(path)
+      return parseAssetDetailResponse(result, path)
     },
 
     previewMoveBatch: (payload: MovePreviewPayload) =>
