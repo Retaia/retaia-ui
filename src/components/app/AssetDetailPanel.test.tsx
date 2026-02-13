@@ -4,7 +4,10 @@ import { AssetDetailPanel } from './AssetDetailPanel'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import type { Asset } from '../../domain/assets'
 
-const reactPlayerMock = vi.fn(() => <div data-testid="react-player" />)
+const reactPlayerMock = vi.fn((props?: unknown) => {
+  void props
+  return <div data-testid="react-player" />
+})
 
 vi.mock('react-player/file', () => ({
   default: (props: unknown) => reactPlayerMock(props),

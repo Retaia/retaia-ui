@@ -79,10 +79,8 @@ export function AssetDetailPanel({
                       width="100%"
                       height="220px"
                       config={{
-                        file: {
-                          attributes: {
-                            controlsList: 'nodownload',
-                          },
+                        attributes: {
+                          controlsList: 'nodownload',
                         },
                       }}
                     />
@@ -94,11 +92,9 @@ export function AssetDetailPanel({
                     width="100%"
                     height="56px"
                     config={{
-                      file: {
-                        forceAudio: true,
-                        attributes: {
-                          controlsList: 'nodownload',
-                        },
+                      forceAudio: true,
+                      attributes: {
+                        controlsList: 'nodownload',
                       },
                     }}
                   />
