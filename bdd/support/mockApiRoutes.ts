@@ -54,36 +54,66 @@ export const resetMockApiState = (state: MockApiState) => {
 
 export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
   await page.route('**/assets/*', async (route) => {
-    if (route.request().method() !== 'PATCH') {
-      await route.fallback()
-      return
-    }
+    const method = route.request().method()
     const match = route.request().url().match(/\/assets\/([^/?#]+)/)
-    state.lastPatchedAssetId = match?.[1] ?? null
-    const body = route.request().postData()
-    state.lastPatchedPayload = body
-      ? (JSON.parse(body) as MockApiState['lastPatchedPayload'])
-      : null
+    const assetId = match?.[1] ?? null
 
-    if (state.assetPatchShouldFailScope) {
+    if (method === 'GET' && assetId) {
       await route.fulfill({
-        status: 403,
+        status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
-          code: 'FORBIDDEN_SCOPE',
-          message: 'forbidden',
-          retryable: false,
-          correlation_id: 'bdd-corr-tagging-1',
+          summary: {
+            uuid: assetId,
+            media_type: assetId === 'A-003' ? 'PHOTO' : 'VIDEO',
+            state: assetId === 'A-003' ? 'DECIDED_REJECT' : 'DECISION_PENDING',
+            created_at: new Date().toISOString(),
+            captured_at: new Date().toISOString(),
+            tags: assetId === 'A-003' ? ['photo'] : ['baseline'],
+          },
+          derived: {
+            proxy_video_url: assetId === 'A-003' ? null : `/derived/${assetId}/proxy.mp4`,
+            proxy_photo_url: assetId === 'A-003' ? `/derived/${assetId}/proxy.jpg` : null,
+          },
+          transcript: {
+            status: 'DONE',
+            text_preview: `Transcript for ${assetId}`,
+          },
         }),
       })
       return
     }
 
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({ ok: true }),
-    })
+    if (method === 'PATCH' && assetId) {
+      state.lastPatchedAssetId = assetId
+      const body = route.request().postData()
+      state.lastPatchedPayload = body
+        ? (JSON.parse(body) as MockApiState['lastPatchedPayload'])
+        : null
+
+      if (state.assetPatchShouldFailScope) {
+        await route.fulfill({
+          status: 403,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            code: 'FORBIDDEN_SCOPE',
+            message: 'forbidden',
+            retryable: false,
+            correlation_id: 'bdd-corr-tagging-1',
+          }),
+        })
+        return
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ ok: true }),
+      })
+      return
+    }
+
+    await route.fallback()
   })
 
   const handleAssetsList = async (route: Route) => {
