@@ -14,6 +14,7 @@ export type MockApiState = {
   assetPatchShouldFailScope: boolean
   decisionShouldFailScope: boolean
   decisionShouldFailStateConflict: boolean
+  decisionShouldFailStateConflictOnce: boolean
   decisionCalls: number
   lastPatchedAssetId: string | null
   lastPatchedPayload: {
@@ -37,6 +38,7 @@ export const createMockApiState = (): MockApiState => ({
   assetPatchShouldFailScope: false,
   decisionShouldFailScope: false,
   decisionShouldFailStateConflict: false,
+  decisionShouldFailStateConflictOnce: false,
   decisionCalls: 0,
   lastPatchedAssetId: null,
   lastPatchedPayload: null,
@@ -56,6 +58,7 @@ export const resetMockApiState = (state: MockApiState) => {
   state.assetPatchShouldFailScope = false
   state.decisionShouldFailScope = false
   state.decisionShouldFailStateConflict = false
+  state.decisionShouldFailStateConflictOnce = false
   state.decisionCalls = 0
   state.lastPatchedAssetId = null
   state.lastPatchedPayload = null
@@ -316,6 +319,20 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
           message: 'state conflict',
           retryable: false,
           correlation_id: 'bdd-corr-decision-2',
+        }),
+      })
+      return
+    }
+    if (state.decisionShouldFailStateConflictOnce) {
+      state.decisionShouldFailStateConflictOnce = false
+      await route.fulfill({
+        status: 409,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'STATE_CONFLICT',
+          message: 'state conflict',
+          retryable: false,
+          correlation_id: 'bdd-corr-decision-once',
         }),
       })
       return
