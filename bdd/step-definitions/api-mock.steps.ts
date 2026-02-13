@@ -50,6 +50,10 @@ Given('le mock API retourne STATE_CONFLICT sur la décision asset', async () => 
   mockApiState.decisionShouldFailStateConflict = true
 })
 
+Given('le mock API retourne STATE_CONFLICT une seule fois sur la décision asset', async () => {
+  mockApiState.decisionShouldFailStateConflictOnce = true
+})
+
 Then('le mock API a reçu {int} décisions asset', async (count: number) => {
   expect(mockApiState.decisionCalls).toBe(count)
 })

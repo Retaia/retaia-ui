@@ -523,12 +523,22 @@ function App() {
         recordAction(t('activity.actionVisible', { action, count: successIds.length }))
         const nextState = action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT'
         setAssets((current) => updateAssetsState(current, successIds, nextState))
-        if (firstErrorMessage) {
+        const failedCount = targetIds.length - successIds.length
+        if (failedCount > 0 && firstErrorMessage) {
           setDecisionStatus({
             kind: 'error',
-            message: t('detail.decisionError', { message: firstErrorMessage }),
+            message: t('detail.decisionPartial', {
+              success: successIds.length,
+              failed: failedCount,
+              message: firstErrorMessage,
+            }),
           })
+          return
         }
+        setDecisionStatus({
+          kind: 'success',
+          message: t('detail.decisionBulkSaved', { action, count: successIds.length }),
+        })
       }
 
       void run()
@@ -560,12 +570,22 @@ function App() {
         const nextState = action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT'
         setAssets((current) => updateAssetsState(current, successIds, nextState))
         setBatchIds((current) => current.filter((id) => !successIds.includes(id)))
-        if (firstErrorMessage) {
+        const failedCount = targetIds.length - successIds.length
+        if (failedCount > 0 && firstErrorMessage) {
           setDecisionStatus({
             kind: 'error',
-            message: t('detail.decisionError', { message: firstErrorMessage }),
+            message: t('detail.decisionPartial', {
+              success: successIds.length,
+              failed: failedCount,
+              message: firstErrorMessage,
+            }),
           })
+          return
         }
+        setDecisionStatus({
+          kind: 'success',
+          message: t('detail.decisionBulkSaved', { action, count: successIds.length }),
+        })
       }
 
       void run()
