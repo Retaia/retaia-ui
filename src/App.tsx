@@ -151,6 +151,11 @@ function App() {
   const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>(
     isApiAssetSource ? 'loading' : 'idle',
   )
+  const [savingMetadata, setSavingMetadata] = useState(false)
+  const [metadataStatus, setMetadataStatus] = useState<{
+    kind: 'success' | 'error'
+    message: string
+  } | null>(null)
   const updateSelectedAssetSearchParam = useCallback(
     (nextAssetId: string | null, mode: 'push' | 'replace' = 'push') => {
       if (typeof window === 'undefined') {
@@ -460,6 +465,10 @@ function App() {
     (error: unknown) => mapApiErrorToMessage(error, t),
     [t],
   )
+  const mapMetadataErrorToMessage = useCallback(
+    (error: unknown) => mapApiErrorToMessage(error, t),
+    [t],
+  )
   const {
     previewingPurge,
     executingPurge,
@@ -486,6 +495,51 @@ function App() {
       }
     },
   })
+
+  useEffect(() => {
+    setMetadataStatus(null)
+  }, [selectedAssetId])
+
+  const saveSelectedAssetMetadata = useCallback(
+    async (assetId: string, payload: { tags: string[]; notes: string }) => {
+      const tags = payload.tags
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0)
+      const uniqueTags = [...new Set(tags)]
+      const notes = payload.notes.trim()
+
+      setSavingMetadata(true)
+      setMetadataStatus(null)
+      try {
+        if (isApiAssetSource) {
+          await apiClient.updateAssetMetadata(assetId, {
+            tags: uniqueTags,
+            notes,
+          })
+        }
+        setAssets((current) =>
+          current.map((asset) =>
+            asset.id === assetId ? { ...asset, tags: uniqueTags, notes } : asset,
+          ),
+        )
+        recordAction(t('activity.tagging', { id: assetId }))
+        setMetadataStatus({
+          kind: 'success',
+          message: t('detail.taggingSaved', { id: assetId }),
+        })
+      } catch (error) {
+        setMetadataStatus({
+          kind: 'error',
+          message: t('detail.taggingError', {
+            message: mapMetadataErrorToMessage(error),
+          }),
+        })
+      } finally {
+        setSavingMetadata(false)
+      }
+    },
+    [apiClient, isApiAssetSource, mapMetadataErrorToMessage, recordAction, t],
+  )
   const setSelectedAssetIdFromSelectionFlow = useCallback(
     (value: string | null | ((current: string | null) => string | null)) => {
       if (typeof value === 'function') {
@@ -799,8 +853,11 @@ function App() {
           previewingPurge={previewingPurge}
           executingPurge={executingPurge}
           purgeStatus={purgeStatus}
+          savingMetadata={savingMetadata}
+          metadataStatus={metadataStatus}
           t={t}
           onDecision={handleDecision}
+          onSaveMetadata={saveSelectedAssetMetadata}
           onPreviewPurge={previewSelectedAssetPurge}
           onExecutePurge={executeSelectedAssetPurge}
         />

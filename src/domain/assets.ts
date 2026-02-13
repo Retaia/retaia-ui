@@ -17,6 +17,9 @@ export type Asset = {
   proxyVideoUrl?: string | null
   proxyAudioUrl?: string | null
   proxyPhotoUrl?: string | null
+  tags?: string[]
+  notes?: string
+  fields?: Record<string, unknown>
 }
 
 function inferMediaTypeFromName(name: string): AssetMediaType {

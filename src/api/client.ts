@@ -19,6 +19,8 @@ type MoveStatusResponse =
   paths['/batches/moves/{batch_id}']['get']['responses'][200]['content']['application/json']
 type PurgeExecutePayload =
   paths['/assets/{uuid}/purge']['post']['requestBody']['content']['application/json']
+type AssetMetadataPatchPayload =
+  paths['/assets/{uuid}']['patch']['requestBody']['content']['application/json']
 
 export type ApiErrorPayload = components['schemas']['ErrorResponse']
 
@@ -286,6 +288,12 @@ export function createApiClient(
           'Idempotency-Key': idempotencyKey,
         },
         body: JSON.stringify({ confirm: true } satisfies PurgeExecutePayload),
+      }),
+
+    updateAssetMetadata: (assetId: string, payload: AssetMetadataPatchPayload) =>
+      request<void>(`/assets/${assetId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
       }),
   }
 }
