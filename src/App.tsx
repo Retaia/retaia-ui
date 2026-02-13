@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, Card, Col, Container, Row } from 'react-bootstrap'
+import { Alert, Button, Card, Col, Container, Form, Row } from 'react-bootstrap'
 import {
   BsCollection,
   BsCrosshair,
@@ -47,6 +47,8 @@ import { reportUiIssue } from './ui/telemetry'
 const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
 const SELECTED_ASSET_QUERY_KEY = 'asset'
 const REVIEW_BASE_PATH = '/review'
+const API_TOKEN_STORAGE_KEY = 'retaia_api_token'
+const API_BASE_URL_STORAGE_KEY = 'retaia_api_base_url'
 
 function getAssetIdFromLocationPath(pathname: string): string | null {
   const match = pathname.match(/^\/review\/([^/?#]+)/)
@@ -72,26 +74,48 @@ function App() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t, i18n } = useTranslation()
   const [retryStatus, setRetryStatus] = useState<string | null>(null)
+  const [apiTokenInput, setApiTokenInput] = useState(() => {
+    if (typeof window === 'undefined') {
+      return ''
+    }
+    try {
+      return window.localStorage.getItem(API_TOKEN_STORAGE_KEY) ?? ''
+    } catch {
+      return ''
+    }
+  })
+  const [apiBaseUrlInput, setApiBaseUrlInput] = useState(() => {
+    if (typeof window === 'undefined') {
+      return ''
+    }
+    try {
+      return window.localStorage.getItem(API_BASE_URL_STORAGE_KEY) ?? ''
+    } catch {
+      return ''
+    }
+  })
+  const [apiConnectionStatus, setApiConnectionStatus] = useState<{
+    kind: 'success' | 'error'
+    message: string
+  } | null>(null)
+  const effectiveApiBaseUrl =
+    import.meta.env.VITE_API_BASE_URL ?? (apiBaseUrlInput.trim() || '/api/v1')
+  const effectiveApiToken = import.meta.env.VITE_API_TOKEN ?? (apiTokenInput.trim() || null)
+  const isApiConfigLockedByEnv = !!(import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_TOKEN)
   const apiClient = useMemo(
     () =>
       createApiClient({
-        baseUrl: import.meta.env.VITE_API_BASE_URL ?? '/api/v1',
+        baseUrl: effectiveApiBaseUrl,
         // Priority: explicit env token (CI/dev), then browser session storage token.
         getAccessToken: () => {
-          const envToken = import.meta.env.VITE_API_TOKEN
-          if (envToken) {
-            return envToken
-          }
-          if (typeof window !== 'undefined') {
-            try {
-              return window.localStorage.getItem('retaia_api_token')
-            } catch {
-              return null
-            }
-          }
-          return null
+          return effectiveApiToken
         },
-        onAuthError: () => {},
+        onAuthError: () => {
+          setApiConnectionStatus({
+            kind: 'error',
+            message: t('app.apiConnectionAuthError'),
+          })
+        },
         onRetry: ({ attempt, maxRetries }) => {
           setRetryStatus(
             t('actions.retrying', {
@@ -105,7 +129,7 @@ function App() {
           baseDelayMs: 50,
         },
       }),
-    [t],
+    [effectiveApiBaseUrl, effectiveApiToken, t],
   )
   const [filter, setFilter] = useState<AssetFilter>('ALL')
   const [mediaTypeFilter, setMediaTypeFilter] = useState<AssetMediaTypeFilter>('ALL')
@@ -333,6 +357,64 @@ function App() {
       })
     }
   }, [assetDetailLoadState, isApiAssetSource, selectedAssetId])
+
+  const saveApiConnectionSettings = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    try {
+      window.localStorage.setItem(API_BASE_URL_STORAGE_KEY, apiBaseUrlInput.trim())
+      window.localStorage.setItem(API_TOKEN_STORAGE_KEY, apiTokenInput.trim())
+      setApiConnectionStatus({
+        kind: 'success',
+        message: t('app.apiConnectionSaved'),
+      })
+    } catch {
+      setApiConnectionStatus({
+        kind: 'error',
+        message: t('app.apiConnectionSaveError'),
+      })
+    }
+  }, [apiBaseUrlInput, apiTokenInput, t])
+
+  const clearApiConnectionSettings = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    try {
+      window.localStorage.removeItem(API_BASE_URL_STORAGE_KEY)
+      window.localStorage.removeItem(API_TOKEN_STORAGE_KEY)
+      setApiBaseUrlInput('')
+      setApiTokenInput('')
+      setApiConnectionStatus({
+        kind: 'success',
+        message: t('app.apiConnectionCleared'),
+      })
+    } catch {
+      setApiConnectionStatus({
+        kind: 'error',
+        message: t('app.apiConnectionSaveError'),
+      })
+    }
+  }, [t])
+
+  const testApiConnection = useCallback(async () => {
+    setApiConnectionStatus(null)
+    try {
+      await apiClient.listAssetSummaries({ limit: 1 })
+      setApiConnectionStatus({
+        kind: 'success',
+        message: t('app.apiConnectionTestOk'),
+      })
+    } catch (error) {
+      setApiConnectionStatus({
+        kind: 'error',
+        message: t('app.apiConnectionTestError', {
+          message: mapApiErrorToMessage(error, t),
+        }),
+      })
+    }
+  }, [apiClient, t])
 
   const batchScope = useMemo(() => {
     const summary = { pending: 0, keep: 0, reject: 0 }
@@ -903,6 +985,88 @@ function App() {
           void i18n.changeLanguage(value)
         }}
       />
+      {isApiAssetSource ? (
+        <Card as="section" className="shadow-sm border-0 mt-3" aria-label={t('app.apiConnectionTitle')}>
+          <Card.Body>
+            <h2 className="h6 mb-3">{t('app.apiConnectionTitle')}</h2>
+            {isApiConfigLockedByEnv ? (
+              <p className="small text-secondary mb-3">{t('app.apiConnectionEnvLocked')}</p>
+            ) : null}
+            <Row className="g-2">
+              <Col md={6}>
+                <Form.Label htmlFor="api-base-url-input" className="small mb-1">
+                  {t('app.apiBaseUrlLabel')}
+                </Form.Label>
+                <Form.Control
+                  id="api-base-url-input"
+                  data-testid="api-base-url-input"
+                  value={apiBaseUrlInput}
+                  onChange={(event) => setApiBaseUrlInput(event.target.value)}
+                  placeholder="/api/v1"
+                  disabled={isApiConfigLockedByEnv}
+                />
+              </Col>
+              <Col md={6}>
+                <Form.Label htmlFor="api-token-input" className="small mb-1">
+                  {t('app.apiTokenLabel')}
+                </Form.Label>
+                <Form.Control
+                  id="api-token-input"
+                  data-testid="api-token-input"
+                  type="password"
+                  value={apiTokenInput}
+                  onChange={(event) => setApiTokenInput(event.target.value)}
+                  placeholder="Bearer token"
+                  disabled={isApiConfigLockedByEnv}
+                />
+              </Col>
+            </Row>
+            <div className="d-flex flex-wrap gap-2 mt-3">
+              <Button
+                type="button"
+                size="sm"
+                variant="primary"
+                data-testid="api-connection-save"
+                onClick={saveApiConnectionSettings}
+                disabled={isApiConfigLockedByEnv}
+              >
+                {t('app.apiConnectionSave')}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline-primary"
+                data-testid="api-connection-test"
+                onClick={() => void testApiConnection()}
+              >
+                {t('app.apiConnectionTest')}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline-secondary"
+                data-testid="api-connection-clear"
+                onClick={clearApiConnectionSettings}
+                disabled={isApiConfigLockedByEnv}
+              >
+                {t('app.apiConnectionClear')}
+              </Button>
+            </div>
+            {apiConnectionStatus ? (
+              <p
+                className={`small mt-2 mb-0 ${
+                  apiConnectionStatus.kind === 'success' ? 'text-success' : 'text-danger'
+                }`}
+                data-testid="api-connection-status"
+                role="status"
+                aria-live="polite"
+              >
+                {apiConnectionStatus.message}
+              </p>
+            ) : null}
+          </Card.Body>
+        </Card>
+      ) : null}
 
       <ReviewSummary
         total={assets.length}
