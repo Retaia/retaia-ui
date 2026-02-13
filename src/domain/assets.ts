@@ -14,6 +14,9 @@ export type Asset = {
   state: AssetState
   mediaType?: AssetMediaType
   capturedAt?: string
+  proxyVideoUrl?: string | null
+  proxyAudioUrl?: string | null
+  proxyPhotoUrl?: string | null
 }
 
 function inferMediaTypeFromName(name: string): AssetMediaType {

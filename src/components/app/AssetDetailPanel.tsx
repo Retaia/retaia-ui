@@ -7,6 +7,7 @@ import {
   BsTrash3,
   BsXCircle,
 } from 'react-icons/bs'
+import ReactPlayer from 'react-player/file'
 import type { Asset, DecisionAction } from '../../domain/assets'
 import { getActionAvailability } from '../../domain/actionAvailability'
 
@@ -38,6 +39,15 @@ export function AssetDetailPanel({
   onPreviewPurge,
   onExecutePurge,
 }: Props) {
+  const mediaUrl =
+    selectedAsset?.mediaType === 'VIDEO'
+      ? selectedAsset.proxyVideoUrl
+      : selectedAsset?.mediaType === 'AUDIO'
+        ? selectedAsset.proxyAudioUrl
+        : selectedAsset?.mediaType === 'IMAGE'
+          ? selectedAsset.proxyPhotoUrl
+          : null
+
   return (
     <Col as="section" xs={12} xl={4} aria-label={t('detail.region')}>
       <Card className="shadow-sm border-0 h-100 sticky-xl-top">
@@ -53,6 +63,49 @@ export function AssetDetailPanel({
               <p className="text-secondary mb-3">
                 {t('detail.state', { state: selectedAsset.state })}
               </p>
+              <section className="mb-3" aria-label={t('detail.previewTitle')}>
+                <h3 className="h6 mb-2">{t('detail.previewTitle')}</h3>
+                {selectedAsset.mediaType === 'IMAGE' && mediaUrl ? (
+                  <img
+                    src={mediaUrl}
+                    alt={selectedAsset.name}
+                    className="img-fluid rounded border"
+                  />
+                ) : selectedAsset.mediaType === 'VIDEO' && mediaUrl ? (
+                  <div className="rounded border overflow-hidden">
+                    <ReactPlayer
+                      url={mediaUrl}
+                      controls
+                      width="100%"
+                      height="220px"
+                      config={{
+                        file: {
+                          attributes: {
+                            controlsList: 'nodownload',
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                ) : selectedAsset.mediaType === 'AUDIO' && mediaUrl ? (
+                  <ReactPlayer
+                    url={mediaUrl}
+                    controls
+                    width="100%"
+                    height="56px"
+                    config={{
+                      file: {
+                        forceAudio: true,
+                        attributes: {
+                          controlsList: 'nodownload',
+                        },
+                      },
+                    }}
+                  />
+                ) : (
+                  <p className="small text-secondary mb-0">{t('detail.previewUnavailable')}</p>
+                )}
+              </section>
               <Stack direction="horizontal" className="flex-wrap gap-2">
                 <Button
                   type="button"

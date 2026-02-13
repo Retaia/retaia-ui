@@ -139,6 +139,8 @@ export const frTranslation = {
   'detail.title': 'Détail',
   'detail.id': 'ID: {id}',
   'detail.state': 'État: {state}',
+  'detail.previewTitle': 'Aperçu média',
+  'detail.previewUnavailable': 'Aperçu indisponible pour cet asset.',
   'detail.empty': 'Clique un asset pour ouvrir le détail.',
   'activity.actionDecision': '{action} {id}',
   'activity.actionVisible': '{action} visibles ({count})',
