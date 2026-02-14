@@ -53,6 +53,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
 
 - `src/hooks/useAuthPageController.ts`
   Controller de la page Auth (composition des sous-hooks auth/features + état de connexion API), pour garder `AuthPage` centré sur le rendu.
+- `src/hooks/auth/useAuthPageApiState.ts`
+  Sous-hook d'état/runtime API de la page Auth (token/base URL, statut de retry, erreurs d'auth API) pour isoler le state de vue du controller d'orchestration.
 - `src/hooks/auth/useAuthFeatureGovernance.ts`
   Sous-hook de gouvernance 2FA/features (chargement admin feature flags + toggles user/app) pour réduire le coupling dans `useAuthPageController`.
 - `src/hooks/auth/useAuthMfaController.ts`
@@ -142,7 +144,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
 
 ### Unit/Integration (Vitest + RTL)
 
-- `src/App.test.tsx`: flux core/intégration
+- `src/pages/ReviewPage.test.tsx`: flux core/intégration review
+- `src/pages/AuthPage.test.tsx`: flux core/intégration auth
 - `src/app.batch.test.tsx`: flux batch
 - `src/app.shortcuts.test.tsx`: raccourcis clavier
 - `src/components/*.test.tsx`: composants isolés

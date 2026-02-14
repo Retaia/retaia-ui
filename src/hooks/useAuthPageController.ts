@@ -1,40 +1,26 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuthApiConnectionController } from './auth/useAuthApiConnectionController'
+import { useAuthPageApiState } from './auth/useAuthPageApiState'
 import { useAuthMfaController } from './auth/useAuthMfaController'
 import { useAuthRecoveryController } from './auth/useAuthRecoveryController'
 import { useAuthSessionController } from './auth/useAuthSessionController'
 import { useApiClient } from './useApiClient'
 import { useAuthFeatureGovernance } from './auth/useAuthFeatureGovernance'
-import { readStoredApiBaseUrl, readStoredApiToken } from '../services/apiSession'
 
 export function useAuthPageController() {
   const { t } = useTranslation()
-  const [retryStatus, setRetryStatus] = useState<string | null>(null)
-  const [apiTokenInput, setApiTokenInput] = useState(readStoredApiToken)
-  const [apiBaseUrlInput, setApiBaseUrlInput] = useState(readStoredApiBaseUrl)
-  const [apiConnectionStatus, setApiConnectionStatus] = useState<{
-    kind: 'success' | 'error'
-    message: string
-  } | null>(null)
-
-  const handleApiAuthError = useCallback(() => {
-    setApiConnectionStatus({
-      kind: 'error',
-      message: t('app.apiConnectionAuthError'),
-    })
-  }, [t])
-  const handleApiRetry = useCallback(
-    ({ attempt, maxRetries }: { attempt: number; maxRetries: number }) => {
-      setRetryStatus(
-        t('actions.retrying', {
-          attempt,
-          total: maxRetries + 1,
-        }),
-      )
-    },
-    [t],
-  )
+  const {
+    retryStatus,
+    apiTokenInput,
+    setApiTokenInput,
+    apiBaseUrlInput,
+    setApiBaseUrlInput,
+    apiConnectionStatus,
+    setApiConnectionStatus,
+    handleApiAuthError,
+    handleApiRetry,
+  } = useAuthPageApiState({ t })
   const {
     apiClient,
     effectiveApiToken,
