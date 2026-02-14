@@ -36,6 +36,10 @@ La logique métier est déplacée autant que possible dans des hooks dédiés.
   Filtres/recherche.
 - `src/components/ReviewSummary.tsx`
   Synthèse des états.
+- `src/components/auth/AuthAccountSection.tsx`
+  Sections Auth utilisateur (login/logout, lost password, verify email, 2FA user/admin).
+- `src/components/auth/ApiConnectionSettingsSection.tsx`
+  Paramètres de connexion API (base URL, test/save/clear, statut retry).
 
 ## Hooks métier
 
