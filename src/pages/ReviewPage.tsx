@@ -17,7 +17,6 @@ import { NextPendingCard } from '../components/app/NextPendingCard'
 import { ReviewSummary } from '../components/ReviewSummary'
 import { ReviewToolbar } from '../components/ReviewToolbar'
 import { ApiError } from '../api/client'
-import { mapApiSummaryToAsset } from '../api/assetMapper'
 import { mapApiErrorToMessage } from '../api/errorMapping'
 import { INITIAL_ASSETS } from '../data/mockAssets'
 import {
@@ -38,11 +37,13 @@ import { useBatchExecution } from '../hooks/useBatchExecution'
 import { usePurgeFlow } from '../hooks/usePurgeFlow'
 import { useQuickFilters } from '../hooks/useQuickFilters'
 import { useReviewApiRuntime } from '../hooks/useReviewApiRuntime'
+import { useReviewDataController } from '../hooks/useReviewDataController'
 import { useReviewHistory } from '../hooks/useReviewHistory'
 import { useReviewKeyboardShortcuts } from '../hooks/useReviewKeyboardShortcuts'
 import { useReviewRouteSelection } from '../hooks/useReviewRouteSelection'
 import { useSelectionFlow } from '../hooks/useSelectionFlow'
 import { type Locale } from '../i18n/resources'
+import { mergeAssetWithDetail } from '../services/reviewAssetDetail'
 import { isTypingContext } from '../ui/keyboard'
 import { reportUiIssue } from '../ui/telemetry'
 
@@ -50,13 +51,6 @@ const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
 
 function isStateConflictError(error: unknown) {
   return error instanceof ApiError && error.payload?.code === 'STATE_CONFLICT'
-}
-
-function toUiDecisionState(state: string | undefined): AssetState | null {
-  if (state === 'DECISION_PENDING' || state === 'DECIDED_KEEP' || state === 'DECIDED_REJECT') {
-    return state
-  }
-  return null
 }
 
 function ReviewPage() {
@@ -93,16 +87,6 @@ function ReviewPage() {
     }
   })
   const { densityMode, toggleDensityMode } = useDensityMode()
-  const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>(
-    isApiAssetSource ? 'loading' : 'idle',
-  )
-  const [policyLoadState, setPolicyLoadState] = useState<'idle' | 'loading' | 'ready' | 'error'>(
-    isApiAssetSource ? 'loading' : 'ready',
-  )
-  const [bulkDecisionsEnabled, setBulkDecisionsEnabled] = useState(!isApiAssetSource)
-  const [assetDetailLoadState, setAssetDetailLoadState] = useState<'idle' | 'loading' | 'error'>(
-    'idle',
-  )
   const [savingMetadata, setSavingMetadata] = useState(false)
   const [metadataStatus, setMetadataStatus] = useState<{
     kind: 'success' | 'error'
@@ -114,6 +98,13 @@ function ReviewPage() {
   } | null>(null)
   const [shouldRefreshSelectedAsset, setShouldRefreshSelectedAsset] = useState(false)
   const [refreshingSelectedAsset, setRefreshingSelectedAsset] = useState(false)
+  const { assetsLoadState, policyLoadState, bulkDecisionsEnabled, assetDetailLoadState } =
+    useReviewDataController({
+      apiClient,
+      isApiAssetSource,
+      selectedAssetId,
+      setAssets,
+    })
   const visibleAssets = useMemo(() => {
     const filtered = filterAssets(assets, filter, search, {
       mediaType: mediaTypeFilter,
@@ -133,123 +124,12 @@ function ReviewPage() {
   )
 
   useEffect(() => {
-    if (!isApiAssetSource) {
-      return
-    }
-
-    let canceled = false
-    const fetchAssets = async () => {
-      setAssetsLoadState('loading')
-      try {
-        const summaries = await apiClient.listAssetSummaries()
-        if (canceled) {
-          return
-        }
-        setAssets(summaries.map((summary, index) => mapApiSummaryToAsset(summary, index)))
-        setAssetsLoadState('idle')
-      } catch {
-        if (canceled) {
-          return
-        }
-        setAssetsLoadState('error')
-      }
-    }
-
-    void fetchAssets()
-    return () => {
-      canceled = true
-    }
-  }, [apiClient, isApiAssetSource])
-
-  useEffect(() => {
     if (isApiAssetSource && assetsLoadState === 'error') {
       reportUiIssue('api.assets.load.error', {
         source: 'api',
       })
     }
   }, [assetsLoadState, isApiAssetSource])
-
-  useEffect(() => {
-    if (!isApiAssetSource) {
-      setPolicyLoadState('ready')
-      setBulkDecisionsEnabled(true)
-      return
-    }
-
-    let canceled = false
-    const fetchPolicy = async () => {
-      setPolicyLoadState('loading')
-      setBulkDecisionsEnabled(false)
-      try {
-        const policy = await apiClient.getAppPolicy()
-        if (canceled) {
-          return
-        }
-        const bulkEnabled = policy.server_policy?.feature_flags?.['features.decisions.bulk'] === true
-        setBulkDecisionsEnabled(bulkEnabled)
-        setPolicyLoadState('ready')
-      } catch {
-        if (canceled) {
-          return
-        }
-        setBulkDecisionsEnabled(false)
-        setPolicyLoadState('error')
-      }
-    }
-
-    void fetchPolicy()
-    return () => {
-      canceled = true
-    }
-  }, [apiClient, isApiAssetSource])
-
-  useEffect(() => {
-    if (!isApiAssetSource || !selectedAssetId) {
-      setAssetDetailLoadState('idle')
-      return
-    }
-
-    let canceled = false
-    const fetchAssetDetail = async () => {
-      setAssetDetailLoadState('loading')
-      try {
-        const detail = await apiClient.getAssetDetail(selectedAssetId)
-        if (canceled) {
-          return
-        }
-        const normalizedTags = Array.isArray(detail.summary.tags)
-          ? detail.summary.tags.filter((tag): tag is string => typeof tag === 'string')
-          : undefined
-        setAssets((current) =>
-          current.map((asset) =>
-            asset.id === selectedAssetId
-              ? {
-                ...asset,
-                ...(normalizedTags ? { tags: normalizedTags } : {}),
-                proxyVideoUrl: detail.derived?.proxy_video_url ?? asset.proxyVideoUrl ?? null,
-                proxyAudioUrl: detail.derived?.proxy_audio_url ?? asset.proxyAudioUrl ?? null,
-                proxyPhotoUrl: detail.derived?.proxy_photo_url ?? asset.proxyPhotoUrl ?? null,
-                waveformUrl: detail.derived?.waveform_url ?? asset.waveformUrl ?? null,
-                transcriptPreview: detail.transcript?.text_preview ?? asset.transcriptPreview ?? null,
-                transcriptStatus: detail.transcript?.status ?? asset.transcriptStatus,
-              }
-              : asset,
-          ),
-        )
-        setAssetDetailLoadState('idle')
-      } catch {
-        if (canceled) {
-          return
-        }
-        setAssetDetailLoadState('error')
-      }
-    }
-
-    void fetchAssetDetail()
-    return () => {
-      canceled = true
-    }
-  }, [apiClient, isApiAssetSource, selectedAssetId])
 
   useEffect(() => {
     if (isApiAssetSource && selectedAssetId && assetDetailLoadState === 'error') {
@@ -702,30 +582,15 @@ function ReviewPage() {
     setRetryStatus(null)
     try {
       const detail = await apiClient.getAssetDetail(selectedAssetId)
-      const normalizedTags = Array.isArray(detail.summary.tags)
-        ? detail.summary.tags.filter((tag): tag is string => typeof tag === 'string')
-        : undefined
       setAssets((current) =>
         current.map((asset) =>
           asset.id === selectedAssetId
-            ? (() => {
-              const refreshedState = toUiDecisionState(detail.summary.state) ?? asset.state
-              return {
-                ...asset,
-                state: refreshedState,
-                ...(normalizedTags ? { tags: normalizedTags } : {}),
-                proxyVideoUrl: detail.derived?.proxy_video_url ?? asset.proxyVideoUrl ?? null,
-                proxyAudioUrl: detail.derived?.proxy_audio_url ?? asset.proxyAudioUrl ?? null,
-                proxyPhotoUrl: detail.derived?.proxy_photo_url ?? asset.proxyPhotoUrl ?? null,
-                waveformUrl: detail.derived?.waveform_url ?? asset.waveformUrl ?? null,
-                transcriptPreview: detail.transcript?.text_preview ?? asset.transcriptPreview ?? null,
-                transcriptStatus: detail.transcript?.status ?? asset.transcriptStatus,
-              }
-            })()
+            ? mergeAssetWithDetail(asset, detail, {
+              includeDecisionState: true,
+            })
             : asset,
         ),
       )
-      setAssetDetailLoadState('idle')
       setPurgeStatus(null)
       setMetadataStatus(null)
       setDecisionStatus({
