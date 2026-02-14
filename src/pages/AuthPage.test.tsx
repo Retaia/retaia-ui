@@ -3,6 +3,56 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { setupApp } from '../test-utils/appTestUtils'
 
+function jsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'content-type': 'application/json' },
+  })
+}
+
+function unauthorizedResponse(correlationId: string) {
+  return jsonResponse(
+    {
+      code: 'UNAUTHORIZED',
+      message: 'unauthorized',
+      retryable: false,
+      correlation_id: correlationId,
+    },
+    401,
+  )
+}
+
+function auth2faFeatures({
+  enabled,
+  effective = enabled,
+}: {
+  enabled: boolean
+  effective?: boolean
+}) {
+  return {
+    user_feature_enabled: { 'features.auth.2fa': enabled },
+    effective_feature_enabled: { 'features.auth.2fa': effective },
+    feature_governance: [
+      {
+        key: 'features.auth.2fa',
+        tier: 'OPTIONAL',
+        user_can_disable: true,
+        dependencies: [],
+        disable_escalation: [],
+      },
+    ],
+    core_v1_global_features: ['features.core.auth'],
+  }
+}
+
+async function loginFromAuthPage(user: ReturnType<typeof setupApp>['user'], email: string, password: string) {
+  await user.clear(screen.getByTestId('auth-email-input'))
+  await user.type(screen.getByTestId('auth-email-input'), email)
+  await user.clear(screen.getByTestId('auth-password-input'))
+  await user.type(screen.getByTestId('auth-password-input'), password)
+  await user.click(screen.getByTestId('auth-login'))
+}
+
 describe('AuthPage', () => {
   beforeEach(() => {
     window.localStorage.clear()
@@ -10,17 +60,7 @@ describe('AuthPage', () => {
   })
 
   it('renders dedicated auth route and api connection panel', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          code: 'UNAUTHORIZED',
-          message: 'unauthorized',
-          retryable: false,
-          correlation_id: 'auth-boot-1',
-        }),
-        { status: 401, headers: { 'content-type': 'application/json' } },
-      ),
-    )
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(unauthorizedResponse('auth-boot-1'))
 
     setupApp('/auth')
 
@@ -31,17 +71,7 @@ describe('AuthPage', () => {
   })
 
   it('shows missing credentials error', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          code: 'UNAUTHORIZED',
-          message: 'unauthorized',
-          retryable: false,
-          correlation_id: 'auth-boot-2',
-        }),
-        { status: 401, headers: { 'content-type': 'application/json' } },
-      ),
-    )
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(unauthorizedResponse('auth-boot-2'))
     const { user } = setupApp('/auth')
 
     await user.click(screen.getByTestId('auth-login'))
@@ -58,23 +88,10 @@ describe('AuthPage', () => {
         return Promise.resolve(new Response(null, { status: 202 }))
       }
       if (url.endsWith('/auth/me')) {
-        return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              code: 'UNAUTHORIZED',
-              message: 'unauthorized',
-              retryable: false,
-              correlation_id: 'auth-boot-3',
-            }),
-            { status: 401, headers: { 'content-type': 'application/json' } },
-          ),
-        )
+        return Promise.resolve(unauthorizedResponse('auth-boot-3'))
       }
       return Promise.resolve(
-        new Response('{}', {
-          status: 200,
-          headers: { 'content-type': 'application/json' },
-        }),
+        jsonResponse({}),
       )
     })
     vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
@@ -95,23 +112,10 @@ describe('AuthPage', () => {
         return Promise.resolve(new Response(null, { status: 200 }))
       }
       if (url.endsWith('/auth/me')) {
-        return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              code: 'UNAUTHORIZED',
-              message: 'unauthorized',
-              retryable: false,
-              correlation_id: 'auth-boot-4',
-            }),
-            { status: 401, headers: { 'content-type': 'application/json' } },
-          ),
-        )
+        return Promise.resolve(unauthorizedResponse('auth-boot-4'))
       }
       return Promise.resolve(
-        new Response('{}', {
-          status: 200,
-          headers: { 'content-type': 'application/json' },
-        }),
+        jsonResponse({}),
       )
     })
     vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
@@ -134,23 +138,10 @@ describe('AuthPage', () => {
         return Promise.resolve(new Response(null, { status: 202 }))
       }
       if (url.endsWith('/auth/me')) {
-        return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              code: 'UNAUTHORIZED',
-              message: 'unauthorized',
-              retryable: false,
-              correlation_id: 'auth-verify-boot-1',
-            }),
-            { status: 401, headers: { 'content-type': 'application/json' } },
-          ),
-        )
+        return Promise.resolve(unauthorizedResponse('auth-verify-boot-1'))
       }
       return Promise.resolve(
-        new Response('{}', {
-          status: 200,
-          headers: { 'content-type': 'application/json' },
-        }),
+        jsonResponse({}),
       )
     })
     vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
@@ -169,49 +160,25 @@ describe('AuthPage', () => {
       const url = String(input)
       if (url.endsWith('/auth/login')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              access_token: 'token-auth-verify-admin',
-              token_type: 'Bearer',
-              client_kind: 'UI_RUST',
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            access_token: 'token-auth-verify-admin',
+            token_type: 'Bearer',
+            client_kind: 'UI_RUST',
+          }),
         )
       }
       if (url.endsWith('/auth/me')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              email: 'admin@example.com',
-              display_name: 'Verify Admin',
-              mfa_enabled: false,
-              roles: ['ADMIN'],
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            email: 'admin@example.com',
+            display_name: 'Verify Admin',
+            mfa_enabled: false,
+            roles: ['ADMIN'],
+          }),
         )
       }
       if (url.endsWith('/auth/me/features')) {
-        return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              user_feature_enabled: { 'features.auth.2fa': true },
-              effective_feature_enabled: { 'features.auth.2fa': true },
-              feature_governance: [
-                {
-                  key: 'features.auth.2fa',
-                  tier: 'OPTIONAL',
-                  user_can_disable: true,
-                  dependencies: [],
-                  disable_escalation: [],
-                },
-              ],
-              core_v1_global_features: ['features.core.auth'],
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
-        )
+        return Promise.resolve(jsonResponse(auth2faFeatures({ enabled: true })))
       }
       if (url.endsWith('/auth/verify-email/confirm')) {
         return Promise.resolve(new Response(null, { status: 200 }))
@@ -220,10 +187,7 @@ describe('AuthPage', () => {
         return Promise.resolve(new Response(null, { status: 200 }))
       }
       return Promise.resolve(
-        new Response('{}', {
-          status: 200,
-          headers: { 'content-type': 'application/json' },
-        }),
+        jsonResponse({}),
       )
     })
     vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
@@ -234,9 +198,7 @@ describe('AuthPage', () => {
     await user.click(screen.getByTestId('auth-verify-email-confirm'))
     expect(await screen.findByTestId('auth-verify-email-status')).toHaveTextContent('Email vérifié.')
 
-    await user.type(screen.getByTestId('auth-email-input'), 'admin@example.com')
-    await user.type(screen.getByTestId('auth-password-input'), 'secret')
-    await user.click(screen.getByTestId('auth-login'))
+    await loginFromAuthPage(user, 'admin@example.com', 'secret')
 
     await user.click(screen.getByTestId('auth-verify-email-mode-admin'))
     await user.clear(screen.getByTestId('auth-verify-email-input'))
@@ -252,48 +214,24 @@ describe('AuthPage', () => {
       const url = String(input)
       if (url.endsWith('/auth/login')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              access_token: 'token-auth-1',
-              token_type: 'Bearer',
-              client_kind: 'UI_RUST',
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            access_token: 'token-auth-1',
+            token_type: 'Bearer',
+            client_kind: 'UI_RUST',
+          }),
         )
       }
       if (url.endsWith('/auth/me')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              email: 'user@example.com',
-              display_name: 'Auth User',
-              mfa_enabled: false,
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            email: 'user@example.com',
+            display_name: 'Auth User',
+            mfa_enabled: false,
+          }),
         )
       }
       if (url.endsWith('/auth/me/features')) {
-        return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              user_feature_enabled: { 'features.auth.2fa': true },
-              effective_feature_enabled: { 'features.auth.2fa': true },
-              feature_governance: [
-                {
-                  key: 'features.auth.2fa',
-                  tier: 'OPTIONAL',
-                  user_can_disable: true,
-                  dependencies: [],
-                  disable_escalation: [],
-                },
-              ],
-              core_v1_global_features: ['features.core.auth'],
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
-        )
+        return Promise.resolve(jsonResponse(auth2faFeatures({ enabled: true })))
       }
       if (url.endsWith('/app/policy')) {
         return Promise.resolve(
@@ -307,20 +245,14 @@ describe('AuthPage', () => {
       }
       if (url.includes('/assets')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              items: [],
-              next_cursor: null,
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            items: [],
+            next_cursor: null,
+          }),
         )
       }
       return Promise.resolve(
-        new Response('{}', {
-          status: 200,
-          headers: { 'content-type': 'application/json' },
-        }),
+        jsonResponse({}),
       )
     })
     vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
@@ -328,11 +260,7 @@ describe('AuthPage', () => {
 
     await user.clear(screen.getByTestId('api-base-url-input'))
     await user.type(screen.getByTestId('api-base-url-input'), 'https://api.local/v1')
-    await user.clear(screen.getByTestId('auth-email-input'))
-    await user.type(screen.getByTestId('auth-email-input'), 'user@example.com')
-    await user.clear(screen.getByTestId('auth-password-input'))
-    await user.type(screen.getByTestId('auth-password-input'), 'secret')
-    await user.click(screen.getByTestId('auth-login'))
+    await loginFromAuthPage(user, 'user@example.com', 'secret')
 
     expect(await screen.findByTestId('auth-status')).toHaveTextContent('Authentification réussie.')
 
@@ -360,74 +288,45 @@ describe('AuthPage', () => {
         const body = JSON.parse(String(init?.body ?? '{}')) as { otp_code?: string }
         if (!body.otp_code) {
           return Promise.resolve(
-            new Response(
-              JSON.stringify({
+            jsonResponse(
+              {
                 code: 'MFA_REQUIRED',
                 message: 'mfa required',
                 retryable: false,
                 correlation_id: 'mfa-auth-1',
-              }),
-              { status: 401, headers: { 'content-type': 'application/json' } },
+              },
+              401,
             ),
           )
         }
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              access_token: 'token-auth-mfa',
-              token_type: 'Bearer',
-              client_kind: 'UI_RUST',
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            access_token: 'token-auth-mfa',
+            token_type: 'Bearer',
+            client_kind: 'UI_RUST',
+          }),
         )
       }
       if (url.endsWith('/auth/me')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              email: 'user@example.com',
-              display_name: 'MFA User',
-              mfa_enabled: true,
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            email: 'user@example.com',
+            display_name: 'MFA User',
+            mfa_enabled: true,
+          }),
         )
       }
       if (url.endsWith('/auth/me/features')) {
-        return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              user_feature_enabled: { 'features.auth.2fa': true },
-              effective_feature_enabled: { 'features.auth.2fa': true },
-              feature_governance: [
-                {
-                  key: 'features.auth.2fa',
-                  tier: 'OPTIONAL',
-                  user_can_disable: true,
-                  dependencies: [],
-                  disable_escalation: [],
-                },
-              ],
-              core_v1_global_features: ['features.core.auth'],
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
-        )
+        return Promise.resolve(jsonResponse(auth2faFeatures({ enabled: true })))
       }
       return Promise.resolve(
-        new Response('{}', {
-          status: 200,
-          headers: { 'content-type': 'application/json' },
-        }),
+        jsonResponse({}),
       )
     })
     vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
     const { user } = setupApp('/auth')
 
-    await user.type(screen.getByTestId('auth-email-input'), 'user@example.com')
-    await user.type(screen.getByTestId('auth-password-input'), 'secret')
-    await user.click(screen.getByTestId('auth-login'))
+    await loginFromAuthPage(user, 'user@example.com', 'secret')
 
     expect(await screen.findByTestId('auth-status')).toHaveTextContent('La 2FA est requise')
 
@@ -445,83 +344,36 @@ describe('AuthPage', () => {
       const url = String(input)
       if (url.endsWith('/auth/login')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              access_token: 'token-auth-feature',
-              token_type: 'Bearer',
-              client_kind: 'UI_RUST',
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            access_token: 'token-auth-feature',
+            token_type: 'Bearer',
+            client_kind: 'UI_RUST',
+          }),
         )
       }
       if (url.endsWith('/auth/me')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              email: 'user@example.com',
-              display_name: 'Feature User',
-              mfa_enabled: false,
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            email: 'user@example.com',
+            display_name: 'Feature User',
+            mfa_enabled: false,
+          }),
         )
       }
       if (url.endsWith('/auth/me/features') && (init?.method ?? 'GET') === 'GET') {
-        return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              user_feature_enabled: { 'features.auth.2fa': true },
-              effective_feature_enabled: { 'features.auth.2fa': true },
-              feature_governance: [
-                {
-                  key: 'features.auth.2fa',
-                  tier: 'OPTIONAL',
-                  user_can_disable: true,
-                  dependencies: [],
-                  disable_escalation: [],
-                },
-              ],
-              core_v1_global_features: ['features.core.auth'],
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
-        )
+        return Promise.resolve(jsonResponse(auth2faFeatures({ enabled: true })))
       }
       if (url.endsWith('/auth/me/features') && init?.method === 'PATCH') {
-        return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              user_feature_enabled: { 'features.auth.2fa': false },
-              effective_feature_enabled: { 'features.auth.2fa': false },
-              feature_governance: [
-                {
-                  key: 'features.auth.2fa',
-                  tier: 'OPTIONAL',
-                  user_can_disable: true,
-                  dependencies: [],
-                  disable_escalation: [],
-                },
-              ],
-              core_v1_global_features: ['features.core.auth'],
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
-        )
+        return Promise.resolve(jsonResponse(auth2faFeatures({ enabled: false })))
       }
       return Promise.resolve(
-        new Response('{}', {
-          status: 200,
-          headers: { 'content-type': 'application/json' },
-        }),
+        jsonResponse({}),
       )
     })
     vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
     const { user } = setupApp('/auth')
 
-    await user.type(screen.getByTestId('auth-email-input'), 'user@example.com')
-    await user.type(screen.getByTestId('auth-password-input'), 'secret')
-    await user.click(screen.getByTestId('auth-login'))
+    await loginFromAuthPage(user, 'user@example.com', 'secret')
 
     expect(await screen.findByLabelText('Authentification à deux facteurs')).toBeInTheDocument()
     await user.click(screen.getByTestId('auth-mfa-user-toggle'))
@@ -536,34 +388,28 @@ describe('AuthPage', () => {
       const url = String(input)
       if (url.endsWith('/auth/me')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
+          jsonResponse(
+            {
               code: 'UNAUTHORIZED',
               message: 'expired',
               retryable: false,
               correlation_id: 'expired-1',
-            }),
-            { status: 401, headers: { 'content-type': 'application/json' } },
+            },
+            401,
           ),
         )
       }
       if (url.endsWith('/auth/me/features')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              user_feature_enabled: {},
-              effective_feature_enabled: {},
-              feature_governance: [],
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            user_feature_enabled: {},
+            effective_feature_enabled: {},
+            feature_governance: [],
+          }),
         )
       }
       return Promise.resolve(
-        new Response('{}', {
-          status: 200,
-          headers: { 'content-type': 'application/json' },
-        }),
+        jsonResponse({}),
       )
     })
     vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
@@ -580,58 +426,31 @@ describe('AuthPage', () => {
       const url = String(input)
       if (url.endsWith('/auth/login')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              access_token: 'token-auth-mfa-cycle',
-              token_type: 'Bearer',
-              client_kind: 'UI_RUST',
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            access_token: 'token-auth-mfa-cycle',
+            token_type: 'Bearer',
+            client_kind: 'UI_RUST',
+          }),
         )
       }
       if (url.endsWith('/auth/me')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              email: 'user@example.com',
-              display_name: 'MFA Cycle User',
-              mfa_enabled: currentMfaEnabled,
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            email: 'user@example.com',
+            display_name: 'MFA Cycle User',
+            mfa_enabled: currentMfaEnabled,
+          }),
         )
       }
       if (url.endsWith('/auth/me/features')) {
-        return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              user_feature_enabled: { 'features.auth.2fa': true },
-              effective_feature_enabled: { 'features.auth.2fa': true },
-              feature_governance: [
-                {
-                  key: 'features.auth.2fa',
-                  tier: 'OPTIONAL',
-                  user_can_disable: true,
-                  dependencies: [],
-                  disable_escalation: [],
-                },
-              ],
-              core_v1_global_features: ['features.core.auth'],
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
-        )
+        return Promise.resolve(jsonResponse(auth2faFeatures({ enabled: true })))
       }
       if (url.endsWith('/auth/2fa/setup')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              secret: 'ABC123',
-              otpauth_uri: 'otpauth://totp/retaia',
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            secret: 'ABC123',
+            otpauth_uri: 'otpauth://totp/retaia',
+          }),
         )
       }
       if (url.endsWith('/auth/2fa/enable')) {
@@ -643,18 +462,13 @@ describe('AuthPage', () => {
         return Promise.resolve(new Response(undefined, { status: 204 }))
       }
       return Promise.resolve(
-        new Response('{}', {
-          status: 200,
-          headers: { 'content-type': 'application/json' },
-        }),
+        jsonResponse({}),
       )
     })
     vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
     const { user } = setupApp('/auth')
 
-    await user.type(screen.getByTestId('auth-email-input'), 'user@example.com')
-    await user.type(screen.getByTestId('auth-password-input'), 'secret')
-    await user.click(screen.getByTestId('auth-login'))
+    await loginFromAuthPage(user, 'user@example.com', 'secret')
 
     expect(await screen.findByTestId('auth-mfa-setup')).toBeInTheDocument()
     await user.click(screen.getByTestId('auth-mfa-setup'))
@@ -679,104 +493,55 @@ describe('AuthPage', () => {
       const url = String(input)
       if (url.endsWith('/auth/login')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              access_token: 'token-auth-admin',
-              token_type: 'Bearer',
-              client_kind: 'UI_RUST',
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            access_token: 'token-auth-admin',
+            token_type: 'Bearer',
+            client_kind: 'UI_RUST',
+          }),
         )
       }
       if (url.endsWith('/auth/me')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              email: 'admin@example.com',
-              display_name: 'Admin User',
-              mfa_enabled: false,
-              roles: ['ADMIN'],
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            email: 'admin@example.com',
+            display_name: 'Admin User',
+            mfa_enabled: false,
+            roles: ['ADMIN'],
+          }),
         )
       }
       if (url.endsWith('/auth/me/features')) {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              user_feature_enabled: { 'features.auth.2fa': true },
-              effective_feature_enabled: { 'features.auth.2fa': appMfaFeatureEnabled },
-              feature_governance: [
-                {
-                  key: 'features.auth.2fa',
-                  tier: 'OPTIONAL',
-                  user_can_disable: true,
-                  dependencies: [],
-                  disable_escalation: [],
-                },
-              ],
-              core_v1_global_features: ['features.core.auth'],
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse(auth2faFeatures({ enabled: true, effective: appMfaFeatureEnabled })),
         )
       }
       if (url.endsWith('/app/features') && (init?.method ?? 'GET') === 'GET') {
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              app_feature_enabled: { 'features.auth.2fa': appMfaFeatureEnabled },
-              feature_governance: [
-                {
-                  key: 'features.auth.2fa',
-                  tier: 'OPTIONAL',
-                  user_can_disable: true,
-                  dependencies: [],
-                  disable_escalation: [],
-                },
-              ],
-              core_v1_global_features: ['features.core.auth'],
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            app_feature_enabled: { 'features.auth.2fa': appMfaFeatureEnabled },
+            feature_governance: auth2faFeatures({ enabled: true }).feature_governance,
+            core_v1_global_features: ['features.core.auth'],
+          }),
         )
       }
       if (url.endsWith('/app/features') && init?.method === 'PATCH') {
         appMfaFeatureEnabled = false
         return Promise.resolve(
-          new Response(
-            JSON.stringify({
-              app_feature_enabled: { 'features.auth.2fa': false },
-              feature_governance: [
-                {
-                  key: 'features.auth.2fa',
-                  tier: 'OPTIONAL',
-                  user_can_disable: true,
-                  dependencies: [],
-                  disable_escalation: [],
-                },
-              ],
-              core_v1_global_features: ['features.core.auth'],
-            }),
-            { status: 200, headers: { 'content-type': 'application/json' } },
-          ),
+          jsonResponse({
+            app_feature_enabled: { 'features.auth.2fa': false },
+            feature_governance: auth2faFeatures({ enabled: true }).feature_governance,
+            core_v1_global_features: ['features.core.auth'],
+          }),
         )
       }
       return Promise.resolve(
-        new Response('{}', {
-          status: 200,
-          headers: { 'content-type': 'application/json' },
-        }),
+        jsonResponse({}),
       )
     })
     vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
     const { user } = setupApp('/auth')
 
-    await user.type(screen.getByTestId('auth-email-input'), 'admin@example.com')
-    await user.type(screen.getByTestId('auth-password-input'), 'secret')
-    await user.click(screen.getByTestId('auth-login'))
+    await loginFromAuthPage(user, 'admin@example.com', 'secret')
 
     expect(await screen.findByTestId('auth-app-feature-state')).toHaveTextContent(
       'Feature globale 2FA: activée',

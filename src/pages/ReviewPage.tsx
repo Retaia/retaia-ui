@@ -311,6 +311,56 @@ function ReviewPage() {
     [apiClient, isApiAssetSource, mapDecisionErrorToMessage],
   )
 
+  const finalizeBulkDecision = useCallback(
+    ({
+      action,
+      targetIds,
+      successIds,
+      firstErrorMessage,
+      activityMessage,
+      onSuccess,
+    }: {
+      action: 'KEEP' | 'REJECT'
+      targetIds: string[]
+      successIds: string[]
+      firstErrorMessage: string | null
+      activityMessage: string
+      onSuccess?: () => void
+    }) => {
+      if (successIds.length === 0) {
+        if (firstErrorMessage) {
+          setDecisionStatus({
+            kind: 'error',
+            message: t('detail.decisionError', { message: firstErrorMessage }),
+          })
+        }
+        return
+      }
+
+      recordAction(activityMessage)
+      const nextState = action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT'
+      setAssets((current) => updateAssetsState(current, successIds, nextState))
+      onSuccess?.()
+      const failedCount = targetIds.length - successIds.length
+      if (failedCount > 0 && firstErrorMessage) {
+        setDecisionStatus({
+          kind: 'error',
+          message: t('detail.decisionPartial', {
+            success: successIds.length,
+            failed: failedCount,
+            message: firstErrorMessage,
+          }),
+        })
+        return
+      }
+      setDecisionStatus({
+        kind: 'success',
+        message: t('detail.decisionBulkSaved', { action, count: successIds.length }),
+      })
+    },
+    [recordAction, t],
+  )
+
   const applyDecisionToVisible = useCallback(
     (action: 'KEEP' | 'REJECT') => {
       if (isApiAssetSource && !bulkDecisionsEnabled) {
@@ -328,40 +378,18 @@ function ReviewPage() {
       const run = async () => {
         setDecisionStatus(null)
         const { successIds, firstErrorMessage } = await submitDecisionsForIds(targetIds, action)
-        if (successIds.length === 0) {
-          if (firstErrorMessage) {
-            setDecisionStatus({
-              kind: 'error',
-              message: t('detail.decisionError', { message: firstErrorMessage }),
-            })
-          }
-          return
-        }
-
-        recordAction(t('activity.actionVisible', { action, count: successIds.length }))
-        const nextState = action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT'
-        setAssets((current) => updateAssetsState(current, successIds, nextState))
-        const failedCount = targetIds.length - successIds.length
-        if (failedCount > 0 && firstErrorMessage) {
-          setDecisionStatus({
-            kind: 'error',
-            message: t('detail.decisionPartial', {
-              success: successIds.length,
-              failed: failedCount,
-              message: firstErrorMessage,
-            }),
-          })
-          return
-        }
-        setDecisionStatus({
-          kind: 'success',
-          message: t('detail.decisionBulkSaved', { action, count: successIds.length }),
+        finalizeBulkDecision({
+          action,
+          targetIds,
+          successIds,
+          firstErrorMessage,
+          activityMessage: t('activity.actionVisible', { action, count: successIds.length }),
         })
       }
 
       void run()
     },
-    [bulkDecisionsEnabled, isApiAssetSource, recordAction, submitDecisionsForIds, t, visibleAssets],
+    [bulkDecisionsEnabled, finalizeBulkDecision, isApiAssetSource, submitDecisionsForIds, t, visibleAssets],
   )
 
   const applyDecisionToBatch = useCallback(
@@ -381,41 +409,21 @@ function ReviewPage() {
         setDecisionStatus(null)
         const targetIds = [...batchIds]
         const { successIds, firstErrorMessage } = await submitDecisionsForIds(targetIds, action)
-        if (successIds.length === 0) {
-          if (firstErrorMessage) {
-            setDecisionStatus({
-              kind: 'error',
-              message: t('detail.decisionError', { message: firstErrorMessage }),
-            })
-          }
-          return
-        }
-
-        recordAction(t('activity.actionBatch', { action, count: successIds.length }))
-        const nextState = action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT'
-        setAssets((current) => updateAssetsState(current, successIds, nextState))
-        setBatchIds((current) => current.filter((id) => !successIds.includes(id)))
-        const failedCount = targetIds.length - successIds.length
-        if (failedCount > 0 && firstErrorMessage) {
-          setDecisionStatus({
-            kind: 'error',
-            message: t('detail.decisionPartial', {
-              success: successIds.length,
-              failed: failedCount,
-              message: firstErrorMessage,
-            }),
-          })
-          return
-        }
-        setDecisionStatus({
-          kind: 'success',
-          message: t('detail.decisionBulkSaved', { action, count: successIds.length }),
+        finalizeBulkDecision({
+          action,
+          targetIds,
+          successIds,
+          firstErrorMessage,
+          activityMessage: t('activity.actionBatch', { action, count: successIds.length }),
+          onSuccess: () => {
+            setBatchIds((current) => current.filter((id) => !successIds.includes(id)))
+          },
         })
       }
 
       void run()
     },
-    [batchIds, bulkDecisionsEnabled, isApiAssetSource, recordAction, submitDecisionsForIds, t],
+    [batchIds, bulkDecisionsEnabled, finalizeBulkDecision, isApiAssetSource, submitDecisionsForIds, t],
   )
 
   const clearBatch = useCallback(() => {

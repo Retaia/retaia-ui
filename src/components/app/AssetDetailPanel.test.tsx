@@ -32,8 +32,17 @@ const availability = getActionAvailability({
   purgePreviewMatchesSelected: false,
 })
 
-function renderPanel(selectedAsset: Asset) {
-  const onSaveMetadata = vi.fn(async () => {})
+function renderPanel(
+  selectedAsset: Asset,
+  options?: {
+    decisionStatus?: { kind: 'success' | 'error'; message: string } | null
+    onSaveMetadata?: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
+    onRefreshAsset?: () => Promise<void>
+    showRefreshAction?: boolean
+  },
+) {
+  const onSaveMetadata = options?.onSaveMetadata ?? vi.fn(async () => {})
+  const onRefreshAsset = options?.onRefreshAsset ?? vi.fn(async () => {})
   return render(
     <AssetDetailPanel
       selectedAsset={selectedAsset}
@@ -41,7 +50,7 @@ function renderPanel(selectedAsset: Asset) {
       previewingPurge={false}
       executingPurge={false}
       purgeStatus={null}
-      decisionStatus={null}
+      decisionStatus={options?.decisionStatus ?? null}
       savingMetadata={false}
       metadataStatus={null}
       t={t}
@@ -49,8 +58,8 @@ function renderPanel(selectedAsset: Asset) {
       onSaveMetadata={onSaveMetadata}
       onPreviewPurge={async () => {}}
       onExecutePurge={async () => {}}
-      onRefreshAsset={async () => {}}
-      showRefreshAction={false}
+      onRefreshAsset={onRefreshAsset}
+      showRefreshAction={options?.showRefreshAction ?? false}
       refreshingAsset={false}
     />,
   )
@@ -151,32 +160,16 @@ describe('AssetDetailPanel media preview', () => {
   it('adds a tag and submits metadata payload', async () => {
     const user = userEvent.setup()
     const onSaveMetadata = vi.fn(async () => {})
-    render(
-      <AssetDetailPanel
-        selectedAsset={{
-          id: 'A-010',
-          name: 'asset.mov',
-          state: 'DECISION_PENDING',
-          mediaType: 'VIDEO',
-          tags: ['existing'],
-          notes: '',
-        }}
-        availability={availability}
-        previewingPurge={false}
-        executingPurge={false}
-        purgeStatus={null}
-        decisionStatus={null}
-        savingMetadata={false}
-        metadataStatus={null}
-        t={t}
-        onDecision={() => {}}
-        onSaveMetadata={onSaveMetadata}
-        onPreviewPurge={async () => {}}
-        onExecutePurge={async () => {}}
-        onRefreshAsset={async () => {}}
-        showRefreshAction={false}
-        refreshingAsset={false}
-      />,
+    renderPanel(
+      {
+        id: 'A-010',
+        name: 'asset.mov',
+        state: 'DECISION_PENDING',
+        mediaType: 'VIDEO',
+        tags: ['existing'],
+        notes: '',
+      },
+      { onSaveMetadata },
     )
 
     await user.type(screen.getByTestId('asset-tag-input'), 'urgent')
@@ -193,30 +186,18 @@ describe('AssetDetailPanel media preview', () => {
   it('shows refresh action and calls handler', async () => {
     const user = userEvent.setup()
     const onRefreshAsset = vi.fn(async () => {})
-    render(
-      <AssetDetailPanel
-        selectedAsset={{
-          id: 'A-020',
-          name: 'asset.mov',
-          state: 'DECISION_PENDING',
-          mediaType: 'VIDEO',
-        }}
-        availability={availability}
-        previewingPurge={false}
-        executingPurge={false}
-        purgeStatus={null}
-        decisionStatus={{ kind: 'error', message: 'state conflict' }}
-        savingMetadata={false}
-        metadataStatus={null}
-        t={t}
-        onDecision={() => {}}
-        onSaveMetadata={async () => {}}
-        onPreviewPurge={async () => {}}
-        onExecutePurge={async () => {}}
-        onRefreshAsset={onRefreshAsset}
-        showRefreshAction
-        refreshingAsset={false}
-      />,
+    renderPanel(
+      {
+        id: 'A-020',
+        name: 'asset.mov',
+        state: 'DECISION_PENDING',
+        mediaType: 'VIDEO',
+      },
+      {
+        decisionStatus: { kind: 'error', message: 'state conflict' },
+        onRefreshAsset,
+        showRefreshAction: true,
+      },
     )
 
     await user.click(screen.getByTestId('asset-refresh-action'))
