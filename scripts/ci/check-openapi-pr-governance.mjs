@@ -31,7 +31,40 @@ const changedFiles = execSync(`git diff --name-only origin/${baseRef}...HEAD`, {
   .map((line) => line.trim())
   .filter(Boolean)
 
-const openApiTouched = changedFiles.includes('api/openapi/v1.yaml')
+const isLegacyMirrorTouched = changedFiles.includes('api/openapi/v1.yaml')
+const isSpecsSubmoduleTouched = changedFiles.includes('specs')
+
+const didOpenApiChangeInSpecsSubmodule = () => {
+  if (!isSpecsSubmoduleTouched) {
+    return false
+  }
+
+  const baseSpecsCommit = execSync(`git rev-parse origin/${baseRef}:specs`, {
+    encoding: 'utf-8',
+  }).trim()
+  const headSpecsCommit = execSync('git rev-parse HEAD:specs', {
+    encoding: 'utf-8',
+  }).trim()
+
+  if (baseSpecsCommit === headSpecsCommit) {
+    return false
+  }
+
+  execSync(`git -C specs fetch --quiet origin ${baseSpecsCommit} ${headSpecsCommit}`)
+  const changedInSpecs = execSync(
+    `git -C specs diff --name-only ${baseSpecsCommit} ${headSpecsCommit} -- api/openapi/v1.yaml`,
+    {
+      encoding: 'utf-8',
+    },
+  )
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+
+  return changedInSpecs.includes('api/openapi/v1.yaml')
+}
+
+const openApiTouched = isLegacyMirrorTouched || didOpenApiChangeInSpecsSubmodule()
 if (!openApiTouched) {
   console.log('OpenAPI file not changed in this PR. Governance check not required.')
   process.exit(0)

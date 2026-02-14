@@ -37,6 +37,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          submodules: recursive
 
       - name: Ensure PR branch includes latest base branch commit
         env:
@@ -89,6 +90,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          submodules: recursive
 
       - name: Setup Node
         uses: actions/setup-node@v4
