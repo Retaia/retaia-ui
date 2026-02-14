@@ -120,6 +120,8 @@ Toute règle de comportement DOIT vivre dans `retaia-docs`.
 * Aucun push direct sur `master` n’est autorisé.
 * Tout changement passe par une Pull Request.
 * Préférer une branche dédiée par feature (ex: `codex/<feature>`).
+* Avant tout push d’une branche feature/PR, rebase obligatoire sur la base courante:
+  `git fetch origin && git rebase origin/master`.
 
 ---
 
