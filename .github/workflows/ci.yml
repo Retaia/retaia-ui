@@ -192,9 +192,38 @@ jobs:
       - name: Build and enforce performance budget
         run: npm run perf:ci
 
-  e2e-bdd:
+  build-preview-dist:
     runs-on: ubuntu-latest
     needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build preview dist
+        run: npm run build
+
+      - name: Upload preview dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-dist
+          retention-days: 1
+          path: |
+            dist/**
+
+  e2e-bdd:
+    runs-on: ubuntu-latest
+    needs:
+      - test
+      - build-preview-dist
     timeout-minutes: 25
     strategy:
       fail-fast: false
@@ -213,6 +242,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Download preview dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: preview-dist
+          path: dist
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps ${{ matrix.browser }}
@@ -249,6 +284,7 @@ jobs:
       - test
       - security-audit
       - performance-budget
+      - build-preview-dist
       - e2e-bdd
     steps:
       - name: Required CI gate

@@ -40,5 +40,5 @@
 
 - `npm run bdd:test`
 - `npm run e2e:bdd`
-- `npm run e2e:bdd:ci` (CI: build + `vite preview`)
+- `npm run e2e:bdd:ci` (CI: `vite preview` sur `dist` deja built une fois avant la matrice)
 - `APP_URL=http://127.0.0.1:4173 npm run bdd:test` (override URL cible pour Playwright/Cucumber)
