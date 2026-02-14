@@ -66,9 +66,9 @@ BDD / E2E / visuel:
 
 - `npm run bdd:test`
 - `npm run e2e:bdd`
-- `npm run e2e:bdd:ci`
+- `npm run e2e:bdd:ci` (run sur build via `vite preview`)
 - `npm run e2e:bdd:critical`
-- `npm run visual:test`
+- `npm run visual:test` (run sur build via `vite preview`)
 
 Contrat API:
 
