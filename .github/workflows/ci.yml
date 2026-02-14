@@ -192,38 +192,9 @@ jobs:
       - name: Build and enforce performance budget
         run: npm run perf:ci
 
-  build-preview-dist:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build preview dist
-        run: npm run build
-
-      - name: Upload preview dist artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: preview-dist
-          retention-days: 1
-          path: |
-            dist/**
-
   e2e-bdd:
     runs-on: ubuntu-latest
-    needs:
-      - test
-      - build-preview-dist
+    needs: test
     timeout-minutes: 25
     strategy:
       fail-fast: false
@@ -243,23 +214,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Download preview dist artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: preview-dist
-          path: dist
-
       - name: Install Playwright browser
         run: npx playwright install --with-deps ${{ matrix.browser }}
 
       - name: Run BDD E2E tests
         env:
-          APP_URL: http://127.0.0.1:4173
+          E2E_TEST_ENV_URL: ${{ vars.E2E_TEST_ENV_URL }}
           PW_BROWSER: ${{ matrix.browser }}
           CI: true
           TZ: UTC
           LANG: C.UTF-8
-        run: npm run e2e:bdd:ci
+        run: |
+          if [ -n "$E2E_TEST_ENV_URL" ]; then
+            APP_URL="$E2E_TEST_ENV_URL" npm run bdd:test:ci
+          else
+            APP_URL="http://127.0.0.1:4173" npm run e2e:bdd:ci
+          fi
 
       - name: Print BDD failure summary
         if: failure()
@@ -284,7 +254,6 @@ jobs:
       - test
       - security-audit
       - performance-budget
-      - build-preview-dist
       - e2e-bdd
     steps:
       - name: Required CI gate

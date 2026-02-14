@@ -66,7 +66,7 @@ BDD / E2E / visuel:
 
 - `npm run bdd:test`
 - `npm run e2e:bdd`
-- `npm run e2e:bdd:ci` (run sur build via `vite preview`; en CI, le build est mutualise avant la matrice navigateurs)
+- `npm run e2e:bdd:ci` (run en mode dev server local)
 - `npm run e2e:bdd:critical`
 - `npm run visual:test`
 
@@ -89,6 +89,7 @@ Voir `.env.example`.
 Variables utilisées côté UI:
 
 - `VITE_API_BASE_URL`
+- CI E2E: variable GitHub `E2E_TEST_ENV_URL` (optionnelle) pour cibler un environnement de test distant au lieu du serveur local.
 - `VITE_API_TOKEN`
 - `VITE_ASSET_SOURCE` (ex: `api` pour forcer la source API)
 

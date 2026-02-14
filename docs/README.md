@@ -40,5 +40,6 @@
 
 - `npm run bdd:test`
 - `npm run e2e:bdd`
-- `npm run e2e:bdd:ci` (CI: `vite preview` sur `dist` deja built une fois avant la matrice)
+- `npm run e2e:bdd:ci` (CI par defaut sur serveur dev local)
 - `APP_URL=http://127.0.0.1:4173 npm run bdd:test` (override URL cible pour Playwright/Cucumber)
+- CI: definir la variable repo `E2E_TEST_ENV_URL` pour executer les BDD contre un environnement test distant.
