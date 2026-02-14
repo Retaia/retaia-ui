@@ -45,6 +45,8 @@ La logique métier est déplacée autant que possible dans des hooks dédiés.
 
 - `src/hooks/useAuthPageController.ts`
   Controller de la page Auth (états, orchestration API auth/2FA/features, side-effects), pour garder `AuthPage` centré sur le rendu.
+- `src/hooks/auth/useAuthFeatureGovernance.ts`
+  Sous-hook de gouvernance 2FA/features (chargement admin feature flags + toggles user/app) pour réduire le coupling dans `useAuthPageController`.
 - `src/hooks/useApiClient.ts`
   Configuration runtime API partagée (env + local storage + mock DB in-memory en `APP_ENV=test`) et création du client HTTP.
 - `src/hooks/useReviewApiRuntime.ts`

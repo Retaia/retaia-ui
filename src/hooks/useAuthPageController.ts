@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ApiError } from '../api/client'
 import { mapApiErrorToMessage } from '../api/errorMapping'
 import { useApiClient } from './useApiClient'
+import { type FeatureState, useAuthFeatureGovernance } from './auth/useAuthFeatureGovernance'
 import {
   clearApiBaseUrl,
   clearApiToken,
@@ -13,23 +14,6 @@ import {
   readStoredApiToken,
   readStoredLoginEmail,
 } from '../services/apiSession'
-
-type FeatureState = {
-  userFeatureEnabled: Record<string, boolean>
-  effectiveFeatureEnabled: Record<string, boolean>
-  featureGovernance: Array<{
-    key: string
-    user_can_disable: boolean
-  }>
-}
-
-type AppFeatureState = {
-  appFeatureEnabled: Record<string, boolean>
-  featureGovernance: Array<{
-    key: string
-    user_can_disable: boolean
-  }>
-}
 
 function normalizeFeatures(payload: {
   user_feature_enabled?: Record<string, unknown>
@@ -63,31 +47,6 @@ function normalizeFeatures(payload: {
   return {
     userFeatureEnabled,
     effectiveFeatureEnabled,
-    featureGovernance,
-  }
-}
-
-function normalizeAppFeatures(payload: {
-  app_feature_enabled?: Record<string, unknown>
-  feature_governance?: Array<{ key?: string; user_can_disable?: boolean }>
-}): AppFeatureState {
-  const appFeatureEnabled = Object.entries(payload.app_feature_enabled ?? {}).reduce<Record<string, boolean>>(
-    (acc, [key, value]) => {
-      if (typeof value === 'boolean') {
-        acc[key] = value
-      }
-      return acc
-    },
-    {},
-  )
-  const featureGovernance = (payload.feature_governance ?? [])
-    .filter((item) => typeof item.key === 'string')
-    .map((item) => ({
-      key: item.key as string,
-      user_can_disable: item.user_can_disable === true,
-    }))
-  return {
-    appFeatureEnabled,
     featureGovernance,
   }
 }
@@ -130,12 +89,6 @@ export function useAuthPageController() {
     isAdmin: boolean
   } | null>(null)
   const [userFeatureState, setUserFeatureState] = useState<FeatureState | null>(null)
-  const [appFeatureState, setAppFeatureState] = useState<AppFeatureState | null>(null)
-  const [appFeatureBusy, setAppFeatureBusy] = useState(false)
-  const [appFeatureStatus, setAppFeatureStatus] = useState<{
-    kind: 'success' | 'error'
-    message: string
-  } | null>(null)
   const [authMfaStatus, setAuthMfaStatus] = useState<{
     kind: 'success' | 'error'
     message: string
@@ -297,8 +250,6 @@ export function useAuthPageController() {
       setAuthRequiresOtp(false)
       setAuthUser(null)
       setUserFeatureState(null)
-      setAppFeatureState(null)
-      setAppFeatureStatus(null)
       setAuthMfaStatus(null)
       setAuthMfaSetup(null)
       setAuthMfaOtpAction('')
@@ -477,7 +428,6 @@ export function useAuthPageController() {
     if (!effectiveApiToken) {
       setAuthUser(null)
       setUserFeatureState(null)
-      setAppFeatureState(null)
       return
     }
 
@@ -503,7 +453,6 @@ export function useAuthPageController() {
         }
         setAuthUser(null)
         setUserFeatureState(null)
-        setAppFeatureState(null)
         if (!isApiAuthLockedByEnv && error instanceof ApiError && (error.status === 401 || error.status === 403)) {
           setApiTokenInput('')
           clearPersistedAuthToken()
@@ -520,171 +469,26 @@ export function useAuthPageController() {
       canceled = true
     }
   }, [apiClient, clearPersistedAuthToken, effectiveApiToken, isApiAuthLockedByEnv, t])
-
-  useEffect(() => {
-    if (!authUser?.isAdmin) {
-      setAppFeatureState(null)
-      return
-    }
-    let canceled = false
-    const loadAppFeatures = async () => {
-      try {
-        const appFeatures = await apiClient.getAppFeatures()
-        if (canceled) {
-          return
-        }
-        setAppFeatureState(normalizeAppFeatures(appFeatures))
-      } catch (error) {
-        if (canceled) {
-          return
-        }
-        setAppFeatureState(null)
-        setAppFeatureStatus({
-          kind: 'error',
-          message: t('app.authAppFeatureLoadError', {
-            message: mapApiErrorToMessage(error, t),
-          }),
-        })
-      }
-    }
-    void loadAppFeatures()
-    return () => {
-      canceled = true
-    }
-  }, [apiClient, authUser?.isAdmin, t])
-
-  const appMfaFeatureKey = useMemo(() => {
-    if (!appFeatureState) {
-      return null
-    }
-    const fromGovernance = appFeatureState.featureGovernance.find((item) =>
-      /(2fa|mfa|totp)/i.test(item.key),
-    )
-    if (fromGovernance) {
-      return fromGovernance.key
-    }
-    return Object.keys(appFeatureState.appFeatureEnabled).find((key) => /(2fa|mfa|totp)/i.test(key)) ?? null
-  }, [appFeatureState])
-
-  const appMfaFeatureEnabled = useMemo(() => {
-    if (!appMfaFeatureKey || !appFeatureState) {
-      return false
-    }
-    return appFeatureState.appFeatureEnabled[appMfaFeatureKey] === true
-  }, [appFeatureState, appMfaFeatureKey])
-
-  const setAppFeature = useCallback(
-    async (enabled: boolean) => {
-      if (!appMfaFeatureKey || !appFeatureState) {
-        return
-      }
-      setAppFeatureBusy(true)
-      setAppFeatureStatus(null)
-      try {
-        const response = await apiClient.updateAppFeatures({
-          app_feature_enabled: {
-            ...appFeatureState.appFeatureEnabled,
-            [appMfaFeatureKey]: enabled,
-          },
-        })
-        setAppFeatureState(normalizeAppFeatures(response))
-        setAppFeatureStatus({
-          kind: 'success',
-          message: enabled ? t('app.authAppFeatureEnabled') : t('app.authAppFeatureDisabled'),
-        })
-      } catch (error) {
-        setAppFeatureStatus({
-          kind: 'error',
-          message: t('app.authAppFeatureUpdateError', {
-            message: mapApiErrorToMessage(error, t),
-          }),
-        })
-      } finally {
-        setAppFeatureBusy(false)
-      }
-    },
-    [apiClient, appFeatureState, appMfaFeatureKey, t],
-  )
-
-  const mfaFeatureKey = useMemo(() => {
-    if (!userFeatureState) {
-      return null
-    }
-    const fromGovernance = userFeatureState.featureGovernance.find((item) =>
-      /(2fa|mfa|totp)/i.test(item.key),
-    )
-    if (fromGovernance) {
-      return fromGovernance.key
-    }
-    const fromEffective = Object.keys(userFeatureState.effectiveFeatureEnabled).find((key) =>
-      /(2fa|mfa|totp)/i.test(key),
-    )
-    return fromEffective ?? null
-  }, [userFeatureState])
-
-  const mfaFeatureAvailable = useMemo(() => {
-    if (!mfaFeatureKey || !userFeatureState) {
-      return false
-    }
-    const userEffective = userFeatureState.effectiveFeatureEnabled[mfaFeatureKey] === true
-    if (!appMfaFeatureKey) {
-      return userEffective
-    }
-    return userEffective && appMfaFeatureEnabled
-  }, [appMfaFeatureEnabled, appMfaFeatureKey, mfaFeatureKey, userFeatureState])
-
-  const mfaFeatureUserEnabled = useMemo(() => {
-    if (!mfaFeatureKey || !userFeatureState) {
-      return false
-    }
-    const current = userFeatureState.userFeatureEnabled[mfaFeatureKey]
-    return current !== false
-  }, [mfaFeatureKey, userFeatureState])
-
-  const mfaFeatureUserCanDisable = useMemo(() => {
-    if (!mfaFeatureKey || !userFeatureState) {
-      return false
-    }
-    const governance = userFeatureState.featureGovernance.find((item) => item.key === mfaFeatureKey)
-    return governance?.user_can_disable === true
-  }, [mfaFeatureKey, userFeatureState])
-
-  const setUserFeature = useCallback(
-    async (enabled: boolean) => {
-      if (!mfaFeatureKey || !userFeatureState) {
-        return
-      }
-      setAuthMfaBusy(true)
-      setAuthMfaStatus(null)
-      try {
-        const response = await apiClient.updateUserFeatures({
-          user_feature_enabled: {
-            ...userFeatureState.userFeatureEnabled,
-            [mfaFeatureKey]: enabled,
-          },
-        })
-        const normalized = normalizeFeatures(response)
-        setUserFeatureState({
-          ...normalized,
-          featureGovernance: userFeatureState.featureGovernance,
-        })
-        setAuthMfaStatus({
-          kind: 'success',
-          message: enabled ? t('app.authMfaFeatureEnabled') : t('app.authMfaFeatureDisabled'),
-        })
-      } catch (error) {
-        setAuthMfaStatus({
-          kind: 'error',
-          message: t('app.authMfaFeatureError', {
-            message: mapApiErrorToMessage(error, t),
-          }),
-        })
-      } finally {
-        setAuthMfaBusy(false)
-      }
-    },
-    [apiClient, mfaFeatureKey, t, userFeatureState],
-  )
+  const {
+    appFeatureBusy,
+    appFeatureStatus,
+    appMfaFeatureKey,
+    appMfaFeatureEnabled,
+    mfaFeatureKey,
+    mfaFeatureAvailable,
+    mfaFeatureUserEnabled,
+    mfaFeatureUserCanDisable,
+    setAppFeature,
+    setUserFeature,
+  } = useAuthFeatureGovernance({
+    apiClient,
+    t,
+    authUserIsAdmin: authUser?.isAdmin === true,
+    userFeatureState,
+    setUserFeatureState,
+    setAuthMfaStatus,
+    setAuthMfaBusy,
+  })
 
   const startMfaSetup = useCallback(async () => {
     setAuthMfaBusy(true)
