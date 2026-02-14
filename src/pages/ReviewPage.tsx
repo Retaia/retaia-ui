@@ -31,7 +31,6 @@ import {
   updateAssetsState,
 } from '../domain/assets'
 import { getActionAvailability } from '../domain/actionAvailability'
-import { normalizeReviewMetadataInput } from '../domain/review/metadata'
 import { useDensityMode } from '../hooks/useDensityMode'
 import { useBatchExecution } from '../hooks/useBatchExecution'
 import { usePurgeFlow } from '../hooks/usePurgeFlow'
@@ -45,7 +44,10 @@ import { useSelectionFlow } from '../hooks/useSelectionFlow'
 import { type Locale } from '../i18n/resources'
 import { applySingleReviewDecision } from '../application/review/applySingleReviewDecision'
 import { submitReviewDecisions } from '../application/review/submitReviewDecisions'
-import { mergeAssetWithDetail } from '../services/reviewAssetDetail'
+import {
+  refreshReviewAsset,
+  saveReviewAssetMetadata,
+} from '../application/review/reviewAssetMaintenance'
 import { isTypingContext } from '../ui/keyboard'
 import { reportUiIssue } from '../ui/telemetry'
 
@@ -521,41 +523,35 @@ function ReviewPage() {
 
   const saveSelectedAssetMetadata = useCallback(
     async (assetId: string, payload: { tags: string[]; notes: string }) => {
-      const normalized = normalizeReviewMetadataInput(payload)
-
       setSavingMetadata(true)
       setMetadataStatus(null)
       try {
-        if (isApiAssetSource) {
-          await apiClient.updateAssetMetadata(assetId, {
-            tags: normalized.tags,
-            notes: normalized.notes,
+        const result = await saveReviewAssetMetadata({
+          isApiAssetSource,
+          assetId,
+          payload,
+          updateAssetMetadata: apiClient.updateAssetMetadata,
+        })
+        if (result.kind === 'error') {
+          setMetadataStatus({
+            kind: 'error',
+            message: t('detail.taggingError', {
+              message: mapMetadataErrorToMessage(result.error),
+            }),
           })
+          return
         }
-        setAssets((current) =>
-          current.map((asset) =>
-            asset.id === assetId
-              ? { ...asset, tags: normalized.tags, notes: normalized.notes }
-              : asset,
-          ),
-        )
+        setAssets(result.apply)
         recordAction(t('activity.tagging', { id: assetId }))
         setMetadataStatus({
           kind: 'success',
           message: t('detail.taggingSaved', { id: assetId }),
         })
-      } catch (error) {
-        setMetadataStatus({
-          kind: 'error',
-          message: t('detail.taggingError', {
-            message: mapMetadataErrorToMessage(error),
-          }),
-        })
       } finally {
         setSavingMetadata(false)
       }
     },
-    [apiClient, isApiAssetSource, mapMetadataErrorToMessage, recordAction, t],
+    [apiClient.updateAssetMetadata, isApiAssetSource, mapMetadataErrorToMessage, recordAction, t],
   )
 
   const refreshSelectedAsset = useCallback(async () => {
@@ -565,16 +561,24 @@ function ReviewPage() {
     setRefreshingSelectedAsset(true)
     setRetryStatus(null)
     try {
-      const detail = await apiClient.getAssetDetail(selectedAssetId)
-      setAssets((current) =>
-        current.map((asset) =>
-          asset.id === selectedAssetId
-            ? mergeAssetWithDetail(asset, detail, {
-              includeDecisionState: true,
-            })
-            : asset,
-        ),
-      )
+      const result = await refreshReviewAsset({
+        isApiAssetSource,
+        selectedAssetId,
+        getAssetDetail: apiClient.getAssetDetail,
+      })
+      if (result.kind === 'error') {
+        setDecisionStatus({
+          kind: 'error',
+          message: t('detail.refreshError', {
+            message: mapApiErrorToMessage(result.error, t),
+          }),
+        })
+        return
+      }
+      if (result.kind === 'noop') {
+        return
+      }
+      setAssets(result.apply)
       setPurgeStatus(null)
       setMetadataStatus(null)
       setDecisionStatus({
@@ -582,18 +586,19 @@ function ReviewPage() {
         message: t('detail.refreshDone'),
       })
       setShouldRefreshSelectedAsset(false)
-    } catch (error) {
-      setDecisionStatus({
-        kind: 'error',
-        message: t('detail.refreshError', {
-          message: mapApiErrorToMessage(error, t),
-        }),
-      })
     } finally {
       setRefreshingSelectedAsset(false)
       setRetryStatus(null)
     }
-  }, [apiClient, isApiAssetSource, refreshingSelectedAsset, selectedAssetId, setPurgeStatus, setRetryStatus, t])
+  }, [
+    apiClient.getAssetDetail,
+    isApiAssetSource,
+    refreshingSelectedAsset,
+    selectedAssetId,
+    setPurgeStatus,
+    setRetryStatus,
+    t,
+  ])
   const setSelectedAssetIdFromSelectionFlow = useCallback(
     (value: string | null | ((current: string | null) => string | null)) => {
       if (typeof value === 'function') {
