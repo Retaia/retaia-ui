@@ -11,9 +11,9 @@ import {
   requestLostPassword,
   requestVerifyEmail,
   resetLostPassword,
-  setupMfa,
-  toggleMfa,
+  type AuthUserProfile,
 } from '../application/auth/authUseCases'
+import { useAuthMfaController } from './auth/useAuthMfaController'
 import { useApiClient } from './useApiClient'
 import { type FeatureState, useAuthFeatureGovernance } from './auth/useAuthFeatureGovernance'
 import {
@@ -58,23 +58,8 @@ export function useAuthPageController() {
   } | null>(null)
   const [authLoading, setAuthLoading] = useState(false)
   const [authRequiresOtp, setAuthRequiresOtp] = useState(false)
-  const [authUser, setAuthUser] = useState<{
-    email: string
-    displayName: string | null
-    mfaEnabled: boolean
-    isAdmin: boolean
-  } | null>(null)
+  const [authUser, setAuthUser] = useState<AuthUserProfile | null>(null)
   const [userFeatureState, setUserFeatureState] = useState<FeatureState | null>(null)
-  const [authMfaStatus, setAuthMfaStatus] = useState<{
-    kind: 'success' | 'error'
-    message: string
-  } | null>(null)
-  const [authMfaBusy, setAuthMfaBusy] = useState(false)
-  const [authMfaSetup, setAuthMfaSetup] = useState<{
-    secret: string
-    otpauthUri: string
-  } | null>(null)
-  const [authMfaOtpAction, setAuthMfaOtpAction] = useState('')
   const [apiConnectionStatus, setApiConnectionStatus] = useState<{
     kind: 'success' | 'error'
     message: string
@@ -108,6 +93,23 @@ export function useAuthPageController() {
     apiTokenInput,
     onAuthError: handleApiAuthError,
     onRetry: handleApiRetry,
+  })
+  const {
+    authMfaStatus,
+    setAuthMfaStatus,
+    authMfaBusy,
+    setAuthMfaBusy,
+    authMfaSetup,
+    authMfaOtpAction,
+    setAuthMfaOtpAction,
+    startMfaSetup,
+    enableMfa,
+    disableMfa,
+    resetMfaState,
+  } = useAuthMfaController({
+    apiClient,
+    t,
+    setAuthUser,
   })
 
   const saveApiConnectionSettings = useCallback(() => {
@@ -192,9 +194,7 @@ export function useAuthPageController() {
       persistLoginEmail(result.loginEmail)
       setUserFeatureState(result.featureState)
       setAuthUser(result.authUser)
-      setAuthMfaStatus(null)
-      setAuthMfaSetup(null)
-      setAuthMfaOtpAction('')
+      resetMfaState()
       setAuthPasswordInput('')
       setAuthOtpInput('')
       setAuthRequiresOtp(false)
@@ -205,7 +205,7 @@ export function useAuthPageController() {
     } finally {
       setAuthLoading(false)
     }
-  }, [apiClient, authEmailInput, authOtpInput, authPasswordInput, persistAuthToken, persistLoginEmail, t])
+  }, [apiClient, authEmailInput, authOtpInput, authPasswordInput, persistAuthToken, persistLoginEmail, resetMfaState, t])
 
   const handleLogout = useCallback(async () => {
     setAuthLoading(true)
@@ -222,16 +222,14 @@ export function useAuthPageController() {
       setAuthRequiresOtp(false)
       setAuthUser(null)
       setUserFeatureState(null)
-      setAuthMfaStatus(null)
-      setAuthMfaSetup(null)
-      setAuthMfaOtpAction('')
+      resetMfaState()
       setAuthLoading(false)
       setAuthStatus({
         kind: 'success',
         message: t('app.authLogoutSuccess'),
       })
     }
-  }, [apiClient, clearPersistedAuthToken, t])
+  }, [apiClient, clearPersistedAuthToken, resetMfaState, t])
 
   const handleLostPasswordRequest = useCallback(async () => {
     setLostPasswordLoading(true)
@@ -478,121 +476,6 @@ export function useAuthPageController() {
     setAuthMfaStatus,
     setAuthMfaBusy,
   })
-
-  const startMfaSetup = useCallback(async () => {
-    setAuthMfaBusy(true)
-    setAuthMfaStatus(null)
-    try {
-      const result = await setupMfa({ apiClient })
-      if (result.kind === 'api_error') {
-        setAuthMfaStatus({
-          kind: 'error',
-          message: t('app.authMfaSetupError', {
-            message: mapApiErrorToMessage(result.error, t),
-          }),
-        })
-        return
-      }
-      setAuthMfaSetup(result.setup)
-      setAuthMfaStatus({
-        kind: 'success',
-        message: t('app.authMfaSetupReady'),
-      })
-    } finally {
-      setAuthMfaBusy(false)
-    }
-  }, [apiClient, t])
-
-  const enableMfa = useCallback(async () => {
-    setAuthMfaBusy(true)
-    setAuthMfaStatus(null)
-    try {
-      const result = await toggleMfa({
-        apiClient,
-        otpCode: authMfaOtpAction,
-        target: 'enable',
-      })
-      if (result.kind === 'validation_error') {
-        setAuthMfaStatus({
-          kind: 'error',
-          message: t('app.authOtpRequired'),
-        })
-        return
-      }
-      if (result.kind === 'api_error') {
-        setAuthMfaStatus({
-          kind: 'error',
-          message: t('app.authMfaEnableError', {
-            message: mapApiErrorToMessage(result.error, t),
-          }),
-        })
-        return
-      }
-      if (result.kind === 'success_with_user') {
-        setAuthUser((current) =>
-          current
-            ? {
-                ...current,
-                mfaEnabled: result.authUser.mfaEnabled,
-              }
-            : current,
-        )
-      }
-      setAuthMfaOtpAction('')
-      setAuthMfaSetup(null)
-      setAuthMfaStatus({
-        kind: 'success',
-        message: t('app.authMfaEnabledNow'),
-      })
-    } finally {
-      setAuthMfaBusy(false)
-    }
-  }, [apiClient, authMfaOtpAction, t])
-
-  const disableMfa = useCallback(async () => {
-    setAuthMfaBusy(true)
-    setAuthMfaStatus(null)
-    try {
-      const result = await toggleMfa({
-        apiClient,
-        otpCode: authMfaOtpAction,
-        target: 'disable',
-      })
-      if (result.kind === 'validation_error') {
-        setAuthMfaStatus({
-          kind: 'error',
-          message: t('app.authOtpRequired'),
-        })
-        return
-      }
-      if (result.kind === 'api_error') {
-        setAuthMfaStatus({
-          kind: 'error',
-          message: t('app.authMfaDisableError', {
-            message: mapApiErrorToMessage(result.error, t),
-          }),
-        })
-        return
-      }
-      if (result.kind === 'success_with_user') {
-        setAuthUser((current) =>
-          current
-            ? {
-                ...current,
-                mfaEnabled: result.authUser.mfaEnabled,
-              }
-            : current,
-        )
-      }
-      setAuthMfaOtpAction('')
-      setAuthMfaStatus({
-        kind: 'success',
-        message: t('app.authMfaDisabledNow'),
-      })
-    } finally {
-      setAuthMfaBusy(false)
-    }
-  }, [apiClient, authMfaOtpAction, t])
 
   return {
     retryStatus,

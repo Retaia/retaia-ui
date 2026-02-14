@@ -20,6 +20,8 @@ type AuthClient = Pick<
   | 'disable2fa'
 >
 
+type MfaClient = Pick<AuthClient, 'setup2fa' | 'enable2fa' | 'disable2fa' | 'getCurrentUser'>
+
 export type AuthUserProfile = {
   email: string
   displayName: string | null
@@ -205,7 +207,7 @@ export async function adminConfirmVerifyEmail(args: {
   }
 }
 
-export async function setupMfa(args: { apiClient: AuthClient }): Promise<
+export async function setupMfa(args: { apiClient: MfaClient }): Promise<
   | { kind: 'success'; setup: { secret: string; otpauthUri: string } }
   | ApiErrorResult
 > {
@@ -224,7 +226,7 @@ export async function setupMfa(args: { apiClient: AuthClient }): Promise<
 }
 
 export async function toggleMfa(args: {
-  apiClient: AuthClient
+  apiClient: MfaClient
   otpCode: string
   target: 'enable' | 'disable'
 }): Promise<

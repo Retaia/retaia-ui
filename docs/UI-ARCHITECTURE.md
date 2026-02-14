@@ -50,9 +50,11 @@ La logique métier est portée par les couches `domain` et `application`, puis i
 ## Hooks métier
 
 - `src/hooks/useAuthPageController.ts`
-  Controller de la page Auth (états, orchestration API auth/2FA/features, side-effects), pour garder `AuthPage` centré sur le rendu.
+  Controller de la page Auth (états, orchestration API auth/features, side-effects), pour garder `AuthPage` centré sur le rendu.
 - `src/hooks/auth/useAuthFeatureGovernance.ts`
   Sous-hook de gouvernance 2FA/features (chargement admin feature flags + toggles user/app) pour réduire le coupling dans `useAuthPageController`.
+- `src/hooks/auth/useAuthMfaController.ts`
+  Sous-hook MFA utilisateur (setup/enable/disable, statut, OTP action) pour isoler la logique 2FA hors du controller principal.
 - `src/hooks/useApiClient.ts`
   Configuration runtime API partagée (env + local storage + mock DB in-memory en `APP_ENV=test`) et création du client HTTP.
 - `src/hooks/useReviewApiRuntime.ts`
@@ -97,6 +99,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
   Helpers applicatifs purs pour navigation de sélection (`offset`, range) et fusion dédupliquée des `batchIds`.
 - `src/application/review/keyboardShortcutResolution.ts`
   Résolution pure des événements clavier vers commandes UI Review (mapping raccourcis -> intentions).
+- `src/application/auth/mfaPresentation.ts`
+  Helpers applicatifs purs de présentation MFA (mapping clés i18n + mise à jour immuable du profil user).
 
 ## Direction DDD (V1)
 
