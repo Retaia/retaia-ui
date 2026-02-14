@@ -7,7 +7,14 @@ const disableMotion = async (page: Page) => {
   })
 }
 
+const setStableUiStorage = async (page: Page) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
+  })
+}
+
 test('summary cards visual baseline', async ({ page }) => {
+  await setStableUiStorage(page)
   await page.goto('/')
   await disableMotion(page)
   await expect(page.locator('[aria-label="Résumé des assets"]')).toHaveScreenshot(
@@ -16,6 +23,7 @@ test('summary cards visual baseline', async ({ page }) => {
 })
 
 test('list and detail panel baseline', async ({ page }) => {
+  await setStableUiStorage(page)
   await page.goto('/')
   await disableMotion(page)
   await page.getByText('behind-the-scenes.jpg').first().click()
@@ -23,6 +31,7 @@ test('list and detail panel baseline', async ({ page }) => {
 })
 
 test('batch and activity state baseline', async ({ page }) => {
+  await setStableUiStorage(page)
   await page.goto('/')
   await disableMotion(page)
   await page.keyboard.down('Shift')
@@ -54,6 +63,7 @@ test('batch report success table baseline', async ({ page }) => {
     })
   })
 
+  await setStableUiStorage(page)
   await page.goto('/')
   await disableMotion(page)
   await page.keyboard.down('Shift')
@@ -78,6 +88,7 @@ test('preview error message baseline', async ({ page }) => {
       }),
     })
   })
+  await setStableUiStorage(page)
   await page.goto('/')
   await disableMotion(page)
   const assetsPanel = page.locator('section[aria-label="Liste des assets"]')
@@ -98,6 +109,7 @@ test('execute loading state baseline', async ({ page }) => {
     })
   })
 
+  await setStableUiStorage(page)
   await page.goto('/')
   await disableMotion(page)
   const assetsPanel = page.locator('section[aria-label="Liste des assets"]')
