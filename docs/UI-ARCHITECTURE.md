@@ -93,6 +93,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
   Use-case d'orchestration d'une décision unitaire (validation cible + appel API optionnel + résultat métier).
 - `src/application/review/batchExecutionHelpers.ts`
   Helpers applicatifs purs pour timeline batch, calcul undo, résolution `batch_id` et sérialisation export rapport.
+- `src/application/review/selectionFlowHelpers.ts`
+  Helpers applicatifs purs pour navigation de sélection (`offset`, range) et fusion dédupliquée des `batchIds`.
 
 ## Direction DDD (V1)
 

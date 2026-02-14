@@ -1,5 +1,9 @@
 import { useCallback } from 'react'
 import type { Asset } from '../domain/assets'
+import {
+  mergeUniqueBatchIds,
+  resolveSelectionNavigation,
+} from '../application/review/selectionFlowHelpers'
 
 type Params = {
   visibleAssets: Asset[]
@@ -52,63 +56,30 @@ export function useSelectionFlow({
 
   const selectVisibleByOffset = useCallback(
     (offset: -1 | 1, extendBatchRange = false) => {
-      const firstVisible = visibleAssets[0]
-      if (!firstVisible) {
+      const nextSelection = resolveSelectionNavigation({
+        visibleAssets,
+        selectedAssetId,
+        selectionAnchorId,
+        offset,
+        extendBatchRange,
+      })
+      if (!nextSelection) {
         return
       }
 
-      if (!selectedAssetId) {
-        setSelectedAssetId(firstVisible.id)
-        setSelectionAnchorId(firstVisible.id)
+      setSelectedAssetId(nextSelection.nextId)
+      setSelectionAnchorId(nextSelection.nextAnchorId)
+
+      if (!extendBatchRange || nextSelection.rangeIds.length === 0) {
         return
       }
 
-      const currentIndex = visibleAssets.findIndex((asset) => asset.id === selectedAssetId)
-      if (currentIndex < 0) {
-        setSelectedAssetId(firstVisible.id)
-        setSelectionAnchorId(firstVisible.id)
-        return
-      }
-
-      const nextIndex = Math.min(
-        visibleAssets.length - 1,
-        Math.max(0, currentIndex + offset),
-      )
-      const nextAsset = visibleAssets[nextIndex]
-      if (!nextAsset) {
-        return
-      }
-      const nextId = nextAsset.id
-
-      if (!extendBatchRange) {
-        setSelectedAssetId(nextId)
-        setSelectionAnchorId(nextId)
-        return
-      }
-
-      const anchorId = selectionAnchorId ?? selectedAssetId
-      const anchorIndex = visibleAssets.findIndex((asset) => asset.id === anchorId)
-      if (anchorIndex < 0) {
-        setSelectedAssetId(nextId)
-        setSelectionAnchorId(nextId)
-        return
-      }
-
-      const startIndex = Math.min(anchorIndex, nextIndex)
-      const endIndex = Math.max(anchorIndex, nextIndex)
-      const rangeIds = visibleAssets
-        .slice(startIndex, endIndex + 1)
-        .map((asset) => asset.id)
-
-      setSelectedAssetId(nextId)
-      setSelectionAnchorId(anchorId)
       setBatchIds((current) => {
-        const merged = new Set([...current, ...rangeIds])
-        const addedCount = merged.size - current.length
+        const { mergedIds, addedCount } = mergeUniqueBatchIds(current, nextSelection.rangeIds)
         if (addedCount > 0) {
           recordAction(t('activity.range', { count: addedCount }))
         }
-        return [...merged]
+        return mergedIds
       })
     },
     [
