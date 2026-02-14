@@ -341,6 +341,7 @@ function App() {
                 proxyVideoUrl: detail.derived?.proxy_video_url ?? asset.proxyVideoUrl ?? null,
                 proxyAudioUrl: detail.derived?.proxy_audio_url ?? asset.proxyAudioUrl ?? null,
                 proxyPhotoUrl: detail.derived?.proxy_photo_url ?? asset.proxyPhotoUrl ?? null,
+                waveformUrl: detail.derived?.waveform_url ?? asset.waveformUrl ?? null,
                 transcriptPreview: detail.transcript?.text_preview ?? asset.transcriptPreview ?? null,
                 transcriptStatus: detail.transcript?.status ?? asset.transcriptStatus,
               }
@@ -872,6 +873,7 @@ function App() {
                 proxyVideoUrl: detail.derived?.proxy_video_url ?? asset.proxyVideoUrl ?? null,
                 proxyAudioUrl: detail.derived?.proxy_audio_url ?? asset.proxyAudioUrl ?? null,
                 proxyPhotoUrl: detail.derived?.proxy_photo_url ?? asset.proxyPhotoUrl ?? null,
+                waveformUrl: detail.derived?.waveform_url ?? asset.waveformUrl ?? null,
                 transcriptPreview: detail.transcript?.text_preview ?? asset.transcriptPreview ?? null,
                 transcriptStatus: detail.transcript?.status ?? asset.transcriptStatus,
               }

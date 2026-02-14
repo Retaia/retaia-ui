@@ -91,6 +91,23 @@ describe('AssetDetailPanel media preview', () => {
         url: '/mock-media/audio.mp3',
       }),
     )
+    expect(screen.getByTestId('asset-waveform-fallback')).toBeInTheDocument()
+  })
+
+  it('renders server waveform when url is available for audio assets', () => {
+    reactPlayerMock.mockClear()
+    renderPanel({
+      id: 'A-006',
+      name: 'audio-with-waveform.wav',
+      state: 'DECISION_PENDING',
+      mediaType: 'AUDIO',
+      proxyAudioUrl: '/mock-media/audio.mp3',
+      waveformUrl: '/mock-media/waveform.png',
+    })
+
+    const waveform = screen.getByTestId('asset-waveform-image')
+    expect(waveform).toHaveAttribute('src', '/mock-media/waveform.png')
+    expect(screen.queryByTestId('asset-waveform-fallback')).not.toBeInTheDocument()
   })
 
   it('renders image preview for photo assets', () => {

@@ -25,3 +25,24 @@ $badge-border-radius: 999px;
 
 @import "bootstrap/scss/bootstrap";
 @import "bootswatch/dist/cyborg/bootswatch";
+
+.audio-waveform-fallback {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: end;
+  gap: 2px;
+  height: 70px;
+  padding: 0.5rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: $border-radius-sm;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.audio-waveform-fallback__bar {
+  display: block;
+  width: 100%;
+  min-height: 12%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(47, 182, 214, 0.95), rgba(47, 182, 214, 0.4));
+}

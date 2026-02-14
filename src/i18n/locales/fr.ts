@@ -155,6 +155,8 @@ export const frTranslation = {
   'detail.state': 'État: {state}',
   'detail.previewTitle': 'Aperçu média',
   'detail.previewUnavailable': 'Aperçu indisponible pour cet asset.',
+  'detail.waveformImageAlt': 'Aperçu waveform pour {id}',
+  'detail.waveformFallbackLabel': 'Aperçu waveform local',
   'detail.transcriptTitle': 'Transcription',
   'detail.transcriptStatus': 'Statut: {status}',
   'detail.taggingTitle': 'Tagging',
