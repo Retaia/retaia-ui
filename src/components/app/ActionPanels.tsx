@@ -10,25 +10,21 @@ import {
   BsEraser,
   BsEye,
   BsEyeSlash,
-  BsFileEarmarkArrowDown,
   BsFilter,
   BsFilterCircle,
   BsFolderCheck,
   BsImages,
   BsKeyboard,
-  BsListUl,
   BsPinAngle,
   BsSlashCircle,
   BsTools,
   BsTrash3,
-  BsTrash3Fill,
   BsXCircle,
   BsLayers,
   BsLightningCharge,
-  BsBarChart,
-  BsInbox,
 } from 'react-icons/bs'
-import { BatchReportView } from '../BatchReportView'
+import { ActionJournalSection } from './ActionJournalSection'
+import { ActionReportSection } from './ActionReportSection'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import { useQuickFilters } from '../../hooks/useQuickFilters'
 import { useDensityMode } from '../../hooks/useDensityMode'
@@ -368,72 +364,16 @@ export function ActionPanels({
             {retryStatus}
           </p>
         ) : null}
-        <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
-          <h3 className="h6 mb-2">
-            <BsBarChart className="me-1" aria-hidden="true" />
-            {t('actions.reportTitle')}
-          </h3>
-          <Stack direction="horizontal" className="flex-wrap align-items-center gap-2">
-            <Button
-              type="button"
-              variant="outline-info"
-              onClick={() => void onRefreshBatchReport()}
-              disabled={availability.refreshReportDisabled}
-            >
-              <BsArrowClockwise className="me-1" aria-hidden="true" />
-              {t('actions.reportFetch')}
-            </Button>
-            <Button
-              type="button"
-              variant="outline-secondary"
-              onClick={() => onExportBatchReport('json')}
-              disabled={!reportData}
-            >
-              <BsFileEarmarkArrowDown className="me-1" aria-hidden="true" />
-              {t('actions.reportExportJson')}
-            </Button>
-            <Button
-              type="button"
-              variant="outline-secondary"
-              onClick={() => onExportBatchReport('csv')}
-              disabled={!reportData}
-            >
-              <BsFileEarmarkArrowDown className="me-1" aria-hidden="true" />
-              {t('actions.reportExportCsv')}
-            </Button>
-            <p className="small text-secondary mb-0">
-              {reportBatchId ? `batch_id: ${reportBatchId}` : t('actions.reportEmpty')}
-            </p>
-          </Stack>
-          {reportStatus ? (
-            <p
-              data-testid="batch-report-status"
-              role="status"
-              aria-live="polite"
-              className="small mt-2 mb-0 text-secondary"
-            >
-              {reportStatus}
-            </p>
-          ) : null}
-          {reportData ? (
-            <BatchReportView
-              report={reportData}
-              labels={{
-                summary: t('actions.reportSummary'),
-                status: t('actions.reportStatusLabel'),
-                moved: t('actions.reportMovedLabel'),
-                failed: t('actions.reportFailedLabel'),
-                errors: t('actions.reportErrorsLabel'),
-                noErrors: t('actions.reportNoErrors'),
-              }}
-            />
-          ) : null}
-          {reportExportStatus ? (
-            <p data-testid="batch-report-export-status" className="small mt-2 mb-0 text-secondary">
-              {reportExportStatus}
-            </p>
-          ) : null}
-        </section>
+        <ActionReportSection
+          t={t}
+          refreshReportDisabled={availability.refreshReportDisabled}
+          reportBatchId={reportBatchId}
+          reportStatus={reportStatus}
+          reportData={reportData}
+          reportExportStatus={reportExportStatus}
+          onRefreshBatchReport={onRefreshBatchReport}
+          onExportBatchReport={onExportBatchReport}
+        />
         <Stack direction="horizontal" className="flex-wrap align-items-center gap-2 mt-3">
           <Button
             type="button"
@@ -448,36 +388,7 @@ export function ActionPanels({
             {t('actions.history', { count: undoStackLength })}
           </p>
         </Stack>
-        <section className="border border-2 border-secondary-subtle rounded p-3 mt-3" aria-label={t('actions.journal')}>
-          <Stack direction="horizontal" className="justify-content-between align-items-center gap-2 mb-2">
-            <h3 className="h6 mb-0">
-              <BsListUl className="me-1" aria-hidden="true" />
-              {t('actions.journal')}
-            </h3>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline-secondary"
-              onClick={onClearActivityLog}
-              disabled={activityLog.length === 0}
-            >
-              <BsTrash3Fill className="me-1" aria-hidden="true" />
-              {t('actions.journalClear')}
-            </Button>
-          </Stack>
-          {activityLog.length === 0 ? (
-            <p className="text-secondary mb-0">
-              <BsInbox className="me-1" aria-hidden="true" />
-              {t('actions.journalEmpty')}
-            </p>
-          ) : (
-            <ul className="mb-0">
-              {activityLog.map((entry) => (
-                <li key={entry.id}>{entry.label}</li>
-              ))}
-            </ul>
-          )}
-        </section>
+        <ActionJournalSection t={t} activityLog={activityLog} onClearActivityLog={onClearActivityLog} />
         <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
           <Stack direction="horizontal" className="justify-content-between align-items-center gap-2">
             <h3 className="h6 mb-0">
