@@ -12,15 +12,19 @@ if (!baseRef) {
   console.error('Missing GITHUB_BASE_REF for pull_request event.')
   process.exit(1)
 }
+const headRef = process.env.GITHUB_HEAD_REF
 
 const run = (command) =>
   execSync(command, { stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf-8' }).trim()
 
 try {
   execSync(`git fetch --no-tags origin ${baseRef} --depth=1`, { stdio: 'inherit' })
+  if (headRef) {
+    execSync(`git fetch --no-tags origin ${headRef} --depth=1`, { stdio: 'inherit' })
+  }
 
   const baseHead = run(`git rev-parse origin/${baseRef}`)
-  const head = run('git rev-parse HEAD')
+  const head = headRef ? run(`git rev-parse origin/${headRef}`) : run('git rev-parse HEAD')
   const mergeBase = run(`git merge-base ${head} ${baseHead}`)
 
   if (mergeBase !== baseHead) {
