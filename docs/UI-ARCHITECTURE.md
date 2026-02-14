@@ -29,7 +29,7 @@ La logique métier est déplacée autant que possible dans des hooks dédiés.
 - `src/components/app/NextPendingCard.tsx`
   Carte "prochain asset".
 - `src/components/app/AssetDetailPanel.tsx`
-  Détail + actions de purge.
+  Détail + actions de purge + preview média (waveform serveur si disponible, fallback waveform local JS pour audio sinon).
 - `src/components/AssetList.tsx`
   Liste des assets (roving tabindex + interactions desktop-like).
 - `src/components/ReviewToolbar.tsx`
