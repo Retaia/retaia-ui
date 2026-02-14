@@ -108,6 +108,13 @@ jobs:
       - name: OpenAPI contract freeze check
         run: npm run api:contract:check
 
+      - name: OpenAPI PR governance check
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: npm run api:governance:check
+
       - name: v1 critical flows presence check
         run: npm run qa:v1:flows
 
