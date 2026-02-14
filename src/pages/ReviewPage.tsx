@@ -37,6 +37,8 @@ import { useSelectionFlow } from '../hooks/useSelectionFlow'
 import { type Locale } from '../i18n/resources'
 import { applySingleReviewDecision } from '../application/review/applySingleReviewDecision'
 import { resolveAssetListFocusTarget } from '../application/review/assetListFocus'
+import { summarizeBatchScope } from '../application/review/batchScopeSummary'
+import { finalizeBulkDecisionResult } from '../application/review/bulkDecisionFinalization'
 import { submitReviewDecisions } from '../application/review/submitReviewDecisions'
 import {
   refreshReviewAsset,
@@ -123,23 +125,7 @@ function ReviewPage() {
     }
   }, [assetDetailLoadState, isApiAssetSource, selectedAssetId])
 
-  const batchScope = useMemo(() => {
-    const summary = { pending: 0, keep: 0, reject: 0 }
-    const selectedSet = new Set(batchIds)
-    for (const asset of assets) {
-      if (!selectedSet.has(asset.id)) {
-        continue
-      }
-      if (asset.state === 'DECISION_PENDING') {
-        summary.pending += 1
-      } else if (asset.state === 'DECIDED_KEEP') {
-        summary.keep += 1
-      } else if (asset.state === 'DECIDED_REJECT') {
-        summary.reject += 1
-      }
-    }
-    return summary
-  }, [assets, batchIds])
+  const batchScope = useMemo(() => summarizeBatchScope(assets, batchIds), [assets, batchIds])
   const nextPendingAsset = useMemo(
     () => assets.find((asset) => asset.state === 'DECISION_PENDING') ?? null,
     [assets],
@@ -286,35 +272,44 @@ function ReviewPage() {
       activityMessage: string
       onSuccess?: () => void
     }) => {
-      if (successIds.length === 0) {
-        if (firstErrorMessage) {
-          setDecisionStatus({
-            kind: 'error',
-            message: t('detail.decisionError', { message: firstErrorMessage }),
-          })
-        }
+      const result = finalizeBulkDecisionResult({
+        action,
+        targetIds,
+        successIds,
+        firstErrorMessage,
+      })
+
+      if (result.kind === 'none') {
+        return
+      }
+
+      if (result.kind === 'error') {
+        setDecisionStatus({
+          kind: 'error',
+          message: t('detail.decisionError', { message: result.errorMessage }),
+        })
         return
       }
 
       recordAction(activityMessage)
-      const nextState = action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT'
-      setAssets((current) => updateAssetsState(current, successIds, nextState))
+      setAssets((current) => updateAssetsState(current, result.successIds, result.nextState))
       onSuccess?.()
-      const failedCount = targetIds.length - successIds.length
-      if (failedCount > 0 && firstErrorMessage) {
+
+      if (result.kind === 'partial') {
         setDecisionStatus({
           kind: 'error',
           message: t('detail.decisionPartial', {
-            success: successIds.length,
-            failed: failedCount,
-            message: firstErrorMessage,
+            success: result.successCount,
+            failed: result.failedCount,
+            message: result.errorMessage,
           }),
         })
         return
       }
+
       setDecisionStatus({
         kind: 'success',
-        message: t('detail.decisionBulkSaved', { action, count: successIds.length }),
+        message: t('detail.decisionBulkSaved', { action, count: result.successCount }),
       })
     },
     [recordAction, t],

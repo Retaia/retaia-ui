@@ -107,8 +107,12 @@ La logique métier est portée par les couches `domain` et `application`, puis i
 
 - `src/application/review/submitReviewDecisions.ts`
   Use-case d'orchestration des décisions bulk (API/mock) avec agrégation des succès/erreurs.
+- `src/application/review/bulkDecisionFinalization.ts`
+  Finalisation pure du résultat bulk (none/error/partial/success + calcul des deltas de state), utilisée par `ReviewPage`.
 - `src/application/review/applySingleReviewDecision.ts`
   Use-case d'orchestration d'une décision unitaire (validation cible + appel API optionnel + résultat métier).
+- `src/application/review/batchScopeSummary.ts`
+  Résumé pur du scope batch (pending/keep/reject) pour éviter la logique de comptage inline dans la page.
 - `src/application/review/batchExecutionHelpers.ts`
   Helpers applicatifs purs pour timeline batch, calcul undo, résolution `batch_id` et sérialisation export rapport.
 - `src/application/review/selectionFlowHelpers.ts`
