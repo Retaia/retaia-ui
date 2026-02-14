@@ -65,6 +65,20 @@ export const resetMockApiState = (state: MockApiState) => {
 }
 
 export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
+  await page.route('**/app/policy', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        server_policy: {
+          feature_flags: {
+            'features.decisions.bulk': true,
+          },
+        },
+      }),
+    })
+  })
+
   await page.route('**/assets/*', async (route) => {
     const method = route.request().method()
     const match = route.request().url().match(/\/assets\/([^/?#]+)/)
