@@ -10,6 +10,14 @@ import {
   planBatchExecution,
 } from '../application/review/batchExecutionPlanning'
 import { loadBatchReport } from '../application/review/batchReportLoading'
+import {
+  buildExecuteCanceledStatus,
+  buildExecuteErrorStatus,
+  buildExecuteQueuedStatus,
+  buildExecuteSuccessStatus,
+  buildPreviewErrorStatus,
+  buildPreviewSuccessStatus,
+} from '../application/review/batchExecutionStatus'
 
 type ApiClient = {
   previewMoveBatch: (payload: { include: 'BOTH'; limit: number }) => Promise<unknown>
@@ -92,20 +100,9 @@ export function useBatchExecution({
         include: 'BOTH',
         limit: batchIds.length,
       })
-      setPreviewStatus({
-        kind: 'success',
-        message: t('actions.previewResult', {
-          include: 'BOTH',
-          count: batchIds.length,
-        }),
-      })
+      setPreviewStatus(buildPreviewSuccessStatus(t, batchIds.length))
     } catch (error) {
-      setPreviewStatus({
-        kind: 'error',
-        message: t('actions.previewError', {
-          message: mapErrorToMessage(error),
-        }),
-      })
+      setPreviewStatus(buildPreviewErrorStatus(t, mapErrorToMessage, error))
     } finally {
       setPreviewingBatch(false)
       setRetryStatus(null)
@@ -132,10 +129,7 @@ export function useBatchExecution({
         )
         const batchId = resolveBatchId(response)
         setReportBatchId(batchId)
-        setExecuteStatus({
-          kind: 'success',
-          message: t('actions.executeResult'),
-        })
+        setExecuteStatus(buildExecuteSuccessStatus(t))
         if (!batchId) {
           return
         }
@@ -156,12 +150,7 @@ export function useBatchExecution({
           setReportLoading(false)
         }
       } catch (error) {
-        setExecuteStatus({
-          kind: 'error',
-          message: t('actions.executeError', {
-            message: mapErrorToMessage(error),
-          }),
-        })
+        setExecuteStatus(buildExecuteErrorStatus(t, mapErrorToMessage, error))
       } finally {
         setExecutingBatch(false)
         setRetryStatus(null)
@@ -179,10 +168,7 @@ export function useBatchExecution({
       pendingBatchExecutionTimer.current = null
     }
     setPendingBatchExecution(null)
-    setExecuteStatus({
-      kind: 'success',
-      message: t('actions.executeCanceled'),
-    })
+    setExecuteStatus(buildExecuteCanceledStatus(t))
   }, [pendingBatchExecution, t])
 
   const executeBatchMove = useCallback(async () => {
@@ -208,12 +194,7 @@ export function useBatchExecution({
       return
     }
 
-    setExecuteStatus({
-      kind: 'success',
-      message: t('actions.executeQueued', {
-        seconds: plan.undoSeconds,
-      }),
-    })
+    setExecuteStatus(buildExecuteQueuedStatus(t, plan.undoSeconds))
     setPendingBatchExecution({
       assetIds: plan.selection,
       expiresAt: plan.expiresAt,
