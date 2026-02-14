@@ -94,6 +94,14 @@ La logique métier est portée par les couches `domain` et `application`, puis i
 - `pages/components/hooks`: composition UI, état de vue, interactions utilisateur.
 - Règle d'évolution: toute nouvelle logique métier doit atterrir en `domain`/`application` avec tests dédiés.
 
+## Garde-fous de couche
+
+- `npm run lint:architecture` applique des frontières d'import:
+- `src/pages/*`: pas d'import direct `api/client` (accès API via hooks/services/use-cases).
+- `src/components/*`: pas d'import `api/*` ni `application/*` (UI pure).
+- `src/hooks/*`: pas d'import `pages/*` ni `components/*` (pas de dépendance inversée UI).
+- CI exécute aussi `lint:architecture` dans le job `lint`.
+
 ## Robustesse API (runtime)
 
 - `src/api/client.ts`
