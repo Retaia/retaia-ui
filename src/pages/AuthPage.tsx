@@ -133,6 +133,14 @@ export function AuthPage() {
     message: string
   } | null>(null)
   const [lostPasswordLoading, setLostPasswordLoading] = useState(false)
+  const [verifyEmailMode, setVerifyEmailMode] = useState<'request' | 'confirm' | 'admin'>('request')
+  const [verifyEmailInput, setVerifyEmailInput] = useState('')
+  const [verifyEmailTokenInput, setVerifyEmailTokenInput] = useState('')
+  const [verifyEmailStatus, setVerifyEmailStatus] = useState<{
+    kind: 'success' | 'error'
+    message: string
+  } | null>(null)
+  const [verifyEmailLoading, setVerifyEmailLoading] = useState(false)
   const [authStatus, setAuthStatus] = useState<{
     kind: 'success' | 'error'
     message: string
@@ -408,6 +416,91 @@ export function AuthPage() {
       setLostPasswordLoading(false)
     }
   }, [apiClient, lostPasswordNewPasswordInput, lostPasswordTokenInput, t])
+
+  const handleVerifyEmailRequest = useCallback(async () => {
+    if (verifyEmailInput.trim().length === 0) {
+      setVerifyEmailStatus({
+        kind: 'error',
+        message: t('app.authVerifyEmailInputRequired'),
+      })
+      return
+    }
+    setVerifyEmailLoading(true)
+    setVerifyEmailStatus(null)
+    try {
+      await apiClient.requestEmailVerification({ email: verifyEmailInput.trim() })
+      setVerifyEmailStatus({
+        kind: 'success',
+        message: t('app.authVerifyEmailRequested'),
+      })
+    } catch (error) {
+      setVerifyEmailStatus({
+        kind: 'error',
+        message: t('app.authVerifyEmailRequestError', {
+          message: mapApiErrorToMessage(error, t),
+        }),
+      })
+    } finally {
+      setVerifyEmailLoading(false)
+    }
+  }, [apiClient, t, verifyEmailInput])
+
+  const handleVerifyEmailConfirm = useCallback(async () => {
+    if (verifyEmailTokenInput.trim().length === 0) {
+      setVerifyEmailStatus({
+        kind: 'error',
+        message: t('app.authVerifyEmailTokenRequired'),
+      })
+      return
+    }
+    setVerifyEmailLoading(true)
+    setVerifyEmailStatus(null)
+    try {
+      await apiClient.confirmEmailVerification({ token: verifyEmailTokenInput.trim() })
+      setVerifyEmailTokenInput('')
+      setVerifyEmailStatus({
+        kind: 'success',
+        message: t('app.authVerifyEmailConfirmed'),
+      })
+    } catch (error) {
+      setVerifyEmailStatus({
+        kind: 'error',
+        message: t('app.authVerifyEmailConfirmError', {
+          message: mapApiErrorToMessage(error, t),
+        }),
+      })
+    } finally {
+      setVerifyEmailLoading(false)
+    }
+  }, [apiClient, t, verifyEmailTokenInput])
+
+  const handleVerifyEmailAdminConfirm = useCallback(async () => {
+    if (verifyEmailInput.trim().length === 0) {
+      setVerifyEmailStatus({
+        kind: 'error',
+        message: t('app.authVerifyEmailInputRequired'),
+      })
+      return
+    }
+    setVerifyEmailLoading(true)
+    setVerifyEmailStatus(null)
+    try {
+      await apiClient.adminConfirmEmailVerification({ email: verifyEmailInput.trim() })
+      setVerifyEmailStatus({
+        kind: 'success',
+        message: t('app.authVerifyEmailAdminConfirmed'),
+      })
+    } catch (error) {
+      setVerifyEmailStatus({
+        kind: 'error',
+        message: t('app.authVerifyEmailAdminConfirmError', {
+          message: mapApiErrorToMessage(error, t),
+        }),
+      })
+    } finally {
+      setVerifyEmailLoading(false)
+    }
+  }, [apiClient, t, verifyEmailInput])
 
   const testApiConnection = useCallback(async () => {
     setApiConnectionStatus(null)
@@ -980,6 +1073,116 @@ export function AuthPage() {
                 ) : null}
               </section>
             ) : null}
+            <section
+              className="border border-2 border-secondary-subtle rounded p-3 mt-3"
+              aria-label={t('app.authVerifyEmailTitle')}
+            >
+              <h4 className="h6 mb-2">{t('app.authVerifyEmailTitle')}</h4>
+              <div className="d-flex flex-wrap gap-2 mb-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={verifyEmailMode === 'request' ? 'primary' : 'outline-primary'}
+                  data-testid="auth-verify-email-mode-request"
+                  onClick={() => setVerifyEmailMode('request')}
+                >
+                  {t('app.authVerifyEmailModeRequest')}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={verifyEmailMode === 'confirm' ? 'primary' : 'outline-primary'}
+                  data-testid="auth-verify-email-mode-confirm"
+                  onClick={() => setVerifyEmailMode('confirm')}
+                >
+                  {t('app.authVerifyEmailModeConfirm')}
+                </Button>
+                {authUser?.isAdmin ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={verifyEmailMode === 'admin' ? 'primary' : 'outline-primary'}
+                    data-testid="auth-verify-email-mode-admin"
+                    onClick={() => setVerifyEmailMode('admin')}
+                  >
+                    {t('app.authVerifyEmailModeAdmin')}
+                  </Button>
+                ) : null}
+              </div>
+              {verifyEmailMode === 'confirm' ? (
+                <>
+                  <Form.Label htmlFor="auth-verify-email-token-input" className="small mb-1">
+                    {t('app.authVerifyEmailTokenLabel')}
+                  </Form.Label>
+                  <Form.Control
+                    id="auth-verify-email-token-input"
+                    data-testid="auth-verify-email-token-input"
+                    type="text"
+                    value={verifyEmailTokenInput}
+                    onChange={(event) => setVerifyEmailTokenInput(event.target.value)}
+                    disabled={verifyEmailLoading}
+                  />
+                  <div className="mt-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline-primary"
+                      data-testid="auth-verify-email-confirm"
+                      disabled={verifyEmailLoading}
+                      onClick={() => void handleVerifyEmailConfirm()}
+                    >
+                      {t('app.authVerifyEmailModeConfirm')}
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Form.Label htmlFor="auth-verify-email-input" className="small mb-1">
+                    {t('app.authEmailLabel')}
+                  </Form.Label>
+                  <Form.Control
+                    id="auth-verify-email-input"
+                    data-testid="auth-verify-email-input"
+                    type="email"
+                    value={verifyEmailInput}
+                    onChange={(event) => setVerifyEmailInput(event.target.value)}
+                    disabled={verifyEmailLoading}
+                  />
+                  <div className="mt-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline-primary"
+                      data-testid={
+                        verifyEmailMode === 'admin'
+                          ? 'auth-verify-email-admin-confirm'
+                          : 'auth-verify-email-request'
+                      }
+                      disabled={verifyEmailLoading || (verifyEmailMode === 'admin' && !authUser?.isAdmin)}
+                      onClick={() =>
+                        verifyEmailMode === 'admin'
+                          ? void handleVerifyEmailAdminConfirm()
+                          : void handleVerifyEmailRequest()
+                      }
+                    >
+                      {verifyEmailMode === 'admin'
+                        ? t('app.authVerifyEmailModeAdmin')
+                        : t('app.authVerifyEmailModeRequest')}
+                    </Button>
+                  </div>
+                </>
+              )}
+              {verifyEmailStatus ? (
+                <p
+                  className={`small mt-2 mb-0 ${
+                    verifyEmailStatus.kind === 'success' ? 'text-success' : 'text-danger'
+                  }`}
+                  data-testid="auth-verify-email-status"
+                >
+                  {verifyEmailStatus.message}
+                </p>
+              ) : null}
+            </section>
             {authUser?.isAdmin && appMfaFeatureKey ? (
               <section
                 className="border border-2 border-secondary-subtle rounded p-3 mt-3"
