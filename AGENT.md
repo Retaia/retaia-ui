@@ -35,6 +35,8 @@ Si le code et les specs sont en conflit, **les specs ont raison**.
 
 ## Règles sur le submodule `specs/`
 
+`specs/` est la **SSOT** (Single Source of Truth) du produit.
+
 Il est strictement interdit de :
 
 * modifier des fichiers dans `specs/`
@@ -48,6 +50,11 @@ Autorisé dans ce repo :
 * mettre à jour le **pointeur du submodule** `specs/` vers une révision distante valide (ex: `origin/master`)
 * committer cette mise à jour du pointeur dans une PR dédiée ou dans une PR feature qui en dépend
 * rebase des branches actives sur cette mise à jour avant implémentation
+
+Règle d’interprétation impérative :
+
+* interdiction d’écriture dans `specs/` (contenu) = OUI
+* interdiction de mise à jour du submodule (pointeur) = NON, jamais
 
 ---
 
