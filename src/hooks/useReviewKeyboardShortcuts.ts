@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import type { Asset } from '../domain/assets'
+import { resolveShortcutCommand } from '../application/review/keyboardShortcutResolution'
 import { isTypingContext } from '../ui/keyboard'
 
 type UseReviewKeyboardShortcutsParams = {
@@ -59,112 +60,78 @@ export function useReviewKeyboardShortcuts({
 }: UseReviewKeyboardShortcutsParams) {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (isTypingContext(event.target)) {
-        const target = event.target
-        if (
-          event.key === 'Escape' &&
-          target instanceof HTMLInputElement &&
-          target.id === 'asset-search' &&
-          target.value !== ''
-        ) {
-          event.preventDefault()
+      const target = event.target
+      const command = resolveShortcutCommand({
+        key: event.key,
+        code: event.code,
+        ctrlKey: event.ctrlKey,
+        metaKey: event.metaKey,
+        shiftKey: event.shiftKey,
+        isTypingContext: isTypingContext(target),
+        isSearchInputWithValue:
+          target instanceof HTMLInputElement && target.id === 'asset-search' && target.value !== '',
+        hasPendingBatchExecution,
+        hasVisibleAssets: visibleAssets.length > 0,
+        hasSelectedAsset: selectedAssetId !== null,
+      })
+      if (!command) {
+        return
+      }
+
+      event.preventDefault()
+      switch (command.type) {
+        case 'clear_search':
           onSetSearch('')
           return
-        }
-        return
-      }
-
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
-        event.preventDefault()
-        onSelectAllVisibleInBatch()
-        return
-      }
-
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
-        event.preventDefault()
-        onUndoLastAction()
-        return
-      }
-
-      if (event.shiftKey && event.key === 'Enter' && hasPendingBatchExecution) {
-        event.preventDefault()
-        onExecuteBatchMoveNow()
-        return
-      }
-
-      if (
-        event.shiftKey &&
-        (event.key === ' ' || event.key === 'Spacebar' || event.key === 'Space' || event.code === 'Space')
-      ) {
-        event.preventDefault()
-        onToggleBatchForSelectedAsset()
-        return
-      }
-
-      if (!event.metaKey && !event.ctrlKey && !event.shiftKey) {
-        const key = event.key.toLowerCase()
-        if (key === 'escape') {
-          event.preventDefault()
+        case 'select_all_visible':
+          onSelectAllVisibleInBatch()
+          return
+        case 'undo_last_action':
+          onUndoLastAction()
+          return
+        case 'confirm_pending_execute':
+          onExecuteBatchMoveNow()
+          return
+        case 'toggle_batch_for_selected':
+          onToggleBatchForSelectedAsset()
+          return
+        case 'clear_selection':
           onClearSelection()
           return
-        }
-        if (key === 'p') {
-          event.preventDefault()
+        case 'focus_pending':
           onFocusPending()
           return
-        }
-        if (key === 'b') {
-          event.preventDefault()
+        case 'toggle_batch_only':
           onToggleBatchOnly()
           return
-        }
-        if (key === 'n') {
-          event.preventDefault()
+        case 'open_next_pending':
           onOpenNextPending()
           return
-        }
-        if (key === 'd') {
-          event.preventDefault()
+        case 'toggle_density_mode':
           onToggleDensityMode()
           return
-        }
-        if (event.key === 'Home' && visibleAssets.length > 0) {
-          event.preventDefault()
+        case 'select_first_visible':
           onSelectFirstVisible()
           return
-        }
-        if (event.key === 'End' && visibleAssets.length > 0) {
-          event.preventDefault()
+        case 'select_last_visible':
           onSelectLastVisible()
           return
-        }
-        if (key === 'r') {
-          event.preventDefault()
+        case 'refresh_batch_report':
           onRefreshBatchReport()
           return
-        }
-        if (key === 'l') {
-          event.preventDefault()
+        case 'clear_activity_log':
           onClearActivityLog()
           return
-        }
-        if (key === '1') {
-          event.preventDefault()
+        case 'apply_preset_pending_recent':
           onApplyPresetPendingRecent()
           return
-        }
-        if (key === '2') {
-          event.preventDefault()
+        case 'apply_preset_images_rejected':
           onApplyPresetImagesRejected()
           return
-        }
-        if (key === '3') {
-          event.preventDefault()
+        case 'apply_preset_media_review':
           onApplyPresetMediaReview()
           return
-        }
-        if (event.key === '/') {
-          event.preventDefault()
+        case 'focus_search': {
           const searchInput = document.getElementById('asset-search')
           if (searchInput instanceof HTMLInputElement) {
             searchInput.focus()
@@ -172,56 +139,21 @@ export function useReviewKeyboardShortcuts({
           }
           return
         }
-        if (key === 'g') {
-          event.preventDefault()
+        case 'apply_decision_keep':
           onApplyDecisionKeep()
           return
-        }
-        if (key === 'v') {
-          event.preventDefault()
+        case 'apply_decision_reject':
           onApplyDecisionReject()
           return
-        }
-        if (key === 'x') {
-          event.preventDefault()
+        case 'apply_decision_clear':
           onApplyDecisionClear()
           return
-        }
-      }
-
-      if (event.key === '?') {
-        event.preventDefault()
-        onToggleShortcutsHelp()
-        return
-      }
-
-      if (event.key === 'j') {
-        event.preventDefault()
-        onSelectVisibleByOffset(1)
-        return
-      }
-
-      if (event.key === 'k') {
-        event.preventDefault()
-        onSelectVisibleByOffset(-1)
-        return
-      }
-
-      if (event.key === 'ArrowDown') {
-        event.preventDefault()
-        onSelectVisibleByOffset(1, event.shiftKey)
-        return
-      }
-
-      if (event.key === 'ArrowUp') {
-        event.preventDefault()
-        onSelectVisibleByOffset(-1, event.shiftKey)
-        return
-      }
-
-      if (event.key === 'Enter' && !selectedAssetId && visibleAssets.length > 0) {
-        event.preventDefault()
-        onSelectFirstVisible()
+        case 'toggle_shortcuts_help':
+          onToggleShortcutsHelp()
+          return
+        case 'move_selection':
+          onSelectVisibleByOffset(command.offset, command.extendRange)
+          return
       }
     }
 
