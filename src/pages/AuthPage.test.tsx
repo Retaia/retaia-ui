@@ -552,4 +552,118 @@ describe('AuthPage', () => {
       'La 2FA est maintenant désactivée.',
     )
   })
+
+  it('toggles global 2FA app feature for admin users', async () => {
+    let appMfaFeatureEnabled = true
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.endsWith('/auth/login')) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              access_token: 'token-auth-admin',
+              token_type: 'Bearer',
+              client_kind: 'UI_RUST',
+            }),
+            { status: 200, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      }
+      if (url.endsWith('/auth/me')) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              email: 'admin@example.com',
+              display_name: 'Admin User',
+              mfa_enabled: false,
+              roles: ['ADMIN'],
+            }),
+            { status: 200, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      }
+      if (url.endsWith('/auth/me/features')) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              user_feature_enabled: { 'features.auth.2fa': true },
+              effective_feature_enabled: { 'features.auth.2fa': appMfaFeatureEnabled },
+              feature_governance: [
+                {
+                  key: 'features.auth.2fa',
+                  tier: 'OPTIONAL',
+                  user_can_disable: true,
+                  dependencies: [],
+                  disable_escalation: [],
+                },
+              ],
+              core_v1_global_features: ['features.core.auth'],
+            }),
+            { status: 200, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      }
+      if (url.endsWith('/app/features') && (init?.method ?? 'GET') === 'GET') {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              app_feature_enabled: { 'features.auth.2fa': appMfaFeatureEnabled },
+              feature_governance: [
+                {
+                  key: 'features.auth.2fa',
+                  tier: 'OPTIONAL',
+                  user_can_disable: true,
+                  dependencies: [],
+                  disable_escalation: [],
+                },
+              ],
+              core_v1_global_features: ['features.core.auth'],
+            }),
+            { status: 200, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      }
+      if (url.endsWith('/app/features') && init?.method === 'PATCH') {
+        appMfaFeatureEnabled = false
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              app_feature_enabled: { 'features.auth.2fa': false },
+              feature_governance: [
+                {
+                  key: 'features.auth.2fa',
+                  tier: 'OPTIONAL',
+                  user_can_disable: true,
+                  dependencies: [],
+                  disable_escalation: [],
+                },
+              ],
+              core_v1_global_features: ['features.core.auth'],
+            }),
+            { status: 200, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      }
+      return Promise.resolve(
+        new Response('{}', {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+      )
+    })
+    vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+    const { user } = setupApp('/auth')
+
+    await user.type(screen.getByTestId('auth-email-input'), 'admin@example.com')
+    await user.type(screen.getByTestId('auth-password-input'), 'secret')
+    await user.click(screen.getByTestId('auth-login'))
+
+    expect(await screen.findByTestId('auth-app-feature-state')).toHaveTextContent(
+      'Feature globale 2FA: activée',
+    )
+    await user.click(screen.getByTestId('auth-app-feature-toggle'))
+    expect(await screen.findByTestId('auth-app-feature-status')).toHaveTextContent(
+      'Feature globale 2FA désactivée.',
+    )
+  })
 })

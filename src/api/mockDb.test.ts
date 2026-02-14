@@ -149,6 +149,14 @@ describe('in-memory mock db for APP_ENV=test', () => {
     const policy = await api.getAppPolicy()
     expect(policy.server_policy?.feature_flags?.['features.decisions.bulk']).toBe(true)
 
+    const appFeatures = await api.getAppFeatures()
+    expect(appFeatures.app_feature_enabled['features.auth.2fa']).toBe(true)
+
+    const updatedAppFeatures = await api.updateAppFeatures({
+      app_feature_enabled: { 'features.auth.2fa': false },
+    })
+    expect(updatedAppFeatures.app_feature_enabled['features.auth.2fa']).toBe(false)
+
     const unknownResponse = await mockFetch('/api/v1/unknown-endpoint', {
       method: 'GET',
       headers: { Authorization: 'Bearer test-token-memory' },

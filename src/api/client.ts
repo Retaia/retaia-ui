@@ -27,6 +27,10 @@ type AssetDecisionPayload =
   paths['/assets/{uuid}/decision']['post']['requestBody']['content']['application/json']
 type AppPolicyResponse =
   paths['/app/policy']['get']['responses'][200]['content']['application/json']
+type AppFeaturesResponse =
+  paths['/app/features']['get']['responses'][200]['content']['application/json']
+type AppFeaturesUpdatePayload =
+  paths['/app/features']['patch']['requestBody']['content']['application/json']
 type AuthLoginPayload = components['schemas']['AuthLoginRequest']
 type AuthLoginResponse = components['schemas']['AuthLoginSuccess']
 type AuthCurrentUserResponse = components['schemas']['AuthCurrentUser']
@@ -197,6 +201,22 @@ function parseAppPolicyResponse(payload: unknown, path: string) {
   } as AppPolicyResponse & { server_policy: { feature_flags: Record<string, boolean> } }
 }
 
+function parseAppFeaturesResponse(payload: unknown, path: string) {
+  if (!isRecord(payload)) {
+    throw createValidationError(path, 'expected object')
+  }
+  if (!isRecord(payload.app_feature_enabled)) {
+    throw createValidationError(path, 'expected app_feature_enabled object')
+  }
+  if (!Array.isArray(payload.feature_governance)) {
+    throw createValidationError(path, 'expected feature_governance array')
+  }
+  if (!Array.isArray(payload.core_v1_global_features)) {
+    throw createValidationError(path, 'expected core_v1_global_features array')
+  }
+  return payload as AppFeaturesResponse
+}
+
 function parseCurrentUserResponse(payload: unknown, path: string) {
   if (!isRecord(payload)) {
     throw createValidationError(path, 'expected object')
@@ -363,6 +383,18 @@ export function createApiClient(
       const result = await request<unknown>(path)
       return parseAppPolicyResponse(result, path)
     },
+
+    getAppFeatures: async () => {
+      const path = '/app/features'
+      const result = await request<unknown>(path)
+      return parseAppFeaturesResponse(result, path)
+    },
+
+    updateAppFeatures: (payload: AppFeaturesUpdatePayload) =>
+      request<AppFeaturesResponse>('/app/features', {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
 
     login: (payload: AuthLoginPayload) =>
       request<AuthLoginResponse>('/auth/login', {

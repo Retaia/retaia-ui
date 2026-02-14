@@ -19,6 +19,14 @@ type FeatureState = {
   }>
 }
 
+type AppFeatureState = {
+  appFeatureEnabled: Record<string, boolean>
+  featureGovernance: Array<{
+    key: string
+    user_can_disable: boolean
+  }>
+}
+
 function normalizeFeatures(payload: {
   user_feature_enabled?: Record<string, unknown>
   effective_feature_enabled?: Record<string, unknown>
@@ -51,6 +59,31 @@ function normalizeFeatures(payload: {
   return {
     userFeatureEnabled,
     effectiveFeatureEnabled,
+    featureGovernance,
+  }
+}
+
+function normalizeAppFeatures(payload: {
+  app_feature_enabled?: Record<string, unknown>
+  feature_governance?: Array<{ key?: string; user_can_disable?: boolean }>
+}): AppFeatureState {
+  const appFeatureEnabled = Object.entries(payload.app_feature_enabled ?? {}).reduce<Record<string, boolean>>(
+    (acc, [key, value]) => {
+      if (typeof value === 'boolean') {
+        acc[key] = value
+      }
+      return acc
+    },
+    {},
+  )
+  const featureGovernance = (payload.feature_governance ?? [])
+    .filter((item) => typeof item.key === 'string')
+    .map((item) => ({
+      key: item.key as string,
+      user_can_disable: item.user_can_disable === true,
+    }))
+  return {
+    appFeatureEnabled,
     featureGovernance,
   }
 }
@@ -110,8 +143,15 @@ export function AuthPage() {
     email: string
     displayName: string | null
     mfaEnabled: boolean
+    isAdmin: boolean
   } | null>(null)
   const [userFeatureState, setUserFeatureState] = useState<FeatureState | null>(null)
+  const [appFeatureState, setAppFeatureState] = useState<AppFeatureState | null>(null)
+  const [appFeatureBusy, setAppFeatureBusy] = useState(false)
+  const [appFeatureStatus, setAppFeatureStatus] = useState<{
+    kind: 'success' | 'error'
+    message: string
+  } | null>(null)
   const [authMfaStatus, setAuthMfaStatus] = useState<{
     kind: 'success' | 'error'
     message: string
@@ -249,6 +289,7 @@ export function AuthPage() {
         displayName:
           typeof currentUser.display_name === 'string' ? currentUser.display_name : null,
         mfaEnabled: currentUser.mfa_enabled === true,
+        isAdmin: Array.isArray(currentUser.roles) && currentUser.roles.includes('ADMIN'),
       })
       setAuthMfaStatus(null)
       setAuthMfaSetup(null)
@@ -295,6 +336,8 @@ export function AuthPage() {
       setAuthRequiresOtp(false)
       setAuthUser(null)
       setUserFeatureState(null)
+      setAppFeatureState(null)
+      setAppFeatureStatus(null)
       setAuthMfaStatus(null)
       setAuthMfaSetup(null)
       setAuthMfaOtpAction('')
@@ -388,6 +431,7 @@ export function AuthPage() {
     if (!effectiveApiToken) {
       setAuthUser(null)
       setUserFeatureState(null)
+      setAppFeatureState(null)
       return
     }
 
@@ -405,6 +449,7 @@ export function AuthPage() {
           displayName:
             typeof currentUser.display_name === 'string' ? currentUser.display_name : null,
           mfaEnabled: currentUser.mfa_enabled === true,
+          isAdmin: Array.isArray(currentUser.roles) && currentUser.roles.includes('ADMIN'),
         })
       } catch (error) {
         if (canceled) {
@@ -412,6 +457,7 @@ export function AuthPage() {
         }
         setAuthUser(null)
         setUserFeatureState(null)
+        setAppFeatureState(null)
         if (!isApiAuthLockedByEnv && error instanceof ApiError && (error.status === 401 || error.status === 403)) {
           setApiTokenInput('')
           clearPersistedAuthToken()
@@ -428,6 +474,91 @@ export function AuthPage() {
       canceled = true
     }
   }, [apiClient, clearPersistedAuthToken, effectiveApiToken, isApiAuthLockedByEnv, t])
+
+  useEffect(() => {
+    if (!authUser?.isAdmin) {
+      setAppFeatureState(null)
+      return
+    }
+    let canceled = false
+    const loadAppFeatures = async () => {
+      try {
+        const appFeatures = await apiClient.getAppFeatures()
+        if (canceled) {
+          return
+        }
+        setAppFeatureState(normalizeAppFeatures(appFeatures))
+      } catch (error) {
+        if (canceled) {
+          return
+        }
+        setAppFeatureState(null)
+        setAppFeatureStatus({
+          kind: 'error',
+          message: t('app.authAppFeatureLoadError', {
+            message: mapApiErrorToMessage(error, t),
+          }),
+        })
+      }
+    }
+    void loadAppFeatures()
+    return () => {
+      canceled = true
+    }
+  }, [apiClient, authUser?.isAdmin, t])
+
+  const appMfaFeatureKey = useMemo(() => {
+    if (!appFeatureState) {
+      return null
+    }
+    const fromGovernance = appFeatureState.featureGovernance.find((item) =>
+      /(2fa|mfa|totp)/i.test(item.key),
+    )
+    if (fromGovernance) {
+      return fromGovernance.key
+    }
+    return Object.keys(appFeatureState.appFeatureEnabled).find((key) => /(2fa|mfa|totp)/i.test(key)) ?? null
+  }, [appFeatureState])
+
+  const appMfaFeatureEnabled = useMemo(() => {
+    if (!appMfaFeatureKey || !appFeatureState) {
+      return false
+    }
+    return appFeatureState.appFeatureEnabled[appMfaFeatureKey] === true
+  }, [appFeatureState, appMfaFeatureKey])
+
+  const setAppFeature = useCallback(
+    async (enabled: boolean) => {
+      if (!appMfaFeatureKey || !appFeatureState) {
+        return
+      }
+      setAppFeatureBusy(true)
+      setAppFeatureStatus(null)
+      try {
+        const response = await apiClient.updateAppFeatures({
+          app_feature_enabled: {
+            ...appFeatureState.appFeatureEnabled,
+            [appMfaFeatureKey]: enabled,
+          },
+        })
+        setAppFeatureState(normalizeAppFeatures(response))
+        setAppFeatureStatus({
+          kind: 'success',
+          message: enabled ? t('app.authAppFeatureEnabled') : t('app.authAppFeatureDisabled'),
+        })
+      } catch (error) {
+        setAppFeatureStatus({
+          kind: 'error',
+          message: t('app.authAppFeatureUpdateError', {
+            message: mapApiErrorToMessage(error, t),
+          }),
+        })
+      } finally {
+        setAppFeatureBusy(false)
+      }
+    },
+    [apiClient, appFeatureState, appMfaFeatureKey, t],
+  )
 
   const mfaFeatureKey = useMemo(() => {
     if (!userFeatureState) {
@@ -449,8 +580,12 @@ export function AuthPage() {
     if (!mfaFeatureKey || !userFeatureState) {
       return false
     }
-    return userFeatureState.effectiveFeatureEnabled[mfaFeatureKey] === true
-  }, [mfaFeatureKey, userFeatureState])
+    const userEffective = userFeatureState.effectiveFeatureEnabled[mfaFeatureKey] === true
+    if (!appMfaFeatureKey) {
+      return userEffective
+    }
+    return userEffective && appMfaFeatureEnabled
+  }, [appMfaFeatureEnabled, appMfaFeatureKey, mfaFeatureKey, userFeatureState])
 
   const mfaFeatureUserEnabled = useMemo(() => {
     if (!mfaFeatureKey || !userFeatureState) {
@@ -841,6 +976,39 @@ export function AuthPage() {
                     data-testid="auth-lost-password-status"
                   >
                     {lostPasswordStatus.message}
+                  </p>
+                ) : null}
+              </section>
+            ) : null}
+            {authUser?.isAdmin && appMfaFeatureKey ? (
+              <section
+                className="border border-2 border-secondary-subtle rounded p-3 mt-3"
+                aria-label={t('app.authAppFeatureTitle')}
+              >
+                <h4 className="h6 mb-2">{t('app.authAppFeatureTitle')}</h4>
+                <p className="small text-secondary mb-2" data-testid="auth-app-feature-state">
+                  {appMfaFeatureEnabled ? t('app.authAppFeatureStateOn') : t('app.authAppFeatureStateOff')}
+                </p>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={appMfaFeatureEnabled ? 'outline-danger' : 'outline-primary'}
+                  data-testid="auth-app-feature-toggle"
+                  disabled={appFeatureBusy}
+                  onClick={() => void setAppFeature(!appMfaFeatureEnabled)}
+                >
+                  {appMfaFeatureEnabled ? t('app.authAppFeatureDisable') : t('app.authAppFeatureEnable')}
+                </Button>
+                {appFeatureStatus ? (
+                  <p
+                    className={`small mt-2 mb-0 ${
+                      appFeatureStatus.kind === 'success' ? 'text-success' : 'text-danger'
+                    }`}
+                    data-testid="auth-app-feature-status"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    {appFeatureStatus.message}
                   </p>
                 ) : null}
               </section>
