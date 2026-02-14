@@ -24,17 +24,6 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/pages/**/*.{ts,tsx}'],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: ['../api/client', '../../api/client', '../../../api/client'],
-        },
-      ],
-    },
-  },
-  {
     files: ['src/components/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': [

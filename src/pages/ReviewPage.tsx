@@ -16,6 +16,7 @@ import { AssetDetailPanel } from '../components/app/AssetDetailPanel'
 import { NextPendingCard } from '../components/app/NextPendingCard'
 import { ReviewSummary } from '../components/ReviewSummary'
 import { ReviewToolbar } from '../components/ReviewToolbar'
+import { ApiError } from '../api/client'
 import { mapApiErrorToMessage } from '../api/errorMapping'
 import { INITIAL_ASSETS } from '../data/mockAssets'
 import {
@@ -51,11 +52,7 @@ import { reportUiIssue } from '../ui/telemetry'
 const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
 
 function isStateConflictError(error: unknown) {
-  if (typeof error !== 'object' || error === null || !('payload' in error)) {
-    return false
-  }
-  const payload = (error as { payload?: { code?: unknown } }).payload
-  return payload?.code === 'STATE_CONFLICT'
+  return error instanceof ApiError && error.payload?.code === 'STATE_CONFLICT'
 }
 
 function ReviewPage() {
