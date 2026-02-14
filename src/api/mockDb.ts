@@ -18,6 +18,7 @@ type MockDbState = {
     email: string
     display_name: string
     mfa_enabled: boolean
+    roles?: string[]
   }
   userFeatures: {
     user_feature_enabled: Record<string, boolean>
