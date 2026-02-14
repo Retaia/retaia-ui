@@ -18,9 +18,9 @@ const run = (command) =>
   execSync(command, { stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf-8' }).trim()
 
 try {
-  execSync(`git fetch --no-tags origin ${baseRef} --depth=1`, { stdio: 'inherit' })
+  execSync(`git fetch --no-tags origin ${baseRef}`, { stdio: 'inherit' })
   if (headRef) {
-    execSync(`git fetch --no-tags origin ${headRef} --depth=1`, { stdio: 'inherit' })
+    execSync(`git fetch --no-tags origin ${headRef}`, { stdio: 'inherit' })
   }
 
   const baseHead = run(`git rev-parse origin/${baseRef}`)
