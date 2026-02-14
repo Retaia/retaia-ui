@@ -109,6 +109,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
   Use-case d'orchestration des décisions bulk (API/mock) avec agrégation des succès/erreurs.
 - `src/application/review/bulkDecisionFinalization.ts`
   Finalisation pure du résultat bulk (none/error/partial/success + calcul des deltas de state), utilisée par `ReviewPage`.
+- `src/application/review/errorResolution.ts`
+  Résolution des erreurs Review (message UX + signal `shouldRefreshSelectedAsset` pour `STATE_CONFLICT`) afin d'éviter la duplication de mapping dans la page.
 - `src/application/review/applySingleReviewDecision.ts`
   Use-case d'orchestration d'une décision unitaire (validation cible + appel API optionnel + résultat métier).
 - `src/application/review/batchScopeSummary.ts`
