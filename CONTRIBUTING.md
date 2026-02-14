@@ -16,6 +16,8 @@ Ne pas inventer de logique produit en dehors de la spec.
 - `app_feature_enabled` est global admin.
 - L'UI applique `effective_feature_enabled` pour le rendu et les actions.
 - Couvrir les cas OFF/ON et les refus `403 FORBIDDEN_SCOPE`.
+- Approche préférée : DDD (côté frontières domaine/UI).
+- Validation recommandée par défaut : TDD + BDD.
 
 ## Règles sécurité
 - Ne jamais afficher/exporter les tokens sensibles.
