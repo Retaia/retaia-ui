@@ -38,6 +38,10 @@ type Auth2faSetupResponse =
   paths['/auth/2fa/setup']['post']['responses'][200]['content']['application/json']
 type Auth2faOtpPayload =
   paths['/auth/2fa/enable']['post']['requestBody']['content']['application/json']
+type AuthEmailPayload =
+  paths['/auth/lost-password/request']['post']['requestBody']['content']['application/json']
+type AuthLostPasswordResetPayload =
+  paths['/auth/lost-password/reset']['post']['requestBody']['content']['application/json']
 
 export type ApiErrorPayload = components['schemas']['ErrorResponse']
 
@@ -362,6 +366,18 @@ export function createApiClient(
 
     login: (payload: AuthLoginPayload) =>
       request<AuthLoginResponse>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+
+    requestLostPassword: (payload: AuthEmailPayload) =>
+      request<void>('/auth/lost-password/request', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+
+    resetLostPassword: (payload: AuthLostPasswordResetPayload) =>
+      request<void>('/auth/lost-password/reset', {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
