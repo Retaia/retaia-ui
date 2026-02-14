@@ -49,6 +49,7 @@ const SELECTED_ASSET_QUERY_KEY = 'asset'
 const REVIEW_BASE_PATH = '/review'
 const API_TOKEN_STORAGE_KEY = 'retaia_api_token'
 const API_BASE_URL_STORAGE_KEY = 'retaia_api_base_url'
+const API_LOGIN_EMAIL_STORAGE_KEY = 'retaia_auth_email'
 
 function isStateConflictError(error: unknown) {
   return error instanceof ApiError && error.payload?.code === 'STATE_CONFLICT'
@@ -95,6 +96,29 @@ function App() {
       return ''
     }
   })
+  const [authEmailInput, setAuthEmailInput] = useState(() => {
+    if (typeof window === 'undefined') {
+      return ''
+    }
+    try {
+      return window.localStorage.getItem(API_LOGIN_EMAIL_STORAGE_KEY) ?? ''
+    } catch {
+      return ''
+    }
+  })
+  const [authPasswordInput, setAuthPasswordInput] = useState('')
+  const [authOtpInput, setAuthOtpInput] = useState('')
+  const [authStatus, setAuthStatus] = useState<{
+    kind: 'success' | 'error'
+    message: string
+  } | null>(null)
+  const [authLoading, setAuthLoading] = useState(false)
+  const [authRequiresOtp, setAuthRequiresOtp] = useState(false)
+  const [authUser, setAuthUser] = useState<{
+    email: string
+    displayName: string | null
+    mfaEnabled: boolean
+  } | null>(null)
   const [apiBaseUrlInput, setApiBaseUrlInput] = useState(() => {
     if (typeof window === 'undefined') {
       return ''
@@ -112,7 +136,9 @@ function App() {
   const effectiveApiBaseUrl =
     import.meta.env.VITE_API_BASE_URL ?? (apiBaseUrlInput.trim() || '/api/v1')
   const effectiveApiToken = import.meta.env.VITE_API_TOKEN ?? (apiTokenInput.trim() || null)
-  const isApiConfigLockedByEnv = !!(import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_TOKEN)
+  const isApiBaseUrlLockedByEnv = !!import.meta.env.VITE_API_BASE_URL
+  const isApiAuthLockedByEnv = !!import.meta.env.VITE_API_TOKEN
+  const isApiConfigLockedByEnv = isApiBaseUrlLockedByEnv || isApiAuthLockedByEnv
   const apiClient = useMemo(
     () =>
       createApiClient({
@@ -416,7 +442,6 @@ function App() {
     }
     try {
       window.localStorage.setItem(API_BASE_URL_STORAGE_KEY, apiBaseUrlInput.trim())
-      window.localStorage.setItem(API_TOKEN_STORAGE_KEY, apiTokenInput.trim())
       setApiConnectionStatus({
         kind: 'success',
         message: t('app.apiConnectionSaved'),
@@ -427,7 +452,7 @@ function App() {
         message: t('app.apiConnectionSaveError'),
       })
     }
-  }, [apiBaseUrlInput, apiTokenInput, t])
+  }, [apiBaseUrlInput, t])
 
   const clearApiConnectionSettings = useCallback(() => {
     if (typeof window === 'undefined') {
@@ -435,9 +460,7 @@ function App() {
     }
     try {
       window.localStorage.removeItem(API_BASE_URL_STORAGE_KEY)
-      window.localStorage.removeItem(API_TOKEN_STORAGE_KEY)
       setApiBaseUrlInput('')
-      setApiTokenInput('')
       setApiConnectionStatus({
         kind: 'success',
         message: t('app.apiConnectionCleared'),
@@ -450,10 +473,106 @@ function App() {
     }
   }, [t])
 
+  const persistAuthToken = useCallback((token: string) => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    window.localStorage.setItem(API_TOKEN_STORAGE_KEY, token)
+  }, [])
+
+  const clearPersistedAuthToken = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    window.localStorage.removeItem(API_TOKEN_STORAGE_KEY)
+  }, [])
+
+  const persistLoginEmail = useCallback((email: string) => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    window.localStorage.setItem(API_LOGIN_EMAIL_STORAGE_KEY, email)
+  }, [])
+
+  const handleLogin = useCallback(async () => {
+    if (authEmailInput.trim().length === 0 || authPasswordInput.length === 0) {
+      setAuthStatus({
+        kind: 'error',
+        message: t('app.authMissingCredentials'),
+      })
+      return
+    }
+    setAuthLoading(true)
+    setAuthStatus(null)
+    try {
+      const login = await apiClient.login({
+        email: authEmailInput.trim(),
+        password: authPasswordInput,
+        ...(authOtpInput.trim() ? { otp_code: authOtpInput.trim() } : {}),
+      })
+      setApiTokenInput(login.access_token)
+      persistAuthToken(login.access_token)
+      persistLoginEmail(authEmailInput.trim())
+      const currentUser = await apiClient.getCurrentUser()
+      setAuthUser({
+        email: currentUser.email,
+        displayName:
+          typeof currentUser.display_name === 'string' ? currentUser.display_name : null,
+        mfaEnabled: currentUser.mfa_enabled === true,
+      })
+      setAuthPasswordInput('')
+      setAuthOtpInput('')
+      setAuthRequiresOtp(false)
+      setAuthStatus({
+        kind: 'success',
+        message: t('app.authLoginSuccess'),
+      })
+    } catch (error) {
+      if (error instanceof ApiError && error.payload?.code === 'MFA_REQUIRED') {
+        setAuthRequiresOtp(true)
+        setAuthStatus({
+          kind: 'error',
+          message: t('app.authMfaRequired'),
+        })
+      } else {
+        setAuthStatus({
+          kind: 'error',
+          message: t('app.authLoginError', {
+            message: mapApiErrorToMessage(error, t),
+          }),
+        })
+      }
+    } finally {
+      setAuthLoading(false)
+    }
+  }, [apiClient, authEmailInput, authOtpInput, authPasswordInput, persistAuthToken, persistLoginEmail, t])
+
+  const handleLogout = useCallback(async () => {
+    setAuthLoading(true)
+    setAuthStatus(null)
+    try {
+      await apiClient.logout()
+    } catch {
+      // Logout should still clear local auth state even if API returns an error.
+    } finally {
+      setApiTokenInput('')
+      clearPersistedAuthToken()
+      setAuthPasswordInput('')
+      setAuthOtpInput('')
+      setAuthRequiresOtp(false)
+      setAuthUser(null)
+      setAuthLoading(false)
+      setAuthStatus({
+        kind: 'success',
+        message: t('app.authLogoutSuccess'),
+      })
+    }
+  }, [apiClient, clearPersistedAuthToken, t])
+
   const testApiConnection = useCallback(async () => {
     setApiConnectionStatus(null)
     try {
-      await apiClient.listAssetSummaries({ limit: 1 })
+      await apiClient.getCurrentUser()
       setApiConnectionStatus({
         kind: 'success',
         message: t('app.apiConnectionTestOk'),
@@ -467,6 +586,47 @@ function App() {
       })
     }
   }, [apiClient, t])
+
+  useEffect(() => {
+    if (!isApiAssetSource || !effectiveApiToken) {
+      setAuthUser(null)
+      return
+    }
+
+    let canceled = false
+    const loadCurrentUser = async () => {
+      try {
+        const currentUser = await apiClient.getCurrentUser()
+        if (canceled) {
+          return
+        }
+        setAuthUser({
+          email: currentUser.email,
+          displayName:
+            typeof currentUser.display_name === 'string' ? currentUser.display_name : null,
+          mfaEnabled: currentUser.mfa_enabled === true,
+        })
+      } catch (error) {
+        if (canceled) {
+          return
+        }
+        setAuthUser(null)
+        if (!isApiAuthLockedByEnv && error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+          setApiTokenInput('')
+          clearPersistedAuthToken()
+          setAuthStatus({
+            kind: 'error',
+            message: t('app.authSessionExpired'),
+          })
+        }
+      }
+    }
+
+    void loadCurrentUser()
+    return () => {
+      canceled = true
+    }
+  }, [apiClient, clearPersistedAuthToken, effectiveApiToken, isApiAssetSource, isApiAuthLockedByEnv, t])
 
   const batchScope = useMemo(() => {
     const summary = { pending: 0, keep: 0, reject: 0 }
@@ -1135,11 +1295,114 @@ function App() {
         <Card as="section" className="shadow-sm border-0 mt-3" aria-label={t('app.apiConnectionTitle')}>
           <Card.Body>
             <h2 className="h6 mb-3">{t('app.apiConnectionTitle')}</h2>
+            <section className="border border-2 border-secondary-subtle rounded p-3 mb-3" aria-label={t('app.authTitle')}>
+              <h3 className="h6 mb-2">{t('app.authTitle')}</h3>
+              {authUser ? (
+                <p className="small mb-2 text-secondary" data-testid="auth-user-status">
+                  {t('app.authSignedInAs', {
+                    identity: authUser.displayName ?? authUser.email,
+                  })}
+                  {authUser.mfaEnabled ? ` · ${t('app.authMfaEnabled')}` : ''}
+                </p>
+              ) : (
+                <p className="small mb-2 text-secondary" data-testid="auth-user-status">
+                  {t('app.authSignedOut')}
+                </p>
+              )}
+              {!isApiAuthLockedByEnv && !authUser ? (
+                <>
+                  <Row className="g-2">
+                    <Col md={4}>
+                      <Form.Label htmlFor="auth-email-input" className="small mb-1">
+                        {t('app.authEmailLabel')}
+                      </Form.Label>
+                      <Form.Control
+                        id="auth-email-input"
+                        data-testid="auth-email-input"
+                        value={authEmailInput}
+                        type="email"
+                        onChange={(event) => setAuthEmailInput(event.target.value)}
+                        autoComplete="username"
+                        disabled={authLoading}
+                      />
+                    </Col>
+                    <Col md={4}>
+                      <Form.Label htmlFor="auth-password-input" className="small mb-1">
+                        {t('app.authPasswordLabel')}
+                      </Form.Label>
+                      <Form.Control
+                        id="auth-password-input"
+                        data-testid="auth-password-input"
+                        value={authPasswordInput}
+                        type="password"
+                        onChange={(event) => setAuthPasswordInput(event.target.value)}
+                        autoComplete="current-password"
+                        disabled={authLoading}
+                      />
+                    </Col>
+                    <Col md={4}>
+                      <Form.Label htmlFor="auth-otp-input" className="small mb-1">
+                        {t('app.authOtpLabel')}
+                      </Form.Label>
+                      <Form.Control
+                        id="auth-otp-input"
+                        data-testid="auth-otp-input"
+                        value={authOtpInput}
+                        type="text"
+                        inputMode="numeric"
+                        onChange={(event) => setAuthOtpInput(event.target.value)}
+                        placeholder={authRequiresOtp ? t('app.authOtpRequiredPlaceholder') : t('app.authOtpOptionalPlaceholder')}
+                        disabled={authLoading}
+                      />
+                    </Col>
+                  </Row>
+                  <div className="d-flex flex-wrap gap-2 mt-3">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="primary"
+                      data-testid="auth-login"
+                      disabled={authLoading}
+                      onClick={() => void handleLogin()}
+                    >
+                      {authLoading ? t('app.authLoggingIn') : t('app.authLogin')}
+                    </Button>
+                  </div>
+                </>
+              ) : null}
+              {authUser && !isApiAuthLockedByEnv ? (
+                <div className="d-flex flex-wrap gap-2 mt-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline-secondary"
+                    data-testid="auth-logout"
+                    disabled={authLoading}
+                    onClick={() => void handleLogout()}
+                  >
+                    {t('app.authLogout')}
+                  </Button>
+                </div>
+              ) : null}
+              {isApiAuthLockedByEnv ? (
+                <p className="small text-secondary mb-0">{t('app.authEnvLocked')}</p>
+              ) : null}
+              {authStatus ? (
+                <p
+                  className={`small mt-2 mb-0 ${authStatus.kind === 'success' ? 'text-success' : 'text-danger'}`}
+                  data-testid="auth-status"
+                  role="status"
+                  aria-live="polite"
+                >
+                  {authStatus.message}
+                </p>
+              ) : null}
+            </section>
             {isApiConfigLockedByEnv ? (
               <p className="small text-secondary mb-3">{t('app.apiConnectionEnvLocked')}</p>
             ) : null}
             <Row className="g-2">
-              <Col md={6}>
+              <Col md={12}>
                 <Form.Label htmlFor="api-base-url-input" className="small mb-1">
                   {t('app.apiBaseUrlLabel')}
                 </Form.Label>
@@ -1149,21 +1412,7 @@ function App() {
                   value={apiBaseUrlInput}
                   onChange={(event) => setApiBaseUrlInput(event.target.value)}
                   placeholder="/api/v1"
-                  disabled={isApiConfigLockedByEnv}
-                />
-              </Col>
-              <Col md={6}>
-                <Form.Label htmlFor="api-token-input" className="small mb-1">
-                  {t('app.apiTokenLabel')}
-                </Form.Label>
-                <Form.Control
-                  id="api-token-input"
-                  data-testid="api-token-input"
-                  type="password"
-                  value={apiTokenInput}
-                  onChange={(event) => setApiTokenInput(event.target.value)}
-                  placeholder="Bearer token"
-                  disabled={isApiConfigLockedByEnv}
+                  disabled={isApiBaseUrlLockedByEnv}
                 />
               </Col>
             </Row>
@@ -1174,7 +1423,7 @@ function App() {
                 variant="primary"
                 data-testid="api-connection-save"
                 onClick={saveApiConnectionSettings}
-                disabled={isApiConfigLockedByEnv}
+                disabled={isApiBaseUrlLockedByEnv}
               >
                 {t('app.apiConnectionSave')}
               </Button>
@@ -1193,7 +1442,7 @@ function App() {
                 variant="outline-secondary"
                 data-testid="api-connection-clear"
                 onClick={clearApiConnectionSettings}
-                disabled={isApiConfigLockedByEnv}
+                disabled={isApiBaseUrlLockedByEnv}
               >
                 {t('app.apiConnectionClear')}
               </Button>

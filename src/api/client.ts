@@ -27,6 +27,9 @@ type AssetDecisionPayload =
   paths['/assets/{uuid}/decision']['post']['requestBody']['content']['application/json']
 type AppPolicyResponse =
   paths['/app/policy']['get']['responses'][200]['content']['application/json']
+type AuthLoginPayload = components['schemas']['AuthLoginRequest']
+type AuthLoginResponse = components['schemas']['AuthLoginSuccess']
+type AuthCurrentUserResponse = components['schemas']['AuthCurrentUser']
 
 export type ApiErrorPayload = components['schemas']['ErrorResponse']
 
@@ -182,6 +185,16 @@ function parseAppPolicyResponse(payload: unknown, path: string) {
   } as AppPolicyResponse & { server_policy: { feature_flags: Record<string, boolean> } }
 }
 
+function parseCurrentUserResponse(payload: unknown, path: string) {
+  if (!isRecord(payload)) {
+    throw createValidationError(path, 'expected object')
+  }
+  if (typeof payload.email !== 'string' || payload.email.length === 0) {
+    throw createValidationError(path, 'expected non-empty email')
+  }
+  return payload as AuthCurrentUserResponse
+}
+
 async function parseApiError(response: Response) {
   try {
     const payload = (await response.json()) as ApiErrorPayload
@@ -309,6 +322,23 @@ export function createApiClient(
       const result = await request<unknown>(path)
       return parseAppPolicyResponse(result, path)
     },
+
+    login: (payload: AuthLoginPayload) =>
+      request<AuthLoginResponse>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+
+    getCurrentUser: async () => {
+      const path = '/auth/me'
+      const result = await request<unknown>(path)
+      return parseCurrentUserResponse(result, path)
+    },
+
+    logout: () =>
+      request<void>('/auth/logout', {
+        method: 'POST',
+      }),
 
     previewMoveBatch: (payload: MovePreviewPayload) =>
       request<void>('/batches/moves/preview', {
