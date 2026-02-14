@@ -114,6 +114,88 @@ describe('api client', () => {
     )
   })
 
+  it('logs in with credentials and returns bearer payload', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          access_token: 'token-login-1',
+          token_type: 'Bearer',
+          client_kind: 'UI_RUST',
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    const result = await api.login({
+      email: 'user@example.com',
+      password: 'secret',
+      otp_code: '123456',
+    })
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/auth/login',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          email: 'user@example.com',
+          password: 'secret',
+          otp_code: '123456',
+        }),
+      }),
+    )
+    expect(result.access_token).toBe('token-login-1')
+  })
+
+  it('loads current user and validates email', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          email: 'user@example.com',
+          display_name: 'User',
+          mfa_enabled: true,
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    const user = await api.getCurrentUser()
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/auth/me', expect.any(Object))
+    expect(user.email).toBe('user@example.com')
+    expect(user.mfa_enabled).toBe(true)
+  })
+
+  it('throws validation error when current user payload has no email', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ display_name: 'User' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await expect(api.getCurrentUser()).rejects.toMatchObject({
+      status: 502,
+      payload: { code: 'VALIDATION_FAILED' },
+    })
+  })
+
+  it('calls logout endpoint with POST', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await api.logout()
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/auth/logout',
+      expect.objectContaining({
+        method: 'POST',
+      }),
+    )
+  })
+
   it('calls purge preview endpoint for one asset', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
     const api = createApiClient('/api/v1', fetchMock)
