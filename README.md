@@ -95,6 +95,8 @@ Variables utilisées côté UI:
 
 - `src/`: application UI
 - `src/api/generated/openapi.ts`: types OpenAPI générés
+- `api/openapi/v1.yaml`: snapshot OpenAPI local consommateur
+- `contracts/openapi-v1.sha256`: hash de freeze OpenAPI
 - `docs/`: documentation locale non normative
 - `specs/`: submodule des specs normatives
 - `bdd/features/`: scénarios BDD
