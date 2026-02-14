@@ -7,16 +7,18 @@ modulaire et testable (TDD + BDD).
 
 ## Entrée principale
 
-- `src/main.tsx` (routing browser)
-- `src/App.tsx` (écran review)
+- `src/main.tsx` (bootstrap React + BrowserRouter)
+- `src/App.tsx` (point d'entrée UI qui délègue aux routes)
+- `src/routes/AppRoutes.tsx` (composition des pages par route)
 
 Routes UI:
 
 - `/review`
 - `/review/:assetId` (deep-link détail)
+- `/auth`
 
-`App.tsx` orchestre les états globaux de review et compose les blocs UI.
-La logique métier est déplacée autant que possible dans des hooks dédiés.
+`App.tsx` ne contient pas de logique métier feature.
+La logique métier est portée par les couches `domain` et `application`, puis injectée dans les pages.
 
 ## Composants UI
 
@@ -81,6 +83,16 @@ La logique métier est déplacée autant que possible dans des hooks dédiés.
 
 - `src/application/review/submitReviewDecisions.ts`
   Use-case d'orchestration des décisions bulk (API/mock) avec agrégation des succès/erreurs.
+- `src/application/review/applySingleReviewDecision.ts`
+  Use-case d'orchestration d'une décision unitaire (validation cible + appel API optionnel + résultat métier).
+
+## Direction DDD (V1)
+
+- Cible: architecture DDD légère adaptée au front.
+- `domain`: règles métier pures et déterministes.
+- `application`: use-cases orchestrant appels externes + règles domaine.
+- `pages/components/hooks`: composition UI, état de vue, interactions utilisateur.
+- Règle d'évolution: toute nouvelle logique métier doit atterrir en `domain`/`application` avec tests dédiés.
 
 ## Robustesse API (runtime)
 

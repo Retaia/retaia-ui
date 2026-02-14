@@ -27,7 +27,6 @@ import {
   type AssetState,
   countAssetsByState,
   filterAssets,
-  getStateFromDecision,
   type DecisionAction,
   updateAssetsState,
 } from '../domain/assets'
@@ -44,6 +43,7 @@ import { useReviewKeyboardShortcuts } from '../hooks/useReviewKeyboardShortcuts'
 import { useReviewRouteSelection } from '../hooks/useReviewRouteSelection'
 import { useSelectionFlow } from '../hooks/useSelectionFlow'
 import { type Locale } from '../i18n/resources'
+import { applySingleReviewDecision } from '../application/review/applySingleReviewDecision'
 import { submitReviewDecisions } from '../application/review/submitReviewDecisions'
 import { mergeAssetWithDetail } from '../services/reviewAssetDetail'
 import { isTypingContext } from '../ui/keyboard'
@@ -235,52 +235,45 @@ function ReviewPage() {
     t,
   })
 
-  const handleDecision = useCallback((id: string, action: DecisionAction) => {
-    const target = assets.find((asset) => asset.id === id)
-    if (!target) {
-      return
-    }
-    const nextState = getStateFromDecision(action, target.state)
-    if (nextState === target.state) {
-      return
-    }
+  const handleDecision = useCallback(
+    (id: string, action: DecisionAction) => {
+      const run = async () => {
+        setDecisionStatus(null)
+        const result = await applySingleReviewDecision({
+          assets,
+          targetId: id,
+          action,
+          isApiAssetSource,
+          submitAssetDecision: (targetId, targetAction) =>
+            apiClient.submitAssetDecision(targetId, { action: targetAction }, crypto.randomUUID()),
+          mapErrorToMessage: mapDecisionErrorToMessage,
+        })
 
-    const run = async () => {
-      setDecisionStatus(null)
-      if (isApiAssetSource) {
-        try {
-          await apiClient.submitAssetDecision(id, { action }, crypto.randomUUID())
-        } catch (error) {
+        if (result.kind === 'noop') {
+          return
+        }
+        if (result.kind === 'error') {
           setDecisionStatus({
             kind: 'error',
             message: t('detail.decisionError', {
-              message: mapDecisionErrorToMessage(error),
+              message: result.message,
             }),
           })
           return
         }
+
+        recordAction(t('activity.actionDecision', { action, id }))
+        setAssets(result.updatedAssets)
+        setDecisionStatus({
+          kind: 'success',
+          message: t('detail.decisionSaved', { id, action }),
+        })
       }
 
-      recordAction(t('activity.actionDecision', { action, id }))
-      setAssets((current) =>
-        current.map((asset) => {
-          if (asset.id !== id) {
-            return asset
-          }
-          return {
-            ...asset,
-            state: nextState,
-          }
-        }),
-      )
-      setDecisionStatus({
-        kind: 'success',
-        message: t('detail.decisionSaved', { id, action }),
-      })
-    }
-
-    void run()
-  }, [apiClient, assets, isApiAssetSource, mapDecisionErrorToMessage, recordAction, t])
+      void run()
+    },
+    [apiClient, assets, isApiAssetSource, mapDecisionErrorToMessage, recordAction, t],
+  )
 
   const submitDecisionsForIds = useCallback(
     async (targetIds: string[], action: 'KEEP' | 'REJECT') => {
