@@ -107,6 +107,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
   Helpers applicatifs purs pour navigation de sélection (`offset`, range) et fusion dédupliquée des `batchIds`.
 - `src/application/review/keyboardShortcutResolution.ts`
   Résolution pure des événements clavier vers commandes UI Review (mapping raccourcis -> intentions).
+- `src/application/review/quickFilterPresets.ts`
+  Mapping pur des presets/views de filtres rapides vers l'état de filtre UI.
 - `src/application/auth/mfaPresentation.ts`
   Helpers applicatifs purs de présentation MFA (mapping clés i18n + mise à jour immuable du profil user).
 
