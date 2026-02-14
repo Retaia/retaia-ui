@@ -30,6 +30,14 @@ type AppPolicyResponse =
 type AuthLoginPayload = components['schemas']['AuthLoginRequest']
 type AuthLoginResponse = components['schemas']['AuthLoginSuccess']
 type AuthCurrentUserResponse = components['schemas']['AuthCurrentUser']
+type UserFeaturesResponse =
+  paths['/auth/me/features']['get']['responses'][200]['content']['application/json']
+type UserFeaturesUpdatePayload =
+  paths['/auth/me/features']['patch']['requestBody']['content']['application/json']
+type Auth2faSetupResponse =
+  paths['/auth/2fa/setup']['post']['responses'][200]['content']['application/json']
+type Auth2faOtpPayload =
+  paths['/auth/2fa/enable']['post']['requestBody']['content']['application/json']
 
 export type ApiErrorPayload = components['schemas']['ErrorResponse']
 
@@ -195,6 +203,35 @@ function parseCurrentUserResponse(payload: unknown, path: string) {
   return payload as AuthCurrentUserResponse
 }
 
+function parseUserFeaturesResponse(payload: unknown, path: string) {
+  if (!isRecord(payload)) {
+    throw createValidationError(path, 'expected object')
+  }
+  if (!isRecord(payload.user_feature_enabled)) {
+    throw createValidationError(path, 'expected user_feature_enabled object')
+  }
+  if (!isRecord(payload.effective_feature_enabled)) {
+    throw createValidationError(path, 'expected effective_feature_enabled object')
+  }
+  if (!Array.isArray(payload.feature_governance)) {
+    throw createValidationError(path, 'expected feature_governance array')
+  }
+  return payload as UserFeaturesResponse
+}
+
+function parseAuth2faSetupResponse(payload: unknown, path: string) {
+  if (!isRecord(payload)) {
+    throw createValidationError(path, 'expected object')
+  }
+  if (typeof payload.secret !== 'string' || payload.secret.length === 0) {
+    throw createValidationError(path, 'expected non-empty secret')
+  }
+  if (typeof payload.otpauth_uri !== 'string' || payload.otpauth_uri.length === 0) {
+    throw createValidationError(path, 'expected non-empty otpauth_uri')
+  }
+  return payload as Auth2faSetupResponse
+}
+
 async function parseApiError(response: Response) {
   try {
     const payload = (await response.json()) as ApiErrorPayload
@@ -335,9 +372,41 @@ export function createApiClient(
       return parseCurrentUserResponse(result, path)
     },
 
+    getUserFeatures: async () => {
+      const path = '/auth/me/features'
+      const result = await request<unknown>(path)
+      return parseUserFeaturesResponse(result, path)
+    },
+
+    updateUserFeatures: (payload: UserFeaturesUpdatePayload) =>
+      request<UserFeaturesResponse>('/auth/me/features', {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      }),
+
     logout: () =>
       request<void>('/auth/logout', {
         method: 'POST',
+      }),
+
+    setup2fa: async () => {
+      const path = '/auth/2fa/setup'
+      const result = await request<unknown>(path, {
+        method: 'POST',
+      })
+      return parseAuth2faSetupResponse(result, path)
+    },
+
+    enable2fa: (payload: Auth2faOtpPayload) =>
+      request<void>('/auth/2fa/enable', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+
+    disable2fa: (payload: Auth2faOtpPayload) =>
+      request<void>('/auth/2fa/disable', {
+        method: 'POST',
+        body: JSON.stringify(payload),
       }),
 
     previewMoveBatch: (payload: MovePreviewPayload) =>

@@ -196,6 +196,100 @@ describe('api client', () => {
     )
   })
 
+  it('loads user feature state and validates payload shape', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          user_feature_enabled: { 'features.auth.2fa': true },
+          effective_feature_enabled: { 'features.auth.2fa': true },
+          feature_governance: [
+            {
+              key: 'features.auth.2fa',
+              user_can_disable: true,
+              dependencies: [],
+              disable_escalation: [],
+              tier: 'OPTIONAL',
+            },
+          ],
+          core_v1_global_features: ['features.core.auth'],
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    const features = await api.getUserFeatures()
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/auth/me/features', expect.any(Object))
+    expect(features.effective_feature_enabled['features.auth.2fa']).toBe(true)
+  })
+
+  it('updates user feature preferences with PATCH', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          user_feature_enabled: { 'features.auth.2fa': false },
+          effective_feature_enabled: { 'features.auth.2fa': false },
+          feature_governance: [],
+          core_v1_global_features: ['features.core.auth'],
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+    await api.updateUserFeatures({
+      user_feature_enabled: {
+        'features.auth.2fa': false,
+      },
+    })
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/auth/me/features',
+      expect.objectContaining({
+        method: 'PATCH',
+      }),
+    )
+  })
+
+  it('starts 2FA setup and validates provisioning payload', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          method: 'TOTP',
+          issuer: 'Retaia',
+          account_name: 'user@example.com',
+          secret: 'SECRET123',
+          otpauth_uri: 'otpauth://totp/Retaia:user@example.com',
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+    const setup = await api.setup2fa()
+    expect(setup.secret).toBe('SECRET123')
+  })
+
+  it('enables and disables 2FA with OTP payload', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
+    const api = createApiClient('/api/v1', fetchMock)
+    await api.enable2fa({ otp_code: '123456' })
+    await api.disable2fa({ otp_code: '123456' })
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      '/api/v1/auth/2fa/enable',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ otp_code: '123456' }),
+      }),
+    )
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      '/api/v1/auth/2fa/disable',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ otp_code: '123456' }),
+      }),
+    )
+  })
+
   it('calls purge preview endpoint for one asset', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
     const api = createApiClient('/api/v1', fetchMock)
