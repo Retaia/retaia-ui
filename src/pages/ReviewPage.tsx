@@ -9,7 +9,6 @@ import { NextPendingCard } from '../components/app/NextPendingCard'
 import { ReviewStatusAlerts } from '../components/app/ReviewStatusAlerts'
 import { ReviewSummary } from '../components/ReviewSummary'
 import { ReviewToolbar } from '../components/ReviewToolbar'
-import { ApiError } from '../api/client'
 import { mapApiErrorToMessage } from '../api/errorMapping'
 import { INITIAL_ASSETS } from '../data/mockAssets'
 import {
@@ -39,6 +38,7 @@ import { applySingleReviewDecision } from '../application/review/applySingleRevi
 import { resolveAssetListFocusTarget } from '../application/review/assetListFocus'
 import { summarizeBatchScope } from '../application/review/batchScopeSummary'
 import { finalizeBulkDecisionResult } from '../application/review/bulkDecisionFinalization'
+import { resolveReviewApiError } from '../application/review/errorResolution'
 import { submitReviewDecisions } from '../application/review/submitReviewDecisions'
 import {
   refreshReviewAsset,
@@ -47,10 +47,6 @@ import {
 import { useShortcutsHelpState } from '../hooks/useShortcutsHelpState'
 import { isTypingContext } from '../ui/keyboard'
 import { reportUiIssue } from '../ui/telemetry'
-
-function isStateConflictError(error: unknown) {
-  return error instanceof ApiError && error.payload?.code === 'STATE_CONFLICT'
-}
 
 function ReviewPage() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
@@ -137,10 +133,11 @@ function ReviewPage() {
   )
   const mapDecisionErrorToMessage = useCallback(
     (error: unknown) => {
-      if (isStateConflictError(error)) {
+      const result = resolveReviewApiError(error, t)
+      if (result.shouldRefreshSelectedAsset) {
         setShouldRefreshSelectedAsset(true)
       }
-      return mapApiErrorToMessage(error, t)
+      return result.message
     },
     [t],
   )
@@ -441,21 +438,13 @@ function ReviewPage() {
     setBatchOnly,
   })
 
-  const mapPurgeErrorToMessage = useCallback(
+  const mapStateConflictAwareErrorToMessage = useCallback(
     (error: unknown) => {
-      if (isStateConflictError(error)) {
+      const result = resolveReviewApiError(error, t)
+      if (result.shouldRefreshSelectedAsset) {
         setShouldRefreshSelectedAsset(true)
       }
-      return mapApiErrorToMessage(error, t)
-    },
-    [t],
-  )
-  const mapMetadataErrorToMessage = useCallback(
-    (error: unknown) => {
-      if (isStateConflictError(error)) {
-        setShouldRefreshSelectedAsset(true)
-      }
-      return mapApiErrorToMessage(error, t)
+      return result.message
     },
     [t],
   )
@@ -473,7 +462,7 @@ function ReviewPage() {
     selectedAsset,
     t,
     setRetryStatus,
-    mapErrorToMessage: mapPurgeErrorToMessage,
+    mapErrorToMessage: mapStateConflictAwareErrorToMessage,
     recordAction,
     onPurgeSuccess: (assetId) => {
       setAssets((current) => current.filter((asset) => asset.id !== assetId))
@@ -510,7 +499,7 @@ function ReviewPage() {
           setMetadataStatus({
             kind: 'error',
             message: t('detail.taggingError', {
-              message: mapMetadataErrorToMessage(result.error),
+              message: mapStateConflictAwareErrorToMessage(result.error),
             }),
           })
           return
@@ -525,7 +514,7 @@ function ReviewPage() {
         setSavingMetadata(false)
       }
     },
-    [apiClient.updateAssetMetadata, isApiAssetSource, mapMetadataErrorToMessage, recordAction, t],
+    [apiClient.updateAssetMetadata, isApiAssetSource, mapStateConflictAwareErrorToMessage, recordAction, t],
   )
 
   const refreshSelectedAsset = useCallback(async () => {
