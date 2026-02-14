@@ -90,6 +90,15 @@ export function AuthPage() {
   })
   const [authPasswordInput, setAuthPasswordInput] = useState('')
   const [authOtpInput, setAuthOtpInput] = useState('')
+  const [lostPasswordMode, setLostPasswordMode] = useState<'request' | 'reset'>('request')
+  const [lostPasswordEmailInput, setLostPasswordEmailInput] = useState('')
+  const [lostPasswordTokenInput, setLostPasswordTokenInput] = useState('')
+  const [lostPasswordNewPasswordInput, setLostPasswordNewPasswordInput] = useState('')
+  const [lostPasswordStatus, setLostPasswordStatus] = useState<{
+    kind: 'success' | 'error'
+    message: string
+  } | null>(null)
+  const [lostPasswordLoading, setLostPasswordLoading] = useState(false)
   const [authStatus, setAuthStatus] = useState<{
     kind: 'success' | 'error'
     message: string
@@ -293,6 +302,66 @@ export function AuthPage() {
       })
     }
   }, [apiClient, clearPersistedAuthToken, t])
+
+  const handleLostPasswordRequest = useCallback(async () => {
+    if (lostPasswordEmailInput.trim().length === 0) {
+      setLostPasswordStatus({
+        kind: 'error',
+        message: t('app.authLostPasswordEmailRequired'),
+      })
+      return
+    }
+    setLostPasswordLoading(true)
+    setLostPasswordStatus(null)
+    try {
+      await apiClient.requestLostPassword({ email: lostPasswordEmailInput.trim() })
+      setLostPasswordStatus({
+        kind: 'success',
+        message: t('app.authLostPasswordRequestSent'),
+      })
+    } catch (error) {
+      setLostPasswordStatus({
+        kind: 'error',
+        message: t('app.authLostPasswordRequestError', {
+          message: mapApiErrorToMessage(error, t),
+        }),
+      })
+    } finally {
+      setLostPasswordLoading(false)
+    }
+  }, [apiClient, lostPasswordEmailInput, t])
+
+  const handleLostPasswordReset = useCallback(async () => {
+    if (lostPasswordTokenInput.trim().length === 0 || lostPasswordNewPasswordInput.length === 0) {
+      setLostPasswordStatus({
+        kind: 'error',
+        message: t('app.authLostPasswordResetMissing'),
+      })
+      return
+    }
+    setLostPasswordLoading(true)
+    setLostPasswordStatus(null)
+    try {
+      await apiClient.resetLostPassword({
+        token: lostPasswordTokenInput.trim(),
+        new_password: lostPasswordNewPasswordInput,
+      })
+      setLostPasswordNewPasswordInput('')
+      setLostPasswordStatus({
+        kind: 'success',
+        message: t('app.authLostPasswordResetSuccess'),
+      })
+    } catch (error) {
+      setLostPasswordStatus({
+        kind: 'error',
+        message: t('app.authLostPasswordResetError', {
+          message: mapApiErrorToMessage(error, t),
+        }),
+      })
+    } finally {
+      setLostPasswordLoading(false)
+    }
+  }, [apiClient, lostPasswordNewPasswordInput, lostPasswordTokenInput, t])
 
   const testApiConnection = useCallback(async () => {
     setApiConnectionStatus(null)
@@ -625,6 +694,19 @@ export function AuthPage() {
                   >
                     {authLoading ? t('app.authLoggingIn') : t('app.authLogin')}
                   </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="link"
+                    data-testid="auth-lost-password-toggle"
+                    onClick={() =>
+                      setLostPasswordMode((current) =>
+                        current === 'request' ? 'reset' : 'request',
+                      )
+                    }
+                  >
+                    {t('app.authLostPasswordLink')}
+                  </Button>
                 </div>
               </>
             ) : null}
@@ -654,6 +736,111 @@ export function AuthPage() {
               >
                 {authStatus.message}
               </p>
+            ) : null}
+            {!authUser ? (
+              <section
+                className="border border-2 border-secondary-subtle rounded p-3 mt-3"
+                aria-label={t('app.authLostPasswordTitle')}
+              >
+                <h4 className="h6 mb-2">{t('app.authLostPasswordTitle')}</h4>
+                <div className="d-flex flex-wrap gap-2 mb-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={lostPasswordMode === 'request' ? 'primary' : 'outline-primary'}
+                    data-testid="auth-lost-password-mode-request"
+                    onClick={() => setLostPasswordMode('request')}
+                  >
+                    {t('app.authLostPasswordModeRequest')}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={lostPasswordMode === 'reset' ? 'primary' : 'outline-primary'}
+                    data-testid="auth-lost-password-mode-reset"
+                    onClick={() => setLostPasswordMode('reset')}
+                  >
+                    {t('app.authLostPasswordModeReset')}
+                  </Button>
+                </div>
+                {lostPasswordMode === 'request' ? (
+                  <>
+                    <Form.Label htmlFor="auth-lost-password-email-input" className="small mb-1">
+                      {t('app.authEmailLabel')}
+                    </Form.Label>
+                    <Form.Control
+                      id="auth-lost-password-email-input"
+                      data-testid="auth-lost-password-email-input"
+                      type="email"
+                      value={lostPasswordEmailInput}
+                      onChange={(event) => setLostPasswordEmailInput(event.target.value)}
+                      disabled={lostPasswordLoading}
+                    />
+                    <div className="mt-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline-primary"
+                        data-testid="auth-lost-password-request"
+                        disabled={lostPasswordLoading}
+                        onClick={() => void handleLostPasswordRequest()}
+                      >
+                        {t('app.authLostPasswordModeRequest')}
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Form.Label htmlFor="auth-lost-password-token-input" className="small mb-1">
+                      {t('app.authLostPasswordTokenLabel')}
+                    </Form.Label>
+                    <Form.Control
+                      id="auth-lost-password-token-input"
+                      data-testid="auth-lost-password-token-input"
+                      type="text"
+                      value={lostPasswordTokenInput}
+                      onChange={(event) => setLostPasswordTokenInput(event.target.value)}
+                      disabled={lostPasswordLoading}
+                    />
+                    <Form.Label
+                      htmlFor="auth-lost-password-new-password-input"
+                      className="small mb-1 mt-2"
+                    >
+                      {t('app.authLostPasswordNewPasswordLabel')}
+                    </Form.Label>
+                    <Form.Control
+                      id="auth-lost-password-new-password-input"
+                      data-testid="auth-lost-password-new-password-input"
+                      type="password"
+                      value={lostPasswordNewPasswordInput}
+                      onChange={(event) => setLostPasswordNewPasswordInput(event.target.value)}
+                      disabled={lostPasswordLoading}
+                    />
+                    <div className="mt-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline-primary"
+                        data-testid="auth-lost-password-reset"
+                        disabled={lostPasswordLoading}
+                        onClick={() => void handleLostPasswordReset()}
+                      >
+                        {t('app.authLostPasswordModeReset')}
+                      </Button>
+                    </div>
+                  </>
+                )}
+                {lostPasswordStatus ? (
+                  <p
+                    className={`small mt-2 mb-0 ${
+                      lostPasswordStatus.kind === 'success' ? 'text-success' : 'text-danger'
+                    }`}
+                    data-testid="auth-lost-password-status"
+                  >
+                    {lostPasswordStatus.message}
+                  </p>
+                ) : null}
+              </section>
             ) : null}
             {authUser && mfaFeatureKey ? (
               <section className="border border-2 border-secondary-subtle rounded p-3 mt-3" aria-label={t('app.authMfaTitle')}>

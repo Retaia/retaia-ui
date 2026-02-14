@@ -51,6 +51,82 @@ describe('AuthPage', () => {
     )
   })
 
+  it('requests lost password reset email', async () => {
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/auth/lost-password/request')) {
+        return Promise.resolve(new Response(null, { status: 202 }))
+      }
+      if (url.endsWith('/auth/me')) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              code: 'UNAUTHORIZED',
+              message: 'unauthorized',
+              retryable: false,
+              correlation_id: 'auth-boot-3',
+            }),
+            { status: 401, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      }
+      return Promise.resolve(
+        new Response('{}', {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+      )
+    })
+    vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+    const { user } = setupApp('/auth')
+
+    await user.type(screen.getByTestId('auth-lost-password-email-input'), 'user@example.com')
+    await user.click(screen.getByTestId('auth-lost-password-request'))
+
+    expect(await screen.findByTestId('auth-lost-password-status')).toHaveTextContent(
+      'Demande envoyée. Vérifie ton email.',
+    )
+  })
+
+  it('resets lost password with token and new password', async () => {
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/auth/lost-password/reset')) {
+        return Promise.resolve(new Response(null, { status: 200 }))
+      }
+      if (url.endsWith('/auth/me')) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              code: 'UNAUTHORIZED',
+              message: 'unauthorized',
+              retryable: false,
+              correlation_id: 'auth-boot-4',
+            }),
+            { status: 401, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      }
+      return Promise.resolve(
+        new Response('{}', {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+      )
+    })
+    vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+    const { user } = setupApp('/auth')
+
+    await user.click(screen.getByTestId('auth-lost-password-mode-reset'))
+    await user.type(screen.getByTestId('auth-lost-password-token-input'), 'token-123')
+    await user.type(screen.getByTestId('auth-lost-password-new-password-input'), 'new-secret')
+    await user.click(screen.getByTestId('auth-lost-password-reset'))
+
+    expect(await screen.findByTestId('auth-lost-password-status')).toHaveTextContent(
+      'Mot de passe réinitialisé.',
+    )
+  })
+
   it('authenticates then tests API connection with bearer token', async () => {
     const fetchMock = vi.fn((input: RequestInfo | URL) => {
       const url = String(input)
