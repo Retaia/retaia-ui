@@ -28,10 +28,14 @@ La logique métier est portée par les couches `domain` et `application`, puis i
   Filet de sécurité global avec fallback utilisateur.
 - `src/components/app/ActionPanels.tsx`
   Actions rapides, batch, rapport, historique, aide raccourcis.
+- `src/components/app/ActionBatchSection.tsx`
+  Sous-section UI du panneau Actions pour les operations batch (scope, timeline, preview/execute/cancel).
 - `src/components/app/ActionReportSection.tsx`
   Sous-section UI du panneau Actions pour rapport batch (refresh/export/statut).
 - `src/components/app/ActionJournalSection.tsx`
   Sous-section UI du panneau Actions pour journal d'activite.
+- `src/components/app/ActionShortcutsSection.tsx`
+  Sous-section UI du panneau Actions pour l'aide des raccourcis clavier et actions associees.
 - `src/components/app/NextPendingCard.tsx`
   Carte "prochain asset".
 - `src/components/app/AssetDetailPanel.tsx`
