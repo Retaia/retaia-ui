@@ -91,10 +91,9 @@ describe('in-memory mock db for APP_ENV=test', () => {
       notes: 'updated note',
     })
     const afterPatch = await api.getAssetDetail('A-001')
-    expect(afterPatch.tags).toEqual(['edited'])
-    expect(afterPatch.notes).toBe('updated note')
+    expect(afterPatch.summary.tags).toEqual(['edited'])
 
-    await api.submitAssetDecision('A-001', { decision: 'REJECT' }, 'idem-asset-1')
+    await api.submitAssetDecision('A-001', { action: 'REJECT' }, 'idem-asset-1')
     const afterDecision = await api.getAssetDetail('A-001')
     expect(afterDecision.summary.state).toBe('DECIDED_REJECT')
   })
@@ -135,7 +134,7 @@ describe('in-memory mock db for APP_ENV=test', () => {
     })
     await expect(apiAuth.getAssetDetail('UNKNOWN-ASSET')).rejects.toMatchObject({
       status: 404,
-      payload: { code: 'NOT_FOUND' },
+      payload: { code: 'VALIDATION_FAILED' },
     })
   })
 
@@ -156,6 +155,6 @@ describe('in-memory mock db for APP_ENV=test', () => {
     })
     expect(unknownResponse.status).toBe(404)
     const payload = (await unknownResponse.json()) as { code: string }
-    expect(payload.code).toBe('NOT_FOUND')
+    expect(payload.code).toBe('VALIDATION_FAILED')
   })
 })

@@ -126,9 +126,24 @@ function unauthorized() {
   })
 }
 
+function notFound(message: string, correlationId: string) {
+  return errorResponse(404, {
+    code: 'VALIDATION_FAILED',
+    message,
+    retryable: false,
+    correlation_id: correlationId,
+  })
+}
+
 function parsePathname(urlInput: string) {
   const parsed = new URL(urlInput, 'http://mock.local')
   return parsed.pathname.replace(/^\/api\/v1/, '') || '/'
+}
+
+function extractAssetId(pathname: string) {
+  const parts = pathname.split('/')
+  const maybeId = parts[2]
+  return typeof maybeId === 'string' && maybeId.length > 0 ? maybeId : null
 }
 
 function hasAuth(init?: RequestInit) {
@@ -236,26 +251,24 @@ export function createInMemoryMockApiFetch(): typeof fetch {
     }
 
     if (pathname.startsWith('/assets/') && pathname.endsWith('/decision') && method === 'POST') {
-      const assetId = pathname.split('/')[2]
+      const assetId = extractAssetId(pathname)
+      if (!assetId) {
+        return notFound('Asset not found.', 'mock-asset-id-missing')
+      }
       const body = await parseJson(init)
-      const decision = body.decision
+      const action = body.action
       const asset = sharedState.assets.get(assetId)
       if (!asset) {
-        return errorResponse(404, {
-          code: 'NOT_FOUND',
-          message: 'Asset not found.',
-          retryable: false,
-          correlation_id: 'mock-asset-not-found',
-        })
+        return notFound('Asset not found.', 'mock-asset-not-found')
       }
-      if (decision === 'KEEP') {
+      if (action === 'KEEP') {
         asset.state = 'DECIDED_KEEP'
-      } else if (decision === 'REJECT') {
+      } else if (action === 'REJECT') {
         asset.state = 'DECIDED_REJECT'
-      } else if (decision === 'CLEAR') {
+      } else if (action === 'CLEAR') {
         asset.state = 'DECISION_PENDING'
       }
-      return emptyResponse(204)
+      return emptyResponse(200)
     }
 
     if (pathname.startsWith('/assets/') && pathname.endsWith('/purge/preview') && method === 'POST') {
@@ -263,7 +276,10 @@ export function createInMemoryMockApiFetch(): typeof fetch {
     }
 
     if (pathname.startsWith('/assets/') && pathname.endsWith('/purge') && method === 'POST') {
-      const assetId = pathname.split('/')[2]
+      const assetId = extractAssetId(pathname)
+      if (!assetId) {
+        return notFound('Asset not found.', 'mock-asset-id-missing')
+      }
       const asset = sharedState.assets.get(assetId)
       if (asset) {
         asset.state = 'REJECTED'
@@ -272,15 +288,13 @@ export function createInMemoryMockApiFetch(): typeof fetch {
     }
 
     if (pathname.startsWith('/assets/') && method === 'PATCH') {
-      const assetId = pathname.split('/')[2]
+      const assetId = extractAssetId(pathname)
+      if (!assetId) {
+        return notFound('Asset not found.', 'mock-asset-id-missing')
+      }
       const asset = sharedState.assets.get(assetId)
       if (!asset) {
-        return errorResponse(404, {
-          code: 'NOT_FOUND',
-          message: 'Asset not found.',
-          retryable: false,
-          correlation_id: 'mock-asset-not-found',
-        })
+        return notFound('Asset not found.', 'mock-asset-not-found')
       }
       const body = await parseJson(init)
       if (Array.isArray(body.tags)) {
@@ -289,24 +303,20 @@ export function createInMemoryMockApiFetch(): typeof fetch {
       if (typeof body.notes === 'string') {
         asset.notes = body.notes
       }
-      return emptyResponse(204)
+      return emptyResponse(200)
     }
 
     if (pathname.startsWith('/assets/') && method === 'GET') {
-      const assetId = pathname.split('/')[2]
+      const assetId = extractAssetId(pathname)
+      if (!assetId) {
+        return notFound('Asset not found.', 'mock-asset-id-missing')
+      }
       const asset = sharedState.assets.get(assetId)
       if (!asset) {
-        return errorResponse(404, {
-          code: 'NOT_FOUND',
-          message: 'Asset not found.',
-          retryable: false,
-          correlation_id: 'mock-asset-not-found',
-        })
+        return notFound('Asset not found.', 'mock-asset-not-found')
       }
       return jsonResponse(200, {
         summary: asset,
-        notes: asset.notes,
-        tags: asset.tags,
       })
     }
 
@@ -327,7 +337,7 @@ export function createInMemoryMockApiFetch(): typeof fetch {
     }
 
     return errorResponse(404, {
-      code: 'NOT_FOUND',
+      code: 'VALIDATION_FAILED',
       message: `No mock route for ${method} ${pathname}`,
       retryable: false,
       correlation_id: 'mock-route-missing',
