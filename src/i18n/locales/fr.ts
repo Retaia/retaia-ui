@@ -10,6 +10,8 @@ export const frTranslation = {
   'app.apiConnectionTitle': 'Connexion API',
   'app.apiConnectionEnvLocked':
     'Configuration API verrouillée par des variables d’environnement.',
+  'app.apiConnectionSubtitle': 'Gestion de session et connectivité API',
+  'app.backToReview': 'Retour review',
   'app.apiBaseUrlLabel': 'Base URL API',
   'app.authTitle': 'Authentification utilisateur',
   'app.authEmailLabel': 'Email',

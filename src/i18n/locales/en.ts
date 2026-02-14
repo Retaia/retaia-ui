@@ -10,6 +10,8 @@ export const enTranslation = {
   'app.apiConnectionTitle': 'API connection',
   'app.apiConnectionEnvLocked':
     'API config is locked by environment variables.',
+  'app.apiConnectionSubtitle': 'Session management and API connectivity',
+  'app.backToReview': 'Back to review',
   'app.apiBaseUrlLabel': 'API base URL',
   'app.authTitle': 'User authentication',
   'app.authEmailLabel': 'Email',
