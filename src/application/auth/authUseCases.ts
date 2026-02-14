@@ -20,6 +20,12 @@ type AuthClient = Pick<
   | 'disable2fa'
 >
 
+type LoginClient = Pick<AuthClient, 'login' | 'getCurrentUser' | 'getUserFeatures'>
+type LostPasswordClient = Pick<AuthClient, 'requestLostPassword' | 'resetLostPassword'>
+type VerifyEmailClient = Pick<
+  AuthClient,
+  'requestEmailVerification' | 'confirmEmailVerification' | 'adminConfirmEmailVerification'
+>
 type MfaClient = Pick<AuthClient, 'setup2fa' | 'enable2fa' | 'disable2fa' | 'getCurrentUser'>
 
 export type AuthUserProfile = {
@@ -85,7 +91,7 @@ export function normalizeAuthUser(currentUser: {
 }
 
 export async function loginWithContext(args: {
-  apiClient: AuthClient
+  apiClient: LoginClient
   email: string
   password: string
   otpCode: string
@@ -124,7 +130,7 @@ export async function loginWithContext(args: {
 }
 
 export async function requestLostPassword(args: {
-  apiClient: AuthClient
+  apiClient: LostPasswordClient
   email: string
 }): Promise<SuccessResult | ValidationErrorResult | ApiErrorResult> {
   const email = args.email.trim()
@@ -140,7 +146,7 @@ export async function requestLostPassword(args: {
 }
 
 export async function resetLostPassword(args: {
-  apiClient: AuthClient
+  apiClient: LostPasswordClient
   token: string
   newPassword: string
 }): Promise<SuccessResult | ValidationErrorResult | ApiErrorResult> {
@@ -160,7 +166,7 @@ export async function resetLostPassword(args: {
 }
 
 export async function requestVerifyEmail(args: {
-  apiClient: AuthClient
+  apiClient: VerifyEmailClient
   email: string
 }): Promise<SuccessResult | ValidationErrorResult | ApiErrorResult> {
   const email = args.email.trim()
@@ -176,7 +182,7 @@ export async function requestVerifyEmail(args: {
 }
 
 export async function confirmVerifyEmail(args: {
-  apiClient: AuthClient
+  apiClient: VerifyEmailClient
   token: string
 }): Promise<SuccessResult | ValidationErrorResult | ApiErrorResult> {
   const token = args.token.trim()
@@ -192,7 +198,7 @@ export async function confirmVerifyEmail(args: {
 }
 
 export async function adminConfirmVerifyEmail(args: {
-  apiClient: AuthClient
+  apiClient: VerifyEmailClient
   email: string
 }): Promise<SuccessResult | ValidationErrorResult | ApiErrorResult> {
   const email = args.email.trim()
