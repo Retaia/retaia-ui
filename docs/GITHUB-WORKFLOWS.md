@@ -31,8 +31,8 @@ Jobs:
 - `npm run lint`
 - `npm run typecheck`
 - `npm run i18n:check`
-- `npm run api:contract:check` (drift bloquant entre `api/openapi/v1.yaml` et `contracts/openapi-v1.sha256`)
-- `npm run api:governance:check` (bloquant en PR si `api/openapi/v1.yaml` est modifié)
+- `npm run api:contract:check` (drift bloquant entre `specs/api/openapi/v1.yaml` et `contracts/openapi-v1.sha256`)
+- `npm run api:governance:check` (bloquant en PR si la source OpenAPI change dans `specs`)
 - `npm run test:coverage`
 - `npm run security:audit`
 - `npm run e2e:bdd:ci`

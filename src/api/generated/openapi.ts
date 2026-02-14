@@ -4,6 +4,1376 @@
  */
 
 export interface paths {
+    "/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * User login with email and password
+         * @description Interactive login endpoint for supported human-operated clients (`UI_RUST` and `AGENT`). Supports optional TOTP 2FA code when enabled.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthLoginRequest"];
+                };
+            };
+            responses: {
+                /** @description Login success */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthLoginSuccess"];
+                    };
+                };
+                /** @description Invalid credentials or 2FA challenge failure (`UNAUTHORIZED`, `MFA_REQUIRED`, `INVALID_2FA_CODE`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Email not verified (`EMAIL_NOT_VERIFIED`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Too many attempts (`TOO_MANY_ATTEMPTS`) */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/2fa/setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Setup TOTP 2FA for current user
+         * @description Starts TOTP enrollment for external authenticator apps (Authy, Google Authenticator, 1Password, etc.).
+         *     Returns provisioning material (`otpauth://` URI and secret) to be confirmed by `/auth/2fa/enable`.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description TOTP enrollment material generated */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Auth2faSetupResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 2FA already enabled (`MFA_ALREADY_ENABLED`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/2fa/enable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm and enable TOTP 2FA */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["Auth2faOtpRequest"];
+                };
+            };
+            responses: {
+                /** @description 2FA enabled */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid TOTP code (`INVALID_2FA_CODE`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 2FA already enabled (`MFA_ALREADY_ENABLED`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/2fa/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Disable TOTP 2FA */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["Auth2faOtpRequest"];
+                };
+            };
+            responses: {
+                /** @description 2FA disabled */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid TOTP code (`INVALID_2FA_CODE`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 2FA is not enabled (`MFA_NOT_ENABLED`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Logout current user token session */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Logout success */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get current authenticated user */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Current user */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthCurrentUser"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/me/features": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get current user feature preferences
+         * @description Returns user-level feature preferences (`user_feature_enabled`) and effective availability.
+         *     Effective availability is computed with AND semantics:
+         *     `feature_flags` AND `app_feature_enabled` AND `user_feature_enabled` AND dependency constraints.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Current user feature preferences */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserFeaturesResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update current user feature preferences
+         * @description Updates user-level feature preferences (`user_feature_enabled`) for the current authenticated user.
+         *     Core v1 global features are protected and cannot be disabled at user scope.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UserFeaturesUpdateRequest"];
+                };
+            };
+            responses: {
+                /** @description Updated current user feature preferences */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserFeaturesResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden scope (`FORBIDDEN_SCOPE`) when disabling protected core feature(s) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/app/features": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get effective app feature switches
+         * @description Returns global app switches (`app_feature_enabled`).
+         *     Also returns dependency/escalation metadata for deterministic client behavior.
+         *     Effective global availability requires Core `feature_flags` AND `app_feature_enabled`.
+         *     Normative gate: when `app_feature_enabled.features.ai=false`, `client_kind=MCP` is disabled at runtime.
+         *     Admin-only endpoint.
+         *     Runtime payload contract is stable: `app_feature_enabled`, `feature_governance`, `core_v1_global_features`.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Effective app feature switches */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AppFeaturesResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden actor or scope (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update effective app feature switches
+         * @description Updates effective app switches (`app_feature_enabled`).
+         *     Admin-only operation.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AppFeaturesUpdateRequest"];
+                };
+            };
+            responses: {
+                /** @description Updated effective app feature switches */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AppFeaturesResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden actor or scope (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/app/policy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get runtime app policy
+         * @description Returns runtime `server_policy` including `feature_flags`.
+         *     This endpoint is the canonical runtime policy transport for UI_RUST, AGENT, and MCP clients.
+         *     Clients may optionally send their supported feature-flags contract version for compatibility negotiation.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Optional client-advertised feature-flags contract version (SemVer). */
+                    client_feature_flags_contract_version?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Runtime app policy */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AppPolicyResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Unsupported feature-flags contract version (`UNSUPPORTED_FEATURE_FLAGS_CONTRACT_VERSION`) */
+                426: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/lost-password/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request lost password reset email */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthEmailRequest"];
+                };
+            };
+            responses: {
+                /** @description Request accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Too many attempts (`TOO_MANY_ATTEMPTS`) */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/lost-password/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset password with token */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthLostPasswordResetRequest"];
+                };
+            };
+            responses: {
+                /** @description Password reset success */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid token (`INVALID_TOKEN`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/verify-email/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request verification email */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthEmailRequest"];
+                };
+            };
+            responses: {
+                /** @description Request accepted */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Too many attempts (`TOO_MANY_ATTEMPTS`) */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/verify-email/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm email verification token */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthTokenRequest"];
+                };
+            };
+            responses: {
+                /** @description Email verified */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid token (`INVALID_TOKEN`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/verify-email/admin-confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Admin confirms user email verification
+         * @description Requires an authenticated admin actor, per AUTHZ matrix (FORBIDDEN_ACTOR or FORBIDDEN_SCOPE on authz failure).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthEmailRequest"];
+                };
+            };
+            responses: {
+                /** @description Email verified by admin */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden actor or scope (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description User not found (`USER_NOT_FOUND`) */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/clients/{client_id}/revoke-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke one technical client token access
+         * @description Admin-only endpoint for base UI operations.
+         *     Invalidates active bearer token(s) for the targeted technical client.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    client_id: components["parameters"]["ClientIdPath"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Client token(s) revoked */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthRevokeClientTokenResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden actor or scope (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`). UI interactive client token is protected and cannot be revoked here. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/clients/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mint client bearer token from secret key
+         * @description Exchanges `(client_id, secret_key)` for a bearer token.
+         *     Normative rule: one active token per technical client_id; minting a new token revokes the previous one.
+         *     This endpoint is for technical non-interactive clients only.
+         *     Runtime gate: when `app_feature_enabled.features.ai=false`, `client_kind=MCP` MUST be rejected.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthClientTokenRequest"];
+                };
+            };
+            responses: {
+                /** @description Client token minted */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthClientTokenSuccess"];
+                    };
+                };
+                /** @description Invalid client credentials (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden client kind or disabled app switch for this flow (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Too many attempts (`TOO_MANY_ATTEMPTS`) */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/clients/device/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start device authorization flow for technical client bootstrap
+         * @description Starts a browser-assisted authorization flow (GitHub-style) for `AGENT`/`MCP`.
+         *     User validation (and optional 2FA) happens via `verification_uri`.
+         *     Runtime gate: when `app_feature_enabled.features.ai=false`, `client_kind=MCP` MUST be rejected.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthDeviceStartRequest"];
+                };
+            };
+            responses: {
+                /** @description Device flow started */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthDeviceStartResponse"];
+                    };
+                };
+                /** @description Forbidden actor or disabled app switch (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Too many attempts (`TOO_MANY_ATTEMPTS`) */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/clients/device/poll": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Poll device authorization status
+         * @description Polls authorization status for a previously started device flow.
+         *     On approval, returns one-shot `secret_key`.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthDevicePollRequest"];
+                };
+            };
+            responses: {
+                /** @description Device authorization status (`PENDING`, `APPROVED`, `DENIED`, `EXPIRED`) */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthDevicePollResponse"];
+                    };
+                };
+                /** @description Invalid device code (`INVALID_DEVICE_CODE`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Polling too fast (`SLOW_DOWN` or `TOO_MANY_ATTEMPTS`) */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/clients/device/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel an in-progress device authorization flow */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthDeviceCancelRequest"];
+                };
+            };
+            responses: {
+                /** @description Device flow canceled */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthDeviceCancelResponse"];
+                    };
+                };
+                /** @description Invalid or expired device code (`INVALID_DEVICE_CODE` or `EXPIRED_DEVICE_CODE`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/clients/{client_id}/rotate-secret": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rotate client secret key
+         * @description Admin-only operation.
+         *     Rotates secret key for one client and invalidates active bearer token(s).
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    client_id: components["parameters"]["ClientIdPath"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Client secret rotated */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthRotateClientSecretResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden actor or scope (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/assets": {
         parameters: {
             query?: never;
@@ -20,12 +1390,14 @@ export interface paths {
                     tags?: string;
                     has_proxy?: boolean;
                     tags_mode?: "AND" | "OR";
-                    /** @description Suggested tags filter (AI-powered, available in v1.1+). */
-                    suggested_tags?: string;
-                    /** @description Suggested tags matching mode (available in v1.1+). */
-                    suggested_tags_mode?: "AND" | "OR";
                     /** @description Full-text query over filename, notes and transcript_text (available in v1). */
                     q?: string;
+                    /** @description Country-level location filter (uses secure derived search index). */
+                    location_country?: string;
+                    /** @description City-level location filter (uses secure derived search index). */
+                    location_city?: string;
+                    /** @description Bounding box filter `min_lon,min_lat,max_lon,max_lat` (uses secure derived spatial index). */
+                    geo_bbox?: string;
                     sort?: string;
                     limit?: number;
                     cursor?: string;
@@ -157,6 +1529,8 @@ export interface paths {
                         agent_version: string;
                         platform?: string;
                         capabilities: string[];
+                        /** @description Optional client-advertised feature-flags contract version (SemVer). */
+                        client_feature_flags_contract_version?: string;
                         max_parallel_jobs?: number;
                     };
                 };
@@ -170,8 +1544,19 @@ export interface paths {
                     content: {
                         "application/json": {
                             agent_id?: string;
-                            server_policy?: Record<string, never>;
+                            effective_capabilities?: string[];
+                            capability_warnings?: string[];
+                            server_policy?: components["schemas"]["ServerPolicy"];
                         };
+                    };
+                };
+                /** @description Unsupported feature-flags contract version (`UNSUPPORTED_FEATURE_FLAGS_CONTRACT_VERSION`) */
+                426: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
             };
@@ -470,8 +1855,6 @@ export interface paths {
         /**
          * Submit job result patch
          * @description Submits one job result patch.
-         *     For `job_type=suggest_tags` (v1.1+), server enforces both scopes `jobs:submit` and `suggestions:write`,
-         *     and requires feature flag `features.ai.suggest_tags` to be enabled.
          */
         post: {
             parameters: {
@@ -938,7 +2321,7 @@ export interface paths {
         put?: never;
         /**
          * Preview bulk decisions
-         * @description Available in v1.1+.
+         * @description Available in v1.1+ when `features.decisions.bulk=true`.
          */
         post: {
             parameters: {
@@ -986,7 +2369,7 @@ export interface paths {
         put?: never;
         /**
          * Apply bulk decisions from preview token
-         * @description Available in v1.1+.
+         * @description Available in v1.1+ when `features.decisions.bulk=true`.
          */
         post: {
             parameters: {
@@ -1116,6 +2499,241 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AuthLoginRequest: {
+            /** Format: email */
+            email: string;
+            password: string;
+            /** @description Optional client identifier. If omitted, server derives one from runtime client identity. */
+            client_id?: string;
+            client_kind?: components["schemas"]["ClientKind"];
+            /** @description 6-digit TOTP code when 2FA is enabled on account. */
+            otp_code?: string;
+        };
+        AuthLoginSuccess: {
+            access_token: string;
+            /** @enum {string} */
+            token_type: "Bearer";
+            /** @description Access token lifetime in seconds. */
+            expires_in?: number;
+            refresh_token?: string;
+            /** @description Effective client identifier bound to this token. */
+            client_id?: string;
+            client_kind?: components["schemas"]["ClientKind"];
+        };
+        AuthEmailRequest: {
+            /** Format: email */
+            email: string;
+        };
+        AuthTokenRequest: {
+            token: string;
+        };
+        AuthLostPasswordResetRequest: {
+            token: string;
+            new_password: string;
+        };
+        AuthCurrentUser: {
+            uuid?: string;
+            /** Format: email */
+            email: string;
+            display_name?: string;
+            email_verified?: boolean;
+            roles?: string[];
+            mfa_enabled?: boolean;
+        } & {
+            [key: string]: unknown;
+        };
+        Auth2faOtpRequest: {
+            otp_code: string;
+        };
+        Auth2faSetupResponse: {
+            /** @enum {string} */
+            method: "TOTP";
+            issuer: string;
+            /** @description Login identifier shown in authenticator app. */
+            account_name: string;
+            /** @description Base32 TOTP secret (show once during setup). */
+            secret: string;
+            /** @description Provisioning URI for authenticator apps. */
+            otpauth_uri: string;
+            /** @description Optional inline SVG QR code payload. */
+            qr_svg?: string;
+        };
+        AuthRevokeClientTokenResponse: {
+            client_id: string;
+            revoked: boolean;
+            /** Format: date-time */
+            revoked_at?: string;
+        };
+        AuthClientTokenRequest: {
+            client_id: string;
+            client_kind: components["schemas"]["NonUiClientKind"];
+            secret_key: string;
+        };
+        AuthClientTokenSuccess: {
+            client_id: string;
+            client_kind: components["schemas"]["NonUiClientKind"];
+            access_token: string;
+            /** @enum {string} */
+            token_type: "Bearer";
+            /** @description Access token lifetime in seconds. */
+            expires_in?: number;
+        };
+        /**
+         * @description Form factor identifier for interactive login flows.
+         * @enum {string}
+         */
+        ClientKind: "UI_RUST" | "AGENT";
+        /**
+         * @description Allowed client kinds for technical secret-key token minting.
+         * @enum {string}
+         */
+        NonUiClientKind: "AGENT" | "MCP";
+        AuthRotateClientSecretResponse: {
+            client_id: string;
+            /** @description Returned once at rotation time. */
+            secret_key: string;
+            /** Format: date-time */
+            rotated_at?: string;
+        };
+        AuthDeviceStartRequest: {
+            client_kind: components["schemas"]["NonUiClientKind"];
+            client_label?: string;
+        };
+        AuthDeviceStartResponse: {
+            device_code: string;
+            user_code: string;
+            /** Format: uri */
+            verification_uri: string;
+            /** Format: uri */
+            verification_uri_complete: string;
+            expires_in: number;
+            interval: number;
+        };
+        AuthDevicePollRequest: {
+            device_code: string;
+        };
+        AuthDevicePollResponse: components["schemas"]["AuthDevicePollPending"] | components["schemas"]["AuthDevicePollApproved"] | components["schemas"]["AuthDevicePollDenied"] | components["schemas"]["AuthDevicePollExpired"];
+        AuthDevicePollPending: {
+            /** @enum {string} */
+            status: "PENDING";
+            interval?: number;
+        };
+        AuthDevicePollApproved: {
+            /** @enum {string} */
+            status: "APPROVED";
+            client_id: string;
+            client_kind: components["schemas"]["NonUiClientKind"];
+            /** @description One-shot credential shown only once after approval. */
+            secret_key: string;
+        };
+        AuthDevicePollDenied: {
+            /** @enum {string} */
+            status: "DENIED";
+        };
+        AuthDevicePollExpired: {
+            /** @enum {string} */
+            status: "EXPIRED";
+        };
+        AuthDeviceCancelRequest: {
+            device_code: string;
+        };
+        AuthDeviceCancelResponse: {
+            canceled: boolean;
+        };
+        /**
+         * @description Runtime server policy returned by Core.
+         *     `feature_flags` is the source of truth for client feature availability.
+         */
+        ServerPolicy: {
+            min_poll_interval_seconds?: number;
+            max_parallel_jobs_allowed?: number;
+            allowed_job_types?: string[];
+            quiet_hours?: {
+                [key: string]: unknown;
+            };
+            feature_flags: components["schemas"]["FeatureFlags"];
+            /** @description Latest feature-flags contract version served by Core (SemVer). */
+            feature_flags_contract_version: string;
+            /** @description Feature-flags contract versions still accepted by Core for compatibility. */
+            accepted_feature_flags_contract_versions: string[];
+            /** @description Feature-flags contract version effectively served to this client request (SemVer). */
+            effective_feature_flags_contract_version: string;
+            /**
+             * @description STRICT = latest contract served.
+             *     COMPAT = compatibility profile served (including retired-flag tombstones when required).
+             * @enum {string}
+             */
+            feature_flags_compatibility_mode: "STRICT" | "COMPAT";
+        } & {
+            [key: string]: unknown;
+        };
+        /**
+         * @description Runtime flags controlled by Core.
+         *     Client semantics: missing flag = false, unknown flags are ignored, safe-by-default.
+         */
+        FeatureFlags: {
+            /** @default false */
+            "features.decisions.bulk": boolean;
+        } & {
+            [key: string]: boolean;
+        };
+        /**
+         * @description Application-level feature switches.
+         *     Effective feature availability requires Core `FeatureFlags` AND `AppFeatureEnabled`.
+         *     `features.ai` controls MCP global availability (false => MCP disabled).
+         */
+        AppFeatureEnabled: {
+            [key: string]: boolean;
+        };
+        /**
+         * @description User-level feature switches.
+         *     Only non-core features can be disabled at user scope.
+         *     Missing key is interpreted as `true` (migration-safe default).
+         */
+        UserFeatureEnabled: {
+            [key: string]: boolean;
+        };
+        /**
+         * @description Effective availability after all gates (`feature_flags`, `app_feature_enabled`, `user_feature_enabled`, dependencies).
+         *     Evaluation order is strict: feature_flags -> app_feature_enabled -> user_feature_enabled -> dependency/escalation rules.
+         */
+        EffectiveFeatureEnabled: {
+            [key: string]: boolean;
+        };
+        FeatureGovernanceRule: {
+            /** @description Feature key. Keys listed in `core_v1_global_features` are protected. */
+            key: string;
+            /** @enum {string} */
+            tier: "CORE_V1_GLOBAL" | "OPTIONAL";
+            user_can_disable: boolean;
+            dependencies: string[];
+            /** @description Features automatically disabled when this feature is disabled at app/user scope. */
+            disable_escalation: string[];
+        };
+        AppFeaturesResponse: {
+            app_feature_enabled: components["schemas"]["AppFeatureEnabled"];
+            core_v1_global_features: components["schemas"]["CoreV1GlobalFeatures"];
+            feature_governance: components["schemas"]["FeatureGovernanceRule"][];
+        };
+        AppFeaturesUpdateRequest: {
+            app_feature_enabled: components["schemas"]["AppFeatureEnabled"];
+        };
+        UserFeaturesResponse: {
+            user_feature_enabled: components["schemas"]["UserFeatureEnabled"];
+            effective_feature_enabled: components["schemas"]["EffectiveFeatureEnabled"];
+            feature_governance: components["schemas"]["FeatureGovernanceRule"][];
+            core_v1_global_features: components["schemas"]["CoreV1GlobalFeatures"];
+        };
+        UserFeaturesUpdateRequest: {
+            user_feature_enabled: components["schemas"]["UserFeatureEnabled"];
+        };
+        /** @enum {string} */
+        CoreV1GlobalFeatureKey: "features.core.auth" | "features.core.assets.lifecycle" | "features.core.jobs.runtime" | "features.core.search.query" | "features.core.policy.runtime" | "features.core.derived.access" | "features.core.clients.bootstrap";
+        /** @description Canonical list of non-disableable v1 global core feature keys. */
+        CoreV1GlobalFeatures: components["schemas"]["CoreV1GlobalFeatureKey"][];
+        AppPolicyResponse: {
+            server_policy: components["schemas"]["ServerPolicy"];
+        };
         /** @enum {string} */
         AssetState: "DISCOVERED" | "READY" | "PROCESSING_REVIEW" | "PROCESSED" | "DECISION_PENDING" | "DECIDED_KEEP" | "DECIDED_REJECT" | "MOVE_QUEUED" | "ARCHIVED" | "REJECTED" | "PURGED";
         AssetSummary: {
@@ -1138,8 +2756,6 @@ export interface components {
             processing?: components["schemas"]["AssetProcessing"];
             derived?: components["schemas"]["AssetDerived"];
             transcript?: components["schemas"]["AssetTranscript"];
-            /** @description Available in v1.1+. */
-            suggestions?: components["schemas"]["AssetSuggestions"];
             decisions?: components["schemas"]["AssetDecisions"];
             audit?: components["schemas"]["AssetAudit"];
         };
@@ -1159,6 +2775,10 @@ export interface components {
             proxy_video_url?: string | null;
             proxy_audio_url?: string | null;
             proxy_photo_url?: string | null;
+            /**
+             * @description Optional server-generated waveform file URL.
+             *     If absent, UI clients must render a simple local waveform from audio (pure JS).
+             */
             waveform_url?: string | null;
             thumbs?: string[];
         };
@@ -1168,13 +2788,6 @@ export interface components {
             text_preview?: string | null;
             /** Format: date-time */
             updated_at?: string | null;
-        };
-        /** @description AI-powered suggestions payload (available in v1.1+). */
-        AssetSuggestions: {
-            /** @enum {string} */
-            status?: "NONE" | "RUNNING" | "DONE" | "FAILED";
-            tags_suggested?: string[];
-            source?: string | null;
         };
         AssetDecisions: {
             /** @enum {string|null} */
@@ -1193,11 +2806,8 @@ export interface components {
         /** @description Processing job */
         Job: {
             job_id: string;
-            /**
-             * @description suggest_tags is available in v1.1+, transcribe_audio is available in v1.
-             * @enum {string}
-             */
-            job_type: "extract_facts" | "generate_proxy" | "generate_thumbnails" | "generate_audio_waveform" | "transcribe_audio" | "suggest_tags";
+            /** @enum {string} */
+            job_type: "extract_facts" | "generate_proxy" | "generate_thumbnails" | "generate_audio_waveform";
             /** @enum {string} */
             status: "pending" | "claimed" | "completed" | "failed";
             asset_uuid: string;
@@ -1207,7 +2817,7 @@ export interface components {
             /** Format: date-time */
             locked_until?: string | null;
         };
-        JobSubmitRequest: components["schemas"]["SubmitExtractFacts"] | components["schemas"]["SubmitDerived"] | components["schemas"]["SubmitTranscribe"] | components["schemas"]["SubmitSuggest"];
+        JobSubmitRequest: components["schemas"]["SubmitExtractFacts"] | components["schemas"]["SubmitDerived"];
         SubmitExtractFacts: {
             lock_token: string;
             /** @enum {string} */
@@ -1232,37 +2842,9 @@ export interface components {
                 };
             };
         };
-        SubmitTranscribe: {
-            lock_token: string;
-            /** @enum {string} */
-            job_type: "transcribe_audio";
-            result: {
-                transcript_patch: components["schemas"]["TranscriptPatch"];
-                warnings?: string[];
-                metrics?: {
-                    [key: string]: unknown;
-                };
-            };
-        };
-        /** @description AI-powered suggestions submission (available in v1.1+, requires jobs:submit and suggestions:write). */
-        SubmitSuggest: {
-            lock_token: string;
-            /** @enum {string} */
-            job_type: "suggest_tags";
-            result: {
-                suggestions_patch: components["schemas"]["SuggestionsPatch"];
-                warnings?: string[];
-                metrics?: {
-                    [key: string]: unknown;
-                };
-            };
-        };
         ProcessingResultPatch: {
             facts_patch?: components["schemas"]["FactsPatch"];
             derived_patch?: components["schemas"]["DerivedPatch"];
-            transcript_patch?: components["schemas"]["TranscriptPatch"];
-            /** @description Available in v1.1+. */
-            suggestions_patch?: components["schemas"]["SuggestionsPatch"];
             warnings?: string[];
             metrics?: {
                 [key: string]: unknown;
@@ -1286,23 +2868,9 @@ export interface components {
                 sha256?: string;
             }[];
         };
-        TranscriptPatch: {
-            transcript_text?: string;
-            confidence?: number;
-            segments?: {
-                start_ms: number;
-                end_ms: number;
-                text: string;
-            }[];
-        };
-        /** @description AI-powered suggestions patch (available in v1.1+). */
-        SuggestionsPatch: {
-            suggested_tags?: string[];
-            source?: string;
-        };
         ErrorResponse: {
             /** @enum {string} */
-            code: "FORBIDDEN_SCOPE" | "FORBIDDEN_ACTOR" | "STATE_CONFLICT" | "IDEMPOTENCY_CONFLICT" | "STALE_LOCK_TOKEN" | "NAME_COLLISION_EXHAUSTED" | "PURGED" | "VALIDATION_FAILED" | "LOCK_REQUIRED" | "LOCK_INVALID" | "RATE_LIMITED" | "TEMPORARY_UNAVAILABLE";
+            code: "UNAUTHORIZED" | "EMAIL_NOT_VERIFIED" | "FORBIDDEN_SCOPE" | "FORBIDDEN_ACTOR" | "USER_NOT_FOUND" | "STATE_CONFLICT" | "IDEMPOTENCY_CONFLICT" | "STALE_LOCK_TOKEN" | "NAME_COLLISION_EXHAUSTED" | "PURGED" | "VALIDATION_FAILED" | "INVALID_TOKEN" | "LOCK_REQUIRED" | "LOCK_INVALID" | "TOO_MANY_ATTEMPTS" | "MFA_REQUIRED" | "INVALID_2FA_CODE" | "MFA_ALREADY_ENABLED" | "MFA_NOT_ENABLED" | "INVALID_DEVICE_CODE" | "EXPIRED_DEVICE_CODE" | "UNSUPPORTED_FEATURE_FLAGS_CONTRACT_VERSION" | "SLOW_DOWN" | "RATE_LIMITED" | "TEMPORARY_UNAVAILABLE";
             message: string;
             details?: {
                 [key: string]: unknown;
@@ -1315,6 +2883,7 @@ export interface components {
     parameters: {
         UuidPath: string;
         IdempotencyKey: string;
+        ClientIdPath: string;
     };
     requestBodies: never;
     headers: never;
