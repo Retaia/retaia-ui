@@ -95,6 +95,10 @@ Variables utilisées côté UI:
 ## Structure utile
 
 - `src/`: application UI
+- `src/App.tsx`: point d'entrée UI (routing uniquement)
+- `src/routes/AppRoutes.tsx`: définition des routes applicatives (`/review`, `/auth`)
+- `src/pages/ReviewPage.tsx`: implémentation UI de review
+- `src/pages/AuthPage.tsx`: implémentation UI auth (login/logout/2FA + feature user)
 - `src/api/generated/openapi.ts`: types OpenAPI générés
 - `api/openapi/v1.yaml`: snapshot OpenAPI local consommateur
 - `contracts/openapi-v1.sha256`: hash de freeze OpenAPI
@@ -102,6 +106,7 @@ Variables utilisées côté UI:
 - `specs/`: submodule des specs normatives
 - `bdd/features/`: scénarios BDD
 - `tests/visual/`: snapshots visuels
+- `src/pages/*.test.tsx`: tests UI par page (au lieu d'un test monolithique dans `App.tsx`)
 
 ## Règles de contribution
 
