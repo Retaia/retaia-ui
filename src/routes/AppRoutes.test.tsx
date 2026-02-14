@@ -5,10 +5,12 @@ import { setupApp } from '../test-utils/appTestUtils'
 
 describe('AppRoutes', () => {
   it('renders auth page on /auth', () => {
-    setupApp('/auth?source=api')
+    setupApp('/auth')
 
-    expect(screen.getByRole('heading', { name: 'Retaia UI' })).toBeInTheDocument()
-    expect(screen.getByLabelText('Authentification utilisateur')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Authentification utilisateur' }),
+    ).toBeInTheDocument()
+    expect(screen.getByLabelText('Connexion API')).toBeInTheDocument()
   })
 
   it('redirects unknown paths to /review', async () => {

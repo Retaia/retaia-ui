@@ -196,6 +196,36 @@ describe('api client', () => {
     )
   })
 
+  it('requests lost password reset email', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 202 }))
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await api.requestLostPassword({ email: 'user@example.com' })
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/auth/lost-password/request',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ email: 'user@example.com' }),
+      }),
+    )
+  })
+
+  it('resets lost password with token and new password', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await api.resetLostPassword({ token: 'token-123', new_password: 'new-secret' })
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/auth/lost-password/reset',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ token: 'token-123', new_password: 'new-secret' }),
+      }),
+    )
+  })
+
   it('loads user feature state and validates payload shape', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(
