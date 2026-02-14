@@ -14,6 +14,7 @@ Routes UI:
 
 - `/review`
 - `/review/:assetId` (deep-link détail)
+- La navigation détail est pilotée par React Router (`useNavigate`/`useLocation`) plutôt que par `window.history`.
 
 `App.tsx` orchestre les états globaux de review et compose les blocs UI.
 La logique métier est déplacée autant que possible dans des hooks dédiés.

@@ -9,6 +9,7 @@ import {
   BsQuestionCircle,
 } from 'react-icons/bs'
 import { useTranslation } from 'react-i18next'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { AssetList } from '../components/AssetList'
 import { ActionPanels } from '../components/app/ActionPanels'
 import { AppHeader } from '../components/app/AppHeader'
@@ -70,19 +71,18 @@ function getAssetIdFromLocationPath(pathname: string): string | null {
   return decodeURIComponent(match[1])
 }
 
-function getSelectedAssetIdFromLocation() {
-  if (typeof window === 'undefined') {
-    return null
-  }
-  const fromPath = getAssetIdFromLocationPath(window.location.pathname)
+function getSelectedAssetIdFromLocation(pathname: string, search: string) {
+  const fromPath = getAssetIdFromLocationPath(pathname)
   if (fromPath) {
     return fromPath
   }
-  const params = new URLSearchParams(window.location.search)
+  const params = new URLSearchParams(search)
   return params.get(SELECTED_ASSET_QUERY_KEY)
 }
 
 function ReviewPage() {
+  const navigate = useNavigate()
+  const location = useLocation()
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t, i18n } = useTranslation()
   const [retryStatus, setRetryStatus] = useState<string | null>(null)
@@ -142,7 +142,10 @@ function ReviewPage() {
   const [batchOnly, setBatchOnly] = useState(false)
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(() => {
-    const urlAssetId = getSelectedAssetIdFromLocation()
+    if (typeof window === 'undefined') {
+      return null
+    }
+    const urlAssetId = getSelectedAssetIdFromLocation(window.location.pathname, window.location.search)
     if (!urlAssetId) {
       return null
     }
@@ -170,12 +173,9 @@ function ReviewPage() {
     if (import.meta.env.VITE_ASSET_SOURCE === 'api') {
       return true
     }
-    if (typeof window === 'undefined') {
-      return false
-    }
-    const params = new URLSearchParams(window.location.search)
+    const params = new URLSearchParams(location.search)
     return params.get('source') === 'api'
-  }, [])
+  }, [location.search])
   const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>(
     isApiAssetSource ? 'loading' : 'idle',
   )
@@ -199,11 +199,8 @@ function ReviewPage() {
   const [refreshingSelectedAsset, setRefreshingSelectedAsset] = useState(false)
   const updateSelectedAssetSearchParam = useCallback(
     (nextAssetId: string | null, mode: 'push' | 'replace' = 'push') => {
-      if (typeof window === 'undefined') {
-        return
-      }
-      const params = new URLSearchParams(window.location.search)
-      const currentAssetId = getSelectedAssetIdFromLocation()
+      const params = new URLSearchParams(location.search)
+      const currentAssetId = getSelectedAssetIdFromLocation(location.pathname, location.search)
       if (currentAssetId === nextAssetId) {
         return
       }
@@ -216,14 +213,16 @@ function ReviewPage() {
       const nextPathname = nextAssetId
         ? `${REVIEW_BASE_PATH}/${encodeURIComponent(nextAssetId)}`
         : REVIEW_BASE_PATH
-      const nextUrl = `${nextPathname}${nextSearch ? `?${nextSearch}` : ''}${window.location.hash}`
-      if (mode === 'replace') {
-        window.history.replaceState(window.history.state, '', nextUrl)
-        return
-      }
-      window.history.pushState(window.history.state, '', nextUrl)
+      navigate(
+        {
+          pathname: nextPathname,
+          search: nextSearch ? `?${nextSearch}` : '',
+          hash: location.hash,
+        },
+        { replace: mode === 'replace' },
+      )
     },
-    [],
+    [location.hash, location.pathname, location.search, navigate],
   )
   const applySelectedAssetId = useCallback(
     (nextAssetId: string | null, mode: 'push' | 'replace' = 'push') => {
@@ -242,7 +241,8 @@ function ReviewPage() {
     if (!batchOnly) {
       return filtered
     }
-    return filtered.filter((asset) => batchIds.includes(asset.id))
+    const batchIdSet = new Set(batchIds)
+    return filtered.filter((asset) => batchIdSet.has(asset.id))
   }, [assets, batchIds, batchOnly, dateFilter, filter, mediaTypeFilter, search])
 
   const counts = useMemo(() => countAssetsByState(assets), [assets])
@@ -252,28 +252,19 @@ function ReviewPage() {
   )
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    const urlAssetId = getSelectedAssetIdFromLocation(location.pathname, location.search)
+    const exists = !!urlAssetId && assets.some((asset) => asset.id === urlAssetId)
+    if (exists) {
+      setSelectedAssetId(urlAssetId)
+      setSelectionAnchorId(urlAssetId)
       return
     }
-    const handlePopState = () => {
-      const urlAssetId = getSelectedAssetIdFromLocation()
-      const exists = !!urlAssetId && assets.some((asset) => asset.id === urlAssetId)
-      if (exists) {
-        setSelectedAssetId(urlAssetId)
-        setSelectionAnchorId(urlAssetId)
-        return
-      }
-      if (urlAssetId || window.location.pathname !== REVIEW_BASE_PATH) {
-        updateSelectedAssetSearchParam(null, 'replace')
-      }
-      setSelectedAssetId(null)
-      setSelectionAnchorId(null)
+    if (urlAssetId || location.pathname !== REVIEW_BASE_PATH) {
+      updateSelectedAssetSearchParam(null, 'replace')
     }
-    window.addEventListener('popstate', handlePopState)
-    return () => {
-      window.removeEventListener('popstate', handlePopState)
-    }
-  }, [assets, updateSelectedAssetSearchParam])
+    setSelectedAssetId(null)
+    setSelectionAnchorId(null)
+  }, [assets, location.pathname, location.search, updateSelectedAssetSearchParam])
 
   useEffect(() => {
     if (!isApiAssetSource) {
