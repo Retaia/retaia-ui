@@ -21,6 +21,9 @@ export const enTranslation = {
   'app.apiConnectionAuthError': 'API authentication failed (401/403). Check token.',
   'app.apiConnectionTestOk': 'API connection is valid.',
   'app.apiConnectionTestError': 'API connection test failed: {message}',
+  'app.policyLoading': 'Loading runtime policy...',
+  'app.policyUnavailable': 'Runtime policy unavailable. Bulk decisions are disabled by default.',
+  'app.bulkDisabledByPolicy': 'Bulk decisions are disabled by server policy.',
   'summary.region': 'Asset summary',
   'summary.total': 'Total',
   'summary.pending': 'Pending',
@@ -175,6 +178,7 @@ export const enTranslation = {
   'detail.decisionPartial':
     'Decision update partially saved ({success} ok, {failed} failed): {message}',
   'detail.decisionError': 'Decision save failed: {message}',
+  'detail.bulkDisabledByPolicy': 'Bulk decisions are disabled by server policy.',
   'detail.refreshAction': 'Refresh asset',
   'detail.refreshing': 'Refreshing...',
   'detail.refreshDone': 'Asset detail refreshed.',

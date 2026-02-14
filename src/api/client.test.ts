@@ -268,6 +268,32 @@ describe('api client', () => {
     expect(detail.summary.uuid).toBe('A-001')
   })
 
+  it('loads runtime app policy feature flags', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          server_policy: {
+            feature_flags: {
+              'features.decisions.bulk': true,
+              'features.foo.bar': false,
+            },
+          },
+        }),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        },
+      ),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    const policy = await api.getAppPolicy()
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/app/policy', expect.any(Object))
+    expect(policy.server_policy.feature_flags['features.decisions.bulk']).toBe(true)
+    expect(policy.server_policy.feature_flags['features.foo.bar']).toBe(false)
+  })
+
   it('throws validation error when asset detail payload has no summary', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ derived: {} }), {
