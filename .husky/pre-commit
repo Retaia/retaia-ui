@@ -3,4 +3,5 @@ set -eu
 
 # Lint is an explicit hard gate on every commit.
 npm run lint
+npm run typecheck
 npm run qa
