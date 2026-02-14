@@ -119,6 +119,24 @@ function App() {
     displayName: string | null
     mfaEnabled: boolean
   } | null>(null)
+  const [userFeatureState, setUserFeatureState] = useState<{
+    userFeatureEnabled: Record<string, boolean>
+    effectiveFeatureEnabled: Record<string, boolean>
+    featureGovernance: Array<{
+      key: string
+      user_can_disable: boolean
+    }>
+  } | null>(null)
+  const [authMfaStatus, setAuthMfaStatus] = useState<{
+    kind: 'success' | 'error'
+    message: string
+  } | null>(null)
+  const [authMfaBusy, setAuthMfaBusy] = useState(false)
+  const [authMfaSetup, setAuthMfaSetup] = useState<{
+    secret: string
+    otpauthUri: string
+  } | null>(null)
+  const [authMfaOtpAction, setAuthMfaOtpAction] = useState('')
   const [apiBaseUrlInput, setApiBaseUrlInput] = useState(() => {
     if (typeof window === 'undefined') {
       return ''
@@ -514,12 +532,44 @@ function App() {
       persistAuthToken(login.access_token)
       persistLoginEmail(authEmailInput.trim())
       const currentUser = await apiClient.getCurrentUser()
+      const userFeatures = await apiClient.getUserFeatures()
+      const governance = userFeatures.feature_governance
+        .filter((item) => typeof item.key === 'string')
+        .map((item) => ({
+          key: item.key,
+          user_can_disable: item.user_can_disable === true,
+        }))
+      const userFeatureEnabled = Object.entries(userFeatures.user_feature_enabled ?? {}).reduce<Record<string, boolean>>(
+        (acc, [key, value]) => {
+          if (typeof value === 'boolean') {
+            acc[key] = value
+          }
+          return acc
+        },
+        {},
+      )
+      const effectiveFeatureEnabled = Object.entries(
+        userFeatures.effective_feature_enabled ?? {},
+      ).reduce<Record<string, boolean>>((acc, [key, value]) => {
+        if (typeof value === 'boolean') {
+          acc[key] = value
+        }
+        return acc
+      }, {})
+      setUserFeatureState({
+        userFeatureEnabled,
+        effectiveFeatureEnabled,
+        featureGovernance: governance,
+      })
       setAuthUser({
         email: currentUser.email,
         displayName:
           typeof currentUser.display_name === 'string' ? currentUser.display_name : null,
         mfaEnabled: currentUser.mfa_enabled === true,
       })
+      setAuthMfaStatus(null)
+      setAuthMfaSetup(null)
+      setAuthMfaOtpAction('')
       setAuthPasswordInput('')
       setAuthOtpInput('')
       setAuthRequiresOtp(false)
@@ -561,6 +611,10 @@ function App() {
       setAuthOtpInput('')
       setAuthRequiresOtp(false)
       setAuthUser(null)
+      setUserFeatureState(null)
+      setAuthMfaStatus(null)
+      setAuthMfaSetup(null)
+      setAuthMfaOtpAction('')
       setAuthLoading(false)
       setAuthStatus({
         kind: 'success',
@@ -590,6 +644,7 @@ function App() {
   useEffect(() => {
     if (!isApiAssetSource || !effectiveApiToken) {
       setAuthUser(null)
+      setUserFeatureState(null)
       return
     }
 
@@ -597,9 +652,38 @@ function App() {
     const loadCurrentUser = async () => {
       try {
         const currentUser = await apiClient.getCurrentUser()
+        const userFeatures = await apiClient.getUserFeatures()
         if (canceled) {
           return
         }
+        const governance = userFeatures.feature_governance
+          .filter((item) => typeof item.key === 'string')
+          .map((item) => ({
+            key: item.key,
+            user_can_disable: item.user_can_disable === true,
+          }))
+        const userFeatureEnabled = Object.entries(userFeatures.user_feature_enabled ?? {}).reduce<Record<string, boolean>>(
+          (acc, [key, value]) => {
+            if (typeof value === 'boolean') {
+              acc[key] = value
+            }
+            return acc
+          },
+          {},
+        )
+        const effectiveFeatureEnabled = Object.entries(
+          userFeatures.effective_feature_enabled ?? {},
+        ).reduce<Record<string, boolean>>((acc, [key, value]) => {
+          if (typeof value === 'boolean') {
+            acc[key] = value
+          }
+          return acc
+        }, {})
+        setUserFeatureState({
+          userFeatureEnabled,
+          effectiveFeatureEnabled,
+          featureGovernance: governance,
+        })
         setAuthUser({
           email: currentUser.email,
           displayName:
@@ -611,6 +695,7 @@ function App() {
           return
         }
         setAuthUser(null)
+        setUserFeatureState(null)
         if (!isApiAuthLockedByEnv && error instanceof ApiError && (error.status === 401 || error.status === 403)) {
           setApiTokenInput('')
           clearPersistedAuthToken()
@@ -627,6 +712,201 @@ function App() {
       canceled = true
     }
   }, [apiClient, clearPersistedAuthToken, effectiveApiToken, isApiAssetSource, isApiAuthLockedByEnv, t])
+
+  const mfaFeatureKey = useMemo(() => {
+    if (!userFeatureState) {
+      return null
+    }
+    const fromGovernance = userFeatureState.featureGovernance.find((item) =>
+      /(2fa|mfa|totp)/i.test(item.key),
+    )
+    if (fromGovernance) {
+      return fromGovernance.key
+    }
+    const fromEffective = Object.keys(userFeatureState.effectiveFeatureEnabled).find((key) =>
+      /(2fa|mfa|totp)/i.test(key),
+    )
+    return fromEffective ?? null
+  }, [userFeatureState])
+
+  const mfaFeatureAvailable = useMemo(() => {
+    if (!mfaFeatureKey || !userFeatureState) {
+      return false
+    }
+    return userFeatureState.effectiveFeatureEnabled[mfaFeatureKey] === true
+  }, [mfaFeatureKey, userFeatureState])
+
+  const mfaFeatureUserEnabled = useMemo(() => {
+    if (!mfaFeatureKey || !userFeatureState) {
+      return false
+    }
+    const current = userFeatureState.userFeatureEnabled[mfaFeatureKey]
+    return current !== false
+  }, [mfaFeatureKey, userFeatureState])
+
+  const mfaFeatureUserCanDisable = useMemo(() => {
+    if (!mfaFeatureKey || !userFeatureState) {
+      return false
+    }
+    const governance = userFeatureState.featureGovernance.find((item) => item.key === mfaFeatureKey)
+    return governance?.user_can_disable === true
+  }, [mfaFeatureKey, userFeatureState])
+
+  const setUserFeature = useCallback(
+    async (enabled: boolean) => {
+      if (!mfaFeatureKey || !userFeatureState) {
+        return
+      }
+      setAuthMfaBusy(true)
+      setAuthMfaStatus(null)
+      try {
+        const response = await apiClient.updateUserFeatures({
+          user_feature_enabled: {
+            ...userFeatureState.userFeatureEnabled,
+            [mfaFeatureKey]: enabled,
+          },
+        })
+        const userFeatureEnabled = Object.entries(response.user_feature_enabled ?? {}).reduce<Record<string, boolean>>(
+          (acc, [key, value]) => {
+            if (typeof value === 'boolean') {
+              acc[key] = value
+            }
+            return acc
+          },
+          {},
+        )
+        const effectiveFeatureEnabled = Object.entries(
+          response.effective_feature_enabled ?? {},
+        ).reduce<Record<string, boolean>>((acc, [key, value]) => {
+          if (typeof value === 'boolean') {
+            acc[key] = value
+          }
+          return acc
+        }, {})
+        setUserFeatureState({
+          userFeatureEnabled,
+          effectiveFeatureEnabled,
+          featureGovernance: userFeatureState.featureGovernance,
+        })
+        setAuthMfaStatus({
+          kind: 'success',
+          message: enabled ? t('app.authMfaFeatureEnabled') : t('app.authMfaFeatureDisabled'),
+        })
+      } catch (error) {
+        setAuthMfaStatus({
+          kind: 'error',
+          message: t('app.authMfaFeatureError', {
+            message: mapApiErrorToMessage(error, t),
+          }),
+        })
+      } finally {
+        setAuthMfaBusy(false)
+      }
+    },
+    [apiClient, mfaFeatureKey, t, userFeatureState],
+  )
+
+  const startMfaSetup = useCallback(async () => {
+    setAuthMfaBusy(true)
+    setAuthMfaStatus(null)
+    try {
+      const setup = await apiClient.setup2fa()
+      setAuthMfaSetup({
+        secret: setup.secret,
+        otpauthUri: setup.otpauth_uri,
+      })
+      setAuthMfaStatus({
+        kind: 'success',
+        message: t('app.authMfaSetupReady'),
+      })
+    } catch (error) {
+      setAuthMfaStatus({
+        kind: 'error',
+        message: t('app.authMfaSetupError', {
+          message: mapApiErrorToMessage(error, t),
+        }),
+      })
+    } finally {
+      setAuthMfaBusy(false)
+    }
+  }, [apiClient, t])
+
+  const enableMfa = useCallback(async () => {
+    if (authMfaOtpAction.trim().length === 0) {
+      setAuthMfaStatus({
+        kind: 'error',
+        message: t('app.authOtpRequired'),
+      })
+      return
+    }
+    setAuthMfaBusy(true)
+    setAuthMfaStatus(null)
+    try {
+      await apiClient.enable2fa({ otp_code: authMfaOtpAction.trim() })
+      const currentUser = await apiClient.getCurrentUser()
+      setAuthUser((current) =>
+        current
+          ? {
+            ...current,
+            mfaEnabled: currentUser.mfa_enabled === true,
+          }
+          : current,
+      )
+      setAuthMfaOtpAction('')
+      setAuthMfaSetup(null)
+      setAuthMfaStatus({
+        kind: 'success',
+        message: t('app.authMfaEnabledNow'),
+      })
+    } catch (error) {
+      setAuthMfaStatus({
+        kind: 'error',
+        message: t('app.authMfaEnableError', {
+          message: mapApiErrorToMessage(error, t),
+        }),
+      })
+    } finally {
+      setAuthMfaBusy(false)
+    }
+  }, [apiClient, authMfaOtpAction, t])
+
+  const disableMfa = useCallback(async () => {
+    if (authMfaOtpAction.trim().length === 0) {
+      setAuthMfaStatus({
+        kind: 'error',
+        message: t('app.authOtpRequired'),
+      })
+      return
+    }
+    setAuthMfaBusy(true)
+    setAuthMfaStatus(null)
+    try {
+      await apiClient.disable2fa({ otp_code: authMfaOtpAction.trim() })
+      const currentUser = await apiClient.getCurrentUser()
+      setAuthUser((current) =>
+        current
+          ? {
+            ...current,
+            mfaEnabled: currentUser.mfa_enabled === true,
+          }
+          : current,
+      )
+      setAuthMfaOtpAction('')
+      setAuthMfaStatus({
+        kind: 'success',
+        message: t('app.authMfaDisabledNow'),
+      })
+    } catch (error) {
+      setAuthMfaStatus({
+        kind: 'error',
+        message: t('app.authMfaDisableError', {
+          message: mapApiErrorToMessage(error, t),
+        }),
+      })
+    } finally {
+      setAuthMfaBusy(false)
+    }
+  }, [apiClient, authMfaOtpAction, t])
 
   const batchScope = useMemo(() => {
     const summary = { pending: 0, keep: 0, reject: 0 }
@@ -1396,6 +1676,117 @@ function App() {
                 >
                   {authStatus.message}
                 </p>
+              ) : null}
+              {authUser && mfaFeatureKey ? (
+                <section className="border border-2 border-secondary-subtle rounded p-3 mt-3" aria-label={t('app.authMfaTitle')}>
+                  <h4 className="h6 mb-2">{t('app.authMfaTitle')}</h4>
+                  {!mfaFeatureAvailable ? (
+                    <p className="small text-secondary mb-0" data-testid="auth-mfa-feature-disabled">
+                      {t('app.authMfaFeatureUnavailable')}
+                    </p>
+                  ) : (
+                    <>
+                      <p className="small text-secondary mb-2" data-testid="auth-mfa-state">
+                        {authUser.mfaEnabled ? t('app.authMfaStateOn') : t('app.authMfaStateOff')}
+                      </p>
+                      {mfaFeatureUserCanDisable ? (
+                        <div className="d-flex flex-wrap gap-2 mb-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant={mfaFeatureUserEnabled ? 'outline-secondary' : 'outline-primary'}
+                            data-testid="auth-mfa-user-toggle"
+                            disabled={authMfaBusy}
+                            onClick={() => void setUserFeature(!mfaFeatureUserEnabled)}
+                          >
+                            {mfaFeatureUserEnabled
+                              ? t('app.authMfaFeatureOptOut')
+                              : t('app.authMfaFeatureOptIn')}
+                          </Button>
+                        </div>
+                      ) : null}
+                      {mfaFeatureUserEnabled ? (
+                        <>
+                          {!authUser.mfaEnabled ? (
+                            <div className="d-flex flex-wrap gap-2 mb-2">
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline-primary"
+                                data-testid="auth-mfa-setup"
+                                disabled={authMfaBusy}
+                                onClick={() => void startMfaSetup()}
+                              >
+                                {t('app.authMfaSetup')}
+                              </Button>
+                            </div>
+                          ) : null}
+                          {authMfaSetup ? (
+                            <div className="small text-secondary mb-2" data-testid="auth-mfa-setup-material">
+                              <div>{t('app.authMfaSecretLabel')}: {authMfaSetup.secret}</div>
+                              <div>{t('app.authMfaUriLabel')}: {authMfaSetup.otpauthUri}</div>
+                            </div>
+                          ) : null}
+                          <Row className="g-2">
+                            <Col md={6}>
+                              <Form.Label htmlFor="auth-mfa-otp-action-input" className="small mb-1">
+                                {t('app.authOtpLabel')}
+                              </Form.Label>
+                              <Form.Control
+                                id="auth-mfa-otp-action-input"
+                                data-testid="auth-mfa-otp-action-input"
+                                value={authMfaOtpAction}
+                                type="text"
+                                inputMode="numeric"
+                                onChange={(event) => setAuthMfaOtpAction(event.target.value)}
+                                disabled={authMfaBusy}
+                              />
+                            </Col>
+                          </Row>
+                          <div className="d-flex flex-wrap gap-2 mt-2">
+                            {!authUser.mfaEnabled ? (
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="primary"
+                                data-testid="auth-mfa-enable"
+                                disabled={authMfaBusy}
+                                onClick={() => void enableMfa()}
+                              >
+                                {t('app.authMfaEnable')}
+                              </Button>
+                            ) : (
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="outline-danger"
+                                data-testid="auth-mfa-disable"
+                                disabled={authMfaBusy}
+                                onClick={() => void disableMfa()}
+                              >
+                                {t('app.authMfaDisable')}
+                              </Button>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        <p className="small text-secondary mb-0" data-testid="auth-mfa-user-disabled">
+                          {t('app.authMfaFeatureUserDisabled')}
+                        </p>
+                      )}
+                    </>
+                  )}
+                  {authMfaStatus ? (
+                    <p
+                      className={`small mt-2 mb-0 ${authMfaStatus.kind === 'success' ? 'text-success' : 'text-danger'}`}
+                      data-testid="auth-mfa-status"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      {authMfaStatus.message}
+                    </p>
+                  ) : null}
+                </section>
               ) : null}
             </section>
             {isApiConfigLockedByEnv ? (

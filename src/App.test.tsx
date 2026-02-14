@@ -415,6 +415,30 @@ describe('App', () => {
             ),
           )
         }
+        if (url.endsWith('/auth/me/features')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                user_feature_enabled: { 'features.auth.2fa': true },
+                effective_feature_enabled: { 'features.auth.2fa': true },
+                feature_governance: [
+                  {
+                    key: 'features.auth.2fa',
+                    tier: 'OPTIONAL',
+                    user_can_disable: true,
+                    dependencies: [],
+                    disable_escalation: [],
+                  },
+                ],
+                core_v1_global_features: ['features.core.auth'],
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
         return Promise.resolve(
           new Response(
             JSON.stringify({
@@ -446,6 +470,121 @@ describe('App', () => {
       expect(screen.getByTestId('auth-user-status')).toHaveTextContent(
         'Connecté en tant que MFA User',
       )
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
+  it('shows 2FA controls only when feature is enabled globally and for user', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input)
+        if (url.endsWith('/auth/login')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                access_token: 'token-feature-1',
+                token_type: 'Bearer',
+                client_kind: 'UI_RUST',
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        if (url.endsWith('/auth/me')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                email: 'user@example.com',
+                display_name: 'Feature User',
+                mfa_enabled: false,
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        if (url.endsWith('/auth/me/features') && (init?.method ?? 'GET') === 'GET') {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                user_feature_enabled: { 'features.auth.2fa': true },
+                effective_feature_enabled: { 'features.auth.2fa': true },
+                feature_governance: [
+                  {
+                    key: 'features.auth.2fa',
+                    tier: 'OPTIONAL',
+                    user_can_disable: true,
+                    dependencies: [],
+                    disable_escalation: [],
+                  },
+                ],
+                core_v1_global_features: ['features.core.auth'],
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        if (url.endsWith('/auth/me/features') && init?.method === 'PATCH') {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                user_feature_enabled: { 'features.auth.2fa': false },
+                effective_feature_enabled: { 'features.auth.2fa': false },
+                feature_governance: [
+                  {
+                    key: 'features.auth.2fa',
+                    tier: 'OPTIONAL',
+                    user_can_disable: true,
+                    dependencies: [],
+                    disable_escalation: [],
+                  },
+                ],
+                core_v1_global_features: ['features.core.auth'],
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              items: [],
+              next_cursor: null,
+            }),
+            {
+              status: 200,
+              headers: { 'content-type': 'application/json' },
+            },
+          ),
+        )
+      })
+      vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+      const { user } = setupApp('/review?source=api')
+
+      await user.type(screen.getByTestId('auth-email-input'), 'user@example.com')
+      await user.type(screen.getByTestId('auth-password-input'), 'secret')
+      await user.click(screen.getByTestId('auth-login'))
+
+      expect(await screen.findByLabelText('Authentification à deux facteurs')).toBeInTheDocument()
+      expect(screen.getByTestId('auth-mfa-state')).toHaveTextContent('Statut 2FA: désactivée')
+
+      await user.click(screen.getByTestId('auth-mfa-user-toggle'))
+      expect(await screen.findByTestId('auth-mfa-feature-disabled')).toBeInTheDocument()
     } finally {
       import.meta.env.VITE_ASSET_SOURCE = previous
       vi.restoreAllMocks()
