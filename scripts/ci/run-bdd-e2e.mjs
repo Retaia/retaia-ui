@@ -9,6 +9,8 @@ const READY_URL = `http://${HOST}:${PORT}`
 function parseArgs(argv) {
   const args = [...argv]
   let script = 'bdd:test'
+  let serveMode = 'dev'
+  let buildFirst = false
   const passthrough = []
 
   while (args.length > 0) {
@@ -28,10 +30,22 @@ function parseArgs(argv) {
       script = value
       continue
     }
+    if (current === '--serve') {
+      const value = args.shift()
+      if (!value || (value !== 'dev' && value !== 'preview')) {
+        throw new Error('Missing or invalid value after --serve (expected dev|preview)')
+      }
+      serveMode = value
+      continue
+    }
+    if (current === '--build') {
+      buildFirst = true
+      continue
+    }
     passthrough.push(current)
   }
 
-  return { script, passthrough }
+  return { script, serveMode, buildFirst, passthrough }
 }
 
 function wait(ms) {
@@ -51,7 +65,7 @@ async function waitForServer(url, timeoutMs) {
     }
     await wait(500)
   }
-  throw new Error(`Timed out waiting for dev server at ${url}`)
+  throw new Error(`Timed out waiting for server at ${url}`)
 }
 
 function runCommand(command, args, options = {}) {
@@ -84,9 +98,21 @@ async function stopServer(server) {
 }
 
 async function main() {
-  const { script, passthrough } = parseArgs(process.argv.slice(2))
+  const { script, serveMode, buildFirst, passthrough } = parseArgs(process.argv.slice(2))
 
-  const server = spawn('npx', ['vite', '--host', HOST, '--port', String(PORT)], {
+  if (buildFirst) {
+    const buildResult = await runCommand('npm', ['run', 'build'])
+    if (buildResult.code !== 0) {
+      process.exit(buildResult.code)
+    }
+  }
+
+  const serverArgs =
+    serveMode === 'preview'
+      ? ['vite', 'preview', '--host', HOST, '--port', String(PORT)]
+      : ['vite', '--host', HOST, '--port', String(PORT)]
+
+  const server = spawn('npx', serverArgs, {
     stdio: 'inherit',
     shell: false,
   })
@@ -99,7 +125,7 @@ async function main() {
   try {
     await waitForServer(READY_URL, START_TIMEOUT_MS)
     if (serverExitedEarly) {
-      throw new Error('Dev server exited before test execution started')
+      throw new Error('Server exited before test execution started')
     }
 
     const testArgs = ['run', script]
