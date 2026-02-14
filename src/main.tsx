@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 import './i18n'
 import './index.scss'
 import App from './App.tsx'
@@ -10,12 +10,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AppErrorBoundary>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/review" replace />} />
-          <Route path="/review" element={<App />} />
-          <Route path="/review/:assetId" element={<App />} />
-          <Route path="*" element={<Navigate to="/review" replace />} />
-        </Routes>
+        <App />
       </BrowserRouter>
     </AppErrorBoundary>
   </StrictMode>,

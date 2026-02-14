@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getAssetsPanel, getDetailPanel, setupApp } from './test-utils/appTestUtils'
+import { getAssetsPanel, getDetailPanel, setupApp } from '../test-utils/appTestUtils'
 
 describe('App', () => {
   beforeEach(() => {
