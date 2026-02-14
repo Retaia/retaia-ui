@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Asset } from '../domain/assets'
+import {
+  buildPurgeErrorStatus,
+  buildPurgePreviewErrorStatus,
+  buildPurgePreviewReadyStatus,
+  buildPurgeSuccessStatus,
+} from '../application/review/purgeStatus'
 
 type ApiClient = {
   previewAssetPurge: (assetId: string) => Promise<unknown>
@@ -49,18 +55,10 @@ export function usePurgeFlow({
     try {
       await apiClient.previewAssetPurge(selectedAsset.id)
       setPurgePreviewAssetId(selectedAsset.id)
-      setPurgeStatus({
-        kind: 'success',
-        message: t('actions.purgePreviewReady', { id: selectedAsset.id }),
-      })
+      setPurgeStatus(buildPurgePreviewReadyStatus(t, selectedAsset.id))
     } catch (error) {
       setPurgePreviewAssetId(null)
-      setPurgeStatus({
-        kind: 'error',
-        message: t('actions.purgePreviewError', {
-          message: mapErrorToMessage(error),
-        }),
-      })
+      setPurgeStatus(buildPurgePreviewErrorStatus(t, mapErrorToMessage, error))
     } finally {
       setPreviewingPurge(false)
       setRetryStatus(null)
@@ -86,17 +84,9 @@ export function usePurgeFlow({
       recordAction(t('activity.purge', { id: selectedAsset.id }))
       onPurgeSuccess(selectedAsset.id)
       setPurgePreviewAssetId(null)
-      setPurgeStatus({
-        kind: 'success',
-        message: t('actions.purgeResult', { id: selectedAsset.id }),
-      })
+      setPurgeStatus(buildPurgeSuccessStatus(t, selectedAsset.id))
     } catch (error) {
-      setPurgeStatus({
-        kind: 'error',
-        message: t('actions.purgeError', {
-          message: mapErrorToMessage(error),
-        }),
-      })
+      setPurgeStatus(buildPurgeErrorStatus(t, mapErrorToMessage, error))
     } finally {
       setExecutingPurge(false)
       setRetryStatus(null)

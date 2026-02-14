@@ -123,6 +123,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
   Chargement applicatif du rapport batch (success/error + message traduit) partagé entre exécution initiale et refresh manuel.
 - `src/application/review/batchExecutionStatus.ts`
   Builders purs des statuts batch (preview/execute/queued/canceled) pour éviter la duplication des messages dans `useBatchExecution`.
+- `src/application/review/purgeStatus.ts`
+  Builders purs des statuts purge (preview/result/error) pour réduire la duplication de messages dans `usePurgeFlow`.
 - `src/application/review/selectionFlowHelpers.ts`
   Helpers applicatifs purs pour navigation de sélection (`offset`, range) et fusion dédupliquée des `batchIds`.
 - `src/application/review/keyboardShortcutResolution.ts`
