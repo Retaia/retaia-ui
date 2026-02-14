@@ -2,6 +2,18 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ApiError } from '../api/client'
 import { mapApiErrorToMessage } from '../api/errorMapping'
+import {
+  adminConfirmVerifyEmail,
+  confirmVerifyEmail,
+  loginWithContext,
+  normalizeAuthUser,
+  normalizeFeatures,
+  requestLostPassword,
+  requestVerifyEmail,
+  resetLostPassword,
+  setupMfa,
+  toggleMfa,
+} from '../application/auth/authUseCases'
 import { useApiClient } from './useApiClient'
 import { type FeatureState, useAuthFeatureGovernance } from './auth/useAuthFeatureGovernance'
 import {
@@ -14,42 +26,6 @@ import {
   readStoredApiToken,
   readStoredLoginEmail,
 } from '../services/apiSession'
-
-function normalizeFeatures(payload: {
-  user_feature_enabled?: Record<string, unknown>
-  effective_feature_enabled?: Record<string, unknown>
-  feature_governance?: Array<{ key?: string; user_can_disable?: boolean }>
-}): FeatureState {
-  const userFeatureEnabled = Object.entries(payload.user_feature_enabled ?? {}).reduce<Record<string, boolean>>(
-    (acc, [key, value]) => {
-      if (typeof value === 'boolean') {
-        acc[key] = value
-      }
-      return acc
-    },
-    {},
-  )
-  const effectiveFeatureEnabled = Object.entries(payload.effective_feature_enabled ?? {}).reduce<
-    Record<string, boolean>
-  >((acc, [key, value]) => {
-    if (typeof value === 'boolean') {
-      acc[key] = value
-    }
-    return acc
-  }, {})
-  const featureGovernance = (payload.feature_governance ?? [])
-    .filter((item) => typeof item.key === 'string')
-    .map((item) => ({
-      key: item.key as string,
-      user_can_disable: item.user_can_disable === true,
-    }))
-
-  return {
-    userFeatureEnabled,
-    effectiveFeatureEnabled,
-    featureGovernance,
-  }
-}
 
 export function useAuthPageController() {
   const { t } = useTranslation()
@@ -176,35 +152,46 @@ export function useAuthPageController() {
   }, [])
 
   const handleLogin = useCallback(async () => {
-    if (authEmailInput.trim().length === 0 || authPasswordInput.length === 0) {
+    const result = await loginWithContext({
+      apiClient,
+      email: authEmailInput,
+      password: authPasswordInput,
+      otpCode: authOtpInput,
+    })
+    if (result.kind === 'validation_error') {
       setAuthStatus({
         kind: 'error',
         message: t('app.authMissingCredentials'),
       })
       return
     }
+
     setAuthLoading(true)
     setAuthStatus(null)
     try {
-      const login = await apiClient.login({
-        email: authEmailInput.trim(),
-        password: authPasswordInput,
-        ...(authOtpInput.trim() ? { otp_code: authOtpInput.trim() } : {}),
-      })
-      setApiTokenInput(login.access_token)
-      persistAuthToken(login.access_token)
-      persistLoginEmail(authEmailInput.trim())
+      if (result.kind === 'mfa_required') {
+        setAuthRequiresOtp(true)
+        setAuthStatus({
+          kind: 'error',
+          message: t('app.authMfaRequired'),
+        })
+        return
+      }
+      if (result.kind === 'api_error') {
+        setAuthStatus({
+          kind: 'error',
+          message: t('app.authLoginError', {
+            message: mapApiErrorToMessage(result.error, t),
+          }),
+        })
+        return
+      }
 
-      const currentUser = await apiClient.getCurrentUser()
-      const userFeatures = await apiClient.getUserFeatures()
-      setUserFeatureState(normalizeFeatures(userFeatures))
-      setAuthUser({
-        email: currentUser.email,
-        displayName:
-          typeof currentUser.display_name === 'string' ? currentUser.display_name : null,
-        mfaEnabled: currentUser.mfa_enabled === true,
-        isAdmin: Array.isArray(currentUser.roles) && currentUser.roles.includes('ADMIN'),
-      })
+      setApiTokenInput(result.accessToken)
+      persistAuthToken(result.accessToken)
+      persistLoginEmail(result.loginEmail)
+      setUserFeatureState(result.featureState)
+      setAuthUser(result.authUser)
       setAuthMfaStatus(null)
       setAuthMfaSetup(null)
       setAuthMfaOtpAction('')
@@ -215,21 +202,6 @@ export function useAuthPageController() {
         kind: 'success',
         message: t('app.authLoginSuccess'),
       })
-    } catch (error) {
-      if (error instanceof ApiError && error.payload?.code === 'MFA_REQUIRED') {
-        setAuthRequiresOtp(true)
-        setAuthStatus({
-          kind: 'error',
-          message: t('app.authMfaRequired'),
-        })
-      } else {
-        setAuthStatus({
-          kind: 'error',
-          message: t('app.authLoginError', {
-            message: mapApiErrorToMessage(error, t),
-          }),
-        })
-      }
     } finally {
       setAuthLoading(false)
     }
@@ -262,27 +234,32 @@ export function useAuthPageController() {
   }, [apiClient, clearPersistedAuthToken, t])
 
   const handleLostPasswordRequest = useCallback(async () => {
-    if (lostPasswordEmailInput.trim().length === 0) {
-      setLostPasswordStatus({
-        kind: 'error',
-        message: t('app.authLostPasswordEmailRequired'),
-      })
-      return
-    }
     setLostPasswordLoading(true)
     setLostPasswordStatus(null)
     try {
-      await apiClient.requestLostPassword({ email: lostPasswordEmailInput.trim() })
+      const result = await requestLostPassword({
+        apiClient,
+        email: lostPasswordEmailInput,
+      })
+      if (result.kind === 'validation_error') {
+        setLostPasswordStatus({
+          kind: 'error',
+          message: t('app.authLostPasswordEmailRequired'),
+        })
+        return
+      }
+      if (result.kind === 'api_error') {
+        setLostPasswordStatus({
+          kind: 'error',
+          message: t('app.authLostPasswordRequestError', {
+            message: mapApiErrorToMessage(result.error, t),
+          }),
+        })
+        return
+      }
       setLostPasswordStatus({
         kind: 'success',
         message: t('app.authLostPasswordRequestSent'),
-      })
-    } catch (error) {
-      setLostPasswordStatus({
-        kind: 'error',
-        message: t('app.authLostPasswordRequestError', {
-          message: mapApiErrorToMessage(error, t),
-        }),
       })
     } finally {
       setLostPasswordLoading(false)
@@ -290,31 +267,34 @@ export function useAuthPageController() {
   }, [apiClient, lostPasswordEmailInput, t])
 
   const handleLostPasswordReset = useCallback(async () => {
-    if (lostPasswordTokenInput.trim().length === 0 || lostPasswordNewPasswordInput.length === 0) {
-      setLostPasswordStatus({
-        kind: 'error',
-        message: t('app.authLostPasswordResetMissing'),
-      })
-      return
-    }
     setLostPasswordLoading(true)
     setLostPasswordStatus(null)
     try {
-      await apiClient.resetLostPassword({
-        token: lostPasswordTokenInput.trim(),
-        new_password: lostPasswordNewPasswordInput,
+      const result = await resetLostPassword({
+        apiClient,
+        token: lostPasswordTokenInput,
+        newPassword: lostPasswordNewPasswordInput,
       })
+      if (result.kind === 'validation_error') {
+        setLostPasswordStatus({
+          kind: 'error',
+          message: t('app.authLostPasswordResetMissing'),
+        })
+        return
+      }
+      if (result.kind === 'api_error') {
+        setLostPasswordStatus({
+          kind: 'error',
+          message: t('app.authLostPasswordResetError', {
+            message: mapApiErrorToMessage(result.error, t),
+          }),
+        })
+        return
+      }
       setLostPasswordNewPasswordInput('')
       setLostPasswordStatus({
         kind: 'success',
         message: t('app.authLostPasswordResetSuccess'),
-      })
-    } catch (error) {
-      setLostPasswordStatus({
-        kind: 'error',
-        message: t('app.authLostPasswordResetError', {
-          message: mapApiErrorToMessage(error, t),
-        }),
       })
     } finally {
       setLostPasswordLoading(false)
@@ -322,27 +302,32 @@ export function useAuthPageController() {
   }, [apiClient, lostPasswordNewPasswordInput, lostPasswordTokenInput, t])
 
   const handleVerifyEmailRequest = useCallback(async () => {
-    if (verifyEmailInput.trim().length === 0) {
-      setVerifyEmailStatus({
-        kind: 'error',
-        message: t('app.authVerifyEmailInputRequired'),
-      })
-      return
-    }
     setVerifyEmailLoading(true)
     setVerifyEmailStatus(null)
     try {
-      await apiClient.requestEmailVerification({ email: verifyEmailInput.trim() })
+      const result = await requestVerifyEmail({
+        apiClient,
+        email: verifyEmailInput,
+      })
+      if (result.kind === 'validation_error') {
+        setVerifyEmailStatus({
+          kind: 'error',
+          message: t('app.authVerifyEmailInputRequired'),
+        })
+        return
+      }
+      if (result.kind === 'api_error') {
+        setVerifyEmailStatus({
+          kind: 'error',
+          message: t('app.authVerifyEmailRequestError', {
+            message: mapApiErrorToMessage(result.error, t),
+          }),
+        })
+        return
+      }
       setVerifyEmailStatus({
         kind: 'success',
         message: t('app.authVerifyEmailRequested'),
-      })
-    } catch (error) {
-      setVerifyEmailStatus({
-        kind: 'error',
-        message: t('app.authVerifyEmailRequestError', {
-          message: mapApiErrorToMessage(error, t),
-        }),
       })
     } finally {
       setVerifyEmailLoading(false)
@@ -350,28 +335,33 @@ export function useAuthPageController() {
   }, [apiClient, t, verifyEmailInput])
 
   const handleVerifyEmailConfirm = useCallback(async () => {
-    if (verifyEmailTokenInput.trim().length === 0) {
-      setVerifyEmailStatus({
-        kind: 'error',
-        message: t('app.authVerifyEmailTokenRequired'),
-      })
-      return
-    }
     setVerifyEmailLoading(true)
     setVerifyEmailStatus(null)
     try {
-      await apiClient.confirmEmailVerification({ token: verifyEmailTokenInput.trim() })
+      const result = await confirmVerifyEmail({
+        apiClient,
+        token: verifyEmailTokenInput,
+      })
+      if (result.kind === 'validation_error') {
+        setVerifyEmailStatus({
+          kind: 'error',
+          message: t('app.authVerifyEmailTokenRequired'),
+        })
+        return
+      }
+      if (result.kind === 'api_error') {
+        setVerifyEmailStatus({
+          kind: 'error',
+          message: t('app.authVerifyEmailConfirmError', {
+            message: mapApiErrorToMessage(result.error, t),
+          }),
+        })
+        return
+      }
       setVerifyEmailTokenInput('')
       setVerifyEmailStatus({
         kind: 'success',
         message: t('app.authVerifyEmailConfirmed'),
-      })
-    } catch (error) {
-      setVerifyEmailStatus({
-        kind: 'error',
-        message: t('app.authVerifyEmailConfirmError', {
-          message: mapApiErrorToMessage(error, t),
-        }),
       })
     } finally {
       setVerifyEmailLoading(false)
@@ -379,27 +369,32 @@ export function useAuthPageController() {
   }, [apiClient, t, verifyEmailTokenInput])
 
   const handleVerifyEmailAdminConfirm = useCallback(async () => {
-    if (verifyEmailInput.trim().length === 0) {
-      setVerifyEmailStatus({
-        kind: 'error',
-        message: t('app.authVerifyEmailInputRequired'),
-      })
-      return
-    }
     setVerifyEmailLoading(true)
     setVerifyEmailStatus(null)
     try {
-      await apiClient.adminConfirmEmailVerification({ email: verifyEmailInput.trim() })
+      const result = await adminConfirmVerifyEmail({
+        apiClient,
+        email: verifyEmailInput,
+      })
+      if (result.kind === 'validation_error') {
+        setVerifyEmailStatus({
+          kind: 'error',
+          message: t('app.authVerifyEmailInputRequired'),
+        })
+        return
+      }
+      if (result.kind === 'api_error') {
+        setVerifyEmailStatus({
+          kind: 'error',
+          message: t('app.authVerifyEmailAdminConfirmError', {
+            message: mapApiErrorToMessage(result.error, t),
+          }),
+        })
+        return
+      }
       setVerifyEmailStatus({
         kind: 'success',
         message: t('app.authVerifyEmailAdminConfirmed'),
-      })
-    } catch (error) {
-      setVerifyEmailStatus({
-        kind: 'error',
-        message: t('app.authVerifyEmailAdminConfirmError', {
-          message: mapApiErrorToMessage(error, t),
-        }),
       })
     } finally {
       setVerifyEmailLoading(false)
@@ -440,13 +435,7 @@ export function useAuthPageController() {
           return
         }
         setUserFeatureState(normalizeFeatures(userFeatures))
-        setAuthUser({
-          email: currentUser.email,
-          displayName:
-            typeof currentUser.display_name === 'string' ? currentUser.display_name : null,
-          mfaEnabled: currentUser.mfa_enabled === true,
-          isAdmin: Array.isArray(currentUser.roles) && currentUser.roles.includes('ADMIN'),
-        })
+        setAuthUser(normalizeAuthUser(currentUser))
       } catch (error) {
         if (canceled) {
           return
@@ -494,21 +483,20 @@ export function useAuthPageController() {
     setAuthMfaBusy(true)
     setAuthMfaStatus(null)
     try {
-      const setup = await apiClient.setup2fa()
-      setAuthMfaSetup({
-        secret: setup.secret,
-        otpauthUri: setup.otpauth_uri,
-      })
+      const result = await setupMfa({ apiClient })
+      if (result.kind === 'api_error') {
+        setAuthMfaStatus({
+          kind: 'error',
+          message: t('app.authMfaSetupError', {
+            message: mapApiErrorToMessage(result.error, t),
+          }),
+        })
+        return
+      }
+      setAuthMfaSetup(result.setup)
       setAuthMfaStatus({
         kind: 'success',
         message: t('app.authMfaSetupReady'),
-      })
-    } catch (error) {
-      setAuthMfaStatus({
-        kind: 'error',
-        message: t('app.authMfaSetupError', {
-          message: mapApiErrorToMessage(error, t),
-        }),
       })
     } finally {
       setAuthMfaBusy(false)
@@ -516,38 +504,45 @@ export function useAuthPageController() {
   }, [apiClient, t])
 
   const enableMfa = useCallback(async () => {
-    if (authMfaOtpAction.trim().length === 0) {
-      setAuthMfaStatus({
-        kind: 'error',
-        message: t('app.authOtpRequired'),
-      })
-      return
-    }
     setAuthMfaBusy(true)
     setAuthMfaStatus(null)
     try {
-      await apiClient.enable2fa({ otp_code: authMfaOtpAction.trim() })
-      const currentUser = await apiClient.getCurrentUser()
-      setAuthUser((current) =>
-        current
-          ? {
-              ...current,
-              mfaEnabled: currentUser.mfa_enabled === true,
-            }
-          : current,
-      )
+      const result = await toggleMfa({
+        apiClient,
+        otpCode: authMfaOtpAction,
+        target: 'enable',
+      })
+      if (result.kind === 'validation_error') {
+        setAuthMfaStatus({
+          kind: 'error',
+          message: t('app.authOtpRequired'),
+        })
+        return
+      }
+      if (result.kind === 'api_error') {
+        setAuthMfaStatus({
+          kind: 'error',
+          message: t('app.authMfaEnableError', {
+            message: mapApiErrorToMessage(result.error, t),
+          }),
+        })
+        return
+      }
+      if (result.kind === 'success_with_user') {
+        setAuthUser((current) =>
+          current
+            ? {
+                ...current,
+                mfaEnabled: result.authUser.mfaEnabled,
+              }
+            : current,
+        )
+      }
       setAuthMfaOtpAction('')
       setAuthMfaSetup(null)
       setAuthMfaStatus({
         kind: 'success',
         message: t('app.authMfaEnabledNow'),
-      })
-    } catch (error) {
-      setAuthMfaStatus({
-        kind: 'error',
-        message: t('app.authMfaEnableError', {
-          message: mapApiErrorToMessage(error, t),
-        }),
       })
     } finally {
       setAuthMfaBusy(false)
@@ -555,37 +550,44 @@ export function useAuthPageController() {
   }, [apiClient, authMfaOtpAction, t])
 
   const disableMfa = useCallback(async () => {
-    if (authMfaOtpAction.trim().length === 0) {
-      setAuthMfaStatus({
-        kind: 'error',
-        message: t('app.authOtpRequired'),
-      })
-      return
-    }
     setAuthMfaBusy(true)
     setAuthMfaStatus(null)
     try {
-      await apiClient.disable2fa({ otp_code: authMfaOtpAction.trim() })
-      const currentUser = await apiClient.getCurrentUser()
-      setAuthUser((current) =>
-        current
-          ? {
-              ...current,
-              mfaEnabled: currentUser.mfa_enabled === true,
-            }
-          : current,
-      )
+      const result = await toggleMfa({
+        apiClient,
+        otpCode: authMfaOtpAction,
+        target: 'disable',
+      })
+      if (result.kind === 'validation_error') {
+        setAuthMfaStatus({
+          kind: 'error',
+          message: t('app.authOtpRequired'),
+        })
+        return
+      }
+      if (result.kind === 'api_error') {
+        setAuthMfaStatus({
+          kind: 'error',
+          message: t('app.authMfaDisableError', {
+            message: mapApiErrorToMessage(result.error, t),
+          }),
+        })
+        return
+      }
+      if (result.kind === 'success_with_user') {
+        setAuthUser((current) =>
+          current
+            ? {
+                ...current,
+                mfaEnabled: result.authUser.mfaEnabled,
+              }
+            : current,
+        )
+      }
       setAuthMfaOtpAction('')
       setAuthMfaStatus({
         kind: 'success',
         message: t('app.authMfaDisabledNow'),
-      })
-    } catch (error) {
-      setAuthMfaStatus({
-        kind: 'error',
-        message: t('app.authMfaDisableError', {
-          message: mapApiErrorToMessage(error, t),
-        }),
       })
     } finally {
       setAuthMfaBusy(false)
