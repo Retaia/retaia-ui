@@ -32,6 +32,7 @@ import {
   updateAssetsState,
 } from '../domain/assets'
 import { getActionAvailability } from '../domain/actionAvailability'
+import { normalizeReviewMetadataInput } from '../domain/review/metadata'
 import { useDensityMode } from '../hooks/useDensityMode'
 import { useBatchExecution } from '../hooks/useBatchExecution'
 import { usePurgeFlow } from '../hooks/usePurgeFlow'
@@ -43,6 +44,7 @@ import { useReviewKeyboardShortcuts } from '../hooks/useReviewKeyboardShortcuts'
 import { useReviewRouteSelection } from '../hooks/useReviewRouteSelection'
 import { useSelectionFlow } from '../hooks/useSelectionFlow'
 import { type Locale } from '../i18n/resources'
+import { submitReviewDecisions } from '../application/review/submitReviewDecisions'
 import { mergeAssetWithDetail } from '../services/reviewAssetDetail'
 import { isTypingContext } from '../ui/keyboard'
 import { reportUiIssue } from '../ui/telemetry'
@@ -282,31 +284,14 @@ function ReviewPage() {
 
   const submitDecisionsForIds = useCallback(
     async (targetIds: string[], action: 'KEEP' | 'REJECT') => {
-      if (!isApiAssetSource) {
-        return {
-          successIds: targetIds,
-          firstErrorMessage: null as string | null,
-        }
-      }
-
-      const settled = await Promise.allSettled(
-        targetIds.map(async (id) => {
-          await apiClient.submitAssetDecision(id, { action }, crypto.randomUUID())
-          return id
-        }),
-      )
-      const successIds: string[] = []
-      let firstErrorMessage: string | null = null
-      for (const result of settled) {
-        if (result.status === 'fulfilled') {
-          successIds.push(result.value)
-          continue
-        }
-        if (!firstErrorMessage) {
-          firstErrorMessage = mapDecisionErrorToMessage(result.reason)
-        }
-      }
-      return { successIds, firstErrorMessage }
+      return submitReviewDecisions({
+        isApiAssetSource,
+        targetIds,
+        action,
+        submitAssetDecision: (id, nextAction) =>
+          apiClient.submitAssetDecision(id, { action: nextAction }, crypto.randomUUID()),
+        mapErrorToMessage: mapDecisionErrorToMessage,
+      })
     },
     [apiClient, isApiAssetSource, mapDecisionErrorToMessage],
   )
@@ -543,24 +528,22 @@ function ReviewPage() {
 
   const saveSelectedAssetMetadata = useCallback(
     async (assetId: string, payload: { tags: string[]; notes: string }) => {
-      const tags = payload.tags
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0)
-      const uniqueTags = [...new Set(tags)]
-      const notes = payload.notes.trim()
+      const normalized = normalizeReviewMetadataInput(payload)
 
       setSavingMetadata(true)
       setMetadataStatus(null)
       try {
         if (isApiAssetSource) {
           await apiClient.updateAssetMetadata(assetId, {
-            tags: uniqueTags,
-            notes,
+            tags: normalized.tags,
+            notes: normalized.notes,
           })
         }
         setAssets((current) =>
           current.map((asset) =>
-            asset.id === assetId ? { ...asset, tags: uniqueTags, notes } : asset,
+            asset.id === assetId
+              ? { ...asset, tags: normalized.tags, notes: normalized.notes }
+              : asset,
           ),
         )
         recordAction(t('activity.tagging', { id: assetId }))

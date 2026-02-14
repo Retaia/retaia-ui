@@ -74,6 +74,13 @@ La logique métier est déplacée autant que possible dans des hooks dédiés.
   Types d'assets, transitions d'état, filtres.
 - `src/domain/actionAvailability.ts`
   Règles d'activation/désactivation des actions UI.
+- `src/domain/review/metadata.ts`
+  Normalisation métier du payload metadata Review (`tags`, `notes`) hors UI.
+
+## Couche application
+
+- `src/application/review/submitReviewDecisions.ts`
+  Use-case d'orchestration des décisions bulk (API/mock) avec agrégation des succès/erreurs.
 
 ## Robustesse API (runtime)
 
