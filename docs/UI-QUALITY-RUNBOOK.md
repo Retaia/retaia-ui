@@ -93,12 +93,12 @@ Toute PR qui modifie `api/openapi/v1.yaml` doit expliciter:
 
 1. `git checkout codex/<feature>-master`
 2. `git fetch origin`
-3. `git merge origin/master`
+3. `git rebase origin/master`
 4. Résoudre les conflits + valider:
    - `npm run qa`
-5. Commit de résolution:
-   - `git commit -m "chore(merge): resolve master conflicts in <feature>"`
-6. `git push`
+5. Finaliser le rebase:
+   - `git rebase --continue`
+6. `git push --force-with-lease`
 
 ## Definition of Done (PR)
 
