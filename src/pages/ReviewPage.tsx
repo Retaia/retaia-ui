@@ -35,20 +35,18 @@ import {
 import { getActionAvailability } from '../domain/actionAvailability'
 import { useDensityMode } from '../hooks/useDensityMode'
 import { useBatchExecution } from '../hooks/useBatchExecution'
-import { useApiClient } from '../hooks/useApiClient'
 import { usePurgeFlow } from '../hooks/usePurgeFlow'
 import { useQuickFilters } from '../hooks/useQuickFilters'
+import { useReviewApiRuntime } from '../hooks/useReviewApiRuntime'
 import { useReviewHistory } from '../hooks/useReviewHistory'
 import { useReviewKeyboardShortcuts } from '../hooks/useReviewKeyboardShortcuts'
+import { useReviewRouteSelection } from '../hooks/useReviewRouteSelection'
 import { useSelectionFlow } from '../hooks/useSelectionFlow'
 import { type Locale } from '../i18n/resources'
 import { isTypingContext } from '../ui/keyboard'
 import { reportUiIssue } from '../ui/telemetry'
-import { readStoredApiBaseUrl, readStoredApiToken } from '../services/apiSession'
 
 const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
-const SELECTED_ASSET_QUERY_KEY = 'asset'
-const REVIEW_BASE_PATH = '/review'
 
 function isStateConflictError(error: unknown) {
   return error instanceof ApiError && error.payload?.code === 'STATE_CONFLICT'
@@ -61,62 +59,23 @@ function toUiDecisionState(state: string | undefined): AssetState | null {
   return null
 }
 
-function getAssetIdFromLocationPath(pathname: string): string | null {
-  const match = pathname.match(/^\/review\/([^/?#]+)/)
-  if (!match?.[1]) {
-    return null
-  }
-  return decodeURIComponent(match[1])
-}
-
-function getSelectedAssetIdFromLocation() {
-  if (typeof window === 'undefined') {
-    return null
-  }
-  const fromPath = getAssetIdFromLocationPath(window.location.pathname)
-  if (fromPath) {
-    return fromPath
-  }
-  const params = new URLSearchParams(window.location.search)
-  return params.get(SELECTED_ASSET_QUERY_KEY)
-}
-
 function ReviewPage() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t, i18n } = useTranslation()
-  const [retryStatus, setRetryStatus] = useState<string | null>(null)
-  const [apiTokenInput] = useState(readStoredApiToken)
-  const [apiBaseUrlInput] = useState(readStoredApiBaseUrl)
-  const handleApiRetry = useCallback(
-    ({ attempt, maxRetries }: { attempt: number; maxRetries: number }) => {
-      setRetryStatus(
-        t('actions.retrying', {
-          attempt,
-          total: maxRetries + 1,
-        }),
-      )
-    },
-    [t],
-  )
-  const { apiClient } = useApiClient({
-    apiBaseUrlInput,
-    apiTokenInput,
-    onRetry: handleApiRetry,
-  })
+  const { apiClient, isApiAssetSource, retryStatus, setRetryStatus } = useReviewApiRuntime()
   const [filter, setFilter] = useState<AssetFilter>('ALL')
   const [mediaTypeFilter, setMediaTypeFilter] = useState<AssetMediaTypeFilter>('ALL')
   const [dateFilter, setDateFilter] = useState<AssetDateFilter>('ALL')
   const [search, setSearch] = useState('')
   const [batchOnly, setBatchOnly] = useState(false)
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
-  const [selectedAssetId, setSelectedAssetId] = useState<string | null>(() => {
-    const urlAssetId = getSelectedAssetIdFromLocation()
-    if (!urlAssetId) {
-      return null
-    }
-    return INITIAL_ASSETS.some((asset) => asset.id === urlAssetId) ? urlAssetId : null
-  })
-  const [selectionAnchorId, setSelectionAnchorId] = useState<string | null>(null)
+  const {
+    selectedAssetId,
+    setSelectedAssetId,
+    selectionAnchorId,
+    setSelectionAnchorId,
+    applySelectedAssetId,
+  } = useReviewRouteSelection(INITIAL_ASSETS, assets)
   const [batchIds, setBatchIds] = useState<string[]>([])
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(() => {
     if (typeof window === 'undefined') {
@@ -134,16 +93,6 @@ function ReviewPage() {
     }
   })
   const { densityMode, toggleDensityMode } = useDensityMode()
-  const isApiAssetSource = useMemo(() => {
-    if (import.meta.env.VITE_ASSET_SOURCE === 'api') {
-      return true
-    }
-    if (typeof window === 'undefined') {
-      return false
-    }
-    const params = new URLSearchParams(window.location.search)
-    return params.get('source') === 'api'
-  }, [])
   const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>(
     isApiAssetSource ? 'loading' : 'idle',
   )
@@ -165,43 +114,6 @@ function ReviewPage() {
   } | null>(null)
   const [shouldRefreshSelectedAsset, setShouldRefreshSelectedAsset] = useState(false)
   const [refreshingSelectedAsset, setRefreshingSelectedAsset] = useState(false)
-  const updateSelectedAssetSearchParam = useCallback(
-    (nextAssetId: string | null, mode: 'push' | 'replace' = 'push') => {
-      if (typeof window === 'undefined') {
-        return
-      }
-      const params = new URLSearchParams(window.location.search)
-      const currentAssetId = getSelectedAssetIdFromLocation()
-      if (currentAssetId === nextAssetId) {
-        return
-      }
-      if (nextAssetId) {
-        params.set(SELECTED_ASSET_QUERY_KEY, nextAssetId)
-      } else {
-        params.delete(SELECTED_ASSET_QUERY_KEY)
-      }
-      const nextSearch = params.toString()
-      const nextPathname = nextAssetId
-        ? `${REVIEW_BASE_PATH}/${encodeURIComponent(nextAssetId)}`
-        : REVIEW_BASE_PATH
-      const nextUrl = `${nextPathname}${nextSearch ? `?${nextSearch}` : ''}${window.location.hash}`
-      if (mode === 'replace') {
-        window.history.replaceState(window.history.state, '', nextUrl)
-        return
-      }
-      window.history.pushState(window.history.state, '', nextUrl)
-    },
-    [],
-  )
-  const applySelectedAssetId = useCallback(
-    (nextAssetId: string | null, mode: 'push' | 'replace' = 'push') => {
-      setSelectedAssetId(nextAssetId)
-      setSelectionAnchorId(nextAssetId)
-      updateSelectedAssetSearchParam(nextAssetId, mode)
-    },
-    [updateSelectedAssetSearchParam],
-  )
-
   const visibleAssets = useMemo(() => {
     const filtered = filterAssets(assets, filter, search, {
       mediaType: mediaTypeFilter,
@@ -210,7 +122,8 @@ function ReviewPage() {
     if (!batchOnly) {
       return filtered
     }
-    return filtered.filter((asset) => batchIds.includes(asset.id))
+    const batchIdSet = new Set(batchIds)
+    return filtered.filter((asset) => batchIdSet.has(asset.id))
   }, [assets, batchIds, batchOnly, dateFilter, filter, mediaTypeFilter, search])
 
   const counts = useMemo(() => countAssetsByState(assets), [assets])
@@ -218,30 +131,6 @@ function ReviewPage() {
     () => assets.find((asset) => asset.id === selectedAssetId) ?? null,
     [assets, selectedAssetId],
   )
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-    const handlePopState = () => {
-      const urlAssetId = getSelectedAssetIdFromLocation()
-      const exists = !!urlAssetId && assets.some((asset) => asset.id === urlAssetId)
-      if (exists) {
-        setSelectedAssetId(urlAssetId)
-        setSelectionAnchorId(urlAssetId)
-        return
-      }
-      if (urlAssetId || window.location.pathname !== REVIEW_BASE_PATH) {
-        updateSelectedAssetSearchParam(null, 'replace')
-      }
-      setSelectedAssetId(null)
-      setSelectionAnchorId(null)
-    }
-    window.addEventListener('popstate', handlePopState)
-    return () => {
-      window.removeEventListener('popstate', handlePopState)
-    }
-  }, [assets, updateSelectedAssetSearchParam])
 
   useEffect(() => {
     if (!isApiAssetSource) {
@@ -855,7 +744,7 @@ function ReviewPage() {
       setRefreshingSelectedAsset(false)
       setRetryStatus(null)
     }
-  }, [apiClient, isApiAssetSource, refreshingSelectedAsset, selectedAssetId, setPurgeStatus, t])
+  }, [apiClient, isApiAssetSource, refreshingSelectedAsset, selectedAssetId, setPurgeStatus, setRetryStatus, t])
   const setSelectedAssetIdFromSelectionFlow = useCallback(
     (value: string | null | ((current: string | null) => string | null)) => {
       if (typeof value === 'function') {
@@ -864,7 +753,7 @@ function ReviewPage() {
       }
       applySelectedAssetId(value)
     },
-    [applySelectedAssetId],
+    [applySelectedAssetId, setSelectedAssetId],
   )
 
   const {
