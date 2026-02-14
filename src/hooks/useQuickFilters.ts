@@ -5,16 +5,17 @@ import type {
   AssetFilter,
   AssetMediaTypeFilter,
 } from '../domain/assets'
+import {
+  DEFAULT_QUICK_FILTER_STATE,
+  getQuickFilterPresetState,
+  getSavedViewState,
+  isQuickFilterPreset,
+  type QuickFilterPreset,
+  type SavedView,
+} from '../application/review/quickFilterPresets'
+export type { QuickFilterPreset } from '../application/review/quickFilterPresets'
 
 const QUICK_FILTER_PRESET_KEY = 'retaia_ui_quick_filter_preset'
-
-export type QuickFilterPreset =
-  | 'DEFAULT'
-  | 'PENDING_RECENT'
-  | 'IMAGES_REJECTED'
-  | 'MEDIA_REVIEW'
-
-type SavedView = 'DEFAULT' | 'PENDING' | 'BATCH'
 
 type Params = {
   filter: AssetFilter
@@ -31,50 +32,26 @@ type Params = {
   setBatchOnly: (value: boolean) => void
 }
 
-const applyPreset = (
-  preset: QuickFilterPreset,
+const applyFilterState = (
+  state: {
+    filter: AssetFilter
+    mediaTypeFilter: AssetMediaTypeFilter
+    dateFilter: AssetDateFilter
+    search: string
+    batchOnly: boolean
+  },
   setFilter: (value: AssetFilter) => void,
   setMediaTypeFilter: (value: AssetMediaTypeFilter) => void,
   setDateFilter: (value: AssetDateFilter) => void,
   setSearch: (value: string) => void,
   setBatchOnly: (value: boolean) => void,
 ) => {
-  if (preset === 'DEFAULT') {
-    setFilter('ALL')
-    setMediaTypeFilter('ALL')
-    setDateFilter('ALL')
-    setSearch('')
-    setBatchOnly(false)
-    return
-  }
-  if (preset === 'PENDING_RECENT') {
-    setFilter('DECISION_PENDING')
-    setMediaTypeFilter('ALL')
-    setDateFilter('LAST_7_DAYS')
-    setSearch('')
-    setBatchOnly(false)
-    return
-  }
-  if (preset === 'IMAGES_REJECTED') {
-    setFilter('DECIDED_REJECT')
-    setMediaTypeFilter('IMAGE')
-    setDateFilter('ALL')
-    setSearch('')
-    setBatchOnly(false)
-    return
-  }
-  setFilter('ALL')
-  setMediaTypeFilter('VIDEO')
-  setDateFilter('LAST_30_DAYS')
-  setSearch('')
-  setBatchOnly(false)
+  setFilter(state.filter)
+  setMediaTypeFilter(state.mediaTypeFilter)
+  setDateFilter(state.dateFilter)
+  setSearch(state.search)
+  setBatchOnly(state.batchOnly)
 }
-
-const isQuickFilterPreset = (value: string): value is QuickFilterPreset =>
-  value === 'DEFAULT' ||
-  value === 'PENDING_RECENT' ||
-  value === 'IMAGES_REJECTED' ||
-  value === 'MEDIA_REVIEW'
 
 export function useQuickFilters({
   filter,
@@ -92,42 +69,22 @@ export function useQuickFilters({
 }: Params) {
   const clearFilters = useCallback(() => {
     if (
-      filter === 'ALL' &&
-      mediaTypeFilter === 'ALL' &&
-      dateFilter === 'ALL' &&
-      search === '' &&
-      !batchOnly
+      filter === DEFAULT_QUICK_FILTER_STATE.filter &&
+      mediaTypeFilter === DEFAULT_QUICK_FILTER_STATE.mediaTypeFilter &&
+      dateFilter === DEFAULT_QUICK_FILTER_STATE.dateFilter &&
+      search === DEFAULT_QUICK_FILTER_STATE.search &&
+      batchOnly === DEFAULT_QUICK_FILTER_STATE.batchOnly
     ) {
       return
     }
     recordAction(t('activity.filterReset'))
-    setFilter('ALL')
-    setMediaTypeFilter('ALL')
-    setDateFilter('ALL')
-    setSearch('')
-    setBatchOnly(false)
+    applyFilterState(DEFAULT_QUICK_FILTER_STATE, setFilter, setMediaTypeFilter, setDateFilter, setSearch, setBatchOnly)
   }, [batchOnly, dateFilter, filter, mediaTypeFilter, recordAction, search, setBatchOnly, setDateFilter, setFilter, setMediaTypeFilter, setSearch, t])
 
   const applySavedView = useCallback(
     (view: SavedView) => {
-      if (view === 'BATCH') {
-        setFilter('ALL')
-        setMediaTypeFilter('ALL')
-        setDateFilter('ALL')
-        setSearch('')
-        setBatchOnly(true)
-        return
-      }
-      if (view === 'PENDING') {
-        setFilter('DECISION_PENDING')
-        setMediaTypeFilter('ALL')
-        setDateFilter('ALL')
-        setSearch('')
-        setBatchOnly(false)
-        return
-      }
-      applyPreset(
-        'DEFAULT',
+      applyFilterState(
+        getSavedViewState(view),
         setFilter,
         setMediaTypeFilter,
         setDateFilter,
@@ -140,8 +97,8 @@ export function useQuickFilters({
 
   const applyQuickFilterPreset = useCallback(
     (preset: QuickFilterPreset) => {
-      applyPreset(
-        preset,
+      applyFilterState(
+        getQuickFilterPresetState(preset),
         setFilter,
         setMediaTypeFilter,
         setDateFilter,
