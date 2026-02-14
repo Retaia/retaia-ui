@@ -1,4 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  buildBatchTimeline,
+  getPendingBatchUndoSeconds,
+  resolveBatchId,
+  serializeBatchReportExport,
+} from '../application/review/batchExecutionHelpers'
 
 const BATCH_EXECUTION_UNDO_WINDOW_MS = 6000
 
@@ -59,40 +65,15 @@ export function useBatchExecution({
   )
 
   const batchTimeline = useMemo(() => {
-    const queued = !!pendingBatchExecution
-    const running = executingBatch
-    const failed = executeStatus?.kind === 'error'
-    const done = executeStatus?.kind === 'success' && !queued && !running
-
-    return [
-      {
-        key: 'queued',
-        active: queued,
-        done: !queued && (running || done || failed),
-        label: t('actions.timelineQueued'),
-      },
-      {
-        key: 'running',
-        active: running,
-        done: !running && (done || failed),
-        label: t('actions.timelineRunning'),
-      },
-      {
-        key: 'done',
-        active: done,
-        done,
-        error: failed,
-        label: failed ? t('actions.timelineError') : t('actions.timelineDone'),
-      },
-    ]
+    return buildBatchTimeline({
+      pendingBatchExecution,
+      executingBatch,
+      executeStatusKind: executeStatus?.kind ?? null,
+      t,
+    })
   }, [executeStatus?.kind, executingBatch, pendingBatchExecution, t])
 
-  const pendingBatchUndoSeconds = pendingBatchExecution
-    ? Math.max(
-      0,
-      Math.ceil((pendingBatchExecution.expiresAt - Date.now()) / 1000),
-    )
-    : 0
+  const pendingBatchUndoSeconds = getPendingBatchUndoSeconds(pendingBatchExecution, Date.now())
 
   const previewBatchMove = useCallback(async () => {
     if (batchIds.length === 0 || previewingBatch) {
@@ -146,10 +127,7 @@ export function useBatchExecution({
           },
           crypto.randomUUID(),
         )
-        const batchId =
-          response && typeof response === 'object' && 'batch_id' in response
-            ? String(response.batch_id)
-            : null
+        const batchId = resolveBatchId(response)
         setReportBatchId(batchId)
         setExecuteStatus({
           kind: 'success',
@@ -278,26 +256,7 @@ export function useBatchExecution({
       }
 
       const fallbackName = `batch-${reportBatchId}`
-      let content = ''
-      let mimeType = ''
-      let extension = ''
-
-      if (format === 'json') {
-        content = `${JSON.stringify(reportData, null, 2)}\n`
-        mimeType = 'application/json'
-        extension = 'json'
-      } else {
-        const rows =
-          typeof reportData === 'object' && reportData !== null
-            ? Object.entries(reportData as Record<string, unknown>).map(
-                ([key, value]) =>
-                  `"${key.replaceAll('"', '""')}","${String(typeof value === 'object' ? JSON.stringify(value) : value).replaceAll('"', '""')}"`,
-              )
-            : [`"value","${String(reportData).replaceAll('"', '""')}"`]
-        content = ['key,value', ...rows].join('\n')
-        mimeType = 'text/csv'
-        extension = 'csv'
-      }
+      const { content, mimeType, extension } = serializeBatchReportExport(format, reportData)
 
       const blob = new Blob([content], { type: mimeType })
       const objectUrl = URL.createObjectURL(blob)

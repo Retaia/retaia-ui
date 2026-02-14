@@ -87,6 +87,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
   Use-case d'orchestration des décisions bulk (API/mock) avec agrégation des succès/erreurs.
 - `src/application/review/applySingleReviewDecision.ts`
   Use-case d'orchestration d'une décision unitaire (validation cible + appel API optionnel + résultat métier).
+- `src/application/review/batchExecutionHelpers.ts`
+  Helpers applicatifs purs pour timeline batch, calcul undo, résolution `batch_id` et sérialisation export rapport.
 
 ## Direction DDD (V1)
 
