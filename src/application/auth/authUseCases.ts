@@ -1,5 +1,8 @@
 import { ApiError, type ApiClient } from '../../api/client'
-import type { FeatureState } from '../../hooks/auth/useAuthFeatureGovernance'
+import {
+  normalizeUserFeatures,
+  type FeatureState,
+} from '../../domain/auth/features'
 
 type AuthClient = Pick<
   ApiClient,
@@ -62,35 +65,7 @@ export function normalizeFeatures(payload: {
   effective_feature_enabled?: Record<string, unknown>
   feature_governance?: Array<{ key?: string; user_can_disable?: boolean }>
 }): FeatureState {
-  const userFeatureEnabled = Object.entries(payload.user_feature_enabled ?? {}).reduce<Record<string, boolean>>(
-    (acc, [key, value]) => {
-      if (typeof value === 'boolean') {
-        acc[key] = value
-      }
-      return acc
-    },
-    {},
-  )
-  const effectiveFeatureEnabled = Object.entries(payload.effective_feature_enabled ?? {}).reduce<
-    Record<string, boolean>
-  >((acc, [key, value]) => {
-    if (typeof value === 'boolean') {
-      acc[key] = value
-    }
-    return acc
-  }, {})
-  const featureGovernance = (payload.feature_governance ?? [])
-    .filter((item) => typeof item.key === 'string')
-    .map((item) => ({
-      key: item.key as string,
-      user_can_disable: item.user_can_disable === true,
-    }))
-
-  return {
-    userFeatureEnabled,
-    effectiveFeatureEnabled,
-    featureGovernance,
-  }
+  return normalizeUserFeatures(payload)
 }
 
 export function normalizeAuthUser(currentUser: {
