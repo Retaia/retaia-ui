@@ -4,11 +4,15 @@ import { spawn } from 'node:child_process'
 const HOST = process.env.E2E_HOST ?? '127.0.0.1'
 const PORT = Number(process.env.E2E_PORT ?? '4173')
 const START_TIMEOUT_MS = Number(process.env.E2E_START_TIMEOUT_MS ?? '60000')
+const TEST_TIMEOUT_MS = Number(process.env.E2E_TEST_TIMEOUT_MS ?? '900000')
+const HEARTBEAT_MS = Number(process.env.E2E_HEARTBEAT_MS ?? '15000')
 const READY_URL = `http://${HOST}:${PORT}`
 
 function parseArgs(argv) {
   const args = [...argv]
   let script = 'bdd:test'
+  let serveMode = 'dev'
+  let buildFirst = false
   const passthrough = []
 
   while (args.length > 0) {
@@ -28,10 +32,22 @@ function parseArgs(argv) {
       script = value
       continue
     }
+    if (current === '--serve') {
+      const value = args.shift()
+      if (!value || (value !== 'dev' && value !== 'preview')) {
+        throw new Error('Missing or invalid value after --serve (expected dev|preview)')
+      }
+      serveMode = value
+      continue
+    }
+    if (current === '--build') {
+      buildFirst = true
+      continue
+    }
     passthrough.push(current)
   }
 
-  return { script, passthrough }
+  return { script, serveMode, buildFirst, passthrough }
 }
 
 function wait(ms) {
@@ -51,17 +67,49 @@ async function waitForServer(url, timeoutMs) {
     }
     await wait(500)
   }
-  throw new Error(`Timed out waiting for dev server at ${url}`)
+  throw new Error(`Timed out waiting for server at ${url}`)
 }
 
 function runCommand(command, args, options = {}) {
+  const { timeoutMs = 0, heartbeatMs = 0, heartbeatLabel = '', ...spawnOptions } = options
   return new Promise((resolve) => {
     const child = spawn(command, args, {
       stdio: 'inherit',
       shell: false,
-      ...options,
+      ...spawnOptions,
     })
+
+    const startedAt = Date.now()
+    let heartbeatTimer = null
+    let timeoutTimer = null
+
+    if (heartbeatMs > 0 && heartbeatLabel) {
+      heartbeatTimer = setInterval(() => {
+        const elapsedSec = Math.floor((Date.now() - startedAt) / 1000)
+        console.log(`[${heartbeatLabel}] still running (${elapsedSec}s elapsed)`)
+      }, heartbeatMs)
+    }
+
+    if (timeoutMs > 0) {
+      timeoutTimer = setTimeout(() => {
+        const elapsedSec = Math.floor((Date.now() - startedAt) / 1000)
+        console.error(`[e2e-timeout] exceeded ${Math.floor(timeoutMs / 1000)}s after ${elapsedSec}s`)
+        child.kill('SIGTERM')
+        setTimeout(() => {
+          if (!child.killed) {
+            child.kill('SIGKILL')
+          }
+        }, 3000)
+      }, timeoutMs)
+    }
+
     child.on('exit', (code, signal) => {
+      if (heartbeatTimer) {
+        clearInterval(heartbeatTimer)
+      }
+      if (timeoutTimer) {
+        clearTimeout(timeoutTimer)
+      }
       resolve({ code: code ?? 1, signal, child })
     })
   })
@@ -84,9 +132,21 @@ async function stopServer(server) {
 }
 
 async function main() {
-  const { script, passthrough } = parseArgs(process.argv.slice(2))
+  const { script, serveMode, buildFirst, passthrough } = parseArgs(process.argv.slice(2))
 
-  const server = spawn('npx', ['vite', '--host', HOST, '--port', String(PORT)], {
+  if (buildFirst) {
+    const buildResult = await runCommand('npm', ['run', 'build'])
+    if (buildResult.code !== 0) {
+      process.exit(buildResult.code)
+    }
+  }
+
+  const serverArgs =
+    serveMode === 'preview'
+      ? ['vite', 'preview', '--host', HOST, '--port', String(PORT)]
+      : ['vite', '--host', HOST, '--port', String(PORT)]
+
+  const server = spawn('npx', serverArgs, {
     stdio: 'inherit',
     shell: false,
   })
@@ -99,14 +159,18 @@ async function main() {
   try {
     await waitForServer(READY_URL, START_TIMEOUT_MS)
     if (serverExitedEarly) {
-      throw new Error('Dev server exited before test execution started')
+      throw new Error('Server exited before test execution started')
     }
 
     const testArgs = ['run', script]
     if (passthrough.length > 0) {
       testArgs.push('--', ...passthrough)
     }
-    const testResult = await runCommand('npm', testArgs)
+    const testResult = await runCommand('npm', testArgs, {
+      timeoutMs: TEST_TIMEOUT_MS,
+      heartbeatMs: HEARTBEAT_MS,
+      heartbeatLabel: `bdd:${script}`,
+    })
     await stopServer(server)
     process.exit(testResult.code)
   } catch (error) {

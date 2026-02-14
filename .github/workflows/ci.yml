@@ -219,12 +219,17 @@ jobs:
 
       - name: Run BDD E2E tests
         env:
-          APP_URL: http://127.0.0.1:4173
+          E2E_TEST_ENV_URL: ${{ vars.E2E_TEST_ENV_URL }}
           PW_BROWSER: ${{ matrix.browser }}
           CI: true
           TZ: UTC
           LANG: C.UTF-8
-        run: npm run e2e:bdd:ci
+        run: |
+          if [ -n "$E2E_TEST_ENV_URL" ]; then
+            APP_URL="$E2E_TEST_ENV_URL" npm run bdd:test:ci
+          else
+            APP_URL="http://127.0.0.1:4173" npm run e2e:bdd:ci
+          fi
 
       - name: Print BDD failure summary
         if: failure()

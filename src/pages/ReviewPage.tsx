@@ -19,6 +19,7 @@ import { ReviewToolbar } from '../components/ReviewToolbar'
 import { ApiError, createApiClient } from '../api/client'
 import { mapApiSummaryToAsset } from '../api/assetMapper'
 import { mapApiErrorToMessage } from '../api/errorMapping'
+import { createInMemoryMockApiFetch, isAppEnvTest } from '../api/mockDb'
 import { INITIAL_ASSETS } from '../data/mockAssets'
 import {
   type Asset,
@@ -108,10 +109,12 @@ function ReviewPage() {
   const effectiveApiBaseUrl =
     import.meta.env.VITE_API_BASE_URL ?? (apiBaseUrlInput.trim() || '/api/v1')
   const effectiveApiToken = import.meta.env.VITE_API_TOKEN ?? (apiTokenInput.trim() || null)
+  const shouldUseInMemoryMockDb = isAppEnvTest(import.meta.env as Record<string, unknown>)
   const apiClient = useMemo(
     () =>
       createApiClient({
         baseUrl: effectiveApiBaseUrl,
+        fetchImpl: shouldUseInMemoryMockDb ? createInMemoryMockApiFetch() : undefined,
         // Priority: explicit env token (CI/dev), then browser session storage token.
         getAccessToken: () => {
           return effectiveApiToken
@@ -130,7 +133,7 @@ function ReviewPage() {
           baseDelayMs: 50,
         },
       }),
-    [effectiveApiBaseUrl, effectiveApiToken, t],
+    [effectiveApiBaseUrl, effectiveApiToken, shouldUseInMemoryMockDb, t],
   )
   const [filter, setFilter] = useState<AssetFilter>('ALL')
   const [mediaTypeFilter, setMediaTypeFilter] = useState<AssetMediaTypeFilter>('ALL')

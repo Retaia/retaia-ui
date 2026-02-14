@@ -66,7 +66,7 @@ BDD / E2E / visuel:
 
 - `npm run bdd:test`
 - `npm run e2e:bdd`
-- `npm run e2e:bdd:ci`
+- `npm run e2e:bdd:ci` (run en mode dev server local)
 - `npm run e2e:bdd:critical`
 - `npm run visual:test`
 
@@ -89,6 +89,8 @@ Voir `.env.example`.
 Variables utilisées côté UI:
 
 - `VITE_API_BASE_URL`
+- `APP_ENV=test` (ou `VITE_APP_ENV=test`) active une mock DB en mémoire côté UI pour l'API.
+- CI E2E: variable GitHub `E2E_TEST_ENV_URL` (optionnelle) pour cibler un environnement de test distant au lieu du serveur local.
 - `VITE_API_TOKEN`
 - `VITE_ASSET_SOURCE` (ex: `api` pour forcer la source API)
 

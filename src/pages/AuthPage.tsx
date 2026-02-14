@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { ApiError, createApiClient } from '../api/client'
 import { mapApiErrorToMessage } from '../api/errorMapping'
+import { createInMemoryMockApiFetch, isAppEnvTest } from '../api/mockDb'
 
 const API_TOKEN_STORAGE_KEY = 'retaia_api_token'
 const API_BASE_URL_STORAGE_KEY = 'retaia_api_base_url'
@@ -132,11 +133,13 @@ export function AuthPage() {
   const isApiBaseUrlLockedByEnv = !!import.meta.env.VITE_API_BASE_URL
   const isApiAuthLockedByEnv = !!import.meta.env.VITE_API_TOKEN
   const isApiConfigLockedByEnv = isApiBaseUrlLockedByEnv || isApiAuthLockedByEnv
+  const shouldUseInMemoryMockDb = isAppEnvTest(import.meta.env as Record<string, unknown>)
 
   const apiClient = useMemo(
     () =>
       createApiClient({
         baseUrl: effectiveApiBaseUrl,
+        fetchImpl: shouldUseInMemoryMockDb ? createInMemoryMockApiFetch() : undefined,
         getAccessToken: () => effectiveApiToken,
         onAuthError: () => {
           setApiConnectionStatus({
@@ -157,7 +160,7 @@ export function AuthPage() {
           baseDelayMs: 50,
         },
       }),
-    [effectiveApiBaseUrl, effectiveApiToken, t],
+    [effectiveApiBaseUrl, effectiveApiToken, shouldUseInMemoryMockDb, t],
   )
 
   const saveApiConnectionSettings = useCallback(() => {
