@@ -75,6 +75,7 @@ Contrat API:
 - `npm run api:types:generate`
 - `npm run api:contract:check`
 - `npm run api:contract:freeze`
+- `npm run api:governance:check` (check CI PR pour gouvernance OpenAPI)
 
 Release gates:
 
