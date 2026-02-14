@@ -36,6 +36,7 @@
 - Les écrans sont portés par des pages dédiées:
 - `src/pages/ReviewPage.tsx`
 - `src/pages/AuthPage.tsx` (route `/auth`, incluant login/logout/2FA, gouvernance feature globale admin (`/app/features`) puis préférence user (`/auth/me/features`), lost-password et verify-email).
+- La logique d'orchestration Auth est centralisée dans `src/hooks/useAuthPageController.ts` (séparation vue/controller).
 - Les tests UI sont à placer au plus près des pages/composants (`src/pages`, `src/components`) plutôt qu'en fichier monolithique.
 
 ## Commandes BDD/E2E locales
