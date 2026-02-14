@@ -35,6 +35,10 @@ describe('in-memory mock db for APP_ENV=test', () => {
     const currentUser = await authedApi.getCurrentUser()
     expect(currentUser.email).toBe('test.user@retaia.dev')
 
+    await authedApi.requestEmailVerification({ email: 'test.user@retaia.dev' })
+    await authedApi.confirmEmailVerification({ token: 'verify-token' })
+    await authedApi.adminConfirmEmailVerification({ email: 'test.user@retaia.dev' })
+
     const assets = await authedApi.listAssetSummaries()
     expect(assets.length).toBeGreaterThan(0)
   })

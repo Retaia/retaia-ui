@@ -46,6 +46,8 @@ type AuthEmailPayload =
   paths['/auth/lost-password/request']['post']['requestBody']['content']['application/json']
 type AuthLostPasswordResetPayload =
   paths['/auth/lost-password/reset']['post']['requestBody']['content']['application/json']
+type AuthTokenPayload =
+  paths['/auth/verify-email/confirm']['post']['requestBody']['content']['application/json']
 
 export type ApiErrorPayload = components['schemas']['ErrorResponse']
 
@@ -410,6 +412,24 @@ export function createApiClient(
 
     resetLostPassword: (payload: AuthLostPasswordResetPayload) =>
       request<void>('/auth/lost-password/reset', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+
+    requestEmailVerification: (payload: AuthEmailPayload) =>
+      request<void>('/auth/verify-email/request', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+
+    confirmEmailVerification: (payload: AuthTokenPayload) =>
+      request<void>('/auth/verify-email/confirm', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+
+    adminConfirmEmailVerification: (payload: AuthEmailPayload) =>
+      request<void>('/auth/verify-email/admin-confirm', {
         method: 'POST',
         body: JSON.stringify(payload),
       }),

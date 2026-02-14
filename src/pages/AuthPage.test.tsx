@@ -127,6 +127,126 @@ describe('AuthPage', () => {
     )
   })
 
+  it('requests email verification from auth page', async () => {
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/auth/verify-email/request')) {
+        return Promise.resolve(new Response(null, { status: 202 }))
+      }
+      if (url.endsWith('/auth/me')) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              code: 'UNAUTHORIZED',
+              message: 'unauthorized',
+              retryable: false,
+              correlation_id: 'auth-verify-boot-1',
+            }),
+            { status: 401, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      }
+      return Promise.resolve(
+        new Response('{}', {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+      )
+    })
+    vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+    const { user } = setupApp('/auth')
+
+    await user.type(screen.getByTestId('auth-verify-email-input'), 'user@example.com')
+    await user.click(screen.getByTestId('auth-verify-email-request'))
+
+    expect(await screen.findByTestId('auth-verify-email-status')).toHaveTextContent(
+      'Demande de vérification envoyée.',
+    )
+  })
+
+  it('confirms email token and allows admin confirmation mode', async () => {
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.endsWith('/auth/login')) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              access_token: 'token-auth-verify-admin',
+              token_type: 'Bearer',
+              client_kind: 'UI_RUST',
+            }),
+            { status: 200, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      }
+      if (url.endsWith('/auth/me')) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              email: 'admin@example.com',
+              display_name: 'Verify Admin',
+              mfa_enabled: false,
+              roles: ['ADMIN'],
+            }),
+            { status: 200, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      }
+      if (url.endsWith('/auth/me/features')) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              user_feature_enabled: { 'features.auth.2fa': true },
+              effective_feature_enabled: { 'features.auth.2fa': true },
+              feature_governance: [
+                {
+                  key: 'features.auth.2fa',
+                  tier: 'OPTIONAL',
+                  user_can_disable: true,
+                  dependencies: [],
+                  disable_escalation: [],
+                },
+              ],
+              core_v1_global_features: ['features.core.auth'],
+            }),
+            { status: 200, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      }
+      if (url.endsWith('/auth/verify-email/confirm')) {
+        return Promise.resolve(new Response(null, { status: 200 }))
+      }
+      if (url.endsWith('/auth/verify-email/admin-confirm') && init?.method === 'POST') {
+        return Promise.resolve(new Response(null, { status: 200 }))
+      }
+      return Promise.resolve(
+        new Response('{}', {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+      )
+    })
+    vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+    const { user } = setupApp('/auth')
+
+    await user.click(screen.getByTestId('auth-verify-email-mode-confirm'))
+    await user.type(screen.getByTestId('auth-verify-email-token-input'), 'verify-token')
+    await user.click(screen.getByTestId('auth-verify-email-confirm'))
+    expect(await screen.findByTestId('auth-verify-email-status')).toHaveTextContent('Email vérifié.')
+
+    await user.type(screen.getByTestId('auth-email-input'), 'admin@example.com')
+    await user.type(screen.getByTestId('auth-password-input'), 'secret')
+    await user.click(screen.getByTestId('auth-login'))
+
+    await user.click(screen.getByTestId('auth-verify-email-mode-admin'))
+    await user.clear(screen.getByTestId('auth-verify-email-input'))
+    await user.type(screen.getByTestId('auth-verify-email-input'), 'target@example.com')
+    await user.click(screen.getByTestId('auth-verify-email-admin-confirm'))
+    expect(await screen.findByTestId('auth-verify-email-status')).toHaveTextContent(
+      'Email confirmé par admin.',
+    )
+  })
+
   it('authenticates then tests API connection with bearer token', async () => {
     const fetchMock = vi.fn((input: RequestInfo | URL) => {
       const url = String(input)

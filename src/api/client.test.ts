@@ -226,6 +226,46 @@ describe('api client', () => {
     )
   })
 
+  it('requests email verification', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 202 }))
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await api.requestEmailVerification({ email: 'user@example.com' })
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/auth/verify-email/request',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ email: 'user@example.com' }),
+      }),
+    )
+  })
+
+  it('confirms and admin-confirms email verification', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await api.confirmEmailVerification({ token: 'verify-token' })
+    await api.adminConfirmEmailVerification({ email: 'user@example.com' })
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      '/api/v1/auth/verify-email/confirm',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ token: 'verify-token' }),
+      }),
+    )
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      '/api/v1/auth/verify-email/admin-confirm',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ email: 'user@example.com' }),
+      }),
+    )
+  })
+
   it('loads user feature state and validates payload shape', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(

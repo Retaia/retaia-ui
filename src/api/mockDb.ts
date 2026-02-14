@@ -212,6 +212,14 @@ export function createInMemoryMockApiFetch(): typeof fetch {
       return emptyResponse(200)
     }
 
+    if (pathname === '/auth/verify-email/request' && method === 'POST') {
+      return emptyResponse(202)
+    }
+
+    if (pathname === '/auth/verify-email/confirm' && method === 'POST') {
+      return emptyResponse(200)
+    }
+
     if (pathname === '/auth/logout' && method === 'POST') {
       return emptyResponse(204)
     }
@@ -240,6 +248,10 @@ export function createInMemoryMockApiFetch(): typeof fetch {
         }
       }
       return jsonResponse(200, sharedState.userFeatures)
+    }
+
+    if (pathname === '/auth/verify-email/admin-confirm' && method === 'POST') {
+      return emptyResponse(200)
     }
 
     if (pathname === '/auth/2fa/setup' && method === 'POST') {
