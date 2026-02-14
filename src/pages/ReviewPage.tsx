@@ -36,15 +36,15 @@ import { useReviewRouteSelection } from '../hooks/useReviewRouteSelection'
 import { useSelectionFlow } from '../hooks/useSelectionFlow'
 import { type Locale } from '../i18n/resources'
 import { applySingleReviewDecision } from '../application/review/applySingleReviewDecision'
+import { resolveAssetListFocusTarget } from '../application/review/assetListFocus'
 import { submitReviewDecisions } from '../application/review/submitReviewDecisions'
 import {
   refreshReviewAsset,
   saveReviewAssetMetadata,
 } from '../application/review/reviewAssetMaintenance'
+import { useShortcutsHelpState } from '../hooks/useShortcutsHelpState'
 import { isTypingContext } from '../ui/keyboard'
 import { reportUiIssue } from '../ui/telemetry'
-
-const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
 
 function isStateConflictError(error: unknown) {
   return error instanceof ApiError && error.payload?.code === 'STATE_CONFLICT'
@@ -68,21 +68,7 @@ function ReviewPage() {
     applySelectedAssetId,
   } = useReviewRouteSelection(INITIAL_ASSETS, assets)
   const [batchIds, setBatchIds] = useState<string[]>([])
-  const [showShortcutsHelp, setShowShortcutsHelp] = useState(() => {
-    if (typeof window === 'undefined') {
-      return false
-    }
-    try {
-      const seen = window.localStorage.getItem(SHORTCUTS_HELP_SEEN_KEY)
-      if (seen) {
-        return false
-      }
-      window.localStorage.setItem(SHORTCUTS_HELP_SEEN_KEY, '1')
-      return true
-    } catch {
-      return false
-    }
-  })
+  const { showShortcutsHelp, toggleShortcutsHelp } = useShortcutsHelpState()
   const { densityMode, toggleDensityMode } = useDensityMode()
   const [savingMetadata, setSavingMetadata] = useState(false)
   const [metadataStatus, setMetadataStatus] = useState<{
@@ -642,9 +628,6 @@ function ReviewPage() {
     })
   }, [batchIds, recordAction, t, visibleAssets])
 
-  const toggleShortcutsHelp = useCallback(() => {
-    setShowShortcutsHelp((current) => !current)
-  }, [])
   const availability = useMemo(
     () =>
       getActionAvailability({
@@ -736,22 +719,12 @@ function ReviewPage() {
   })
 
   useEffect(() => {
-    if (!selectedAssetId || !assetListRegionRef.current) {
-      return
-    }
     const activeElement = document.activeElement
-    const selectedTarget = assetListRegionRef.current.querySelector<HTMLElement>(
-      `[data-asset-id="${selectedAssetId}"]`,
-    )
-    if (selectedTarget && isTypingContext(activeElement)) {
-      return
-    }
-    const selectedFocusTarget =
-      selectedTarget?.querySelector<HTMLElement>('[data-asset-open="true"]') ?? selectedTarget
-    const firstRow = assetListRegionRef.current.querySelector<HTMLElement>('[data-asset-id]')
-    const fallbackFocusTarget =
-      firstRow?.querySelector<HTMLElement>('[data-asset-open="true"]') ?? firstRow
-    const focusTarget = selectedFocusTarget ?? fallbackFocusTarget
+    const focusTarget = resolveAssetListFocusTarget({
+      region: assetListRegionRef.current,
+      selectedAssetId,
+      isActiveElementTypingContext: isTypingContext(activeElement),
+    })
     if (!focusTarget || activeElement === focusTarget) {
       return
     }

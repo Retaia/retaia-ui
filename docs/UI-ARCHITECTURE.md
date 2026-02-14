@@ -85,6 +85,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
   Snapshots undo + journal d'activité (séparation du state history hors `App.tsx`).
 - `src/hooks/useReviewKeyboardShortcuts.ts`
   Mapping des raccourcis desktop-like vers callbacks UI.
+- `src/hooks/useShortcutsHelpState.ts`
+  Etat local du panneau d'aide raccourcis (première ouverture + persistance localStorage) extrait de `ReviewPage`.
 
 ## Logique domaine
 
@@ -111,6 +113,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
   Résolution pure des événements clavier vers commandes UI Review (mapping raccourcis -> intentions).
 - `src/application/review/quickFilterPresets.ts`
   Mapping pur des presets/views de filtres rapides vers l'état de filtre UI.
+- `src/application/review/assetListFocus.ts`
+  Résolution pure de la cible de focus pour la liste d'assets (sélection courante/fallback), utilisée par `ReviewPage`.
 - `src/application/auth/mfaPresentation.ts`
   Helpers applicatifs purs de présentation MFA (mapping clés i18n + mise à jour immuable du profil user).
 
