@@ -25,6 +25,11 @@ type MockDbState = {
     feature_governance: Array<{ key: string; user_can_disable: boolean }>
     core_v1_global_features: string[]
   }
+  appFeatures: {
+    app_feature_enabled: Record<string, boolean>
+    feature_governance: Array<{ key: string; user_can_disable: boolean }>
+    core_v1_global_features: string[]
+  }
   appPolicy: {
     server_policy: {
       feature_flags: Record<string, boolean>
@@ -82,10 +87,16 @@ function createInitialState(): MockDbState {
       email: 'test.user@retaia.dev',
       display_name: 'Test User',
       mfa_enabled: false,
+      roles: ['ADMIN'],
     },
     userFeatures: {
       user_feature_enabled: { 'features.auth.2fa': true },
       effective_feature_enabled: { 'features.auth.2fa': true },
+      feature_governance: [{ key: 'features.auth.2fa', user_can_disable: true }],
+      core_v1_global_features: ['features.core.auth'],
+    },
+    appFeatures: {
+      app_feature_enabled: { 'features.auth.2fa': true },
       feature_governance: [{ key: 'features.auth.2fa', user_can_disable: true }],
       core_v1_global_features: ['features.core.auth'],
     },
@@ -244,6 +255,24 @@ export function createInMemoryMockApiFetch(): typeof fetch {
 
     if (pathname === '/app/policy' && method === 'GET') {
       return jsonResponse(200, sharedState.appPolicy)
+    }
+
+    if (pathname === '/app/features' && method === 'GET') {
+      return jsonResponse(200, sharedState.appFeatures)
+    }
+
+    if (pathname === '/app/features' && method === 'PATCH') {
+      const body = await parseJson(init)
+      const next = body.app_feature_enabled
+      if (next && typeof next === 'object') {
+        for (const [key, value] of Object.entries(next)) {
+          if (typeof value === 'boolean') {
+            sharedState.appFeatures.app_feature_enabled[key] = value
+            sharedState.userFeatures.effective_feature_enabled[key] = value
+          }
+        }
+      }
+      return jsonResponse(200, sharedState.appFeatures)
     }
 
     if (pathname === '/assets' && method === 'GET') {

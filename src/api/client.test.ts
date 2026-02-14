@@ -500,6 +500,60 @@ describe('api client', () => {
     expect(policy.server_policy.feature_flags['features.foo.bar']).toBe(false)
   })
 
+  it('loads app feature switches for admin scope', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          app_feature_enabled: { 'features.auth.2fa': true },
+          feature_governance: [
+            {
+              key: 'features.auth.2fa',
+              user_can_disable: true,
+              dependencies: [],
+              disable_escalation: [],
+              tier: 'OPTIONAL',
+            },
+          ],
+          core_v1_global_features: ['features.core.auth'],
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    const features = await api.getAppFeatures()
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/app/features', expect.any(Object))
+    expect(features.app_feature_enabled['features.auth.2fa']).toBe(true)
+  })
+
+  it('updates app feature switches with PATCH', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          app_feature_enabled: { 'features.auth.2fa': false },
+          feature_governance: [],
+          core_v1_global_features: ['features.core.auth'],
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await api.updateAppFeatures({
+      app_feature_enabled: {
+        'features.auth.2fa': false,
+      },
+    })
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/app/features',
+      expect.objectContaining({
+        method: 'PATCH',
+      }),
+    )
+  })
+
   it('throws validation error when asset detail payload has no summary', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ derived: {} }), {
