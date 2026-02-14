@@ -1,19 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Alert, Card, Col, Container, Row } from 'react-bootstrap'
-import {
-  BsCollection,
-  BsCrosshair,
-  BsExclamationTriangle,
-  BsGrid3X3Gap,
-  BsInfoCircle,
-  BsQuestionCircle,
-} from 'react-icons/bs'
+import { Container, Row } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
-import { AssetList } from '../components/AssetList'
 import { ActionPanels } from '../components/app/ActionPanels'
+import { AssetListSection } from '../components/app/AssetListSection'
 import { AppHeader } from '../components/app/AppHeader'
 import { AssetDetailPanel } from '../components/app/AssetDetailPanel'
 import { NextPendingCard } from '../components/app/NextPendingCard'
+import { ReviewStatusAlerts } from '../components/app/ReviewStatusAlerts'
 import { ReviewSummary } from '../components/ReviewSummary'
 import { ReviewToolbar } from '../components/ReviewToolbar'
 import { ApiError } from '../api/client'
@@ -808,36 +801,13 @@ function ReviewPage() {
         onDateFilterChange={setDateFilter}
         onSearchChange={setSearch}
       />
-      {isApiAssetSource && assetsLoadState === 'loading' ? (
-        <Alert variant="info" className="py-2 mt-3 mb-0" data-testid="assets-loading-status">
-          <BsInfoCircle className="me-2" aria-hidden="true" />
-          {t('assets.loading')}
-        </Alert>
-      ) : null}
-      {isApiAssetSource && assetsLoadState === 'error' ? (
-        <Alert variant="warning" className="py-2 mt-3 mb-0" data-testid="assets-error-status">
-          <BsExclamationTriangle className="me-2" aria-hidden="true" />
-          {t('assets.loadError')}
-        </Alert>
-      ) : null}
-      {isApiAssetSource && policyLoadState === 'loading' ? (
-        <Alert variant="info" className="py-2 mt-3 mb-0" data-testid="policy-loading-status">
-          <BsInfoCircle className="me-2" aria-hidden="true" />
-          {t('app.policyLoading')}
-        </Alert>
-      ) : null}
-      {isApiAssetSource && policyLoadState === 'error' ? (
-        <Alert variant="warning" className="py-2 mt-3 mb-0" data-testid="policy-error-status">
-          <BsExclamationTriangle className="me-2" aria-hidden="true" />
-          {t('app.policyUnavailable')}
-        </Alert>
-      ) : null}
-      {isApiAssetSource && policyLoadState === 'ready' && !bulkDecisionsEnabled ? (
-        <Alert variant="secondary" className="py-2 mt-3 mb-0" data-testid="policy-bulk-disabled-status">
-          <BsInfoCircle className="me-2" aria-hidden="true" />
-          {t('app.bulkDisabledByPolicy')}
-        </Alert>
-      ) : null}
+      <ReviewStatusAlerts
+        t={t}
+        isApiAssetSource={isApiAssetSource}
+        assetsLoadState={assetsLoadState}
+        policyLoadState={policyLoadState}
+        bulkDecisionsEnabled={bulkDecisionsEnabled}
+      />
 
       <ActionPanels
         t={t}
@@ -891,49 +861,18 @@ function ReviewPage() {
       />
 
       <Row as="section" className="g-3 mt-1">
-        <Col
-          as="section"
-          xs={12}
-          xl={8}
-          aria-label={t('assets.region')}
-          ref={assetListRegionRef}
-        >
-            <Card className="shadow-sm border-0 h-100">
-              <Card.Body>
-                <h2 className="h5">
-                  <BsGrid3X3Gap className="me-2" aria-hidden="true" />
-                  {t('assets.title', { count: visibleAssets.length })}
-                </h2>
-                <p className="small mb-1 text-secondary" data-testid="selection-status">
-                  <BsCrosshair className="me-1" aria-hidden="true" />
-                  {selectionStatusLabel}
-                </p>
-                <p className="small mb-2 text-secondary" data-testid="batch-status">
-                  <BsCollection className="me-1" aria-hidden="true" />
-                  {t('assets.batchStatus', { count: batchIds.length })}
-                </p>
-                <p className="small text-secondary">
-                  <BsQuestionCircle className="me-1" aria-hidden="true" />
-                  {t('assets.help')}
-                </p>
-                <AssetList
-                  assets={visibleAssets}
-                  selectedAssetId={selectedAssetId}
-                  batchIds={batchIds}
-                  density={densityMode}
-                  labels={{
-                    empty: emptyAssetsMessage,
-                    batch: t('assets.batchBadge'),
-                    keep: 'KEEP',
-                    reject: 'REJECT',
-                    clear: 'CLEAR',
-                  }}
-                  onDecision={handleDecision}
-                  onAssetClick={handleAssetClick}
-                />
-              </Card.Body>
-            </Card>
-        </Col>
+        <AssetListSection
+          t={t}
+          visibleAssets={visibleAssets}
+          selectedAssetId={selectedAssetId}
+          batchIds={batchIds}
+          selectionStatusLabel={selectionStatusLabel}
+          densityMode={densityMode}
+          emptyAssetsMessage={emptyAssetsMessage}
+          onDecision={handleDecision}
+          onAssetClick={handleAssetClick}
+          assetListRegionRef={assetListRegionRef}
+        />
 
         <AssetDetailPanel
           selectedAsset={selectedAsset}
