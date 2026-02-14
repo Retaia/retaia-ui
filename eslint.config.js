@@ -23,4 +23,44 @@ export default defineConfig([
       '@typescript-eslint/no-explicit-any': 'error',
     },
   },
+  {
+    files: ['src/pages/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: ['../api/client', '../../api/client', '../../../api/client'],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/components/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            '../api/*',
+            '../../api/*',
+            '../../../api/*',
+            '../application/*',
+            '../../application/*',
+            '../../../application/*',
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/hooks/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: ['../pages/*', '../../pages/*', '../components/*', '../../components/*'],
+        },
+      ],
+    },
+  },
 ])

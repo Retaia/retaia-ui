@@ -104,6 +104,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Architecture boundaries lint
+        run: npm run lint:architecture
+
       - name: Duplication check
         run: npm run dup:check
 

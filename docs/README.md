@@ -47,6 +47,7 @@
 - `src/pages/*` et `src/components/*` restent orientés vue/composition, sans logique métier profonde.
 - `src/App.tsx` reste strictement un point d'entrée de composition/routing et non une zone d'implémentation métier.
 - Toute nouvelle feature doit suivre cette séparation et ajouter les tests de couche (`domain`, `application`, UI).
+- Vérification locale des frontières d'architecture: `npm run lint:architecture`.
 
 ## Commandes BDD/E2E locales
 
