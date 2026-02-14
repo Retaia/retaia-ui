@@ -15,7 +15,7 @@ Le workflow CI est défini dans:
 Jobs:
 
 1. `no-black-magic`
-2. `pr-up-to-date` (vérifie qu'une PR inclut bien le dernier commit de base)
+2. `branch-up-to-date` (vérifie qu'une PR est rebased sur la base et sans merge commit)
 3. `commitlint` (valide les commits de la PR selon Conventional Commits)
 4. `lint`
 5. `test`
@@ -26,7 +26,7 @@ Jobs:
 ## Gates bloquants
 
 - `./scripts/no-black-magic.sh`
-- `node scripts/ci/check-pr-up-to-date.mjs` (sur événement PR)
+- `node scripts/ci/check-branch-up-to-date.mjs` (sur événement PR)
 - `npx commitlint --from origin/<base> --to <sha>`
 - `npm run lint`
 - `npm run typecheck`
@@ -52,13 +52,18 @@ Jobs:
 ## Checks requis avant merge
 
 - `no-black-magic`
-- `pr-up-to-date`
+- `branch-up-to-date`
 - `commitlint`
 - `lint`
 - `test`
 - `security-audit`
 - `e2e-bdd`
 - `ci-required` (si vous préférez un seul check bloquant côté règle GitHub)
+
+Historique Git requis:
+
+- rebase obligatoire sur `master` avant merge
+- aucun commit de merge de synchronisation dans l'historique PR
 
 Artefacts CI:
 
