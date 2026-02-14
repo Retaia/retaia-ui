@@ -5,9 +5,11 @@ import {
   resolveBatchId,
   serializeBatchReportExport,
 } from '../application/review/batchExecutionHelpers'
+import {
+  BATCH_EXECUTION_UNDO_WINDOW_MS,
+  planBatchExecution,
+} from '../application/review/batchExecutionPlanning'
 import { loadBatchReport } from '../application/review/batchReportLoading'
-
-const BATCH_EXECUTION_UNDO_WINDOW_MS = 6000
 
 type ApiClient = {
   previewMoveBatch: (payload: { include: 'BOTH'; limit: number }) => Promise<unknown>
@@ -184,35 +186,37 @@ export function useBatchExecution({
   }, [pendingBatchExecution, t])
 
   const executeBatchMove = useCallback(async () => {
-    if (executingBatch) {
+    const plan = planBatchExecution({
+      executingBatch,
+      pendingBatchExecution,
+      batchIds,
+      now: Date.now(),
+      undoWindowMs: BATCH_EXECUTION_UNDO_WINDOW_MS,
+    })
+
+    if (plan.kind === 'ignore') {
       return
     }
 
-    if (pendingBatchExecution) {
+    if (plan.kind === 'run-now') {
       if (pendingBatchExecutionTimer.current !== null) {
         window.clearTimeout(pendingBatchExecutionTimer.current)
         pendingBatchExecutionTimer.current = null
       }
-      const selection = pendingBatchExecution.assetIds
       setPendingBatchExecution(null)
-      await runBatchExecution(selection)
+      await runBatchExecution(plan.selection)
       return
     }
 
-    if (batchIds.length === 0) {
-      return
-    }
-
-    const selection = [...batchIds]
     setExecuteStatus({
       kind: 'success',
       message: t('actions.executeQueued', {
-        seconds: Math.round(BATCH_EXECUTION_UNDO_WINDOW_MS / 1000),
+        seconds: plan.undoSeconds,
       }),
     })
     setPendingBatchExecution({
-      assetIds: selection,
-      expiresAt: Date.now() + BATCH_EXECUTION_UNDO_WINDOW_MS,
+      assetIds: plan.selection,
+      expiresAt: plan.expiresAt,
     })
     pendingBatchExecutionTimer.current = window.setTimeout(() => {
       pendingBatchExecutionTimer.current = null
