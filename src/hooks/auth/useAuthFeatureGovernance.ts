@@ -2,84 +2,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { TFunction } from 'i18next'
 import { mapApiErrorToMessage } from '../../api/errorMapping'
 import type { ApiClient } from '../../api/client'
+import {
+  findMfaFeatureKey,
+  normalizeAppFeatures,
+  normalizeUserFeatures,
+  type AppFeatureState,
+  type FeatureState,
+} from '../../domain/auth/features'
 
-export type FeatureState = {
-  userFeatureEnabled: Record<string, boolean>
-  effectiveFeatureEnabled: Record<string, boolean>
-  featureGovernance: Array<{
-    key: string
-    user_can_disable: boolean
-  }>
-}
-
-type AppFeatureState = {
-  appFeatureEnabled: Record<string, boolean>
-  featureGovernance: Array<{
-    key: string
-    user_can_disable: boolean
-  }>
-}
-
-function normalizeFeatures(payload: {
-  user_feature_enabled?: Record<string, unknown>
-  effective_feature_enabled?: Record<string, unknown>
-  feature_governance?: Array<{ key?: string; user_can_disable?: boolean }>
-}): FeatureState {
-  const userFeatureEnabled = Object.entries(payload.user_feature_enabled ?? {}).reduce<Record<string, boolean>>(
-    (acc, [key, value]) => {
-      if (typeof value === 'boolean') {
-        acc[key] = value
-      }
-      return acc
-    },
-    {},
-  )
-  const effectiveFeatureEnabled = Object.entries(payload.effective_feature_enabled ?? {}).reduce<
-    Record<string, boolean>
-  >((acc, [key, value]) => {
-    if (typeof value === 'boolean') {
-      acc[key] = value
-    }
-    return acc
-  }, {})
-  const featureGovernance = (payload.feature_governance ?? [])
-    .filter((item) => typeof item.key === 'string')
-    .map((item) => ({
-      key: item.key as string,
-      user_can_disable: item.user_can_disable === true,
-    }))
-
-  return {
-    userFeatureEnabled,
-    effectiveFeatureEnabled,
-    featureGovernance,
-  }
-}
-
-function normalizeAppFeatures(payload: {
-  app_feature_enabled?: Record<string, unknown>
-  feature_governance?: Array<{ key?: string; user_can_disable?: boolean }>
-}): AppFeatureState {
-  const appFeatureEnabled = Object.entries(payload.app_feature_enabled ?? {}).reduce<Record<string, boolean>>(
-    (acc, [key, value]) => {
-      if (typeof value === 'boolean') {
-        acc[key] = value
-      }
-      return acc
-    },
-    {},
-  )
-  const featureGovernance = (payload.feature_governance ?? [])
-    .filter((item) => typeof item.key === 'string')
-    .map((item) => ({
-      key: item.key as string,
-      user_can_disable: item.user_can_disable === true,
-    }))
-  return {
-    appFeatureEnabled,
-    featureGovernance,
-  }
-}
+export type { FeatureState } from '../../domain/auth/features'
 
 type UseAuthFeatureGovernanceArgs = {
   apiClient: ApiClient
@@ -149,13 +80,10 @@ export function useAuthFeatureGovernance({
     if (!appFeatureState) {
       return null
     }
-    const fromGovernance = appFeatureState.featureGovernance.find((item) =>
-      /(2fa|mfa|totp)/i.test(item.key),
-    )
-    if (fromGovernance) {
-      return fromGovernance.key
-    }
-    return Object.keys(appFeatureState.appFeatureEnabled).find((key) => /(2fa|mfa|totp)/i.test(key)) ?? null
+    return findMfaFeatureKey({
+      featureGovernance: appFeatureState.featureGovernance,
+      enabledMap: appFeatureState.appFeatureEnabled,
+    })
   }, [appFeatureState])
 
   const appMfaFeatureEnabled = useMemo(() => {
@@ -202,16 +130,10 @@ export function useAuthFeatureGovernance({
     if (!userFeatureState) {
       return null
     }
-    const fromGovernance = userFeatureState.featureGovernance.find((item) =>
-      /(2fa|mfa|totp)/i.test(item.key),
-    )
-    if (fromGovernance) {
-      return fromGovernance.key
-    }
-    const fromEffective = Object.keys(userFeatureState.effectiveFeatureEnabled).find((key) =>
-      /(2fa|mfa|totp)/i.test(key),
-    )
-    return fromEffective ?? null
+    return findMfaFeatureKey({
+      featureGovernance: userFeatureState.featureGovernance,
+      enabledMap: userFeatureState.effectiveFeatureEnabled,
+    })
   }, [userFeatureState])
 
   const mfaFeatureAvailable = useMemo(() => {
@@ -255,7 +177,7 @@ export function useAuthFeatureGovernance({
             [mfaFeatureKey]: enabled,
           },
         })
-        const normalized = normalizeFeatures(response)
+        const normalized = normalizeUserFeatures(response)
         setUserFeatureState({
           ...normalized,
           featureGovernance: userFeatureState.featureGovernance,
@@ -291,4 +213,3 @@ export function useAuthFeatureGovernance({
     setUserFeature,
   }
 }
-

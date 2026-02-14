@@ -78,6 +78,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
   Règles d'activation/désactivation des actions UI.
 - `src/domain/review/metadata.ts`
   Normalisation métier du payload metadata Review (`tags`, `notes`) hors UI.
+- `src/domain/auth/features.ts`
+  Normalisation métier des payloads features Auth/App + détection clé MFA/2FA.
 
 ## Couche application
 
