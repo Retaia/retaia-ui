@@ -117,6 +117,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
   Résumé pur du scope batch (pending/keep/reject) pour éviter la logique de comptage inline dans la page.
 - `src/application/review/batchExecutionHelpers.ts`
   Helpers applicatifs purs pour timeline batch, calcul undo, résolution `batch_id` et sérialisation export rapport.
+- `src/application/review/batchReportLoading.ts`
+  Chargement applicatif du rapport batch (success/error + message traduit) partagé entre exécution initiale et refresh manuel.
 - `src/application/review/selectionFlowHelpers.ts`
   Helpers applicatifs purs pour navigation de sélection (`offset`, range) et fusion dédupliquée des `batchIds`.
 - `src/application/review/keyboardShortcutResolution.ts`
