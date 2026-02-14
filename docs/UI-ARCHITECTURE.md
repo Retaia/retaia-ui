@@ -39,8 +39,8 @@ La logique métier est déplacée autant que possible dans des hooks dédiés.
 
 ## Hooks métier
 
-- `src/hooks/useAuthPageController.ts`
-  Controller de la page Auth (états, orchestration API auth/2FA/features, side-effects), pour garder `AuthPage` centré sur le rendu.
+- `src/hooks/useApiClient.ts`
+  Configuration runtime API partagée (env + local storage + mock DB in-memory en `APP_ENV=test`) et création du client HTTP.
 - `src/hooks/useQuickFilters.ts`
   Presets de filtres + persistance localStorage.
 - `src/hooks/useDensityMode.ts`
@@ -70,6 +70,8 @@ La logique métier est déplacée autant que possible dans des hooks dédiés.
 - En cas de payload invalide, le client lève `ApiError` avec `code: VALIDATION_FAILED` (status `502`).
 - `src/api/errorMapping.ts`
   Mapping explicite des codes API v1 vers messages UX (`FORBIDDEN_*`, `STATE_CONFLICT`, `IDEMPOTENCY_CONFLICT`, `LOCK_*`, `RATE_LIMITED`, `VALIDATION_FAILED`).
+- `src/services/apiSession.ts`
+  Accès localStorage centralisé pour session/config API (`token`, `base_url`, `email`) afin d'éviter la duplication entre pages.
 
 ## Tests
 
