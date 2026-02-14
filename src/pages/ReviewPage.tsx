@@ -16,10 +16,9 @@ import { AssetDetailPanel } from '../components/app/AssetDetailPanel'
 import { NextPendingCard } from '../components/app/NextPendingCard'
 import { ReviewSummary } from '../components/ReviewSummary'
 import { ReviewToolbar } from '../components/ReviewToolbar'
-import { ApiError, createApiClient } from '../api/client'
+import { ApiError } from '../api/client'
 import { mapApiSummaryToAsset } from '../api/assetMapper'
 import { mapApiErrorToMessage } from '../api/errorMapping'
-import { createInMemoryMockApiFetch, isAppEnvTest } from '../api/mockDb'
 import { INITIAL_ASSETS } from '../data/mockAssets'
 import {
   type Asset,
@@ -36,6 +35,7 @@ import {
 import { getActionAvailability } from '../domain/actionAvailability'
 import { useDensityMode } from '../hooks/useDensityMode'
 import { useBatchExecution } from '../hooks/useBatchExecution'
+import { useApiClient } from '../hooks/useApiClient'
 import { usePurgeFlow } from '../hooks/usePurgeFlow'
 import { useQuickFilters } from '../hooks/useQuickFilters'
 import { useReviewHistory } from '../hooks/useReviewHistory'
@@ -44,12 +44,11 @@ import { useSelectionFlow } from '../hooks/useSelectionFlow'
 import { type Locale } from '../i18n/resources'
 import { isTypingContext } from '../ui/keyboard'
 import { reportUiIssue } from '../ui/telemetry'
+import { readStoredApiBaseUrl, readStoredApiToken } from '../services/apiSession'
 
 const SHORTCUTS_HELP_SEEN_KEY = 'retaia_ui_shortcuts_help_seen'
 const SELECTED_ASSET_QUERY_KEY = 'asset'
 const REVIEW_BASE_PATH = '/review'
-const API_TOKEN_STORAGE_KEY = 'retaia_api_token'
-const API_BASE_URL_STORAGE_KEY = 'retaia_api_base_url'
 
 function isStateConflictError(error: unknown) {
   return error instanceof ApiError && error.payload?.code === 'STATE_CONFLICT'
@@ -86,55 +85,24 @@ function ReviewPage() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t, i18n } = useTranslation()
   const [retryStatus, setRetryStatus] = useState<string | null>(null)
-  const [apiTokenInput] = useState(() => {
-    if (typeof window === 'undefined') {
-      return ''
-    }
-    try {
-      return window.localStorage.getItem(API_TOKEN_STORAGE_KEY) ?? ''
-    } catch {
-      return ''
-    }
-  })
-  const [apiBaseUrlInput] = useState(() => {
-    if (typeof window === 'undefined') {
-      return ''
-    }
-    try {
-      return window.localStorage.getItem(API_BASE_URL_STORAGE_KEY) ?? ''
-    } catch {
-      return ''
-    }
-  })
-  const effectiveApiBaseUrl =
-    import.meta.env.VITE_API_BASE_URL ?? (apiBaseUrlInput.trim() || '/api/v1')
-  const effectiveApiToken = import.meta.env.VITE_API_TOKEN ?? (apiTokenInput.trim() || null)
-  const shouldUseInMemoryMockDb = isAppEnvTest(import.meta.env as Record<string, unknown>)
-  const apiClient = useMemo(
-    () =>
-      createApiClient({
-        baseUrl: effectiveApiBaseUrl,
-        fetchImpl: shouldUseInMemoryMockDb ? createInMemoryMockApiFetch() : undefined,
-        // Priority: explicit env token (CI/dev), then browser session storage token.
-        getAccessToken: () => {
-          return effectiveApiToken
-        },
-        onAuthError: () => {},
-        onRetry: ({ attempt, maxRetries }) => {
-          setRetryStatus(
-            t('actions.retrying', {
-              attempt,
-              total: maxRetries + 1,
-            }),
-          )
-        },
-        retry: {
-          maxRetries: 2,
-          baseDelayMs: 50,
-        },
-      }),
-    [effectiveApiBaseUrl, effectiveApiToken, shouldUseInMemoryMockDb, t],
+  const [apiTokenInput] = useState(readStoredApiToken)
+  const [apiBaseUrlInput] = useState(readStoredApiBaseUrl)
+  const handleApiRetry = useCallback(
+    ({ attempt, maxRetries }: { attempt: number; maxRetries: number }) => {
+      setRetryStatus(
+        t('actions.retrying', {
+          attempt,
+          total: maxRetries + 1,
+        }),
+      )
+    },
+    [t],
   )
+  const { apiClient } = useApiClient({
+    apiBaseUrlInput,
+    apiTokenInput,
+    onRetry: handleApiRetry,
+  })
   const [filter, setFilter] = useState<AssetFilter>('ALL')
   const [mediaTypeFilter, setMediaTypeFilter] = useState<AssetMediaTypeFilter>('ALL')
   const [dateFilter, setDateFilter] = useState<AssetDateFilter>('ALL')
