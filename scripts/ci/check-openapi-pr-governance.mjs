@@ -1,0 +1,58 @@
+import { execSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
+
+const eventName = process.env.GITHUB_EVENT_NAME
+
+if (eventName !== 'pull_request') {
+  console.log('Skipping OpenAPI PR governance check on non-PR event.')
+  process.exit(0)
+}
+
+const baseRef = process.env.GITHUB_BASE_REF
+if (!baseRef) {
+  console.error('Missing GITHUB_BASE_REF for pull_request event.')
+  process.exit(1)
+}
+
+const eventPath = process.env.GITHUB_EVENT_PATH
+if (!eventPath) {
+  console.error('Missing GITHUB_EVENT_PATH for pull_request event.')
+  process.exit(1)
+}
+
+const eventPayload = JSON.parse(readFileSync(eventPath, 'utf-8'))
+const prBody = eventPayload?.pull_request?.body ?? ''
+
+execSync(`git fetch origin ${baseRef} --depth=1`, { stdio: 'ignore' })
+const changedFiles = execSync(`git diff --name-only origin/${baseRef}...HEAD`, {
+  encoding: 'utf-8',
+})
+  .split('\n')
+  .map((line) => line.trim())
+  .filter(Boolean)
+
+const openApiTouched = changedFiles.includes('api/openapi/v1.yaml')
+if (!openApiTouched) {
+  console.log('OpenAPI file not changed in this PR. Governance check not required.')
+  process.exit(0)
+}
+
+const requiredSections = [
+  'Impact flags/capabilities:',
+  'Comportement client OFF/ON (safe-by-default):',
+  'Migration/adoption consommateurs:',
+  'Strategie de non-regression v1:',
+]
+
+const missingSections = requiredSections.filter((section) => !prBody.includes(section))
+
+if (missingSections.length > 0) {
+  console.error('OpenAPI governance check failed: missing required PR body sections.')
+  for (const section of missingSections) {
+    console.error(`- ${section}`)
+  }
+  console.error('Add the required governance analysis to the PR body and retry.')
+  process.exit(1)
+}
+
+console.log('OpenAPI PR governance check passed.')
