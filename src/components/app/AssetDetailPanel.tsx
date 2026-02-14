@@ -9,9 +9,9 @@ import {
   BsTrash3,
   BsXCircle,
 } from 'react-icons/bs'
-import ReactPlayer from 'react-player/file'
 import type { Asset, DecisionAction } from '../../domain/assets'
 import { getActionAvailability } from '../../domain/actionAvailability'
+import { AssetMediaPreview } from './AssetMediaPreview'
 
 type PurgeStatus = {
   kind: 'success' | 'error'
@@ -52,21 +52,6 @@ type MetadataEditorProps = {
   savingMetadata: boolean
   t: (key: string, values?: Record<string, string>) => string
   onSaveMetadata: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
-}
-
-function buildWaveformBars(seed: string, count = 48): number[] {
-  let value = 0
-  for (let index = 0; index < seed.length; index += 1) {
-    value = (value * 31 + seed.charCodeAt(index)) >>> 0
-  }
-
-  const bars: number[] = []
-  for (let index = 0; index < count; index += 1) {
-    value = (value * 1664525 + 1013904223) >>> 0
-    const normalized = value / 0xffffffff
-    bars.push(Math.round(20 + normalized * 80))
-  }
-  return bars
 }
 
 function MetadataEditor({ selectedAsset, savingMetadata, t, onSaveMetadata }: MetadataEditorProps) {
@@ -194,15 +179,6 @@ export function AssetDetailPanel({
   showRefreshAction,
   refreshingAsset,
 }: Props) {
-  const mediaUrl =
-    selectedAsset?.mediaType === 'VIDEO'
-      ? selectedAsset.proxyVideoUrl
-      : selectedAsset?.mediaType === 'AUDIO'
-        ? selectedAsset.proxyAudioUrl
-        : selectedAsset?.mediaType === 'IMAGE'
-          ? selectedAsset.proxyPhotoUrl
-          : null
-
   return (
     <Col as="section" xs={12} xl={4} aria-label={t('detail.region')}>
       <Card className="shadow-sm border-0 h-100 sticky-xl-top">
@@ -220,68 +196,7 @@ export function AssetDetailPanel({
               </p>
               <section className="mb-3" aria-label={t('detail.previewTitle')}>
                 <h3 className="h6 mb-2">{t('detail.previewTitle')}</h3>
-                {selectedAsset.mediaType === 'IMAGE' && mediaUrl ? (
-                  <img
-                    src={mediaUrl}
-                    alt={selectedAsset.name}
-                    className="img-fluid rounded border"
-                  />
-                ) : selectedAsset.mediaType === 'VIDEO' && mediaUrl ? (
-                  <div className="rounded border overflow-hidden">
-                    <ReactPlayer
-                      url={mediaUrl}
-                      controls
-                      width="100%"
-                      height="220px"
-                      config={{
-                        attributes: {
-                          controlsList: 'nodownload',
-                        },
-                      }}
-                    />
-                  </div>
-                ) : selectedAsset.mediaType === 'AUDIO' && mediaUrl ? (
-                  <div>
-                    <ReactPlayer
-                      url={mediaUrl}
-                      controls
-                      width="100%"
-                      height="56px"
-                      config={{
-                        forceAudio: true,
-                        attributes: {
-                          controlsList: 'nodownload',
-                        },
-                      }}
-                    />
-                    {selectedAsset.waveformUrl ? (
-                      <img
-                        src={selectedAsset.waveformUrl}
-                        alt={t('detail.waveformImageAlt', { id: selectedAsset.id })}
-                        className="img-fluid rounded border mt-2"
-                        data-testid="asset-waveform-image"
-                      />
-                    ) : (
-                      <div
-                        className="audio-waveform-fallback mt-2"
-                        role="img"
-                        aria-label={t('detail.waveformFallbackLabel')}
-                        data-testid="asset-waveform-fallback"
-                      >
-                        {buildWaveformBars(selectedAsset.id).map((height, index) => (
-                          <span
-                            // Deterministic local fallback: enough for simple timeline orientation without server waveform.
-                            key={`${selectedAsset.id}-wave-${index}`}
-                            className="audio-waveform-fallback__bar"
-                            style={{ height: `${height}%` }}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <p className="small text-secondary mb-0">{t('detail.previewUnavailable')}</p>
-                )}
+                <AssetMediaPreview selectedAsset={selectedAsset} t={t} />
               </section>
               {selectedAsset.transcriptPreview ? (
                 <section className="mb-3" aria-label={t('detail.transcriptTitle')}>

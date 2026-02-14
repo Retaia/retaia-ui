@@ -36,6 +36,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
   Carte "prochain asset".
 - `src/components/app/AssetDetailPanel.tsx`
   Détail + actions de purge + preview média (waveform serveur si disponible, fallback waveform local JS pour audio sinon).
+- `src/components/app/AssetMediaPreview.tsx`
+  Sous-composant de preview média (image/video/audio + fallback waveform local).
 - `src/components/AssetList.tsx`
   Liste des assets (roving tabindex + interactions desktop-like).
 - `src/components/ReviewToolbar.tsx`
