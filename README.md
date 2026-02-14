@@ -66,7 +66,7 @@ BDD / E2E / visuel:
 
 - `npm run bdd:test`
 - `npm run e2e:bdd`
-- `npm run e2e:bdd:ci`
+- `npm run e2e:bdd:ci` (run sur build via `vite preview`; en CI, le build est mutualise avant la matrice navigateurs)
 - `npm run e2e:bdd:critical`
 - `npm run visual:test`
 
