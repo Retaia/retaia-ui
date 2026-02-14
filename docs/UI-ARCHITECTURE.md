@@ -41,6 +41,10 @@ La logique métier est déplacée autant que possible dans des hooks dédiés.
 
 - `src/hooks/useApiClient.ts`
   Configuration runtime API partagée (env + local storage + mock DB in-memory en `APP_ENV=test`) et création du client HTTP.
+- `src/hooks/useReviewApiRuntime.ts`
+  Runtime Review (instanciation client API + stratégie de retry + détection source API).
+- `src/hooks/useReviewRouteSelection.ts`
+  Synchronisation état de sélection Review avec l'URL (`/review/:assetId` + query `asset`).
 - `src/hooks/useQuickFilters.ts`
   Presets de filtres + persistance localStorage.
 - `src/hooks/useDensityMode.ts`

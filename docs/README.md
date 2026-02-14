@@ -32,6 +32,7 @@
 - `src/App.tsx` reste un point d'entrée (pas de logique métier UI).
 - Le routing applicatif est centralisé dans `src/routes/AppRoutes.tsx`.
 - La config/session API (token, base URL, email login) est centralisée via `src/services/apiSession.ts` et `src/hooks/useApiClient.ts`.
+- Le flux Review isole aussi les concerns runtime/URL via `src/hooks/useReviewApiRuntime.ts` et `src/hooks/useReviewRouteSelection.ts`.
 - Les écrans sont portés par des pages dédiées:
 - `src/pages/ReviewPage.tsx`
 - `src/pages/AuthPage.tsx` (route `/auth`, incluant login/logout/2FA, gouvernance feature globale admin (`/app/features`) puis préférence user (`/auth/me/features`), lost-password et verify-email).
