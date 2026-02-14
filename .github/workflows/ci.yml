@@ -104,6 +104,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Duplication check
+        run: npm run dup:check
+
       - name: Typecheck
         run: npm run typecheck
 
