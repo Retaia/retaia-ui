@@ -23,13 +23,32 @@ if (!eventPath) {
 const eventPayload = JSON.parse(readFileSync(eventPath, 'utf-8'))
 const prBody = eventPayload?.pull_request?.body ?? ''
 
-execSync(`git fetch origin ${baseRef} --depth=1`, { stdio: 'ignore' })
-const changedFiles = execSync(`git diff --name-only origin/${baseRef}...HEAD`, {
-  encoding: 'utf-8',
-})
-  .split('\n')
-  .map((line) => line.trim())
-  .filter(Boolean)
+const parseChangedFiles = (raw) =>
+  raw
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+
+const resolveChangedFiles = () => {
+  execSync(`git fetch origin ${baseRef} --depth=1`, { stdio: 'ignore' })
+  try {
+    return parseChangedFiles(execSync(`git diff --name-only origin/${baseRef}...HEAD`, { encoding: 'utf-8' }))
+  } catch (error) {
+    const stderr = String(error?.stderr ?? '')
+    if (!stderr.includes('no merge base')) {
+      throw error
+    }
+    // CI can fetch only the tip of base branch, which is not enough for a merge-base diff.
+    execSync(`git fetch origin ${baseRef} --deepen=200`, { stdio: 'ignore' })
+    try {
+      return parseChangedFiles(execSync(`git diff --name-only origin/${baseRef}...HEAD`, { encoding: 'utf-8' }))
+    } catch {
+      return parseChangedFiles(execSync(`git diff --name-only origin/${baseRef}..HEAD`, { encoding: 'utf-8' }))
+    }
+  }
+}
+
+const changedFiles = resolveChangedFiles()
 
 const isLegacyMirrorTouched = changedFiles.includes('api/openapi/v1.yaml')
 const isSpecsSubmoduleTouched = changedFiles.includes('specs')
