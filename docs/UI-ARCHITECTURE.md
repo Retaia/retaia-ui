@@ -55,6 +55,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
   Sous-hook de gouvernance 2FA/features (chargement admin feature flags + toggles user/app) pour réduire le coupling dans `useAuthPageController`.
 - `src/hooks/auth/useAuthMfaController.ts`
   Sous-hook MFA utilisateur (setup/enable/disable, statut, OTP action) pour isoler la logique 2FA hors du controller principal.
+- `src/hooks/auth/useAuthRecoveryController.ts`
+  Sous-hook recovery Auth (lost password + verify email user/admin) pour isoler les flux de récupération et confirmation email.
 - `src/hooks/useApiClient.ts`
   Configuration runtime API partagée (env + local storage + mock DB in-memory en `APP_ENV=test`) et création du client HTTP.
 - `src/hooks/useReviewApiRuntime.ts`
