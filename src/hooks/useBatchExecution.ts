@@ -5,6 +5,7 @@ import {
   resolveBatchId,
   serializeBatchReportExport,
 } from '../application/review/batchExecutionHelpers'
+import { loadBatchReport } from '../application/review/batchReportLoading'
 
 const BATCH_EXECUTION_UNDO_WINDOW_MS = 6000
 
@@ -139,15 +140,16 @@ export function useBatchExecution({
         setReportLoading(true)
         setReportStatus(null)
         try {
-          const report = await apiClient.getMoveBatchReport(batchId)
-          setReportData(report)
-          setReportStatus(t('actions.reportReady', { batchId }))
-        } catch (error) {
-          setReportStatus(
-            t('actions.reportError', {
-              message: mapErrorToMessage(error),
-            }),
-          )
+          const reportResult = await loadBatchReport({
+            getMoveBatchReport: apiClient.getMoveBatchReport,
+            batchId,
+            t,
+            mapErrorToMessage,
+          })
+          if (reportResult.kind === 'success') {
+            setReportData(reportResult.report)
+          }
+          setReportStatus(reportResult.statusMessage)
         } finally {
           setReportLoading(false)
         }
@@ -234,15 +236,16 @@ export function useBatchExecution({
     setRetryStatus(null)
 
     try {
-      const report = await apiClient.getMoveBatchReport(reportBatchId)
-      setReportData(report)
-      setReportStatus(t('actions.reportReady', { batchId: reportBatchId }))
-    } catch (error) {
-      setReportStatus(
-        t('actions.reportError', {
-          message: mapErrorToMessage(error),
-        }),
-      )
+      const reportResult = await loadBatchReport({
+        getMoveBatchReport: apiClient.getMoveBatchReport,
+        batchId: reportBatchId,
+        t,
+        mapErrorToMessage,
+      })
+      if (reportResult.kind === 'success') {
+        setReportData(reportResult.report)
+      }
+      setReportStatus(reportResult.statusMessage)
     } finally {
       setReportLoading(false)
       setRetryStatus(null)
