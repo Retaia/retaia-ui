@@ -2,13 +2,19 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { ApiError, createApiClient } from '../api/client'
+import { ApiError } from '../api/client'
 import { mapApiErrorToMessage } from '../api/errorMapping'
-import { createInMemoryMockApiFetch, isAppEnvTest } from '../api/mockDb'
-
-const API_TOKEN_STORAGE_KEY = 'retaia_api_token'
-const API_BASE_URL_STORAGE_KEY = 'retaia_api_base_url'
-const API_LOGIN_EMAIL_STORAGE_KEY = 'retaia_auth_email'
+import { useApiClient } from '../hooks/useApiClient'
+import {
+  clearApiBaseUrl,
+  clearApiToken,
+  persistApiBaseUrl,
+  persistApiToken,
+  persistLoginEmail,
+  readStoredApiBaseUrl,
+  readStoredApiToken,
+  readStoredLoginEmail,
+} from '../services/apiSession'
 
 type FeatureState = {
   userFeatureEnabled: Record<string, boolean>
@@ -92,36 +98,9 @@ export function AuthPage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const [retryStatus, setRetryStatus] = useState<string | null>(null)
-  const [apiTokenInput, setApiTokenInput] = useState(() => {
-    if (typeof window === 'undefined') {
-      return ''
-    }
-    try {
-      return window.localStorage.getItem(API_TOKEN_STORAGE_KEY) ?? ''
-    } catch {
-      return ''
-    }
-  })
-  const [apiBaseUrlInput, setApiBaseUrlInput] = useState(() => {
-    if (typeof window === 'undefined') {
-      return ''
-    }
-    try {
-      return window.localStorage.getItem(API_BASE_URL_STORAGE_KEY) ?? ''
-    } catch {
-      return ''
-    }
-  })
-  const [authEmailInput, setAuthEmailInput] = useState(() => {
-    if (typeof window === 'undefined') {
-      return ''
-    }
-    try {
-      return window.localStorage.getItem(API_LOGIN_EMAIL_STORAGE_KEY) ?? ''
-    } catch {
-      return ''
-    }
-  })
+  const [apiTokenInput, setApiTokenInput] = useState(readStoredApiToken)
+  const [apiBaseUrlInput, setApiBaseUrlInput] = useState(readStoredApiBaseUrl)
+  const [authEmailInput, setAuthEmailInput] = useState(readStoredLoginEmail)
   const [authPasswordInput, setAuthPasswordInput] = useState('')
   const [authOtpInput, setAuthOtpInput] = useState('')
   const [lostPasswordMode, setLostPasswordMode] = useState<'request' | 'reset'>('request')
@@ -175,99 +154,64 @@ export function AuthPage() {
     message: string
   } | null>(null)
 
-  const effectiveApiBaseUrl =
-    import.meta.env.VITE_API_BASE_URL ?? (apiBaseUrlInput.trim() || '/api/v1')
-  const effectiveApiToken = import.meta.env.VITE_API_TOKEN ?? (apiTokenInput.trim() || null)
-  const isApiBaseUrlLockedByEnv = !!import.meta.env.VITE_API_BASE_URL
-  const isApiAuthLockedByEnv = !!import.meta.env.VITE_API_TOKEN
-  const isApiConfigLockedByEnv = isApiBaseUrlLockedByEnv || isApiAuthLockedByEnv
-  const shouldUseInMemoryMockDb = isAppEnvTest(import.meta.env as Record<string, unknown>)
-
-  const apiClient = useMemo(
-    () =>
-      createApiClient({
-        baseUrl: effectiveApiBaseUrl,
-        fetchImpl: shouldUseInMemoryMockDb ? createInMemoryMockApiFetch() : undefined,
-        getAccessToken: () => effectiveApiToken,
-        onAuthError: () => {
-          setApiConnectionStatus({
-            kind: 'error',
-            message: t('app.apiConnectionAuthError'),
-          })
-        },
-        onRetry: ({ attempt, maxRetries }) => {
-          setRetryStatus(
-            t('actions.retrying', {
-              attempt,
-              total: maxRetries + 1,
-            }),
-          )
-        },
-        retry: {
-          maxRetries: 2,
-          baseDelayMs: 50,
-        },
-      }),
-    [effectiveApiBaseUrl, effectiveApiToken, shouldUseInMemoryMockDb, t],
+  const handleApiAuthError = useCallback(() => {
+    setApiConnectionStatus({
+      kind: 'error',
+      message: t('app.apiConnectionAuthError'),
+    })
+  }, [t])
+  const handleApiRetry = useCallback(
+    ({ attempt, maxRetries }: { attempt: number; maxRetries: number }) => {
+      setRetryStatus(
+        t('actions.retrying', {
+          attempt,
+          total: maxRetries + 1,
+        }),
+      )
+    },
+    [t],
   )
+  const {
+    apiClient,
+    effectiveApiToken,
+    isApiAuthLockedByEnv,
+    isApiBaseUrlLockedByEnv,
+    isApiConfigLockedByEnv,
+  } = useApiClient({
+    apiBaseUrlInput,
+    apiTokenInput,
+    onAuthError: handleApiAuthError,
+    onRetry: handleApiRetry,
+  })
 
   const saveApiConnectionSettings = useCallback(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-    try {
-      window.localStorage.setItem(API_BASE_URL_STORAGE_KEY, apiBaseUrlInput.trim())
+    if (persistApiBaseUrl(apiBaseUrlInput.trim())) {
       setApiConnectionStatus({
         kind: 'success',
         message: t('app.apiConnectionSaved'),
       })
-    } catch {
-      setApiConnectionStatus({
-        kind: 'error',
-        message: t('app.apiConnectionSaveError'),
-      })
+      return
     }
+    setApiConnectionStatus({
+      kind: 'error',
+      message: t('app.apiConnectionSaveError'),
+    })
   }, [apiBaseUrlInput, t])
 
   const clearApiConnectionSettings = useCallback(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-    try {
-      window.localStorage.removeItem(API_BASE_URL_STORAGE_KEY)
+    if (clearApiBaseUrl()) {
       setApiBaseUrlInput('')
       setApiConnectionStatus({
         kind: 'success',
         message: t('app.apiConnectionCleared'),
       })
-    } catch {
-      setApiConnectionStatus({
-        kind: 'error',
-        message: t('app.apiConnectionSaveError'),
-      })
+      return
     }
+    setApiConnectionStatus({
+      kind: 'error',
+      message: t('app.apiConnectionSaveError'),
+    })
   }, [t])
-
-  const persistAuthToken = useCallback((token: string) => {
-    if (typeof window === 'undefined') {
-      return
-    }
-    window.localStorage.setItem(API_TOKEN_STORAGE_KEY, token)
-  }, [])
-
-  const clearPersistedAuthToken = useCallback(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-    window.localStorage.removeItem(API_TOKEN_STORAGE_KEY)
-  }, [])
-
-  const persistLoginEmail = useCallback((email: string) => {
-    if (typeof window === 'undefined') {
-      return
-    }
-    window.localStorage.setItem(API_LOGIN_EMAIL_STORAGE_KEY, email)
-  }, [])
 
   const handleLogin = useCallback(async () => {
     if (authEmailInput.trim().length === 0 || authPasswordInput.length === 0) {
@@ -286,7 +230,7 @@ export function AuthPage() {
         ...(authOtpInput.trim() ? { otp_code: authOtpInput.trim() } : {}),
       })
       setApiTokenInput(login.access_token)
-      persistAuthToken(login.access_token)
+      persistApiToken(login.access_token)
       persistLoginEmail(authEmailInput.trim())
 
       const currentUser = await apiClient.getCurrentUser()
@@ -327,7 +271,7 @@ export function AuthPage() {
     } finally {
       setAuthLoading(false)
     }
-  }, [apiClient, authEmailInput, authOtpInput, authPasswordInput, persistAuthToken, persistLoginEmail, t])
+  }, [apiClient, authEmailInput, authOtpInput, authPasswordInput, t])
 
   const handleLogout = useCallback(async () => {
     setAuthLoading(true)
@@ -338,7 +282,7 @@ export function AuthPage() {
       // local cleanup still applies if logout endpoint fails
     } finally {
       setApiTokenInput('')
-      clearPersistedAuthToken()
+      clearApiToken()
       setAuthPasswordInput('')
       setAuthOtpInput('')
       setAuthRequiresOtp(false)
@@ -355,7 +299,7 @@ export function AuthPage() {
         message: t('app.authLogoutSuccess'),
       })
     }
-  }, [apiClient, clearPersistedAuthToken, t])
+  }, [apiClient, t])
 
   const handleLostPasswordRequest = useCallback(async () => {
     if (lostPasswordEmailInput.trim().length === 0) {
@@ -553,7 +497,7 @@ export function AuthPage() {
         setAppFeatureState(null)
         if (!isApiAuthLockedByEnv && error instanceof ApiError && (error.status === 401 || error.status === 403)) {
           setApiTokenInput('')
-          clearPersistedAuthToken()
+          clearApiToken()
           setAuthStatus({
             kind: 'error',
             message: t('app.authSessionExpired'),
@@ -566,7 +510,7 @@ export function AuthPage() {
     return () => {
       canceled = true
     }
-  }, [apiClient, clearPersistedAuthToken, effectiveApiToken, isApiAuthLockedByEnv, t])
+  }, [apiClient, effectiveApiToken, isApiAuthLockedByEnv, t])
 
   useEffect(() => {
     if (!authUser?.isAdmin) {
