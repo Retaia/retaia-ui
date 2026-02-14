@@ -149,6 +149,103 @@ describe('App', () => {
     }
   })
 
+  it('disables bulk decision actions when policy flag is OFF', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      const fetchMock = vi.fn((input: RequestInfo | URL) => {
+        const url = String(input)
+        if (url.endsWith('/app/policy')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                server_policy: {
+                  feature_flags: {
+                    'features.decisions.bulk': false,
+                  },
+                },
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              items: [],
+              next_cursor: null,
+            }),
+            {
+              status: 200,
+              headers: { 'content-type': 'application/json' },
+            },
+          ),
+        )
+      })
+      vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+      setupApp('/review?source=api')
+
+      expect(await screen.findByTestId('policy-bulk-disabled-status')).toBeVisible()
+      expect(screen.getByRole('button', { name: 'KEEP visibles' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'REJECT visibles' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'KEEP batch' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'REJECT batch' })).toBeDisabled()
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
+  it('falls back to disabled bulk decisions when policy endpoint is unavailable', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      const fetchMock = vi.fn((input: RequestInfo | URL) => {
+        const url = String(input)
+        if (url.endsWith('/app/policy')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                code: 'TEMPORARY_UNAVAILABLE',
+                message: 'temporary unavailable',
+                retryable: true,
+                correlation_id: 'policy-1',
+              }),
+              {
+                status: 503,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              items: [],
+              next_cursor: null,
+            }),
+            {
+              status: 200,
+              headers: { 'content-type': 'application/json' },
+            },
+          ),
+        )
+      })
+      vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+      setupApp('/review?source=api')
+
+      expect(await screen.findByTestId('policy-error-status')).toBeVisible()
+      expect(screen.getByRole('button', { name: 'KEEP visibles' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'REJECT visibles' })).toBeDisabled()
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
   it('shows API connection panel in API source mode and saves settings locally', async () => {
     const previous = import.meta.env.VITE_ASSET_SOURCE
     try {
@@ -1237,6 +1334,23 @@ describe('App', () => {
       import.meta.env.VITE_ASSET_SOURCE = 'api'
       const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
         const url = String(input)
+        if (url.endsWith('/app/policy')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                server_policy: {
+                  feature_flags: {
+                    'features.decisions.bulk': true,
+                  },
+                },
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
         if (url.endsWith('/assets') || url.includes('/assets?')) {
           return Promise.resolve(
             new Response(
@@ -1301,6 +1415,23 @@ describe('App', () => {
       import.meta.env.VITE_ASSET_SOURCE = 'api'
       const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
         const url = String(input)
+        if (url.endsWith('/app/policy')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                server_policy: {
+                  feature_flags: {
+                    'features.decisions.bulk': true,
+                  },
+                },
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
         if (url.endsWith('/assets') || url.includes('/assets?')) {
           return Promise.resolve(
             new Response(
@@ -1360,6 +1491,23 @@ describe('App', () => {
       import.meta.env.VITE_ASSET_SOURCE = 'api'
       const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
         const url = String(input)
+        if (url.endsWith('/app/policy')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                server_policy: {
+                  feature_flags: {
+                    'features.decisions.bulk': true,
+                  },
+                },
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
         if (url.endsWith('/assets') || url.includes('/assets?')) {
           return Promise.resolve(
             new Response(
@@ -1422,6 +1570,23 @@ describe('App', () => {
       let detailCalls = 0
       const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
         const url = String(input)
+        if (url.endsWith('/app/policy')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                server_policy: {
+                  feature_flags: {
+                    'features.decisions.bulk': true,
+                  },
+                },
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
         if (url.endsWith('/assets') || url.includes('/assets?')) {
           return Promise.resolve(
             new Response(
@@ -1517,6 +1682,23 @@ describe('App', () => {
       import.meta.env.VITE_ASSET_SOURCE = 'api'
       const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
         const url = String(input)
+        if (url.endsWith('/app/policy')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                server_policy: {
+                  feature_flags: {
+                    'features.decisions.bulk': true,
+                  },
+                },
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
         if (url.endsWith('/assets') || url.includes('/assets?')) {
           return Promise.resolve(
             new Response(
@@ -1555,6 +1737,9 @@ describe('App', () => {
       const { user } = setupApp('/review?source=api')
 
       expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'KEEP visibles' })).toBeEnabled()
+      })
       await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
 
       await waitFor(() => {
@@ -1579,6 +1764,23 @@ describe('App', () => {
       import.meta.env.VITE_ASSET_SOURCE = 'api'
       const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
         const url = String(input)
+        if (url.endsWith('/app/policy')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                server_policy: {
+                  feature_flags: {
+                    'features.decisions.bulk': true,
+                  },
+                },
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
         if (url.endsWith('/assets') || url.includes('/assets?')) {
           return Promise.resolve(
             new Response(
@@ -1621,6 +1823,9 @@ describe('App', () => {
       await user.click(within(getAssetsPanel()).getByText('A-001'))
       await user.click(within(getAssetsPanel()).getByText('A-002'))
       await user.keyboard('{/Shift}')
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'KEEP batch' })).toBeEnabled()
+      })
       await user.click(screen.getByRole('button', { name: 'KEEP batch' }))
 
       await waitFor(() => {
@@ -1646,6 +1851,23 @@ describe('App', () => {
       let decisionCallCount = 0
       const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
         const url = String(input)
+        if (url.endsWith('/app/policy')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                server_policy: {
+                  feature_flags: {
+                    'features.decisions.bulk': true,
+                  },
+                },
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
         if (url.endsWith('/assets') || url.includes('/assets?')) {
           return Promise.resolve(
             new Response(
@@ -1701,11 +1923,10 @@ describe('App', () => {
       const { user } = setupApp('/review?source=api')
 
       expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
-      await user.keyboard('{Shift>}')
-      await user.click(within(getAssetsPanel()).getByText('A-001'))
-      await user.click(within(getAssetsPanel()).getByText('A-003'))
-      await user.keyboard('{/Shift}')
-      await user.click(screen.getByRole('button', { name: 'KEEP batch' }))
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'KEEP visibles' })).toBeEnabled()
+      })
+      await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
 
       await waitFor(() => {
         expect(decisionCallCount).toBe(2)

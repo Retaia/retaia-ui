@@ -186,6 +186,10 @@ function App() {
   const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>(
     isApiAssetSource ? 'loading' : 'idle',
   )
+  const [policyLoadState, setPolicyLoadState] = useState<'idle' | 'loading' | 'ready' | 'error'>(
+    isApiAssetSource ? 'loading' : 'ready',
+  )
+  const [bulkDecisionsEnabled, setBulkDecisionsEnabled] = useState(!isApiAssetSource)
   const [assetDetailLoadState, setAssetDetailLoadState] = useState<'idle' | 'loading' | 'error'>(
     'idle',
   )
@@ -314,6 +318,40 @@ function App() {
       })
     }
   }, [assetsLoadState, isApiAssetSource])
+
+  useEffect(() => {
+    if (!isApiAssetSource) {
+      setPolicyLoadState('ready')
+      setBulkDecisionsEnabled(true)
+      return
+    }
+
+    let canceled = false
+    const fetchPolicy = async () => {
+      setPolicyLoadState('loading')
+      setBulkDecisionsEnabled(false)
+      try {
+        const policy = await apiClient.getAppPolicy()
+        if (canceled) {
+          return
+        }
+        const bulkEnabled = policy.server_policy?.feature_flags?.['features.decisions.bulk'] === true
+        setBulkDecisionsEnabled(bulkEnabled)
+        setPolicyLoadState('ready')
+      } catch {
+        if (canceled) {
+          return
+        }
+        setBulkDecisionsEnabled(false)
+        setPolicyLoadState('error')
+      }
+    }
+
+    void fetchPolicy()
+    return () => {
+      canceled = true
+    }
+  }, [apiClient, isApiAssetSource])
 
   useEffect(() => {
     if (!isApiAssetSource || !selectedAssetId) {
@@ -603,6 +641,13 @@ function App() {
 
   const applyDecisionToVisible = useCallback(
     (action: 'KEEP' | 'REJECT') => {
+      if (isApiAssetSource && !bulkDecisionsEnabled) {
+        setDecisionStatus({
+          kind: 'error',
+          message: t('detail.bulkDisabledByPolicy'),
+        })
+        return
+      }
       const targetIds = visibleAssets.map((asset) => asset.id)
       if (targetIds.length === 0) {
         return
@@ -644,11 +689,18 @@ function App() {
 
       void run()
     },
-    [recordAction, submitDecisionsForIds, t, visibleAssets],
+    [bulkDecisionsEnabled, isApiAssetSource, recordAction, submitDecisionsForIds, t, visibleAssets],
   )
 
   const applyDecisionToBatch = useCallback(
     (action: 'KEEP' | 'REJECT') => {
+      if (isApiAssetSource && !bulkDecisionsEnabled) {
+        setDecisionStatus({
+          kind: 'error',
+          message: t('detail.bulkDisabledByPolicy'),
+        })
+        return
+      }
       if (batchIds.length === 0) {
         return
       }
@@ -691,7 +743,7 @@ function App() {
 
       void run()
     },
-    [batchIds, recordAction, submitDecisionsForIds, t],
+    [batchIds, bulkDecisionsEnabled, isApiAssetSource, recordAction, submitDecisionsForIds, t],
   )
 
   const clearBatch = useCallback(() => {
@@ -987,6 +1039,18 @@ function App() {
       purgePreviewAssetId,
     ],
   )
+  const effectiveAvailability = useMemo(() => {
+    if (!isApiAssetSource || bulkDecisionsEnabled) {
+      return availability
+    }
+    return {
+      ...availability,
+      keepVisibleDisabled: true,
+      rejectVisibleDisabled: true,
+      keepBatchDisabled: true,
+      rejectBatchDisabled: true,
+    }
+  }, [availability, bulkDecisionsEnabled, isApiAssetSource])
 
   const executeBatchMoveNow = useCallback(() => {
     void executeBatchMove()
@@ -1193,12 +1257,30 @@ function App() {
           {t('assets.loadError')}
         </Alert>
       ) : null}
+      {isApiAssetSource && policyLoadState === 'loading' ? (
+        <Alert variant="info" className="py-2 mt-3 mb-0" data-testid="policy-loading-status">
+          <BsInfoCircle className="me-2" aria-hidden="true" />
+          {t('app.policyLoading')}
+        </Alert>
+      ) : null}
+      {isApiAssetSource && policyLoadState === 'error' ? (
+        <Alert variant="warning" className="py-2 mt-3 mb-0" data-testid="policy-error-status">
+          <BsExclamationTriangle className="me-2" aria-hidden="true" />
+          {t('app.policyUnavailable')}
+        </Alert>
+      ) : null}
+      {isApiAssetSource && policyLoadState === 'ready' && !bulkDecisionsEnabled ? (
+        <Alert variant="secondary" className="py-2 mt-3 mb-0" data-testid="policy-bulk-disabled-status">
+          <BsInfoCircle className="me-2" aria-hidden="true" />
+          {t('app.bulkDisabledByPolicy')}
+        </Alert>
+      ) : null}
 
       <ActionPanels
         t={t}
         batchOnly={batchOnly}
         densityMode={densityMode}
-        availability={availability}
+        availability={effectiveAvailability}
         batchIdsLength={batchIds.length}
         batchScope={batchScope}
         batchTimeline={batchTimeline}
@@ -1292,7 +1374,7 @@ function App() {
 
         <AssetDetailPanel
           selectedAsset={selectedAsset}
-          availability={availability}
+          availability={effectiveAvailability}
           previewingPurge={previewingPurge}
           executingPurge={executingPurge}
           purgeStatus={purgeStatus}

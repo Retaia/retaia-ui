@@ -25,6 +25,8 @@ type AssetMetadataPatchPayload =
   paths['/assets/{uuid}']['patch']['requestBody']['content']['application/json']
 type AssetDecisionPayload =
   paths['/assets/{uuid}/decision']['post']['requestBody']['content']['application/json']
+type AppPolicyResponse =
+  paths['/app/policy']['get']['responses'][200]['content']['application/json']
 
 export type ApiErrorPayload = components['schemas']['ErrorResponse']
 
@@ -150,6 +152,36 @@ function parseAssetDetailResponse(payload: unknown, path: string) {
   return payload as AssetDetail
 }
 
+function parseAppPolicyResponse(payload: unknown, path: string) {
+  if (!isRecord(payload)) {
+    throw createValidationError(path, 'expected object')
+  }
+  const serverPolicy = payload.server_policy
+  if (!isRecord(serverPolicy)) {
+    throw createValidationError(path, 'expected server_policy object')
+  }
+  const featureFlags = serverPolicy.feature_flags
+  if (!isRecord(featureFlags)) {
+    throw createValidationError(path, 'expected server_policy.feature_flags object')
+  }
+  const normalizedFeatureFlags = Object.entries(featureFlags).reduce<Record<string, boolean>>(
+    (accumulator, [key, value]) => {
+      if (typeof value === 'boolean') {
+        accumulator[key] = value
+      }
+      return accumulator
+    },
+    {},
+  )
+  return {
+    ...(payload as AppPolicyResponse),
+    server_policy: {
+      ...serverPolicy,
+      feature_flags: normalizedFeatureFlags,
+    },
+  } as AppPolicyResponse & { server_policy: { feature_flags: Record<string, boolean> } }
+}
+
 async function parseApiError(response: Response) {
   try {
     const payload = (await response.json()) as ApiErrorPayload
@@ -270,6 +302,12 @@ export function createApiClient(
       const path = `/assets/${assetId}`
       const result = await request<unknown>(path)
       return parseAssetDetailResponse(result, path)
+    },
+
+    getAppPolicy: async () => {
+      const path = '/app/policy'
+      const result = await request<unknown>(path)
+      return parseAppPolicyResponse(result, path)
     },
 
     previewMoveBatch: (payload: MovePreviewPayload) =>

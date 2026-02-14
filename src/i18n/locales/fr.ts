@@ -21,6 +21,9 @@ export const frTranslation = {
   'app.apiConnectionAuthError': "Authentification API refusée (401/403). Vérifie le token.",
   'app.apiConnectionTestOk': 'Connexion API valide.',
   'app.apiConnectionTestError': 'Test connexion API en échec: {message}',
+  'app.policyLoading': 'Chargement de la policy runtime...',
+  'app.policyUnavailable': 'Policy runtime indisponible. Les décisions bulk sont désactivées par défaut.',
+  'app.bulkDisabledByPolicy': 'Les décisions bulk sont désactivées par la policy serveur.',
   'summary.region': 'Résumé des assets',
   'summary.total': 'Total',
   'summary.pending': 'En attente',
@@ -175,6 +178,7 @@ export const frTranslation = {
   'detail.decisionPartial':
     'Décisions partiellement enregistrées ({success} ok, {failed} en échec): {message}',
   'detail.decisionError': 'Enregistrement décision en échec: {message}',
+  'detail.bulkDisabledByPolicy': 'Les décisions bulk sont désactivées par la policy serveur.',
   'detail.refreshAction': "Rafraîchir l'asset",
   'detail.refreshing': 'Rafraîchissement...',
   'detail.refreshDone': "Détail de l'asset rafraîchi.",
