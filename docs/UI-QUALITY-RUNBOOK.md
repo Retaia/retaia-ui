@@ -27,6 +27,7 @@ Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de 
 - `npm run qa`
 - `npm run typecheck`
 - `npm run api:contract:check`
+- `npm run api:governance:check` (utile en CI PR; skip en local hors contexte PR)
 - `npm run e2e:bdd:ci` pour les changements de comportement utilisateur.
 - `npm run visual:test` pour les changements UI visibles.
 
@@ -64,6 +65,7 @@ Toute PR qui modifie `api/openapi/v1.yaml` doit expliciter:
 - comportement client en mode feature OFF/ON (safe-by-default)
 - plan d'adoption/migration consommateurs (UI/core/agents/MCP) + refresh snapshot
 - strategie de non-regression sur les comportements `v1` existants
+- et respecter les sections PR imposees par le gate CI (`api:governance:check`).
 
 ## Couverture
 
