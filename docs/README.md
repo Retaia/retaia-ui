@@ -27,28 +27,10 @@
 - `specs/state-machine/STATE-MACHINE.md`
 - `specs/workflows/WORKFLOWS.md`
 
-## Notes architecture UI (actuel)
+## Architecture UI/DDD
 
-- `src/App.tsx` reste un point d'entrée (pas de logique métier UI).
-- Le routing applicatif est centralisé dans `src/routes/AppRoutes.tsx`.
-- La config/session API (token, base URL, email login) est centralisée via `src/services/apiSession.ts` et `src/hooks/useApiClient.ts`.
-- Le flux Review isole aussi les concerns runtime/URL via `src/hooks/useReviewApiRuntime.ts` et `src/hooks/useReviewRouteSelection.ts`.
-- Les écrans sont portés par des pages dédiées:
-- `src/pages/ReviewPage.tsx`
-- `src/pages/AuthPage.tsx` (route `/auth`, incluant login/logout/2FA, gouvernance feature globale admin (`/app/features`) puis préférence user (`/auth/me/features`), lost-password et verify-email).
-- La logique d'orchestration Auth est centralisée dans `src/hooks/useAuthPageController.ts` (séparation vue/controller).
-- Les tests UI sont à placer au plus près des pages/composants (`src/pages`, `src/components`) plutôt qu'en fichier monolithique.
-
-## Architecture DDD
-
-- Statut: DDD finalisé.
-- `src/domain/*` porte les règles métier pures (sans side-effects UI/API).
-- `src/application/*` porte les use-cases d'orchestration (sans dépendance directe `api/*`).
-- `src/infrastructure/*` porte les adapters techniques (API mapping, intégrations runtime).
-- `src/pages/*` et `src/components/*` restent orientés vue/composition, sans logique métier profonde.
-- `src/App.tsx` reste strictement un point d'entrée de composition/routing et non une zone d'implémentation métier.
-- Toute nouvelle feature doit respecter cette séparation et ajouter les tests de couche (`domain`, `application`, UI).
-- Vérification locale des frontières d'architecture: `npm run lint:architecture`.
+- Source détaillée (structure UI, couches DDD, garde-fous d'import, tests): `docs/UI-ARCHITECTURE.md`
+- Bonnes pratiques de développement/PR: `docs/DEVELOPMENT-BEST-PRACTICES.md`
 
 ## Commandes BDD/E2E locales
 

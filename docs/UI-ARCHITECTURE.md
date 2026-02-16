@@ -193,9 +193,6 @@ La logique métier est portée par les couches `domain` et `application`, puis i
 - `bdd/support/mockApiRoutes.ts`
 - `bdd/support/testRuntime.ts`
 
-## Principes de refactor
+## Références process
 
-- Une feature = une branche `codex/*` basée sur `master`.
-- Une branche = une PR, créée dès le push.
-- Commits atomiques conventionnels (husky + commitlint).
-- Aucun commit direct sur `master`.
+- Workflow branches/PR et conventions de commit: `docs/DEVELOPMENT-BEST-PRACTICES.md`
