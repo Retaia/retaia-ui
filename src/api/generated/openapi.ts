@@ -15,7 +15,7 @@ export interface paths {
         put?: never;
         /**
          * User login with email and password
-         * @description Interactive login endpoint for supported human-operated clients (`UI_RUST` and `AGENT`). Supports optional TOTP 2FA code when enabled.
+         * @description Interactive login endpoint for supported human-operated clients (`UI_WEB`, `UI_MOBILE`, and `AGENT`). Supports optional TOTP 2FA code when enabled.
          */
         post: {
             parameters: {
@@ -665,7 +665,7 @@ export interface paths {
         /**
          * Get runtime app policy
          * @description Returns runtime `server_policy` including `feature_flags`.
-         *     This endpoint is the canonical runtime policy transport for UI_RUST, AGENT, and MCP clients.
+         *     This endpoint is the canonical runtime policy transport for UI_WEB, UI_MOBILE, AGENT, and MCP clients.
          *     Clients may optionally send their supported feature-flags contract version for compatibility negotiation.
          */
         get: {
@@ -2648,7 +2648,7 @@ export interface components {
          * @description Form factor identifier for interactive login flows.
          * @enum {string}
          */
-        ClientKind: "UI_RUST" | "AGENT";
+        ClientKind: "UI_WEB" | "UI_MOBILE" | "AGENT";
         /**
          * @description Allowed client kinds for technical secret-key token minting.
          * @enum {string}

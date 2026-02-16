@@ -120,7 +120,7 @@ describe('api client', () => {
         JSON.stringify({
           access_token: 'token-login-1',
           token_type: 'Bearer',
-          client_kind: 'UI_RUST',
+          client_kind: 'UI_WEB',
         }),
         { status: 200, headers: { 'content-type': 'application/json' } },
       ),

@@ -163,7 +163,7 @@ describe('AuthPage', () => {
           jsonResponse({
             access_token: 'token-auth-verify-admin',
             token_type: 'Bearer',
-            client_kind: 'UI_RUST',
+            client_kind: 'UI_WEB',
           }),
         )
       }
@@ -217,7 +217,7 @@ describe('AuthPage', () => {
           jsonResponse({
             access_token: 'token-auth-1',
             token_type: 'Bearer',
-            client_kind: 'UI_RUST',
+            client_kind: 'UI_WEB',
           }),
         )
       }
@@ -303,7 +303,7 @@ describe('AuthPage', () => {
           jsonResponse({
             access_token: 'token-auth-mfa',
             token_type: 'Bearer',
-            client_kind: 'UI_RUST',
+            client_kind: 'UI_WEB',
           }),
         )
       }
@@ -347,7 +347,7 @@ describe('AuthPage', () => {
           jsonResponse({
             access_token: 'token-auth-feature',
             token_type: 'Bearer',
-            client_kind: 'UI_RUST',
+            client_kind: 'UI_WEB',
           }),
         )
       }
@@ -429,7 +429,7 @@ describe('AuthPage', () => {
           jsonResponse({
             access_token: 'token-auth-mfa-cycle',
             token_type: 'Bearer',
-            client_kind: 'UI_RUST',
+            client_kind: 'UI_WEB',
           }),
         )
       }
@@ -496,7 +496,7 @@ describe('AuthPage', () => {
           jsonResponse({
             access_token: 'token-auth-admin',
             token_type: 'Bearer',
-            client_kind: 'UI_RUST',
+            client_kind: 'UI_WEB',
           }),
         )
       }
