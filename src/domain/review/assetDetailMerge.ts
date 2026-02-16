@@ -1,4 +1,4 @@
-import type { Asset, AssetState } from '../domain/assets'
+import type { Asset, AssetState } from '../assets'
 
 type AssetDetailLike = {
   summary: {

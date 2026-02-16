@@ -30,4 +30,22 @@ describe('resolveReviewApiError', () => {
       shouldRefreshSelectedAsset: false,
     })
   })
+
+  it('can disable refresh signal for state conflict errors', () => {
+    const result = resolveReviewApiError(
+      new ApiError(409, 'conflict', {
+        code: 'STATE_CONFLICT',
+        message: 'conflict',
+        retryable: false,
+        correlation_id: 'cid',
+      }),
+      t,
+      { flagStateConflictForRefresh: false },
+    )
+
+    expect(result).toEqual({
+      message: 'error.stateConflict',
+      shouldRefreshSelectedAsset: false,
+    })
+  })
 })
