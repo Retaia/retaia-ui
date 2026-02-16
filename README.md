@@ -1,58 +1,100 @@
-# retaia-ui
+# Retaia UI
 
-Interface web React/TypeScript de review pour le projet Retaia.
+React + TypeScript web application for media review workflows (asset list/detail, decisioning, batch operations, purge).
 
-## Contexte
+## Table of Contents
 
-Ce repository implémente l'UI de review (liste, détail, décisions, batch move, purge) et consomme le contrat API v1 de Retaia.
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Environment Variables](#environment-variables)
+- [Available Scripts](#available-scripts)
+- [Testing and Quality Gates](#testing-and-quality-gates)
+- [API Contract and Specs](#api-contract-and-specs)
+- [Contributing](#contributing)
+- [Release](#release)
+- [License](#license)
 
-Règle centrale:
+## Overview
 
-- `specs/` est normatif (source de vérité).
-- `docs/` est local et non normatif.
-- En cas de conflit, `specs/` prime.
+Retaia UI implements the v1 review experience and follows a spec-first workflow:
 
-Références clés:
+- `specs/` is normative (source of truth)
+- `docs/` is local and non-normative
+- if there is a conflict, `specs/` wins
 
-- `AGENT.md`
-- `specs/README.md`
-- `specs/change-management/CODE-QUALITY.md`
+## Key Features
 
-## Stack
+- Desktop-like review UX (`/review`, `/review/:assetId`)
+- Asset decisions: `KEEP`, `REJECT`, `CLEAR`
+- Batch execution and reporting
+- Purge preview + confirmation flow
+- Auth UI (`/auth`): login/logout, recovery, verify email, MFA
+- i18n support (`en`, `fr`)
+- Contract-aligned BDD/E2E flows (mock + real API mode)
 
-- React 19 + TypeScript + Vite
+## Tech Stack
+
+- React 19
+- TypeScript (strict)
+- Vite
 - Bootstrap 5 + Sass
-- i18n: `en` / `fr`
-- Tests unitaires/intégration: Vitest + Testing Library
-- BDD/E2E: Cucumber + Playwright
+- Vitest + Testing Library
+- Cucumber + Playwright
 
-## Démarrage rapide
+## Project Structure
 
-Prérequis:
+- `src/`: application source code
+- `src/pages/`: route pages (`ReviewPage`, `AuthPage`)
+- `src/domain/`: domain rules
+- `src/application/`: use-cases/orchestration
+- `src/infrastructure/`: technical adapters
+- `src/api/generated/openapi.ts`: generated API types
+- `bdd/features/`: BDD scenarios
+- `tests/visual/`: visual regression tests
+- `contracts/openapi-v1.sha256`: API contract freeze hash
+- `specs/`: normative specifications (git submodule)
+- `docs/`: local implementation docs
 
-- Node.js LTS
+## Getting Started
+
+### Prerequisites
+
+- Node.js (LTS)
 - npm
 
-Installation et lancement:
+### Install and Run
 
 ```bash
 npm ci
 npm run dev
 ```
 
-App locale (par défaut):
+Default local URL: [http://localhost:5173](http://localhost:5173)
 
-- [http://localhost:5173](http://localhost:5173)
+## Environment Variables
 
-## Scripts principaux
+See `.env.example`.
 
-Développement:
+Main variables:
+
+- `VITE_API_BASE_URL`
+- `VITE_API_TOKEN`
+- `VITE_ASSET_SOURCE` (example: `api`)
+- `APP_ENV=test` or `VITE_APP_ENV=test` (enables in-memory mock DB)
+- `E2E_TEST_ENV_URL` (CI optional variable for real test env)
+
+## Available Scripts
+
+### Development
 
 - `npm run dev`
 - `npm run build`
 - `npm run preview`
 
-Qualité:
+### Quality
 
 - `npm run lint`
 - `npm run typecheck`
@@ -62,73 +104,76 @@ Qualité:
 - `npm run test:a11y`
 - `npm run qa`
 
-BDD / E2E / visuel:
+### BDD / E2E / Visual
 
 - `npm run bdd:test`
 - `npm run e2e:bdd`
-- `npm run e2e:bdd:ci` (run en mode dev server local)
-- `npm run e2e:bdd:critical`
+- `npm run e2e:bdd:ci`
+- `npm run e2e:bdd:critical:ci`
 - `npm run visual:test`
 
-Contrat API:
+### API Contract
 
 - `npm run api:types:generate`
 - `npm run api:contract:check`
 - `npm run api:contract:freeze`
-- `npm run api:governance:check` (check CI PR pour gouvernance OpenAPI)
+- `npm run api:governance:check`
+- `npm run bdd:mock:contract:check`
 
-Release gates:
+## Testing and Quality Gates
 
-- `npm run qa:v1:flows`
-- `npm run qa:v1:go-no-go`
-
-## Variables d'environnement
-
-Voir `.env.example`.
-
-Variables utilisées côté UI:
-
-- `VITE_API_BASE_URL`
-- `APP_ENV=test` (ou `VITE_APP_ENV=test`) active une mock DB en mémoire côté UI pour l'API.
-- CI E2E: variable GitHub `E2E_TEST_ENV_URL` (optionnelle) pour cibler un environnement de test distant au lieu du serveur local.
-- `VITE_API_TOKEN`
-- `VITE_ASSET_SOURCE` (ex: `api` pour forcer la source API)
-
-## Structure utile
-
-- `src/`: application UI
-- `src/App.tsx`: point d'entrée UI (routing uniquement)
-- `src/routes/AppRoutes.tsx`: définition des routes applicatives (`/review`, `/auth`)
-- `src/pages/ReviewPage.tsx`: implémentation UI de review
-- `src/pages/AuthPage.tsx`: implémentation UI auth (login/logout/2FA + feature user)
-- `src/api/generated/openapi.ts`: types OpenAPI générés
-- `api/openapi/v1.yaml`: snapshot OpenAPI local consommateur
-- `contracts/openapi-v1.sha256`: hash de freeze OpenAPI
-- `docs/`: documentation locale non normative
-- `specs/`: submodule des specs normatives
-- `bdd/features/`: scénarios BDD
-- `tests/visual/`: snapshots visuels
-- `src/pages/*.test.tsx`: tests UI par page (au lieu d'un test monolithique dans `App.tsx`)
-
-## Règles de contribution
-
-- Pas de modification du submodule `specs/` depuis ce repo.
-- Toute évolution de comportement doit d'abord être spécifiée dans `retaia-docs` (`specs/`).
-- Commits en Conventional Commits.
-- Pas de push direct sur `master`.
-
-Guides locaux:
-
-- `docs/README.md`
-- `docs/DEVELOPMENT-BEST-PRACTICES.md`
-- `docs/UI-QUALITY-RUNBOOK.md`
-- `docs/RELEASE-CHECKLIST.md`
-
-## Commande recommandée avant PR
+Recommended before opening a PR:
 
 ```bash
 npm run qa
 npm run typecheck
 npm run api:contract:check
+npm run bdd:mock:contract:check
 npm run e2e:bdd:ci
 ```
+
+For v1 release gate:
+
+```bash
+npm run qa:v1:go-no-go
+```
+
+## API Contract and Specs
+
+OpenAPI v1 source used by the UI:
+
+- `specs/api/openapi/v1.yaml`
+
+Contract governance:
+
+- API changes must be specified first in `specs/`
+- then synced and validated with contract checks
+
+## Contributing
+
+Please read:
+
+- `CONTRIBUTING.md`
+- `docs/DEVELOPMENT-BEST-PRACTICES.md`
+- `docs/UI-QUALITY-RUNBOOK.md`
+
+Core rules:
+
+- no direct commit on `master`
+- use a feature branch prefixed with `codex/`
+- follow Conventional Commits
+- keep changes spec-aligned
+
+## Release
+
+Release process and checklist:
+
+- `docs/RELEASE-CHECKLIST.md`
+
+Current v1 gate command:
+
+- `npm run qa:v1:go-no-go`
+
+## License
+
+No OSS license file is currently defined in this repository.
