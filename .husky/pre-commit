@@ -1,6 +1,12 @@
 #!/usr/bin/env sh
 set -eu
 
+current_branch="$(git rev-parse --abbrev-ref HEAD)"
+if [ "$current_branch" = "master" ]; then
+  echo "Commit on master is blocked. Create/use a feature branch (codex/*)." >&2
+  exit 1
+fi
+
 # Lint is an explicit hard gate on every commit.
 npm run lint
 npm run typecheck
