@@ -10,9 +10,9 @@ Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de 
    - `git checkout master`
    - `git pull --ff-only origin master`
 2. Créer une branche dédiée:
-   - `git checkout -b codex/<feature>-master`
+   - `git checkout -b codex/<feature>`
 3. Pousser immédiatement la branche:
-   - `git push -u origin codex/<feature>-master`
+   - `git push -u origin codex/<feature>`
 4. Ouvrir la PR dès le premier push:
    - `gh pr create --base master --title "feat(...): ..." --body "..."`
 
@@ -95,7 +95,7 @@ Toute PR qui modifie la source OpenAPI (`specs/api/openapi/v1.yaml` via mise a j
 
 ## Gestion des conflits PR
 
-1. `git checkout codex/<feature>-master`
+1. `git checkout codex/<feature>`
 2. `git fetch origin`
 3. `git rebase origin/master`
 4. Résoudre les conflits + valider:
