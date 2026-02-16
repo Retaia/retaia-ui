@@ -53,6 +53,33 @@ export default defineConfig([
     },
   },
   {
+    files: ['src/application/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            '../api/*',
+            '../../api/*',
+            '../../../api/*',
+            '../services/*',
+            '../../services/*',
+            '../../../services/*',
+            '../hooks/*',
+            '../../hooks/*',
+            '../../../hooks/*',
+            '../pages/*',
+            '../../pages/*',
+            '../../../pages/*',
+            '../components/*',
+            '../../components/*',
+            '../../../components/*',
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['src/hooks/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': [

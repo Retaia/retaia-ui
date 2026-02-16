@@ -1,24 +1,30 @@
-import { ApiError, type ApiClient } from '../../api/client'
 import {
   normalizeUserFeatures,
   type FeatureState,
 } from '../../domain/auth/features'
 
-type AuthClient = Pick<
-  ApiClient,
-  | 'login'
-  | 'logout'
-  | 'getCurrentUser'
-  | 'getUserFeatures'
-  | 'requestLostPassword'
-  | 'resetLostPassword'
-  | 'requestEmailVerification'
-  | 'confirmEmailVerification'
-  | 'adminConfirmEmailVerification'
-  | 'setup2fa'
-  | 'enable2fa'
-  | 'disable2fa'
->
+type AuthClient = {
+  login: (payload: { email: string; password: string; otp_code?: string }) => Promise<{ access_token: string }>
+  getCurrentUser: () => Promise<{
+    email: string
+    display_name?: unknown
+    mfa_enabled?: unknown
+    roles?: unknown
+  }>
+  getUserFeatures: () => Promise<{
+    user_feature_enabled?: Record<string, unknown>
+    effective_feature_enabled?: Record<string, unknown>
+    feature_governance?: Array<{ key?: string; user_can_disable?: boolean }>
+  }>
+  requestLostPassword: (payload: { email: string }) => Promise<void>
+  resetLostPassword: (payload: { token: string; new_password: string }) => Promise<void>
+  requestEmailVerification: (payload: { email: string }) => Promise<void>
+  confirmEmailVerification: (payload: { token: string }) => Promise<void>
+  adminConfirmEmailVerification: (payload: { email: string }) => Promise<void>
+  setup2fa: () => Promise<{ secret: string; otpauth_uri: string }>
+  enable2fa: (payload: { otp_code: string }) => Promise<void>
+  disable2fa: (payload: { otp_code: string }) => Promise<void>
+}
 
 type LoginClient = Pick<AuthClient, 'login' | 'getCurrentUser' | 'getUserFeatures'>
 type LostPasswordClient = Pick<AuthClient, 'requestLostPassword' | 'resetLostPassword'>
@@ -67,6 +73,19 @@ type LoginResult =
       featureState: FeatureState
       loginEmail: string
     }
+
+function hasApiErrorCode(error: unknown, expectedCode: string): boolean {
+  if (typeof error !== 'object' || error === null) {
+    return false
+  }
+
+  const payload = (error as { payload?: unknown }).payload
+  if (typeof payload !== 'object' || payload === null) {
+    return false
+  }
+
+  return (payload as { code?: unknown }).code === expectedCode
+}
 
 export function normalizeFeatures(payload: {
   user_feature_enabled?: Record<string, unknown>
@@ -119,7 +138,7 @@ export async function loginWithContext(args: {
       loginEmail: email,
     }
   } catch (error) {
-    if (error instanceof ApiError && error.payload?.code === 'MFA_REQUIRED') {
+    if (hasApiErrorCode(error, 'MFA_REQUIRED')) {
       return { kind: 'mfa_required' }
     }
     return {
