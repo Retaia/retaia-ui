@@ -39,9 +39,9 @@
 - La logique d'orchestration Auth est centralisée dans `src/hooks/useAuthPageController.ts` (séparation vue/controller).
 - Les tests UI sont à placer au plus près des pages/composants (`src/pages`, `src/components`) plutôt qu'en fichier monolithique.
 
-## Architecture DDD (V1)
+## Architecture DDD
 
-- Statut: finalisé pour la V1 UI.
+- Statut: DDD finalisé.
 - `src/domain/*` porte les règles métier pures (sans side-effects UI/API).
 - `src/application/*` porte les use-cases d'orchestration (sans dépendance directe `api/*`).
 - `src/infrastructure/*` porte les adapters techniques (API mapping, intégrations runtime).
