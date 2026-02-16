@@ -25,17 +25,17 @@ const requiredSnippets = [
     reason: 'policy polling must back off on 429',
   },
   {
-    file: 'src/api/client.ts',
+    file: 'src/api/transport.ts',
     snippet: 'RETRYABLE_429_CODES',
     reason: 'api client must treat contract 429 codes as retryable',
   },
   {
-    file: 'src/api/client.ts',
+    file: 'src/api/transport.ts',
     snippet: 'computeRetryDelayMs',
     reason: 'api client must apply retry delay policy',
   },
   {
-    file: 'src/api/client.ts',
+    file: 'src/api/transport.ts',
     snippet: 'Math.random()',
     reason: 'api client must apply jitter on 429 retry',
   },
@@ -74,7 +74,7 @@ if (missing.length > 0) {
 }
 
 const pushHintsCount = countMatches(
-  [read('src/hooks/useReviewDataController.ts'), read('src/api/client.ts')].join('\n'),
+  [read('src/hooks/useReviewDataController.ts'), read('src/api/transport.ts')].join('\n'),
   new RegExp(pushHintPatterns.map((pattern) => pattern.source).join('|'), 'gi'),
 )
 

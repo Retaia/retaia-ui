@@ -19,7 +19,7 @@ export function useReviewApiRuntime() {
     },
     [t],
   )
-  const { apiClient } = useApiClient({
+  const { apiClient, apiRuntimeKey } = useApiClient({
     apiBaseUrlInput,
     apiTokenInput,
     onRetry: handleApiRetry,
@@ -38,6 +38,7 @@ export function useReviewApiRuntime() {
 
   return {
     apiClient,
+    apiRuntimeKey,
     isApiAssetSource,
     retryStatus,
     setRetryStatus,

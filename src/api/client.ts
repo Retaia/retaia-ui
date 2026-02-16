@@ -1,407 +1,52 @@
-import type { components, paths } from './generated/openapi'
-import { z } from 'zod'
+import type {
+  AppFeaturesResponse,
+  AppFeaturesUpdatePayload,
+  AssetDecisionPayload,
+  AssetMetadataPatchPayload,
+  Auth2faOtpPayload,
+  AuthEmailPayload,
+  AuthLoginPayload,
+  AuthLoginResponse,
+  AuthLostPasswordResetPayload,
+  AuthTokenPayload,
+  ListAssetsQuery,
+  ListAssetsResponse,
+  MoveExecutePayload,
+  MoveExecuteResponse,
+  MovePreviewPayload,
+  PurgeExecutePayload,
+  UserFeaturesUpdatePayload,
+  UserFeaturesResponse,
+} from './contracts'
+import {
+  parseAppFeaturesResponse,
+  parseAppPolicyResponse,
+  parseAssetDetailResponse,
+  parseAssetSummariesResponse,
+  parseAuth2faSetupResponse,
+  parseCurrentUserResponse,
+  parseMoveExecuteResponse,
+  parseMoveReportResponse,
+  parseUserFeaturesResponse,
+} from './parsers'
+import { ApiError, type ApiErrorPayload } from './errors'
+import { buildQueryString, createRequest, resolveConfig, type ApiClientConfig } from './transport'
 
-type FetchLike = typeof fetch
-type AuthStatus = 401 | 403
-
-const defaultFetchImpl: FetchLike = (input, init) => globalThis.fetch(input, init)
-
-type ListAssetsQuery = NonNullable<paths['/assets']['get']['parameters']['query']>
-type ListAssetsResponse =
-  paths['/assets']['get']['responses'][200]['content']['application/json']
-type AssetSummary = components['schemas']['AssetSummary']
-type AssetDetail =
-  paths['/assets/{uuid}']['get']['responses'][200]['content']['application/json']
-
-type MovePreviewPayload =
-  paths['/batches/moves/preview']['post']['requestBody']['content']['application/json']
-type MoveExecutePayload =
-  paths['/batches/moves']['post']['requestBody']['content']['application/json']
-type MoveExecuteResponse = Record<string, unknown> | void
-type MoveStatusResponse =
-  paths['/batches/moves/{batch_id}']['get']['responses'][200]['content']['application/json']
-type PurgeExecutePayload =
-  paths['/assets/{uuid}/purge']['post']['requestBody']['content']['application/json']
-type AssetMetadataPatchPayload =
-  paths['/assets/{uuid}']['patch']['requestBody']['content']['application/json']
-type AssetDecisionPayload =
-  paths['/assets/{uuid}/decision']['post']['requestBody']['content']['application/json']
-type AppPolicyResponse =
-  paths['/app/policy']['get']['responses'][200]['content']['application/json']
-type AppFeaturesResponse =
-  paths['/app/features']['get']['responses'][200]['content']['application/json']
-type AppFeaturesUpdatePayload =
-  paths['/app/features']['patch']['requestBody']['content']['application/json']
-type AuthLoginPayload = components['schemas']['AuthLoginRequest']
-type AuthLoginResponse = components['schemas']['AuthLoginSuccess']
-type AuthCurrentUserResponse = components['schemas']['AuthCurrentUser']
-type UserFeaturesResponse =
-  paths['/auth/me/features']['get']['responses'][200]['content']['application/json']
-type UserFeaturesUpdatePayload =
-  paths['/auth/me/features']['patch']['requestBody']['content']['application/json']
-type Auth2faSetupResponse =
-  paths['/auth/2fa/setup']['post']['responses'][200]['content']['application/json']
-type Auth2faOtpPayload =
-  paths['/auth/2fa/enable']['post']['requestBody']['content']['application/json']
-type AuthEmailPayload =
-  paths['/auth/lost-password/request']['post']['requestBody']['content']['application/json']
-type AuthLostPasswordResetPayload =
-  paths['/auth/lost-password/reset']['post']['requestBody']['content']['application/json']
-type AuthTokenPayload =
-  paths['/auth/verify-email/confirm']['post']['requestBody']['content']['application/json']
-
-export type ApiErrorPayload = components['schemas']['ErrorResponse']
-
-export class ApiError extends Error {
-  status: number
-  payload?: ApiErrorPayload
-
-  constructor(status: number, message: string, payload?: ApiErrorPayload) {
-    super(message)
-    this.name = 'ApiError'
-    this.status = status
-    this.payload = payload
-  }
-}
-
-export type ApiClientConfig = {
-  baseUrl?: string
-  fetchImpl?: FetchLike
-  getAccessToken?: () => string | null | undefined
-  onAuthError?: (status: AuthStatus, payload?: ApiErrorPayload) => void
-  onRetry?: (context: {
-    path: string
-    method: string
-    attempt: number
-    maxRetries: number
-    error: ApiError
-  }) => void
-  retry?: {
-    maxRetries?: number
-    baseDelayMs?: number
-  }
-  credentials?: RequestCredentials
-}
-
-const RETRYABLE_429_CODES = new Set(['SLOW_DOWN', 'TOO_MANY_ATTEMPTS', 'RATE_LIMITED'])
-
-function isRetryableError(error: ApiError) {
-  const errorCode = error.payload?.code
-  return (
-    error.payload?.retryable === true ||
-    error.payload?.code === 'TEMPORARY_UNAVAILABLE' ||
-    (error.status === 429 &&
-      (errorCode === undefined || RETRYABLE_429_CODES.has(errorCode))) ||
-    error.status >= 500
-  )
-}
-
-function computeRetryDelayMs(baseDelayMs: number, attempt: number, error: ApiError) {
-  const backoffDelay = baseDelayMs * 2 ** (attempt - 1)
-  if (error.status !== 429) {
-    return backoffDelay
-  }
-  const jitter = Math.floor(Math.random() * Math.max(baseDelayMs, 1))
-  return backoffDelay + jitter
-}
-
-function sleep(ms: number) {
-  if (ms <= 0) {
-    return Promise.resolve()
-  }
-  return new Promise<void>((resolve) => {
-    setTimeout(resolve, ms)
-  })
-}
-
-function buildQueryString(query: Record<string, unknown> | undefined) {
-  if (!query) {
-    return ''
-  }
-
-  const searchParams = new URLSearchParams()
-  for (const [key, value] of Object.entries(query)) {
-    if (value === undefined || value === null) {
-      continue
-    }
-    searchParams.set(key, String(value))
-  }
-
-  const result = searchParams.toString()
-  return result ? `?${result}` : ''
-}
-
-function createValidationError(path: string, detail: string) {
-  return new ApiError(502, `Invalid API response for ${path}: ${detail}`, {
-    code: 'VALIDATION_FAILED',
-    message: `Invalid API response for ${path}: ${detail}`,
-    retryable: false,
-    correlation_id: 'client-validation',
-  })
-}
-
-const unknownObjectSchema = z.record(z.string(), z.unknown())
-const listAssetSummariesResponseSchema = z
-  .object({
-    items: z.array(unknownObjectSchema).optional().nullable(),
-  })
-  .passthrough()
-const moveExecuteResponseSchema = z.union([unknownObjectSchema, z.undefined()])
-const moveReportResponseSchema = unknownObjectSchema
-const assetDetailResponseSchema = z
-  .object({
-    summary: unknownObjectSchema,
-  })
-  .passthrough()
-const appPolicyResponseSchema = z
-  .object({
-    server_policy: z
-      .object({
-        feature_flags: z.record(z.string(), z.unknown()),
-      })
-      .passthrough(),
-  })
-  .passthrough()
-const appFeaturesResponseSchema = z
-  .object({
-    app_feature_enabled: unknownObjectSchema,
-    feature_governance: z.array(z.unknown()),
-    core_v1_global_features: z.array(z.unknown()),
-  })
-  .passthrough()
-const currentUserResponseSchema = z
-  .object({
-    email: z.string().min(1),
-  })
-  .passthrough()
-const userFeaturesResponseSchema = z
-  .object({
-    user_feature_enabled: unknownObjectSchema,
-    effective_feature_enabled: unknownObjectSchema,
-    feature_governance: z.array(z.unknown()),
-  })
-  .passthrough()
-const auth2faSetupResponseSchema = z
-  .object({
-    secret: z.string().min(1),
-    otpauth_uri: z.string().min(1),
-  })
-  .passthrough()
-
-function parseWithSchema<T>(
-  schema: z.ZodType<T>,
-  payload: unknown,
-  path: string,
-  fallbackDetail: string,
-): T {
-  const parsed = schema.safeParse(payload)
-  if (!parsed.success) {
-    const issue = parsed.error.issues[0]
-    throw createValidationError(path, issue?.message ?? fallbackDetail)
-  }
-  return parsed.data
-}
-
-function parseAssetSummariesResponse(payload: unknown, path: string): AssetSummary[] {
-  const parsed = parseWithSchema(
-    listAssetSummariesResponseSchema,
-    payload,
-    path,
-    'expected payload containing items',
-  )
-  const items = parsed.items
-  if (!items) {
-    return []
-  }
-  return items as AssetSummary[]
-}
-
-function parseMoveExecuteResponse(payload: unknown, path: string) {
-  return parseWithSchema(moveExecuteResponseSchema, payload, path, 'expected object or empty response')
-}
-
-function parseMoveReportResponse(payload: unknown, path: string) {
-  return parseWithSchema(moveReportResponseSchema, payload, path, 'expected object') as MoveStatusResponse
-}
-
-function parseAssetDetailResponse(payload: unknown, path: string) {
-  return parseWithSchema(assetDetailResponseSchema, payload, path, 'expected summary object') as AssetDetail
-}
-
-function parseAppPolicyResponse(payload: unknown, path: string) {
-  const parsed = parseWithSchema(
-    appPolicyResponseSchema,
-    payload,
-    path,
-    'expected server_policy.feature_flags object',
-  )
-  const serverPolicy = parsed.server_policy
-  const featureFlags = serverPolicy.feature_flags
-  const normalizedFeatureFlags = Object.entries(featureFlags).reduce<Record<string, boolean>>(
-    (accumulator, [key, value]) => {
-      if (typeof value === 'boolean') {
-        accumulator[key] = value
-      }
-      return accumulator
-    },
-    {},
-  )
-  return {
-    ...(parsed as AppPolicyResponse),
-    server_policy: {
-      ...serverPolicy,
-      feature_flags: normalizedFeatureFlags,
-    },
-  } as AppPolicyResponse & { server_policy: { feature_flags: Record<string, boolean> } }
-}
-
-function parseAppFeaturesResponse(payload: unknown, path: string) {
-  return parseWithSchema(
-    appFeaturesResponseSchema,
-    payload,
-    path,
-    'expected feature payload object',
-  ) as AppFeaturesResponse
-}
-
-function parseCurrentUserResponse(payload: unknown, path: string) {
-  return parseWithSchema(
-    currentUserResponseSchema,
-    payload,
-    path,
-    'expected non-empty email',
-  ) as AuthCurrentUserResponse
-}
-
-function parseUserFeaturesResponse(payload: unknown, path: string) {
-  return parseWithSchema(
-    userFeaturesResponseSchema,
-    payload,
-    path,
-    'expected user features payload',
-  ) as UserFeaturesResponse
-}
-
-function parseAuth2faSetupResponse(payload: unknown, path: string) {
-  return parseWithSchema(
-    auth2faSetupResponseSchema,
-    payload,
-    path,
-    'expected non-empty secret and otpauth_uri',
-  ) as Auth2faSetupResponse
-}
-
-async function parseApiError(response: Response) {
-  try {
-    const payload = (await response.json()) as ApiErrorPayload
-    return new ApiError(response.status, payload.message, payload)
-  } catch {
-    return new ApiError(response.status, `HTTP ${response.status}`)
-  }
-}
-
-function resolveConfig(
-  baseUrlOrConfig: string | ApiClientConfig | undefined,
-  legacyFetchImpl?: FetchLike,
-) {
-  if (typeof baseUrlOrConfig === 'object' && baseUrlOrConfig !== null) {
-    return {
-      baseUrl: baseUrlOrConfig.baseUrl ?? '/api/v1',
-      fetchImpl: baseUrlOrConfig.fetchImpl ?? defaultFetchImpl,
-      getAccessToken: baseUrlOrConfig.getAccessToken,
-      onAuthError: baseUrlOrConfig.onAuthError,
-      onRetry: baseUrlOrConfig.onRetry,
-      retry: {
-        maxRetries: baseUrlOrConfig.retry?.maxRetries ?? 2,
-        baseDelayMs: baseUrlOrConfig.retry?.baseDelayMs ?? 50,
-      },
-      credentials: baseUrlOrConfig.credentials ?? 'include',
-    }
-  }
-
-  return {
-    baseUrl: baseUrlOrConfig ?? '/api/v1',
-    fetchImpl: legacyFetchImpl ?? defaultFetchImpl,
-    getAccessToken: undefined,
-    onAuthError: undefined,
-    onRetry: undefined,
-    retry: { maxRetries: 2, baseDelayMs: 50 },
-    credentials: 'include' as RequestCredentials,
-  }
-}
+export { ApiError }
+export type { ApiErrorPayload, ApiClientConfig }
 
 export function createApiClient(
   baseUrlOrConfig: string | ApiClientConfig = '/api/v1',
-  legacyFetchImpl?: FetchLike,
+  legacyFetchImpl?: typeof fetch,
 ) {
   const config = resolveConfig(baseUrlOrConfig, legacyFetchImpl)
-  const request = async <TResponse>(
-    path: string,
-    init?: RequestInit,
-  ): Promise<TResponse> => {
-    const method = init?.method ?? 'GET'
-    const maxRetries = config.retry.maxRetries
-    let attempt = 0
-    let response: Response | null = null
-
-    while (attempt <= maxRetries) {
-      const accessToken = config.getAccessToken?.()
-      response = await config.fetchImpl(`${config.baseUrl}${path}`, {
-        ...init,
-        credentials: config.credentials,
-        headers: {
-          'Content-Type': 'application/json',
-          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-          ...(init?.headers ?? {}),
-        },
-      })
-
-      if (response.ok) {
-        break
-      }
-
-      const apiError = await parseApiError(response)
-      if (response.status === 401 || response.status === 403) {
-        config.onAuthError?.(response.status, apiError.payload)
-      }
-
-      if (attempt >= maxRetries || !isRetryableError(apiError)) {
-        throw apiError
-      }
-
-      attempt += 1
-      config.onRetry?.({
-        path,
-        method,
-        attempt,
-        maxRetries,
-        error: apiError,
-      })
-      const delay = computeRetryDelayMs(config.retry.baseDelayMs, attempt, apiError)
-      await sleep(delay)
-    }
-
-    if (!response) {
-      throw new ApiError(500, 'HTTP 500')
-    }
-
-    if (response.status === 204) {
-      return undefined as TResponse
-    }
-
-    const contentType = response.headers.get('content-type') ?? ''
-    if (!contentType.includes('application/json')) {
-      return undefined as TResponse
-    }
-
-    return (await response.json()) as TResponse
-  }
+  const request = createRequest(config)
 
   return {
     listAssets: (query?: ListAssetsQuery) =>
       request<ListAssetsResponse>(`/assets${buildQueryString(query)}`),
 
-    listAssetSummaries: async (query?: ListAssetsQuery): Promise<AssetSummary[]> => {
+    listAssetSummaries: async (query?: ListAssetsQuery) => {
       const path = `/assets${buildQueryString(query)}`
       const result = await request<unknown>(path)
       return parseAssetSummariesResponse(result, path)

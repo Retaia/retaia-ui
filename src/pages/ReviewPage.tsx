@@ -34,7 +34,6 @@ import { useReviewRouteSelection } from '../hooks/useReviewRouteSelection'
 import { useSelectionFlow } from '../hooks/useSelectionFlow'
 import { type Locale } from '../i18n/resources'
 import { applySingleReviewDecision } from '../application/review/applySingleReviewDecision'
-import { resolveAssetListFocusTarget } from '../application/review/assetListFocus'
 import { summarizeBatchScope } from '../application/review/batchScopeSummary'
 import { finalizeBulkDecisionResult } from '../application/review/bulkDecisionFinalization'
 import { resolveReviewApiError } from '../application/review/errorResolution'
@@ -44,17 +43,22 @@ import {
   saveReviewAssetMetadata,
 } from '../application/review/reviewAssetMaintenance'
 import { useShortcutsHelpState } from '../hooks/useShortcutsHelpState'
+import { useAssetListFocus } from '../hooks/useAssetListFocus'
 import {
   isStateConflictApiError,
   mapReviewApiErrorToMessage,
 } from '../infrastructure/review/apiReviewErrorAdapter'
-import { isTypingContext } from '../ui/keyboard'
 import { reportUiIssue } from '../ui/telemetry'
+import {
+  resolveEffectiveAvailability,
+  resolveEmptyAssetsMessage,
+  resolveSelectionStatusLabel,
+} from '../application/review/reviewPagePresentation'
 
 function ReviewPage() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t, i18n } = useTranslation()
-  const { apiClient, isApiAssetSource, retryStatus, setRetryStatus } = useReviewApiRuntime()
+  const { apiClient, apiRuntimeKey, isApiAssetSource, retryStatus, setRetryStatus } = useReviewApiRuntime()
   const [filter, setFilter] = useState<AssetFilter>('ALL')
   const [mediaTypeFilter, setMediaTypeFilter] = useState<AssetMediaTypeFilter>('ALL')
   const [dateFilter, setDateFilter] = useState<AssetDateFilter>('ALL')
@@ -85,6 +89,7 @@ function ReviewPage() {
   const { assetsLoadState, policyLoadState, bulkDecisionsEnabled, assetDetailLoadState } =
     useReviewDataController({
       apiClient,
+      apiRuntimeKey,
       isApiAssetSource,
       selectedAssetId,
       setAssets,
@@ -178,21 +183,21 @@ function ReviewPage() {
     mapErrorToMessage: mapBatchErrorToMessage,
   })
   const locale = (i18n.resolvedLanguage ?? 'fr') as Locale
-  const emptyAssetsMessage = useMemo(() => {
-    if (!batchOnly) {
-      if (filter !== 'ALL' || search.trim() !== '') {
-        return t('assets.emptyFiltered')
-      }
-      return t('assets.empty')
-    }
-    if (batchIds.length === 0) {
-      return t('assets.emptyBatchNone')
-    }
-    return t('assets.emptyBatch')
-  }, [batchIds.length, batchOnly, filter, search, t])
-  const selectionStatusLabel = selectedAssetId
-    ? t('assets.selectionStatusOne', { id: selectedAssetId })
-    : t('assets.selectionStatusNone')
+  const emptyAssetsMessage = useMemo(
+    () =>
+      resolveEmptyAssetsMessage({
+        batchOnly,
+        filter,
+        search,
+        batchIdsLength: batchIds.length,
+        t,
+      }),
+    [batchIds.length, batchOnly, filter, search, t],
+  )
+  const selectionStatusLabel = useMemo(
+    () => resolveSelectionStatusLabel({ selectedAssetId, t }),
+    [selectedAssetId, t],
+  )
 
   const {
     undoStack,
@@ -664,18 +669,15 @@ function ReviewPage() {
       purgePreviewAssetId,
     ],
   )
-  const effectiveAvailability = useMemo(() => {
-    if (!isApiAssetSource || bulkDecisionsEnabled) {
-      return availability
-    }
-    return {
-      ...availability,
-      keepVisibleDisabled: true,
-      rejectVisibleDisabled: true,
-      keepBatchDisabled: true,
-      rejectBatchDisabled: true,
-    }
-  }, [availability, bulkDecisionsEnabled, isApiAssetSource])
+  const effectiveAvailability = useMemo(
+    () =>
+      resolveEffectiveAvailability({
+        availability,
+        isApiAssetSource,
+        bulkDecisionsEnabled,
+      }),
+    [availability, bulkDecisionsEnabled, isApiAssetSource],
+  )
 
   const executeBatchMoveNow = useCallback(() => {
     void executeBatchMove()
@@ -721,21 +723,11 @@ function ReviewPage() {
     onSelectVisibleByOffset: selectVisibleByOffset,
   })
 
-  useEffect(() => {
-    const activeElement = document.activeElement
-    const focusTarget = resolveAssetListFocusTarget({
-      region: assetListRegionRef.current,
-      selectedAssetId,
-      isActiveElementTypingContext: isTypingContext(activeElement),
-    })
-    if (!focusTarget || activeElement === focusTarget) {
-      return
-    }
-    focusTarget.focus()
-    if (typeof focusTarget.scrollIntoView === 'function') {
-      focusTarget.scrollIntoView({ block: 'nearest' })
-    }
-  }, [selectedAssetId, visibleAssets])
+  useAssetListFocus({
+    assetListRegionRef,
+    selectedAssetId,
+    visibleAssets,
+  })
 
   return (
     <Container as="main" className="py-4">
