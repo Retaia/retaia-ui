@@ -1,6 +1,6 @@
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react'
 import { mapApiSummaryToAsset } from '../api/assetMapper'
-import type { ApiClient } from '../api/client'
+import { ApiError, type ApiClient } from '../api/client'
 import type { Asset } from '../domain/assets'
 import { mergeAssetWithDetail } from '../domain/review/assetDetailMerge'
 
@@ -9,6 +9,29 @@ type UseReviewDataControllerArgs = {
   isApiAssetSource: boolean
   selectedAssetId: string | null
   setAssets: Dispatch<SetStateAction<Asset[]>>
+}
+
+const DEFAULT_POLICY_POLL_INTERVAL_MS = 30_000
+const MIN_POLICY_POLL_INTERVAL_MS = 1_000
+const POLICY_429_BACKOFF_BASE_MS = 1_000
+const POLICY_429_BACKOFF_MAX_MS = 30_000
+
+const POLICY_429_CODES = new Set(['SLOW_DOWN', 'TOO_MANY_ATTEMPTS', 'RATE_LIMITED'])
+
+function resolvePolicyPollingIntervalMs(policy: Awaited<ReturnType<ApiClient['getAppPolicy']>>) {
+  const rawInterval = policy.server_policy?.min_poll_interval_seconds
+  if (typeof rawInterval !== 'number' || Number.isNaN(rawInterval) || rawInterval <= 0) {
+    return DEFAULT_POLICY_POLL_INTERVAL_MS
+  }
+  return Math.max(Math.round(rawInterval * 1_000), MIN_POLICY_POLL_INTERVAL_MS)
+}
+
+function is429PolicyError(error: unknown) {
+  return (
+    error instanceof ApiError &&
+    error.status === 429 &&
+    (error.payload?.code === undefined || POLICY_429_CODES.has(error.payload.code))
+  )
 }
 
 export function useReviewDataController({
@@ -63,29 +86,63 @@ export function useReviewDataController({
     }
 
     let canceled = false
+    let policyPollTimer: ReturnType<typeof setTimeout> | null = null
+    let hasResolvedInitialPolicy = false
+    let consecutive429Errors = 0
+
+    const schedulePolicyPoll = (delayMs: number) => {
+      if (canceled) {
+        return
+      }
+      policyPollTimer = setTimeout(() => {
+        void fetchPolicy()
+      }, Math.max(delayMs, 0))
+    }
+
     const fetchPolicy = async () => {
-      setPolicyLoadState('loading')
-      setBulkDecisionsEnabled(false)
+      if (!hasResolvedInitialPolicy) {
+        setPolicyLoadState('loading')
+        setBulkDecisionsEnabled(false)
+      }
       try {
         const policy = await apiClient.getAppPolicy()
         if (canceled) {
           return
         }
+        hasResolvedInitialPolicy = true
+        consecutive429Errors = 0
         const bulkEnabled = policy.server_policy?.feature_flags?.['features.decisions.bulk'] === true
         setBulkDecisionsEnabled(bulkEnabled)
         setPolicyLoadState('ready')
-      } catch {
+        schedulePolicyPoll(resolvePolicyPollingIntervalMs(policy))
+      } catch (error) {
         if (canceled) {
           return
         }
+        hasResolvedInitialPolicy = true
         setBulkDecisionsEnabled(false)
         setPolicyLoadState('error')
+        if (is429PolicyError(error)) {
+          consecutive429Errors += 1
+          const backoffDelay = Math.min(
+            POLICY_429_BACKOFF_BASE_MS * 2 ** (consecutive429Errors - 1),
+            POLICY_429_BACKOFF_MAX_MS,
+          )
+          const jitter = Math.floor(Math.random() * POLICY_429_BACKOFF_BASE_MS)
+          schedulePolicyPoll(backoffDelay + jitter)
+          return
+        }
+        consecutive429Errors = 0
+        schedulePolicyPoll(DEFAULT_POLICY_POLL_INTERVAL_MS)
       }
     }
 
     void fetchPolicy()
     return () => {
       canceled = true
+      if (policyPollTimer) {
+        clearTimeout(policyPollTimer)
+      }
     }
   }, [apiClient, isApiAssetSource])
 

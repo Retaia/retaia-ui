@@ -120,7 +120,7 @@ describe('api client', () => {
         JSON.stringify({
           access_token: 'token-login-1',
           token_type: 'Bearer',
-          client_kind: 'UI_RUST',
+          client_kind: 'UI_WEB',
         }),
         { status: 200, headers: { 'content-type': 'application/json' } },
       ),
@@ -680,6 +680,87 @@ describe('api client', () => {
         maxRetries: 2,
       }),
     )
+  })
+
+  it('retries 429 slow-down responses with retry hook', async () => {
+    const onRetry = vi.fn()
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            code: 'SLOW_DOWN',
+            message: 'poll too fast',
+            retryable: false,
+            correlation_id: 'slow-down-1',
+          }),
+          {
+            status: 429,
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ items: [], next_cursor: null }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+      )
+    const api = createApiClient({
+      baseUrl: '/api/v1',
+      fetchImpl: fetchMock,
+      onRetry,
+      retry: { maxRetries: 2, baseDelayMs: 0 },
+    })
+
+    await expect(api.listAssets()).resolves.toEqual({ items: [], next_cursor: null })
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(onRetry).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: '/assets',
+        method: 'GET',
+        attempt: 1,
+        maxRetries: 2,
+      }),
+    )
+  })
+
+  it('applies jitter to 429 retry delay', async () => {
+    const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5)
+    const setTimeoutSpy = vi.spyOn(globalThis, 'setTimeout')
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            code: 'TOO_MANY_ATTEMPTS',
+            message: 'slow down',
+            retryable: false,
+            correlation_id: 'too-many-attempts-1',
+          }),
+          {
+            status: 429,
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ items: [], next_cursor: null }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+      )
+    const api = createApiClient({
+      baseUrl: '/api/v1',
+      fetchImpl: fetchMock,
+      retry: { maxRetries: 1, baseDelayMs: 10 },
+    })
+
+    await expect(api.listAssets()).resolves.toEqual({ items: [], next_cursor: null })
+    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 15)
+
+    randomSpy.mockRestore()
+    setTimeoutSpy.mockRestore()
   })
 
   it('does not retry non-retryable api errors', async () => {

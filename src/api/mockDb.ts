@@ -199,7 +199,7 @@ export function createInMemoryMockApiFetch(): typeof fetch {
       return jsonResponse(200, {
         access_token: sharedState.authToken,
         token_type: 'Bearer',
-        client_kind: 'UI_RUST',
+        client_kind: 'UI_WEB',
         mfa_required: false,
       })
     }

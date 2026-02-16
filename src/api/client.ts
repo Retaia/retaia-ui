@@ -82,12 +82,26 @@ export type ApiClientConfig = {
   credentials?: RequestCredentials
 }
 
+const RETRYABLE_429_CODES = new Set(['SLOW_DOWN', 'TOO_MANY_ATTEMPTS', 'RATE_LIMITED'])
+
 function isRetryableError(error: ApiError) {
+  const errorCode = error.payload?.code
   return (
     error.payload?.retryable === true ||
     error.payload?.code === 'TEMPORARY_UNAVAILABLE' ||
+    (error.status === 429 &&
+      (errorCode === undefined || RETRYABLE_429_CODES.has(errorCode))) ||
     error.status >= 500
   )
+}
+
+function computeRetryDelayMs(baseDelayMs: number, attempt: number, error: ApiError) {
+  const backoffDelay = baseDelayMs * 2 ** (attempt - 1)
+  if (error.status !== 429) {
+    return backoffDelay
+  }
+  const jitter = Math.floor(Math.random() * Math.max(baseDelayMs, 1))
+  return backoffDelay + jitter
 }
 
 function sleep(ms: number) {
@@ -344,7 +358,7 @@ export function createApiClient(
         maxRetries,
         error: apiError,
       })
-      const delay = config.retry.baseDelayMs * 2 ** (attempt - 1)
+      const delay = computeRetryDelayMs(config.retry.baseDelayMs, attempt, apiError)
       await sleep(delay)
     }
 
