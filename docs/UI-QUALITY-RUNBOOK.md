@@ -27,6 +27,7 @@ Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de 
 - `npm run qa`
 - `npm run typecheck`
 - `npm run api:contract:check`
+- `npm run bdd:mock:contract:check`
 - `npm run api:governance:check` (utile en CI PR; skip en local hors contexte PR)
 - `npm run e2e:bdd:ci` pour les changements de comportement utilisateur.
 - `npm run visual:test` pour les changements UI visibles.
@@ -81,11 +82,14 @@ Toute PR qui modifie la source OpenAPI (`specs/api/openapi/v1.yaml` via mise a j
 ## BDD et rapports
 
 - Exécution CI-friendly avec rapports:
-  - `npm run bdd:test:ci`
+  - `BDD_API_MODE=mock npm run bdd:test:ci`
+  - `BDD_API_MODE=real-api npm run bdd:test:real-api:ci` (suite smoke contre API réelle)
   - `npm run bdd:test:critical:ci` (suite smoke `@critical`)
 - Artifacts produits:
   - `test-results/bdd-report.json`
   - `test-results/bdd-report.html`
+  - `test-results/bdd-real-api-report.json`
+  - `test-results/bdd-real-api-report.html`
   - `test-results/bdd-critical-report.json`
   - `test-results/bdd-critical-report.html`
 

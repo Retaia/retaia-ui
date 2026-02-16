@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@cucumber/cucumber'
 import { expect } from '@playwright/test'
-import { APP_URL, getBrowserRuntime, mockApiState } from '../support/testRuntime'
+import { APP_URL, getBrowserRuntime, mockApiState, requireBddMockApiMode } from '../support/testRuntime'
 
 const getPage = () => getBrowserRuntime().page
 
@@ -252,6 +252,7 @@ Then('la liste de tags contient {string}', async (tag: string) => {
 Then(
   'le mock API reçoit un patch asset avec le tag {string} et la note {string}',
   async (tag: string, note: string) => {
+    requireBddMockApiMode('le mock API reçoit un patch asset avec le tag {string} et la note {string}')
     expect(mockApiState.lastPatchedAssetId).not.toBeNull()
     expect(mockApiState.lastPatchedPayload).toEqual(
       expect.objectContaining({

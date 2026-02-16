@@ -166,10 +166,15 @@ async function main() {
     if (passthrough.length > 0) {
       testArgs.push('--', ...passthrough)
     }
+    const testEnv = { ...process.env }
+    if (!testEnv.BDD_API_MODE) {
+      testEnv.BDD_API_MODE = 'mock'
+    }
     const testResult = await runCommand('npm', testArgs, {
       timeoutMs: TEST_TIMEOUT_MS,
       heartbeatMs: HEARTBEAT_MS,
       heartbeatLabel: `bdd:${script}`,
+      env: testEnv,
     })
     await stopServer(server)
     process.exit(testResult.code)

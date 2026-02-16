@@ -33,10 +33,14 @@ Jobs:
 - `npm run i18n:check`
 - `npm run api:contract:check` (drift bloquant entre `specs/api/openapi/v1.yaml` et `contracts/openapi-v1.sha256`)
 - `npm run api:governance:check` (bloquant en PR si la source OpenAPI change dans `specs`)
+- `npm run bdd:mock:contract:check` (bloquant: routes/status/codes du mock BDD alignes sur `specs/api/openapi/v1.yaml`)
 - `npm run test:coverage`
 - `npm run security:audit`
-- `npm run e2e:bdd:ci`
-  (génère aussi `test-results/bdd-report.json` et `test-results/bdd-report.html` via les formatters Cucumber)
+- `APP_URL=http://127.0.0.1:4173 BDD_API_MODE=mock npm run e2e:bdd:ci`
+  (suite BDD mock, contract-first)
+- si `E2E_TEST_ENV_URL` est défini:
+  - `APP_URL=$E2E_TEST_ENV_URL BDD_API_MODE=real-api npm run bdd:test:real-api:ci`
+  (suite smoke réelle sans interception mock)
 
 ## Gates de conformité specs
 
