@@ -1,6 +1,6 @@
 import { type Asset } from '../../domain/assets'
 import { normalizeReviewMetadataInput } from '../../domain/review/metadata'
-import { mergeAssetWithDetail } from '../../services/reviewAssetDetail'
+import { mergeAssetWithDetail } from '../../domain/review/assetDetailMerge'
 
 type ReviewAssetDetail = {
   summary: {

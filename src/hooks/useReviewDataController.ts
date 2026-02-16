@@ -2,7 +2,7 @@ import { type Dispatch, type SetStateAction, useEffect, useState } from 'react'
 import { mapApiSummaryToAsset } from '../api/assetMapper'
 import type { ApiClient } from '../api/client'
 import type { Asset } from '../domain/assets'
-import { mergeAssetWithDetail } from '../services/reviewAssetDetail'
+import { mergeAssetWithDetail } from '../domain/review/assetDetailMerge'
 
 type UseReviewDataControllerArgs = {
   apiClient: ApiClient

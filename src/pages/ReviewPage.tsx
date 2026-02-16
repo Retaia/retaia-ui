@@ -9,7 +9,6 @@ import { NextPendingCard } from '../components/app/NextPendingCard'
 import { ReviewStatusAlerts } from '../components/app/ReviewStatusAlerts'
 import { ReviewSummary } from '../components/ReviewSummary'
 import { ReviewToolbar } from '../components/ReviewToolbar'
-import { mapApiErrorToMessage } from '../api/errorMapping'
 import { INITIAL_ASSETS } from '../data/mockAssets'
 import {
   type Asset,
@@ -128,7 +127,10 @@ function ReviewPage() {
   )
   const selectedAssetState = selectedAsset?.state ?? null
   const mapBatchErrorToMessage = useCallback(
-    (error: unknown) => mapApiErrorToMessage(error, t),
+    (error: unknown) =>
+      resolveReviewApiError(error, t, {
+        flagStateConflictForRefresh: false,
+      }).message,
     [t],
   )
   const mapDecisionErrorToMessage = useCallback(
@@ -530,10 +532,13 @@ function ReviewPage() {
         getAssetDetail: apiClient.getAssetDetail,
       })
       if (result.kind === 'error') {
+        const resolved = resolveReviewApiError(result.error, t, {
+          flagStateConflictForRefresh: false,
+        })
         setDecisionStatus({
           kind: 'error',
           message: t('detail.refreshError', {
-            message: mapApiErrorToMessage(result.error, t),
+            message: resolved.message,
           }),
         })
         return

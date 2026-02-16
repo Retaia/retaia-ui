@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { mergeAssetWithDetail } from './reviewAssetDetail'
-import type { Asset } from '../domain/assets'
+import { mergeAssetWithDetail } from './assetDetailMerge'
+import type { Asset } from '../assets'
 
 const baseAsset: Asset = {
   id: 'A-001',
