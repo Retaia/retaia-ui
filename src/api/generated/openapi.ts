@@ -2027,7 +2027,15 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Initialize derived upload */
+        /**
+         * Initialize derived upload
+         * @description Initializes upload for one derived file.
+         *     Normative media profile constraints:
+         *     - `proxy_video`: `video/mp4` (H.264/AVC, browser-compatible), source framerate preserved.
+         *     - `proxy_audio`: `audio/mp4` (AAC-LC) or `audio/mpeg`.
+         *     - `proxy_photo` / `thumb`: `image/jpeg` or `image/webp`.
+         *     - `waveform`: `application/json` (preferred) or `application/octet-stream`.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -2044,6 +2052,7 @@ export interface paths {
                     "application/json": {
                         /** @enum {string} */
                         kind: "proxy_video" | "proxy_audio" | "proxy_photo" | "thumb" | "waveform";
+                        /** @description MIME type constrained by `kind` (see endpoint description). */
                         content_type: string;
                         size_bytes: number;
                         sha256?: string;
