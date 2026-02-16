@@ -158,11 +158,12 @@ Implémentation locale actuelle:
 
 - Ne jamais développer une feature sur `master`.
 - Créer une branche dédiée par feature.
-- Convention de nommage locale: `codex/<feature>-master` (ou équivalent explicite).
+- Convention de nommage locale: `codex/<feature>` (ou équivalent explicite).
 - Pousser la branche dès que la feature (ou premier incrément livrable) est créée.
 - Créer la PR immédiatement après le push de la branche.
 - Base de PR: `master` sauf consigne contraire.
 - Garder des commits atomiques dans la branche.
+- Pour les commandes détaillées (création branche, rebase, résolution conflits), voir `docs/UI-QUALITY-RUNBOOK.md`.
 
 ## Checklist PR
 
@@ -174,28 +175,4 @@ Implémentation locale actuelle:
 
 ## Workflow Git recommandé
 
-- ne jamais commiter directement sur `master`
-- créer une branche par feature avec préfixe `codex/`
-- pousser la branche dès création
-- ouvrir la PR immédiatement après le premier push
-- garder des commits atomiques (un objectif clair par commit)
-- rebaser/merger `master` régulièrement pour éviter les conflits tardifs
-
-Exemple recommandé (feature courte):
-
-- `git checkout master`
-- `git pull --ff-only origin master`
-- `git checkout -b codex/feature-x-master`
-- implémentation + tests
-- `git add ... && git commit -m "feat(ui): ..."`
-- `git push -u origin codex/feature-x-master`
-- `gh pr create --base master --title "feat(ui): ..." --body "..."`
-
-Exemple recommandé (branche longue, anti-conflit):
-
-- `git checkout codex/feature-x-master`
-- `git fetch origin`
-- `git merge origin/master`
-- résoudre conflits + `npm run qa`
-- `git commit -m "chore(merge): resolve master conflicts in feature-x"`
-- `git push`
+- Référence opérationnelle unique: `docs/UI-QUALITY-RUNBOOK.md`.

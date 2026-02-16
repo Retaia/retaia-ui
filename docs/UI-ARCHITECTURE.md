@@ -136,9 +136,9 @@ La logique métier est portée par les couches `domain` et `application`, puis i
 - `src/application/auth/mfaPresentation.ts`
   Helpers applicatifs purs de présentation MFA (mapping clés i18n + mise à jour immuable du profil user).
 
-## Architecture DDD (V1 finale)
+## Architecture DDD
 
-- Statut: architecture DDD légère finalisée pour la V1 UI.
+- Statut: DDD finalisé.
 - `domain`: règles métier pures et déterministes.
 - `application`: use-cases orchestrant règles domaine via ports/adapters, sans import direct `api/*`.
 - `infrastructure`: adapters techniques qui relient les détails API/runtime aux use-cases.
@@ -193,9 +193,6 @@ La logique métier est portée par les couches `domain` et `application`, puis i
 - `bdd/support/mockApiRoutes.ts`
 - `bdd/support/testRuntime.ts`
 
-## Principes de refactor
+## Références process
 
-- Une feature = une branche `codex/*` basée sur `master`.
-- Une branche = une PR, créée dès le push.
-- Commits atomiques conventionnels (husky + commitlint).
-- Aucun commit direct sur `master`.
+- Workflow branches/PR et conventions de commit: `docs/DEVELOPMENT-BEST-PRACTICES.md`
