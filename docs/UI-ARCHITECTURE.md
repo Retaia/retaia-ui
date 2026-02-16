@@ -136,14 +136,14 @@ La logique métier est portée par les couches `domain` et `application`, puis i
 - `src/application/auth/mfaPresentation.ts`
   Helpers applicatifs purs de présentation MFA (mapping clés i18n + mise à jour immuable du profil user).
 
-## Direction DDD (V1)
+## Architecture DDD (V1 finale)
 
-- Cible: architecture DDD légère adaptée au front.
+- Statut: architecture DDD légère finalisée pour la V1 UI.
 - `domain`: règles métier pures et déterministes.
 - `application`: use-cases orchestrant règles domaine via ports/adapters, sans import direct `api/*`.
 - `infrastructure`: adapters techniques qui relient les détails API/runtime aux use-cases.
 - `pages/components/hooks`: composition UI, état de vue, interactions utilisateur.
-- Règle d'évolution: toute nouvelle logique métier doit atterrir en `domain`/`application` avec tests dédiés.
+- Règle d'évolution: toute nouvelle logique métier reste en `domain`/`application` avec tests dédiés.
 
 ## Garde-fous de couche
 
