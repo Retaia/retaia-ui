@@ -22,7 +22,7 @@
     "bdd:test:critical:ci": "cucumber-js \"bdd/features/**/*.feature\" --require-module tsx/cjs --require \"bdd/step-definitions/**/*.ts\" --tags \"@critical\" --format progress --format json:test-results/bdd-critical-report.json --format html:test-results/bdd-critical-report.html",
     "bdd:test:headed": "PW_HEADLESS=false cucumber-js \"bdd/features/**/*.feature\" --require-module tsx/cjs --require \"bdd/step-definitions/**/*.ts\" --format progress",
     "bdd:coverage:run": "rm -rf coverage/bdd && BDD_COVERAGE=1 BDD_COVERAGE_DIR=coverage/bdd/raw node scripts/ci/run-bdd-e2e.mjs --script bdd:test",
-    "bdd:coverage:check": "node scripts/ci/check-bdd-browser-coverage.mjs",
+    "bdd:coverage:check": "BDD_COVERAGE_METRICS=lines,functions,branches node scripts/ci/check-bdd-browser-coverage.mjs",
     "bdd:coverage": "npm run bdd:coverage:run && npm run bdd:coverage:check",
     "e2e:bdd": "node scripts/ci/run-bdd-e2e.mjs --script bdd:test",
     "e2e:bdd:ci": "node scripts/ci/run-bdd-e2e.mjs --script bdd:test:ci",

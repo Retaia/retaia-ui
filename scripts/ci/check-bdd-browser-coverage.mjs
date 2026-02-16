@@ -12,7 +12,7 @@ const rawDir = resolve(cwd, process.env.BDD_COVERAGE_DIR ?? 'coverage/bdd/raw')
 const outFile = resolve(cwd, process.env.BDD_COVERAGE_OUT ?? 'coverage/bdd/summary.json')
 const threshold = Number(process.env.BDD_COVERAGE_THRESHOLD ?? '80')
 const appOrigin = process.env.BDD_COVERAGE_APP_ORIGIN ?? 'http://127.0.0.1:4173'
-const metrics = (process.env.BDD_COVERAGE_METRICS ?? 'lines')
+const metrics = (process.env.BDD_COVERAGE_METRICS ?? 'lines,functions,branches')
   .split(',')
   .map((value) => value.trim())
   .filter(Boolean)
