@@ -22,3 +22,7 @@ Ne pas inventer de logique produit en dehors de la spec.
 ## Règles sécurité
 - Ne jamais afficher/exporter les tokens sensibles.
 - Éviter toute fuite PII/secrets dans logs, crash reports ou analytics.
+
+## Licence des contributions
+- Toute contribution est publiée sous `AGPL-3.0-or-later`.
+- En soumettant une PR, vous acceptez que votre contribution soit distribuée sous cette licence.
