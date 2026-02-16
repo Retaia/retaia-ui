@@ -29,7 +29,12 @@ export function NextPendingCard({
               <p className="text-secondary mb-0">{nextPendingAsset.id}</p>
             </div>
             <Stack direction="horizontal" gap={2}>
-              <Button type="button" variant="outline-primary" onClick={onOpenNextPending}>
+              <Button
+                type="button"
+                variant="outline-primary"
+                onClick={onOpenNextPending}
+                data-testid="next-open"
+              >
                 <BsArrowRightCircle className="me-1" aria-hidden="true" />
                 {t('next.open')}
               </Button>
@@ -37,6 +42,7 @@ export function NextPendingCard({
                 type="button"
                 variant="outline-success"
                 onClick={() => onDecision(nextPendingAsset.id, 'KEEP')}
+                data-testid="next-keep"
               >
                 <BsCheck2Circle className="me-1" aria-hidden="true" />
                 KEEP
@@ -45,6 +51,7 @@ export function NextPendingCard({
                 type="button"
                 variant="outline-danger"
                 onClick={() => onDecision(nextPendingAsset.id, 'REJECT')}
+                data-testid="next-reject"
               >
                 <BsXCircle className="me-1" aria-hidden="true" />
                 REJECT

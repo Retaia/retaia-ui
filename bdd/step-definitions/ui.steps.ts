@@ -262,3 +262,29 @@ Then(
     )
   },
 )
+
+When('je saisis {string} dans le champ testid {string}', async (value: string, testId: string) => {
+  const input = getPage().getByTestId(testId)
+  await input.fill('')
+  await input.type(value)
+})
+
+When('je clique sur l\'element testid {string}', async (testId: string) => {
+  await getPage().getByTestId(testId).click()
+})
+
+Then('le testid {string} contient {string}', async (testId: string, text: string) => {
+  await expect(getPage().getByTestId(testId)).toContainText(text)
+})
+
+Then('le testid {string} est visible', async (testId: string) => {
+  await expect(getPage().getByTestId(testId)).toBeVisible()
+})
+
+When('je filtre par type media {string}', async (mediaType: string) => {
+  await getPage().getByLabel('Type').selectOption(mediaType)
+})
+
+When('je filtre par date {string}', async (dateFilter: string) => {
+  await getPage().getByLabel('Date de capture').selectOption(dateFilter)
+})

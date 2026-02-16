@@ -55,15 +55,33 @@ export function ActionQuickPanelSection({
         {t('actions.quickPanel')}
       </h3>
       <Stack direction="horizontal" className="flex-wrap gap-2 mb-2" aria-label={t('actions.savedViews')}>
-        <Button type="button" size="sm" variant="outline-secondary" onClick={() => onApplySavedView('DEFAULT')}>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline-secondary"
+          onClick={() => onApplySavedView('DEFAULT')}
+          data-testid="quick-view-default"
+        >
           <BsColumnsGap className="me-1" aria-hidden="true" />
           {t('actions.viewDefault')}
         </Button>
-        <Button type="button" size="sm" variant="outline-secondary" onClick={() => onApplySavedView('PENDING')}>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline-secondary"
+          onClick={() => onApplySavedView('PENDING')}
+          data-testid="quick-view-pending"
+        >
           <BsClockHistory className="me-1" aria-hidden="true" />
           {t('actions.viewPending')}
         </Button>
-        <Button type="button" size="sm" variant="outline-secondary" onClick={() => onApplySavedView('BATCH')}>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline-secondary"
+          onClick={() => onApplySavedView('BATCH')}
+          data-testid="quick-view-batch"
+        >
           <BsFolderCheck className="me-1" aria-hidden="true" />
           {t('actions.viewBatch')}
         </Button>

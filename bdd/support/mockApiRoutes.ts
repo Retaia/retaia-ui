@@ -17,6 +17,11 @@ export type MockApiState = {
   decisionShouldFailStateConflict: boolean
   decisionShouldFailStateConflictOnce: boolean
   decisionCalls: number
+  authLoginRequiresOtpOnce: boolean
+  authLoginCalls: number
+  authAuthenticated: boolean
+  authMfaEnabled: boolean
+  appMfaFeatureEnabled: boolean
   lastPatchedAssetId: string | null
   lastPatchedPayload: {
     tags?: string[]
@@ -41,6 +46,11 @@ export const createMockApiState = (): MockApiState => ({
   decisionShouldFailStateConflict: false,
   decisionShouldFailStateConflictOnce: false,
   decisionCalls: 0,
+  authLoginRequiresOtpOnce: false,
+  authLoginCalls: 0,
+  authAuthenticated: false,
+  authMfaEnabled: false,
+  appMfaFeatureEnabled: true,
   lastPatchedAssetId: null,
   lastPatchedPayload: null,
 })
@@ -61,6 +71,11 @@ export const resetMockApiState = (state: MockApiState) => {
   state.decisionShouldFailStateConflict = false
   state.decisionShouldFailStateConflictOnce = false
   state.decisionCalls = 0
+  state.authLoginRequiresOtpOnce = false
+  state.authLoginCalls = 0
+  state.authAuthenticated = false
+  state.authMfaEnabled = false
+  state.appMfaFeatureEnabled = true
   state.lastPatchedAssetId = null
   state.lastPatchedPayload = null
 }
@@ -68,6 +83,150 @@ export const resetMockApiState = (state: MockApiState) => {
 export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
   // Guardrails: mocked BDD API must stay aligned with the OpenAPI source of truth.
   assertMockApiRoutesAlignWithOpenApi()
+
+  await page.route('**/auth/login', async (route) => {
+    state.authLoginCalls += 1
+    const body = JSON.parse(route.request().postData() ?? '{}') as { otp_code?: string }
+    if (state.authLoginRequiresOtpOnce && state.authLoginCalls === 1 && !body.otp_code) {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'MFA_REQUIRED',
+          message: 'mfa required',
+          retryable: false,
+          correlation_id: 'bdd-auth-mfa-required',
+        }),
+      })
+      return
+    }
+
+    state.authAuthenticated = true
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        access_token: 'bdd-auth-token',
+        token_type: 'Bearer',
+        client_kind: 'UI_WEB',
+      }),
+    })
+  })
+
+  await page.route('**/auth/logout', async (route) => {
+    state.authAuthenticated = false
+    await route.fulfill({ status: 204 })
+  })
+
+  await page.route('**/auth/me', async (route) => {
+    if (!state.authAuthenticated) {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 'UNAUTHORIZED',
+          message: 'unauthorized',
+          retryable: false,
+          correlation_id: 'bdd-auth-unauthorized',
+        }),
+      })
+      return
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        email: 'admin@example.com',
+        display_name: 'BDD Admin',
+        mfa_enabled: state.authMfaEnabled,
+        roles: ['ADMIN'],
+      }),
+    })
+  })
+
+  await page.route('**/auth/me/features', async (route) => {
+    if ((route.request().method() ?? 'GET').toUpperCase() === 'PATCH') {
+      const body = JSON.parse(route.request().postData() ?? '{}') as {
+        user_feature_enabled?: Record<string, boolean>
+      }
+      const next = body.user_feature_enabled?.['features.auth.2fa']
+      if (typeof next === 'boolean') {
+        state.authMfaEnabled = next
+      }
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        user_feature_enabled: { 'features.auth.2fa': true },
+        effective_feature_enabled: { 'features.auth.2fa': state.appMfaFeatureEnabled },
+        feature_governance: [{ key: 'features.auth.2fa', user_can_disable: true }],
+        core_v1_global_features: ['features.core.auth'],
+      }),
+    })
+  })
+
+  await page.route('**/app/features', async (route) => {
+    if ((route.request().method() ?? 'GET').toUpperCase() === 'PATCH') {
+      const body = JSON.parse(route.request().postData() ?? '{}') as {
+        app_feature_enabled?: Record<string, boolean>
+      }
+      const next = body.app_feature_enabled?.['features.auth.2fa']
+      if (typeof next === 'boolean') {
+        state.appMfaFeatureEnabled = next
+      }
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        app_feature_enabled: { 'features.auth.2fa': state.appMfaFeatureEnabled },
+        feature_governance: [{ key: 'features.auth.2fa', user_can_disable: true }],
+        core_v1_global_features: ['features.core.auth'],
+      }),
+    })
+  })
+
+  await page.route('**/auth/2fa/setup', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        secret: 'JBSWY3DPEHPK3PXP',
+        otpauth_uri: 'otpauth://totp/retaia:bdd?secret=JBSWY3DPEHPK3PXP&issuer=retaia',
+      }),
+    })
+  })
+
+  await page.route('**/auth/2fa/enable', async (route) => {
+    state.authMfaEnabled = true
+    await route.fulfill({ status: 204 })
+  })
+
+  await page.route('**/auth/2fa/disable', async (route) => {
+    state.authMfaEnabled = false
+    await route.fulfill({ status: 204 })
+  })
+
+  await page.route('**/auth/lost-password/request', async (route) => {
+    await route.fulfill({ status: 202 })
+  })
+
+  await page.route('**/auth/lost-password/reset', async (route) => {
+    await route.fulfill({ status: 200 })
+  })
+
+  await page.route('**/auth/verify-email/request', async (route) => {
+    await route.fulfill({ status: 202 })
+  })
+
+  await page.route('**/auth/verify-email/confirm', async (route) => {
+    await route.fulfill({ status: 200 })
+  })
+
+  await page.route('**/auth/verify-email/admin-confirm', async (route) => {
+    await route.fulfill({ status: 200 })
+  })
 
   await page.route('**/app/policy', async (route) => {
     await route.fulfill({
