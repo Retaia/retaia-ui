@@ -11,8 +11,13 @@ const requiredSnippets = [
   },
   {
     file: 'src/hooks/useReviewDataController.ts',
-    snippet: 'setTimeout(() => {',
-    reason: 'policy refresh loop must schedule next poll',
+    snippet: 'useQuery({',
+    reason: 'policy refresh loop must be handled by query polling',
+  },
+  {
+    file: 'src/hooks/useReviewDataController.ts',
+    snippet: 'refetchInterval',
+    reason: 'policy refresh cadence must remain polling-driven',
   },
   {
     file: 'src/hooks/useReviewDataController.ts',

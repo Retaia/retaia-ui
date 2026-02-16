@@ -1,4 +1,5 @@
 import type { components, paths } from './generated/openapi'
+import { z } from 'zod'
 
 type FetchLike = typeof fetch
 type AuthStatus = 401 | 403
@@ -130,10 +131,6 @@ function buildQueryString(query: Record<string, unknown> | undefined) {
   return result ? `?${result}` : ''
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
 function createValidationError(path: string, detail: string) {
   return new ApiError(502, `Invalid API response for ${path}: ${detail}`, {
     code: 'VALIDATION_FAILED',
@@ -143,62 +140,103 @@ function createValidationError(path: string, detail: string) {
   })
 }
 
+const unknownObjectSchema = z.record(z.string(), z.unknown())
+const listAssetSummariesResponseSchema = z
+  .object({
+    items: z.array(unknownObjectSchema).optional().nullable(),
+  })
+  .passthrough()
+const moveExecuteResponseSchema = z.union([unknownObjectSchema, z.undefined()])
+const moveReportResponseSchema = unknownObjectSchema
+const assetDetailResponseSchema = z
+  .object({
+    summary: unknownObjectSchema,
+  })
+  .passthrough()
+const appPolicyResponseSchema = z
+  .object({
+    server_policy: z
+      .object({
+        feature_flags: z.record(z.string(), z.unknown()),
+      })
+      .passthrough(),
+  })
+  .passthrough()
+const appFeaturesResponseSchema = z
+  .object({
+    app_feature_enabled: unknownObjectSchema,
+    feature_governance: z.array(z.unknown()),
+    core_v1_global_features: z.array(z.unknown()),
+  })
+  .passthrough()
+const currentUserResponseSchema = z
+  .object({
+    email: z.string().min(1),
+  })
+  .passthrough()
+const userFeaturesResponseSchema = z
+  .object({
+    user_feature_enabled: unknownObjectSchema,
+    effective_feature_enabled: unknownObjectSchema,
+    feature_governance: z.array(z.unknown()),
+  })
+  .passthrough()
+const auth2faSetupResponseSchema = z
+  .object({
+    secret: z.string().min(1),
+    otpauth_uri: z.string().min(1),
+  })
+  .passthrough()
+
+function parseWithSchema<T>(
+  schema: z.ZodType<T>,
+  payload: unknown,
+  path: string,
+  fallbackDetail: string,
+): T {
+  const parsed = schema.safeParse(payload)
+  if (!parsed.success) {
+    const issue = parsed.error.issues[0]
+    throw createValidationError(path, issue?.message ?? fallbackDetail)
+  }
+  return parsed.data
+}
+
 function parseAssetSummariesResponse(payload: unknown, path: string): AssetSummary[] {
-  if (!isRecord(payload)) {
-    throw createValidationError(path, 'expected object')
-  }
-  const items = payload.items
-  if (items === undefined || items === null) {
+  const parsed = parseWithSchema(
+    listAssetSummariesResponseSchema,
+    payload,
+    path,
+    'expected payload containing items',
+  )
+  const items = parsed.items
+  if (!items) {
     return []
-  }
-  if (!Array.isArray(items)) {
-    throw createValidationError(path, 'expected items array')
-  }
-  if (items.some((item) => !isRecord(item))) {
-    throw createValidationError(path, 'expected each item to be an object')
   }
   return items as AssetSummary[]
 }
 
 function parseMoveExecuteResponse(payload: unknown, path: string) {
-  if (payload === undefined) {
-    return undefined
-  }
-  if (!isRecord(payload)) {
-    throw createValidationError(path, 'expected object or empty response')
-  }
-  return payload
+  return parseWithSchema(moveExecuteResponseSchema, payload, path, 'expected object or empty response')
 }
 
 function parseMoveReportResponse(payload: unknown, path: string) {
-  if (!isRecord(payload)) {
-    throw createValidationError(path, 'expected object')
-  }
-  return payload as MoveStatusResponse
+  return parseWithSchema(moveReportResponseSchema, payload, path, 'expected object') as MoveStatusResponse
 }
 
 function parseAssetDetailResponse(payload: unknown, path: string) {
-  if (!isRecord(payload)) {
-    throw createValidationError(path, 'expected object')
-  }
-  if (!isRecord(payload.summary)) {
-    throw createValidationError(path, 'expected summary object')
-  }
-  return payload as AssetDetail
+  return parseWithSchema(assetDetailResponseSchema, payload, path, 'expected summary object') as AssetDetail
 }
 
 function parseAppPolicyResponse(payload: unknown, path: string) {
-  if (!isRecord(payload)) {
-    throw createValidationError(path, 'expected object')
-  }
-  const serverPolicy = payload.server_policy
-  if (!isRecord(serverPolicy)) {
-    throw createValidationError(path, 'expected server_policy object')
-  }
+  const parsed = parseWithSchema(
+    appPolicyResponseSchema,
+    payload,
+    path,
+    'expected server_policy.feature_flags object',
+  )
+  const serverPolicy = parsed.server_policy
   const featureFlags = serverPolicy.feature_flags
-  if (!isRecord(featureFlags)) {
-    throw createValidationError(path, 'expected server_policy.feature_flags object')
-  }
   const normalizedFeatureFlags = Object.entries(featureFlags).reduce<Record<string, boolean>>(
     (accumulator, [key, value]) => {
       if (typeof value === 'boolean') {
@@ -209,7 +247,7 @@ function parseAppPolicyResponse(payload: unknown, path: string) {
     {},
   )
   return {
-    ...(payload as AppPolicyResponse),
+    ...(parsed as AppPolicyResponse),
     server_policy: {
       ...serverPolicy,
       feature_flags: normalizedFeatureFlags,
@@ -218,58 +256,39 @@ function parseAppPolicyResponse(payload: unknown, path: string) {
 }
 
 function parseAppFeaturesResponse(payload: unknown, path: string) {
-  if (!isRecord(payload)) {
-    throw createValidationError(path, 'expected object')
-  }
-  if (!isRecord(payload.app_feature_enabled)) {
-    throw createValidationError(path, 'expected app_feature_enabled object')
-  }
-  if (!Array.isArray(payload.feature_governance)) {
-    throw createValidationError(path, 'expected feature_governance array')
-  }
-  if (!Array.isArray(payload.core_v1_global_features)) {
-    throw createValidationError(path, 'expected core_v1_global_features array')
-  }
-  return payload as AppFeaturesResponse
+  return parseWithSchema(
+    appFeaturesResponseSchema,
+    payload,
+    path,
+    'expected feature payload object',
+  ) as AppFeaturesResponse
 }
 
 function parseCurrentUserResponse(payload: unknown, path: string) {
-  if (!isRecord(payload)) {
-    throw createValidationError(path, 'expected object')
-  }
-  if (typeof payload.email !== 'string' || payload.email.length === 0) {
-    throw createValidationError(path, 'expected non-empty email')
-  }
-  return payload as AuthCurrentUserResponse
+  return parseWithSchema(
+    currentUserResponseSchema,
+    payload,
+    path,
+    'expected non-empty email',
+  ) as AuthCurrentUserResponse
 }
 
 function parseUserFeaturesResponse(payload: unknown, path: string) {
-  if (!isRecord(payload)) {
-    throw createValidationError(path, 'expected object')
-  }
-  if (!isRecord(payload.user_feature_enabled)) {
-    throw createValidationError(path, 'expected user_feature_enabled object')
-  }
-  if (!isRecord(payload.effective_feature_enabled)) {
-    throw createValidationError(path, 'expected effective_feature_enabled object')
-  }
-  if (!Array.isArray(payload.feature_governance)) {
-    throw createValidationError(path, 'expected feature_governance array')
-  }
-  return payload as UserFeaturesResponse
+  return parseWithSchema(
+    userFeaturesResponseSchema,
+    payload,
+    path,
+    'expected user features payload',
+  ) as UserFeaturesResponse
 }
 
 function parseAuth2faSetupResponse(payload: unknown, path: string) {
-  if (!isRecord(payload)) {
-    throw createValidationError(path, 'expected object')
-  }
-  if (typeof payload.secret !== 'string' || payload.secret.length === 0) {
-    throw createValidationError(path, 'expected non-empty secret')
-  }
-  if (typeof payload.otpauth_uri !== 'string' || payload.otpauth_uri.length === 0) {
-    throw createValidationError(path, 'expected non-empty otpauth_uri')
-  }
-  return payload as Auth2faSetupResponse
+  return parseWithSchema(
+    auth2faSetupResponseSchema,
+    payload,
+    path,
+    'expected non-empty secret and otpauth_uri',
+  ) as Auth2faSetupResponse
 }
 
 async function parseApiError(response: Response) {

@@ -1,4 +1,5 @@
-import { type Dispatch, type SetStateAction, useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from 'react'
 import { mapApiSummaryToAsset } from '../api/assetMapper'
 import { ApiError, type ApiClient } from '../api/client'
 import type { Asset } from '../domain/assets'
@@ -43,13 +44,10 @@ export function useReviewDataController({
   const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>(
     isApiAssetSource ? 'loading' : 'idle',
   )
-  const [policyLoadState, setPolicyLoadState] = useState<'idle' | 'loading' | 'ready' | 'error'>(
-    isApiAssetSource ? 'loading' : 'ready',
-  )
-  const [bulkDecisionsEnabled, setBulkDecisionsEnabled] = useState(!isApiAssetSource)
   const [assetDetailLoadState, setAssetDetailLoadState] = useState<'idle' | 'loading' | 'error'>(
     'idle',
   )
+  const consecutive429ErrorsRef = useRef(0)
 
   useEffect(() => {
     if (!isApiAssetSource) {
@@ -80,71 +78,56 @@ export function useReviewDataController({
     }
   }, [apiClient, isApiAssetSource, setAssets])
 
-  useEffect(() => {
-    if (!isApiAssetSource) {
-      return
-    }
-
-    let canceled = false
-    let policyPollTimer: ReturnType<typeof setTimeout> | null = null
-    let hasResolvedInitialPolicy = false
-    let consecutive429Errors = 0
-
-    const schedulePolicyPoll = (delayMs: number) => {
-      if (canceled) {
-        return
-      }
-      policyPollTimer = setTimeout(() => {
-        void fetchPolicy()
-      }, Math.max(delayMs, 0))
-    }
-
-    const fetchPolicy = async () => {
-      if (!hasResolvedInitialPolicy) {
-        setPolicyLoadState('loading')
-        setBulkDecisionsEnabled(false)
-      }
+  const policyQuery = useQuery({
+    queryKey: ['app-policy', apiClient],
+    queryFn: async () => {
       try {
         const policy = await apiClient.getAppPolicy()
-        if (canceled) {
-          return
-        }
-        hasResolvedInitialPolicy = true
-        consecutive429Errors = 0
-        const bulkEnabled = policy.server_policy?.feature_flags?.['features.decisions.bulk'] === true
-        setBulkDecisionsEnabled(bulkEnabled)
-        setPolicyLoadState('ready')
-        schedulePolicyPoll(resolvePolicyPollingIntervalMs(policy))
+        consecutive429ErrorsRef.current = 0
+        return policy
       } catch (error) {
-        if (canceled) {
-          return
-        }
-        hasResolvedInitialPolicy = true
-        setBulkDecisionsEnabled(false)
-        setPolicyLoadState('error')
         if (is429PolicyError(error)) {
-          consecutive429Errors += 1
-          const backoffDelay = Math.min(
-            POLICY_429_BACKOFF_BASE_MS * 2 ** (consecutive429Errors - 1),
-            POLICY_429_BACKOFF_MAX_MS,
-          )
-          const jitter = Math.floor(Math.random() * POLICY_429_BACKOFF_BASE_MS)
-          schedulePolicyPoll(backoffDelay + jitter)
-          return
+          consecutive429ErrorsRef.current += 1
+        } else {
+          consecutive429ErrorsRef.current = 0
         }
-        consecutive429Errors = 0
-        schedulePolicyPoll(DEFAULT_POLICY_POLL_INTERVAL_MS)
+        throw error
       }
-    }
+    },
+    enabled: isApiAssetSource,
+    refetchInterval: (query) => {
+      if (!isApiAssetSource) {
+        return false
+      }
+      if (is429PolicyError(query.state.error)) {
+        const backoffDelay = Math.min(
+          POLICY_429_BACKOFF_BASE_MS * 2 ** Math.max(consecutive429ErrorsRef.current - 1, 0),
+          POLICY_429_BACKOFF_MAX_MS,
+        )
+        const jitter = Math.floor(Math.random() * POLICY_429_BACKOFF_BASE_MS)
+        return backoffDelay + jitter
+      }
+      if (query.state.data) {
+        return resolvePolicyPollingIntervalMs(query.state.data)
+      }
+      return DEFAULT_POLICY_POLL_INTERVAL_MS
+    },
+    refetchIntervalInBackground: true,
+    retry: false,
+  })
 
-    void fetchPolicy()
-    return () => {
-      canceled = true
-      if (policyPollTimer) {
-        clearTimeout(policyPollTimer)
-      }
-    }
-  }, [apiClient, isApiAssetSource])
+  const policyLoadState: 'idle' | 'loading' | 'ready' | 'error' = !isApiAssetSource
+    ? 'ready'
+    : policyQuery.isPending && !policyQuery.data
+      ? 'loading'
+      : policyQuery.isError || policyQuery.isRefetchError
+        ? 'error'
+        : 'ready'
+
+  const bulkDecisionsEnabled = !isApiAssetSource
+    ? true
+    : policyLoadState === 'ready' &&
+      policyQuery.data?.server_policy?.feature_flags?.['features.decisions.bulk'] === true
 
   useEffect(() => {
     if (!isApiAssetSource || !selectedAssetId) {
@@ -181,8 +164,8 @@ export function useReviewDataController({
 
   return {
     assetsLoadState,
-    policyLoadState: isApiAssetSource ? policyLoadState : 'ready',
-    bulkDecisionsEnabled: isApiAssetSource ? bulkDecisionsEnabled : true,
+    policyLoadState,
+    bulkDecisionsEnabled,
     assetDetailLoadState: isApiAssetSource && selectedAssetId ? assetDetailLoadState : 'idle',
   }
 }

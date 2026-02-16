@@ -47,6 +47,7 @@
     "api:governance:check": "node scripts/ci/check-openapi-pr-governance.mjs"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.21",
     "bootstrap": "^5.3.8",
     "bootswatch": "^5.3.8",
     "i18next": "^25.8.5",
@@ -57,7 +58,8 @@
     "react-icons": "^5.5.0",
     "react-player": "^2.16.1",
     "react-router-dom": "^7.13.0",
-    "sass": "^1.97.3"
+    "sass": "^1.97.3",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.1",
@@ -82,6 +84,7 @@
     "jest-axe": "^10.0.0",
     "jscpd": "^4.0.5",
     "jsdom": "^28.0.0",
+    "msw": "^2.12.10",
     "openapi-typescript": "^7.12.0",
     "start-server-and-test": "^2.1.3",
     "tsx": "^4.21.0",
