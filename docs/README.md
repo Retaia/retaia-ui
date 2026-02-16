@@ -41,13 +41,13 @@
 
 ## Architecture DDD (V1)
 
-- La V1 UI suit une architecture DDD pragmatique.
+- Statut: finalisé pour la V1 UI.
 - `src/domain/*` porte les règles métier pures (sans side-effects UI/API).
 - `src/application/*` porte les use-cases d'orchestration (sans dépendance directe `api/*`).
 - `src/infrastructure/*` porte les adapters techniques (API mapping, intégrations runtime).
 - `src/pages/*` et `src/components/*` restent orientés vue/composition, sans logique métier profonde.
 - `src/App.tsx` reste strictement un point d'entrée de composition/routing et non une zone d'implémentation métier.
-- Toute nouvelle feature doit suivre cette séparation et ajouter les tests de couche (`domain`, `application`, UI).
+- Toute nouvelle feature doit respecter cette séparation et ajouter les tests de couche (`domain`, `application`, UI).
 - Vérification locale des frontières d'architecture: `npm run lint:architecture`.
 
 ## Commandes BDD/E2E locales
