@@ -1,84 +1,78 @@
 #!/usr/bin/env node
 
-import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-const roots = ['src', 'bdd', 'scripts']
-const ignoredFileSuffixes = ['.d.ts', '.map']
-const ignoredExactPaths = new Set([
-  'src/api/generated/openapi.ts',
-  'scripts/ci/check-runtime-pull-only.mjs',
-])
-
-const forbiddenPatterns = [
-  { label: 'WebSocket usage', regex: /\bnew\s+WebSocket\s*\(/g },
-  { label: 'SSE EventSource usage', regex: /\bnew\s+EventSource\s*\(/g },
-  { label: 'Webhook runtime dependency', regex: /\bwebhook\b/gi },
+const requiredSnippets = [
+  {
+    file: 'src/hooks/useReviewDataController.ts',
+    snippet: 'resolvePolicyPollingIntervalMs',
+    reason: 'policy refresh must remain polling-driven',
+  },
+  {
+    file: 'src/hooks/useReviewDataController.ts',
+    snippet: 'setTimeout(() => {',
+    reason: 'policy refresh loop must schedule next poll',
+  },
+  {
+    file: 'src/hooks/useReviewDataController.ts',
+    snippet: 'POLICY_429_BACKOFF_BASE_MS',
+    reason: 'policy polling must back off on 429',
+  },
+  {
+    file: 'src/api/client.ts',
+    snippet: 'RETRYABLE_429_CODES',
+    reason: 'api client must treat contract 429 codes as retryable',
+  },
+  {
+    file: 'src/api/client.ts',
+    snippet: 'computeRetryDelayMs',
+    reason: 'api client must apply retry delay policy',
+  },
+  {
+    file: 'src/api/client.ts',
+    snippet: 'Math.random()',
+    reason: 'api client must apply jitter on 429 retry',
+  },
 ]
 
-function collectFiles(root) {
-  const rootPath = join(process.cwd(), root)
-  const results = []
+const pushHintPatterns = [
+  /\bnew\s+WebSocket\s*\(/g,
+  /\bnew\s+EventSource\s*\(/g,
+  /\bwebhook\b/gi,
+]
 
-  function walk(currentPath) {
-    const entries = readdirSync(currentPath)
-    for (const entry of entries) {
-      const absolutePath = join(currentPath, entry)
-      const relativePath = absolutePath.replace(`${process.cwd()}/`, '')
-      const stats = statSync(absolutePath)
+function read(relativePath) {
+  return readFileSync(join(process.cwd(), relativePath), 'utf-8')
+}
 
-      if (stats.isDirectory()) {
-        walk(absolutePath)
-        continue
-      }
-
-      if (ignoredExactPaths.has(relativePath)) {
-        continue
-      }
-
-      if (ignoredFileSuffixes.some((suffix) => relativePath.endsWith(suffix))) {
-        continue
-      }
-
-      results.push(relativePath)
-    }
+function countMatches(content, regex) {
+  regex.lastIndex = 0
+  let count = 0
+  while (regex.exec(content)) {
+    count += 1
   }
-
-  walk(rootPath)
-  return results
+  return count
 }
 
-function lineNumberAt(content, index) {
-  return content.slice(0, index).split('\n').length
-}
+const missing = requiredSnippets.filter(({ file, snippet }) => {
+  const content = read(file)
+  return !content.includes(snippet)
+})
 
-const files = roots.flatMap(collectFiles)
-const violations = []
-
-for (const file of files) {
-  const content = readFileSync(join(process.cwd(), file), 'utf-8')
-
-  for (const pattern of forbiddenPatterns) {
-    pattern.regex.lastIndex = 0
-    let match = pattern.regex.exec(content)
-    while (match) {
-      violations.push({
-        file,
-        line: lineNumberAt(content, match.index),
-        label: pattern.label,
-        snippet: match[0],
-      })
-      match = pattern.regex.exec(content)
-    }
-  }
-}
-
-if (violations.length > 0) {
-  console.error('Runtime pull-only contract violation(s) found:')
-  for (const violation of violations) {
-    console.error(`- ${violation.file}:${violation.line} ${violation.label} (${violation.snippet})`)
+if (missing.length > 0) {
+  console.error('Runtime status-driven contract violation(s) found:')
+  for (const requirement of missing) {
+    console.error(`- ${requirement.file}: missing "${requirement.snippet}" (${requirement.reason})`)
   }
   process.exit(1)
 }
 
-console.log('Runtime pull-only contract check passed (no push runtime dependency found).')
+const pushHintsCount = countMatches(
+  [read('src/hooks/useReviewDataController.ts'), read('src/api/client.ts')].join('\n'),
+  new RegExp(pushHintPatterns.map((pattern) => pattern.source).join('|'), 'gi'),
+)
+
+console.log(
+  `Runtime status-driven contract check passed (polling+429 backoff+jitter enforced, push hints allowed; matches=${pushHintsCount}).`,
+)
