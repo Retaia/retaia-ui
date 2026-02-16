@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from 'vitest'
-import { ApiError } from '../../api/client'
 import {
   adminConfirmVerifyEmail,
   confirmVerifyEmail,
@@ -76,12 +75,15 @@ describe('authUseCases', () => {
   it('returns mfa_required when backend asks for OTP', async () => {
     const apiClient = createApiClientMock()
     apiClient.login.mockRejectedValue(
-      new ApiError(401, 'MFA required', {
-        code: 'MFA_REQUIRED',
-        message: 'MFA required',
-        retryable: false,
-        correlation_id: 'x',
-      }),
+      {
+        status: 401,
+        payload: {
+          code: 'MFA_REQUIRED',
+          message: 'MFA required',
+          retryable: false,
+          correlation_id: 'x',
+        },
+      },
     )
 
     const result = await loginWithContext({

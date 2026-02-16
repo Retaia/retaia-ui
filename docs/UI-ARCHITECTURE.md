@@ -140,7 +140,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
 
 - Cible: architecture DDD légère adaptée au front.
 - `domain`: règles métier pures et déterministes.
-- `application`: use-cases orchestrant appels externes + règles domaine.
+- `application`: use-cases orchestrant règles domaine via ports/adapters, sans import direct `api/*`.
+- `infrastructure`: adapters techniques qui relient les détails API/runtime aux use-cases.
 - `pages/components/hooks`: composition UI, état de vue, interactions utilisateur.
 - Règle d'évolution: toute nouvelle logique métier doit atterrir en `domain`/`application` avec tests dédiés.
 
@@ -148,6 +149,7 @@ La logique métier est portée par les couches `domain` et `application`, puis i
 
 - `npm run lint:architecture` applique des frontières d'import:
 - `src/pages/*`: pas d'import direct `api/client` (accès API via hooks/services/use-cases).
+- `src/application/*`: pas d'import `api/*` ni `services/*` (adapters via `src/infrastructure/*`).
 - `src/components/*`: pas d'import `api/*` ni `application/*` (UI pure).
 - `src/hooks/*`: pas d'import `pages/*` ni `components/*` (pas de dépendance inversée UI).
 - CI exécute aussi `lint:architecture` dans le job `lint`.

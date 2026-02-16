@@ -44,6 +44,10 @@ import {
   saveReviewAssetMetadata,
 } from '../application/review/reviewAssetMaintenance'
 import { useShortcutsHelpState } from '../hooks/useShortcutsHelpState'
+import {
+  isStateConflictApiError,
+  mapReviewApiErrorToMessage,
+} from '../infrastructure/review/apiReviewErrorAdapter'
 import { isTypingContext } from '../ui/keyboard'
 import { reportUiIssue } from '../ui/telemetry'
 
@@ -128,14 +132,19 @@ function ReviewPage() {
   const selectedAssetState = selectedAsset?.state ?? null
   const mapBatchErrorToMessage = useCallback(
     (error: unknown) =>
-      resolveReviewApiError(error, t, {
+      resolveReviewApiError(error, {
+        mapErrorToMessage: (value) => mapReviewApiErrorToMessage(value, t),
+        isStateConflictError: isStateConflictApiError,
         flagStateConflictForRefresh: false,
       }).message,
     [t],
   )
   const mapDecisionErrorToMessage = useCallback(
     (error: unknown) => {
-      const result = resolveReviewApiError(error, t)
+      const result = resolveReviewApiError(error, {
+        mapErrorToMessage: (value) => mapReviewApiErrorToMessage(value, t),
+        isStateConflictError: isStateConflictApiError,
+      })
       if (result.shouldRefreshSelectedAsset) {
         setShouldRefreshSelectedAsset(true)
       }
@@ -442,7 +451,10 @@ function ReviewPage() {
 
   const mapStateConflictAwareErrorToMessage = useCallback(
     (error: unknown) => {
-      const result = resolveReviewApiError(error, t)
+      const result = resolveReviewApiError(error, {
+        mapErrorToMessage: (value) => mapReviewApiErrorToMessage(value, t),
+        isStateConflictError: isStateConflictApiError,
+      })
       if (result.shouldRefreshSelectedAsset) {
         setShouldRefreshSelectedAsset(true)
       }
@@ -532,7 +544,9 @@ function ReviewPage() {
         getAssetDetail: apiClient.getAssetDetail,
       })
       if (result.kind === 'error') {
-        const resolved = resolveReviewApiError(result.error, t, {
+        const resolved = resolveReviewApiError(result.error, {
+          mapErrorToMessage: (value) => mapReviewApiErrorToMessage(value, t),
+          isStateConflictError: isStateConflictApiError,
           flagStateConflictForRefresh: false,
         })
         setDecisionStatus({

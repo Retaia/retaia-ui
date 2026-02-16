@@ -1,20 +1,20 @@
-import { ApiError } from '../../api/client'
-import { mapApiErrorToMessage } from '../../api/errorMapping'
-
-type TranslateFn = (key: string, params?: Record<string, string | number>) => string
+type ErrorMessageResolver = (error: unknown) => string
+type StateConflictDetector = (error: unknown) => boolean
 
 export function resolveReviewApiError(
   error: unknown,
-  t: TranslateFn,
-  options?: { flagStateConflictForRefresh?: boolean },
+  options: {
+    mapErrorToMessage: ErrorMessageResolver
+    isStateConflictError: StateConflictDetector
+    flagStateConflictForRefresh?: boolean
+  },
 ) {
   const shouldRefreshSelectedAsset =
     options?.flagStateConflictForRefresh !== false &&
-    error instanceof ApiError &&
-    error.payload?.code === 'STATE_CONFLICT'
+    options.isStateConflictError(error)
 
   return {
-    message: mapApiErrorToMessage(error, t),
+    message: options.mapErrorToMessage(error),
     shouldRefreshSelectedAsset,
   }
 }
