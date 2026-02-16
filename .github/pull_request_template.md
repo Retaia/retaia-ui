@@ -8,7 +8,4 @@
 
 ## OpenAPI Governance (required only if OpenAPI source changes in `specs/api/openapi/v1.yaml`)
 
-- Impact flags/capabilities:
-- Comportement client OFF/ON (safe-by-default):
-- Migration/adoption consommateurs:
-- Strategie de non-regression v1:
+- Free text: describe impact, rollout behavior, consumer migration, and non-regression strategy.

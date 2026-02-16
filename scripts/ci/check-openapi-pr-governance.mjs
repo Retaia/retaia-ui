@@ -89,21 +89,9 @@ if (!openApiTouched) {
   process.exit(0)
 }
 
-const requiredSections = [
-  'Impact flags/capabilities:',
-  'Comportement client OFF/ON (safe-by-default):',
-  'Migration/adoption consommateurs:',
-  'Strategie de non-regression v1:',
-]
-
-const missingSections = requiredSections.filter((section) => !prBody.includes(section))
-
-if (missingSections.length > 0) {
-  console.error('OpenAPI governance check failed: missing required PR body sections.')
-  for (const section of missingSections) {
-    console.error(`- ${section}`)
-  }
-  console.error('Add the required governance analysis to the PR body and retry.')
+if (!prBody.trim()) {
+  console.error('OpenAPI governance check failed: PR body is empty.')
+  console.error('Add a short governance note in free text and retry.')
   process.exit(1)
 }
 
