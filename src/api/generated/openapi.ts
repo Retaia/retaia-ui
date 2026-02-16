@@ -169,7 +169,9 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["Auth2faEnableResponse"];
+                    };
                 };
                 /** @description Invalid TOTP code (`INVALID_2FA_CODE`) */
                 400: {
@@ -274,6 +276,60 @@ export interface paths {
                 };
                 /** @description Validation failed (`VALIDATION_FAILED`) */
                 422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/2fa/recovery-codes/regenerate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Regenerate backup recovery codes for current user */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Recovery codes regenerated */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Auth2faRecoveryCodesResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 2FA is not enabled (`MFA_NOT_ENABLED`) */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2508,6 +2564,8 @@ export interface components {
             client_kind?: components["schemas"]["ClientKind"];
             /** @description 6-digit TOTP code when 2FA is enabled on account. */
             otp_code?: string;
+            /** @description One-shot backup code when TOTP app is unavailable. */
+            recovery_code?: string;
         };
         AuthLoginSuccess: {
             access_token: string;
@@ -2557,6 +2615,14 @@ export interface components {
             otpauth_uri: string;
             /** @description Optional inline SVG QR code payload. */
             qr_svg?: string;
+        };
+        Auth2faEnableResponse: {
+            /** @enum {boolean} */
+            mfa_enabled: true;
+            recovery_codes: string[];
+        };
+        Auth2faRecoveryCodesResponse: {
+            recovery_codes: string[];
         };
         AuthRevokeClientTokenResponse: {
             client_id: string;
