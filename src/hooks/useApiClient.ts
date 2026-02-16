@@ -15,6 +15,7 @@ type UseApiClientOptions = {
 
 type UseApiClientResult = {
   apiClient: ApiClient
+  apiRuntimeKey: string
   effectiveApiBaseUrl: string
   effectiveApiToken: string | null
   isApiBaseUrlLockedByEnv: boolean
@@ -36,6 +37,7 @@ export function useApiClient({
   const isApiBaseUrlLockedByEnv = !!import.meta.env.VITE_API_BASE_URL
   const isApiAuthLockedByEnv = !!import.meta.env.VITE_API_TOKEN
   const shouldUseInMemoryMockDb = isAppEnvTest(import.meta.env as Record<string, unknown>)
+  const apiRuntimeKey = `${effectiveApiBaseUrl}::${effectiveApiToken ? 'token' : 'no-token'}::${shouldUseInMemoryMockDb ? 'mock' : 'api'}`
 
   const apiClient = useMemo(
     () =>
@@ -55,6 +57,7 @@ export function useApiClient({
 
   return {
     apiClient,
+    apiRuntimeKey,
     effectiveApiBaseUrl,
     effectiveApiToken,
     isApiBaseUrlLockedByEnv,

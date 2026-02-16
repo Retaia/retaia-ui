@@ -7,6 +7,7 @@ import { mergeAssetWithDetail } from '../domain/review/assetDetailMerge'
 
 type UseReviewDataControllerArgs = {
   apiClient: ApiClient
+  apiRuntimeKey: string
   isApiAssetSource: boolean
   selectedAssetId: string | null
   setAssets: Dispatch<SetStateAction<Asset[]>>
@@ -37,6 +38,7 @@ function is429PolicyError(error: unknown) {
 
 export function useReviewDataController({
   apiClient,
+  apiRuntimeKey,
   isApiAssetSource,
   selectedAssetId,
   setAssets,
@@ -79,7 +81,7 @@ export function useReviewDataController({
   }, [apiClient, isApiAssetSource, setAssets])
 
   const policyQuery = useQuery({
-    queryKey: ['app-policy', apiClient],
+    queryKey: ['app-policy', apiRuntimeKey],
     queryFn: async () => {
       try {
         const policy = await apiClient.getAppPolicy()
