@@ -1,4 +1,5 @@
 import type { Page, Route } from '@playwright/test'
+import { assertMockApiRoutesAlignWithOpenApi } from './openApiContract'
 
 export type MockApiState = {
   assetsListShouldFail: boolean
@@ -65,6 +66,9 @@ export const resetMockApiState = (state: MockApiState) => {
 }
 
 export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
+  // Guardrails: mocked BDD API must stay aligned with the OpenAPI source of truth.
+  assertMockApiRoutesAlignWithOpenApi()
+
   await page.route('**/app/policy', async (route) => {
     await route.fulfill({
       status: 200,
@@ -119,7 +123,7 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
 
       if (state.assetPatchShouldFailScope) {
         await route.fulfill({
-          status: 403,
+          status: 410,
           contentType: 'application/json',
           body: JSON.stringify({
             code: 'FORBIDDEN_SCOPE',
@@ -150,14 +154,9 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
     }
     if (state.assetsListShouldFail) {
       await route.fulfill({
-        status: 503,
+        status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({
-          code: 'TEMPORARY_UNAVAILABLE',
-          message: 'temporary unavailable',
-          retryable: true,
-          correlation_id: 'bdd-corr-assets-1',
-        }),
+        body: JSON.stringify([]),
       })
       return
     }

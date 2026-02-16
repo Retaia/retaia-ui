@@ -3,6 +3,8 @@ import { createMockApiState } from './mockApiRoutes'
 
 export const APP_URL = process.env.APP_URL ?? 'http://127.0.0.1:4173'
 export const BROWSER_NAME = process.env.PW_BROWSER ?? 'chromium'
+export const BDD_API_MODE = process.env.BDD_API_MODE === 'real-api' ? 'real-api' : 'mock'
+export const IS_BDD_MOCK_API_MODE = BDD_API_MODE === 'mock'
 
 export const mockApiState = createMockApiState()
 
@@ -31,4 +33,12 @@ export const clearBrowserRuntime = () => {
   browser = null
   context = null
   page = null
+}
+
+export function requireBddMockApiMode(stepName: string) {
+  if (!IS_BDD_MOCK_API_MODE) {
+    throw new Error(
+      `[bdd-mode] Step "${stepName}" requires BDD_API_MODE=mock, current mode is "${BDD_API_MODE}".`,
+    )
+  }
 }

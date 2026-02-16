@@ -3,6 +3,8 @@ import { chromium, firefox, webkit } from '@playwright/test'
 import { installMockApiRoutes, resetMockApiState } from '../support/mockApiRoutes'
 import {
   BROWSER_NAME,
+  BDD_API_MODE,
+  IS_BDD_MOCK_API_MODE,
   clearBrowserRuntime,
   getBrowserRuntime,
   mockApiState,
@@ -21,7 +23,11 @@ Before(async () => {
   const page = await context.newPage()
 
   setBrowserRuntime(browser, context, page)
-  await installMockApiRoutes(page, mockApiState)
+  if (IS_BDD_MOCK_API_MODE) {
+    await installMockApiRoutes(page, mockApiState)
+  } else {
+    console.log(`[bdd-mode] running with real API target (${BDD_API_MODE}), mock routes disabled.`)
+  }
 })
 
 After(async () => {

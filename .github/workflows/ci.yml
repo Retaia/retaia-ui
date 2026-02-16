@@ -129,6 +129,9 @@ jobs:
       - name: v1 critical flows presence check
         run: npm run qa:v1:flows
 
+      - name: BDD mock/OpenAPI contract alignment check
+        run: npm run bdd:mock:contract:check
+
   test:
     runs-on: ubuntu-latest
     needs: lint
@@ -231,10 +234,10 @@ jobs:
           TZ: UTC
           LANG: C.UTF-8
         run: |
+          APP_URL="http://127.0.0.1:4173" BDD_API_MODE="mock" npm run e2e:bdd:ci
+
           if [ -n "$E2E_TEST_ENV_URL" ]; then
-            APP_URL="$E2E_TEST_ENV_URL" npm run bdd:test:ci
-          else
-            APP_URL="http://127.0.0.1:4173" npm run e2e:bdd:ci
+            APP_URL="$E2E_TEST_ENV_URL" BDD_API_MODE="real-api" npm run bdd:test:real-api:ci
           fi
 
       - name: Print BDD failure summary

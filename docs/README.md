@@ -53,8 +53,10 @@
 ## Commandes BDD/E2E locales
 
 - `npm run bdd:test`
+- `npm run bdd:test:real-api`
 - `npm run e2e:bdd`
 - `npm run e2e:bdd:ci` (CI par defaut sur serveur dev local)
-- `APP_URL=http://127.0.0.1:4173 npm run bdd:test` (override URL cible pour Playwright/Cucumber)
+- `APP_URL=http://127.0.0.1:4173 BDD_API_MODE=mock npm run bdd:test` (suite mock)
+- `APP_URL=http://127.0.0.1:4173 BDD_API_MODE=real-api npm run bdd:test:real-api` (suite real-api)
 - `APP_ENV=test` (ou `VITE_APP_ENV=test`) active une mock DB in-memory dans l'UI.
 - CI: definir la variable repo `E2E_TEST_ENV_URL` pour executer les BDD contre un environnement test distant.
