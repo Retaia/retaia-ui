@@ -71,6 +71,11 @@ Given('le mock API retourne STATE_CONFLICT une seule fois sur la décision asset
   mockApiState.decisionShouldFailStateConflictOnce = true
 })
 
+Given('le mock API auth requiert OTP une fois', async () => {
+  ensureMockMode('le mock API auth requiert OTP une fois')
+  mockApiState.authLoginRequiresOtpOnce = true
+})
+
 Then('le mock API a reçu {int} décisions asset', async (count: number) => {
   ensureMockMode('le mock API a reçu {int} décisions asset')
   expect(mockApiState.decisionCalls).toBe(count)

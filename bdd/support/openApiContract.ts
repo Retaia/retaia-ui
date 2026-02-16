@@ -14,7 +14,22 @@ type MockOperationContract = {
 }
 
 const MOCK_OPERATION_CONTRACTS: MockOperationContract[] = [
+  { path: '/auth/login', method: 'post' },
+  { path: '/auth/logout', method: 'post' },
+  { path: '/auth/me', method: 'get' },
+  { path: '/auth/me/features', method: 'get' },
+  { path: '/auth/me/features', method: 'patch' },
+  { path: '/auth/2fa/setup', method: 'post' },
+  { path: '/auth/2fa/enable', method: 'post' },
+  { path: '/auth/2fa/disable', method: 'post' },
+  { path: '/auth/lost-password/request', method: 'post' },
+  { path: '/auth/lost-password/reset', method: 'post' },
+  { path: '/auth/verify-email/request', method: 'post' },
+  { path: '/auth/verify-email/confirm', method: 'post' },
+  { path: '/auth/verify-email/admin-confirm', method: 'post' },
   { path: '/app/policy', method: 'get' },
+  { path: '/app/features', method: 'get' },
+  { path: '/app/features', method: 'patch' },
   { path: '/assets', method: 'get' },
   { path: '/assets/{uuid}', method: 'get' },
   { path: '/assets/{uuid}', method: 'patch' },
@@ -27,10 +42,12 @@ const MOCK_OPERATION_CONTRACTS: MockOperationContract[] = [
 ]
 
 const MOCK_ERROR_CODES = [
+  'MFA_REQUIRED',
   'FORBIDDEN_SCOPE',
   'IDEMPOTENCY_CONFLICT',
   'STATE_CONFLICT',
   'TEMPORARY_UNAVAILABLE',
+  'UNAUTHORIZED',
 ]
 
 let cachedContract: OpenApiContract | null = null

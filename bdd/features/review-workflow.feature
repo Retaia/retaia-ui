@@ -149,6 +149,33 @@ Feature: Workflow de review desktop-like
     When je clique sur le bouton "Aller à traiter"
     Then le titre principal "Assets (1)" est visible
 
+  Scenario: Utiliser les vues rapides et filtres toolbar
+    Given je suis sur la page d'accueil
+    When je clique sur l'element testid "quick-view-pending"
+    Then le titre principal "Assets (1)" est visible
+    When je clique sur l'element testid "quick-view-default"
+    Then le titre principal "Assets (3)" est visible
+    When je fais Maj+clic sur l'asset "interview-camera-a.mov"
+    And je clique sur l'element testid "quick-view-batch"
+    Then le titre principal "Assets (1)" est visible
+    When je filtre par type media "VIDEO"
+    And je filtre par date "LAST_30_DAYS"
+    Then le titre principal "Assets (1)" est visible
+    When je clique sur le bouton "Réinitialiser filtres"
+    Then le titre principal "Assets (3)" est visible
+
+  Scenario: Piloter le prochain asset via la carte dédiée
+    Given je suis sur la page d'accueil
+    When je clique sur l'element testid "next-open"
+    Then le panneau détail affiche l'asset "interview-camera-a.mov"
+    When je clique sur l'element testid "next-reject"
+    Then l'état "A-001 - DECIDED_REJECT" est visible
+
+  Scenario: Décider KEEP via la carte prochain asset
+    Given je suis sur la page d'accueil
+    When je clique sur l'element testid "next-keep"
+    Then l'état "A-001 - DECIDED_KEEP" est visible
+
   Scenario: Vider la recherche avec Escape
     Given je suis sur la page d'accueil
     When je recherche "behind"
