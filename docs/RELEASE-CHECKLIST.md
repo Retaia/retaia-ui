@@ -20,11 +20,17 @@
 ## Versioning
 
 - mettre à jour `CHANGELOG.md` (`[Unreleased]` -> version/date)
-- créer un tag release:
+- choisir le type de tag:
+  - Release Candidate: `ui-vX.Y.Z-rc.N` (ex: `ui-v1.0.0-rc.1`)
+  - Release stable: `ui-vX.Y.Z` (ex: `ui-v1.0.0`)
+- créer et pousser le tag:
   - `git checkout master`
   - `git pull --ff-only origin master`
-  - `git tag -a ui-v1.0.0 -m "UI v1.0.0"`
-  - `git push origin ui-v1.0.0`
+  - `git tag -a ui-v1.0.0-rc.1 -m "UI v1.0.0 RC1"`
+  - `git push origin ui-v1.0.0-rc.1`
+- publication GitHub Release automatique via `.github/workflows/release.yml`:
+  - tag `ui-v*-rc.*` => GitHub pre-release
+  - tag `ui-v*` (sans suffixe `-rc.N`) => GitHub release stable
 
 ## Post-release
 

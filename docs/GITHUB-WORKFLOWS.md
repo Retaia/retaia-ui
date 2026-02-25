@@ -11,6 +11,7 @@ Définir un pipeline CI UI orienté qualité React/TypeScript avec TDD/BDD.
 Le workflow CI est défini dans:
 
 - `.github/workflows/ci.yml`
+- `.github/workflows/release.yml` (publication GitHub Releases sur tag)
 
 Jobs:
 
@@ -73,6 +74,24 @@ Artefacts CI:
 
 - le job `e2e-bdd` publie `test-results/**` en succès et en échec
 - le job `test` publie `coverage/**`
+
+## Release GitHub (tag-driven, aligné agent)
+
+Le workflow release est défini dans:
+
+- `.github/workflows/release.yml`
+
+Déclenchement:
+
+- `push` d'un tag `ui-v*`
+
+Comportement:
+
+- build UI production (`npm ci`, `npm run build`)
+- packaging des artefacts `dist` en `.tar.gz` et `.zip`
+- génération d'un fichier `SHA256SUMS.txt`
+- publication GitHub Release automatique avec notes générées
+- `prerelease=true` si le tag matche `ui-vX.Y.Z-rc.N`
 
 ## Protection de `master`
 
