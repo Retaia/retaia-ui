@@ -17,9 +17,14 @@ export function AuthPage() {
           <h1 className="display-6 fw-bold mb-1">{t('app.authTitle')}</h1>
           <p className="text-secondary mb-0">{t('app.apiConnectionSubtitle')}</p>
         </div>
-        <Button type="button" size="sm" variant="outline-secondary" onClick={() => navigate('/review')}>
-          {t('app.backToReview')}
-        </Button>
+        <div className="d-flex gap-2">
+          <Button type="button" size="sm" variant="outline-secondary" onClick={() => navigate('/settings')}>
+            {t('settings.openSettings')}
+          </Button>
+          <Button type="button" size="sm" variant="outline-secondary" onClick={() => navigate('/review')}>
+            {t('app.backToReview')}
+          </Button>
+        </div>
       </div>
       <Card as="section" className="shadow-sm border-0 mt-3" aria-label={t('app.apiConnectionTitle')}>
         <Card.Body>

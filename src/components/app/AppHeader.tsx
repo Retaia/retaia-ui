@@ -6,9 +6,11 @@ type Props = {
   locale: Locale
   t: (key: string) => string
   onChangeLanguage: (locale: Locale) => void
+  onOpenSettings: () => void
+  onOpenAuth: () => void
 }
 
-export function AppHeader({ locale, t, onChangeLanguage }: Props) {
+export function AppHeader({ locale, t, onChangeLanguage, onOpenSettings, onOpenAuth }: Props) {
   return (
     <header className="mb-3">
       <Stack direction="horizontal" className="justify-content-between align-items-start gap-2">
@@ -20,6 +22,12 @@ export function AppHeader({ locale, t, onChangeLanguage }: Props) {
           <p className="text-secondary mb-0">{t('app.subtitle')}</p>
         </div>
         <Stack direction="horizontal" gap={2} aria-label={t('app.language')}>
+          <Button type="button" size="sm" variant="outline-secondary" onClick={onOpenSettings}>
+            {t('settings.openSettings')}
+          </Button>
+          <Button type="button" size="sm" variant="outline-secondary" onClick={onOpenAuth}>
+            {t('settings.openAuth')}
+          </Button>
           <Button
             type="button"
             size="sm"
