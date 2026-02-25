@@ -2,6 +2,17 @@ import { useMemo } from 'react'
 import { type ApiClient, createApiClient } from '../api/client'
 import { createInMemoryMockApiFetch, isAppEnvTest } from '../api/mockDb'
 
+type RuntimeConfig = {
+  API_BASE_URL?: string
+  API_TOKEN?: string
+}
+
+declare global {
+  interface Window {
+    __RETAIA_RUNTIME_CONFIG__?: RuntimeConfig
+  }
+}
+
 type UseApiClientOptions = {
   apiBaseUrlInput: string
   apiTokenInput: string
@@ -24,6 +35,13 @@ type UseApiClientResult = {
   shouldUseInMemoryMockDb: boolean
 }
 
+function readRuntimeConfig(): RuntimeConfig {
+  if (typeof window === 'undefined') {
+    return {}
+  }
+  return window.__RETAIA_RUNTIME_CONFIG__ ?? {}
+}
+
 export function useApiClient({
   apiBaseUrlInput,
   apiTokenInput,
@@ -31,11 +49,16 @@ export function useApiClient({
   onRetry,
   retry,
 }: UseApiClientOptions): UseApiClientResult {
+  const runtimeConfig = readRuntimeConfig()
+  const runtimeApiBaseUrl = runtimeConfig.API_BASE_URL?.trim()
+  const runtimeApiToken = runtimeConfig.API_TOKEN?.trim()
+
   const effectiveApiBaseUrl =
-    import.meta.env.VITE_API_BASE_URL ?? (apiBaseUrlInput.trim() || '/api/v1')
-  const effectiveApiToken = import.meta.env.VITE_API_TOKEN ?? (apiTokenInput.trim() || null)
-  const isApiBaseUrlLockedByEnv = !!import.meta.env.VITE_API_BASE_URL
-  const isApiAuthLockedByEnv = !!import.meta.env.VITE_API_TOKEN
+    runtimeApiBaseUrl || import.meta.env.VITE_API_BASE_URL || apiBaseUrlInput.trim() || '/api/v1'
+  const effectiveApiToken =
+    runtimeApiToken || import.meta.env.VITE_API_TOKEN || apiTokenInput.trim() || null
+  const isApiBaseUrlLockedByEnv = !!runtimeApiBaseUrl || !!import.meta.env.VITE_API_BASE_URL
+  const isApiAuthLockedByEnv = !!runtimeApiToken || !!import.meta.env.VITE_API_TOKEN
   const shouldUseInMemoryMockDb = isAppEnvTest(import.meta.env as Record<string, unknown>)
   const apiRuntimeKey = `${effectiveApiBaseUrl}::${effectiveApiToken ? 'token' : 'no-token'}::${shouldUseInMemoryMockDb ? 'mock' : 'api'}`
 

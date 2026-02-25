@@ -1,0 +1,1 @@
+window.__RETAIA_RUNTIME_CONFIG__ = window.__RETAIA_RUNTIME_CONFIG__ || {};

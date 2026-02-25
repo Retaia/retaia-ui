@@ -15,6 +15,7 @@ React + TypeScript web application for media review workflows (asset list/detail
 - [API Contract and Specs](#api-contract-and-specs)
 - [Contributing](#contributing)
 - [Release](#release)
+- [Docker](#docker)
 - [License](#license)
 
 ## Overview
@@ -94,6 +95,7 @@ Main variables:
 - `npm run dev`
 - `npm run build`
 - `npm run preview`
+- `npm run icons:generate`
 
 ### Quality
 
@@ -175,6 +177,10 @@ GitHub Release is tag-driven (workflow: `.github/workflows/release.yml`):
 
 - RC: `ui-vX.Y.Z-rc.N` (published as pre-release)
 - stable: `ui-vX.Y.Z` (published as stable release)
+- Docker image published to GHCR on tag push:
+  - `ghcr.io/<org>/retaia-ui:vX.Y.Z-rc.N`
+  - `ghcr.io/<org>/retaia-ui:vX.Y.Z`
+  - `ghcr.io/<org>/retaia-ui:latest` (stable tags only)
 
 Example RC1:
 
@@ -188,6 +194,28 @@ git push origin ui-v1.0.0-rc.1
 Current v1 gate command:
 
 - `npm run qa:v1:go-no-go`
+
+## Docker
+
+Runtime image uses Caddy (no Nginx).
+
+Build locally:
+
+```bash
+docker build -t retaia-ui:local .
+```
+
+Run locally:
+
+```bash
+docker run --rm -p 8080:80 \
+  -e API_BASE_URL=/api/v1 \
+  -e API_UPSTREAM=host.docker.internal:8000 \
+  retaia-ui:local
+```
+
+Production compose example: `docker-compose.prod.yml`.
+Use relative `API_BASE_URL=/api/v1` for browser-safe calls and let Caddy reverse-proxy to Core.
 
 ## License
 

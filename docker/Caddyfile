@@ -1,0 +1,16 @@
+{
+  auto_https off
+}
+
+:80 {
+  root * /srv
+  encode zstd gzip
+
+  @api path /api/*
+  handle @api {
+    reverse_proxy {$API_UPSTREAM:core:8000}
+  }
+
+  try_files {path} /index.html
+  file_server
+}
