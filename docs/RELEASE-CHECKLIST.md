@@ -21,16 +21,22 @@
 
 - mettre à jour `CHANGELOG.md` (`[Unreleased]` -> version/date)
 - choisir le type de tag:
-  - Release Candidate: `ui-vX.Y.Z-rc.N` (ex: `ui-v1.0.0-rc.1`)
-  - Release stable: `ui-vX.Y.Z` (ex: `ui-v1.0.0`)
+  - Release Candidate: `vX.Y.Z-rcN` (ex: `v1.0.0-rc1`)
+  - Release stable: `vX.Y.Z` (ex: `v1.0.0`)
 - créer et pousser le tag:
   - `git checkout master`
   - `git pull --ff-only origin master`
-  - `git tag -a ui-v1.0.0-rc.1 -m "UI v1.0.0 RC1"`
-  - `git push origin ui-v1.0.0-rc.1`
+  - `git tag -a v1.0.0-rc1 -m "UI v1.0.0 RC1"`
+  - `git push origin v1.0.0-rc1`
 - publication GitHub Release automatique via `.github/workflows/release.yml`:
-  - tag `ui-v*-rc.*` => GitHub pre-release
-  - tag `ui-v*` (sans suffixe `-rc.N`) => GitHub release stable
+  - tag `v*-rc*` => GitHub pre-release
+  - tag `v*` (sans suffixe `-rcN`) => GitHub release stable
+  - assets attendus:
+    - `retaia-ui-<tag>.tar.gz`
+    - `retaia-ui-<tag>.zip`
+    - `retaia-ui-<tag>.sbom.cdx.json`
+    - `SHA256SUMS.txt`
+    - signatures/certificats Cosign (`*.sig`, `*.pem`)
 
 ## Post-release
 
