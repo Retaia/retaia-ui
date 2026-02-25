@@ -210,20 +210,15 @@ Run locally:
 ```bash
 docker run --rm -p 8080:80 \
   -e API_BASE_URL=/api/v1 \
-  -e API_UPSTREAM=host.docker.internal:8000 \
   retaia-ui:local
 ```
 
 Production compose example: `docker-compose.prod.yml`.
-Use relative `API_BASE_URL=/api/v1` for browser-safe calls and let Caddy reverse-proxy to Core.
+Use relative `API_BASE_URL=/api/v1` for browser-safe calls.
 
-NAS/LAN deployment pattern (Core private, agents on workstations):
+Deployment topology and NAS/LAN production profile are normative in specs:
 
-- UI exposed on NAS IP (example): `http://192.168.0.14:8080`
-- Browser UI calls relative API path: `/api/v1`
-- Caddy in UI container proxies `/api/*` to internal Core service (`core:8000`)
-- Workstation agents call Core through the same exposed UI gateway URL:
-  - `http://192.168.0.14:8080/api/v1`
+- `specs/architecture/DEPLOYMENT-TOPOLOGY.md`
 
 ## License
 
