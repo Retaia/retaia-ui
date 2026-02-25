@@ -2835,8 +2835,6 @@ export interface components {
             audit?: components["schemas"]["AssetAudit"];
         };
         AssetPaths: {
-            /** @description Logical storage identifier used by agents to resolve local mount mapping. */
-            storage_id?: string;
             original_relative?: string;
             sidecars_relative?: string[];
         };
@@ -2888,8 +2886,6 @@ export interface components {
             /** @enum {string} */
             status: "pending" | "claimed" | "completed" | "failed";
             asset_uuid: string;
-            /** @description Source locator (relative paths + storage id) for local media access. */
-            source?: components["schemas"]["AssetPaths"];
             required_capabilities: string[];
             claimed_by?: string | null;
             lock_token?: string | null;
