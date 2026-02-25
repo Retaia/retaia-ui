@@ -2834,9 +2834,14 @@ export interface components {
             decisions?: components["schemas"]["AssetDecisions"];
             audit?: components["schemas"]["AssetAudit"];
         };
+        /** @description Stable logical storage identifier emitted by Core and mapped locally by agents. */
+        StorageId: string;
+        /** @description Relative storage path only. Must never be absolute, contain parent traversal (`..`), or contain null bytes. */
+        RelativeStoragePath: string;
         AssetPaths: {
-            original_relative?: string;
-            sidecars_relative?: string[];
+            storage_id: components["schemas"]["StorageId"];
+            original_relative: components["schemas"]["RelativeStoragePath"];
+            sidecars_relative?: components["schemas"]["RelativeStoragePath"][];
         };
         AssetProcessing: {
             facts_done?: boolean;
@@ -2886,6 +2891,8 @@ export interface components {
             /** @enum {string} */
             status: "pending" | "claimed" | "completed" | "failed";
             asset_uuid: string;
+            /** @description Source locator (relative paths + storage id) for local media access. */
+            source: components["schemas"]["AssetPaths"];
             required_capabilities: string[];
             claimed_by?: string | null;
             lock_token?: string | null;
