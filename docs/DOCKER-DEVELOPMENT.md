@@ -4,19 +4,46 @@
 
 ## État actuel
 
-Le repository UI ne contient pas encore de stack Docker dédiée.
+Le repository UI fournit une image Docker de production basée sur Caddy.
 
-## Recommandation
+Fichiers clés:
 
-- Développer localement via Node.js LTS + npm.
-- Utiliser `npm run dev` pour l'UI.
-- Utiliser Docker seulement si une contrainte d'environnement l'impose (CI parity, outillage partagé).
+- `Dockerfile` (build Vite + runtime Caddy)
+- `docker/Caddyfile` (static + reverse proxy `/api/*`)
+- `docker/entrypoint.sh` (injection runtime `API_BASE_URL`/`API_TOKEN` dans `runtime-config.js`)
+- `docker-compose.prod.yml` (exemple Core + UI)
 
-## Si Docker est ajouté plus tard
+## Variables runtime UI
 
-Prévoir:
+- `API_BASE_URL` (défaut: `/api/v1`)
+- `API_TOKEN` (optionnel)
+- `API_UPSTREAM` (défaut: `core:8000`)
 
-- un service `ui` (Vite)
-- un volume pour le code source
-- un cache `node_modules` maîtrisé
-- des commandes CI identiques (`lint`, `typecheck`, `test`, `bdd`, `build`)
+Recommandation:
+
+- en production, utiliser `API_BASE_URL=/api/v1`
+- laisser Caddy proxyfier vers Core via `API_UPSTREAM`
+- éviter `API_BASE_URL=http://core:8000/api/v1` côté navigateur (hostname Docker non résolvable hors réseau conteneur)
+
+Pattern NAS + workstations (recommandé):
+
+- NAS expose uniquement `ui` (port 8080), pas `core`.
+- `ui` proxyfie `/api/*` vers `core:8000` en interne Docker.
+- les agents desktop/workstations utilisent l'URL NAS:
+  - `http://192.168.0.14:8080/api/v1`
+- ainsi, `core` reste non exposé hors réseau Docker.
+
+## Build image
+
+```bash
+docker build -t retaia-ui:local .
+```
+
+## Run local
+
+```bash
+docker run --rm -p 8080:80 \
+  -e API_BASE_URL=/api/v1 \
+  -e API_UPSTREAM=host.docker.internal:8000 \
+  retaia-ui:local
+```

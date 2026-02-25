@@ -1,0 +1,14 @@
+services:
+  core:
+    image: ghcr.io/retaia/retaia-core:v1.0.0
+    env_file: .env
+
+  ui:
+    image: ghcr.io/retaia/retaia-ui:v1.0.0
+    environment:
+      API_BASE_URL: /api/v1
+      API_UPSTREAM: core:8000
+    depends_on:
+      - core
+    ports:
+      - "8080:80"
