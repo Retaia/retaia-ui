@@ -1,5 +1,5 @@
 import { Button, Stack } from 'react-bootstrap'
-import { BsFlagFill, BsGlobe2, BsGrid3X3GapFill } from 'react-icons/bs'
+import { BsFlagFill, BsGlobe2 } from 'react-icons/bs'
 import type { Locale } from '../../i18n/resources'
 
 type Props = {
@@ -16,7 +16,14 @@ export function AppHeader({ locale, t, onChangeLanguage, onOpenSettings, onOpenA
       <Stack direction="horizontal" className="justify-content-between align-items-start gap-2">
         <div>
           <h1 className="display-6 fw-bold mb-1">
-            <BsGrid3X3GapFill className="me-2" aria-hidden="true" />
+            <img
+              src="/retaia-logo-512.png"
+              width={28}
+              height={28}
+              className="me-2 rounded-2 align-text-top"
+              alt=""
+              aria-hidden="true"
+            />
             {t('app.title')}
           </h1>
           <p className="text-secondary mb-0">{t('app.subtitle')}</p>
