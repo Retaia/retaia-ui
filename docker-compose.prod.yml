@@ -2,13 +2,47 @@ services:
   core:
     image: ghcr.io/retaia/retaia-core:v1.0.0
     env_file: .env
+    environment:
+      APP_ENV: prod
+      APP_DEBUG: "0"
+      DATABASE_URL: postgresql://app:app@db:5432/app_prod?serverVersion=16&charset=utf8
+      APP_INGEST_WATCH_PATH: /var/local/RETAIA/INBOX
+      APP_STORAGE_ID: nas-main
+    volumes:
+      - retaia_var:/var/www/html/var
+      - ${RETAIA_INGEST_HOST_DIR:-./docker/RETAIA}:/var/local/RETAIA
+      # Must mirror retaia-core public/ directory for Caddy php_fastcgi docroot.
+      - ./docker/core-public:/var/www/html/public:ro
+    depends_on:
+      db:
+        condition: service_healthy
 
   ui:
     image: ghcr.io/retaia/retaia-ui:v1.0.0
-    environment:
-      API_BASE_URL: /api/v1
-      API_UPSTREAM: core:8000
+
+  caddy:
+    image: caddy:2-alpine
     depends_on:
       - core
+      - ui
     ports:
       - "8080:80"
+    volumes:
+      - ./docker/Caddyfile.prod.example:/etc/caddy/Caddyfile:ro
+      # Same host mirror used by core service above.
+      - ./docker/core-public:/var/www/html/public:ro
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: app_prod
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "app_prod", "-U", "app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  retaia_var:

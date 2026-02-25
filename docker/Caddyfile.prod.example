@@ -1,0 +1,16 @@
+{
+  auto_https off
+}
+
+:80 {
+  @api path /api/* /device*
+  handle @api {
+    root * /var/www/html/public
+    php_fastcgi core:9000
+    file_server
+  }
+
+  handle {
+    reverse_proxy ui:80
+  }
+}

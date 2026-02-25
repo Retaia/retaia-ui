@@ -5,33 +5,33 @@
 ## État actuel
 
 Le repository UI fournit une image Docker de production basée sur Caddy.
+La topologie de déploiement (NAS/LAN, Core privé, gateway Caddy, flux API) est normative dans:
+
+- `specs/architecture/DEPLOYMENT-TOPOLOGY.md`
 
 Fichiers clés:
 
 - `Dockerfile` (build Vite + runtime Caddy)
-- `docker/Caddyfile` (static + reverse proxy `/api/*`)
+- `docker/Caddyfile` (serveur statique pour l'image UI)
+- `docker/Caddyfile.prod.example` (Caddy frontal Core FPM + UI)
 - `docker/entrypoint.sh` (injection runtime `API_BASE_URL`/`API_TOKEN` dans `runtime-config.js`)
-- `docker-compose.prod.yml` (exemple Core + UI)
+- `docker-compose.prod.yml` (exemple Core + UI + Caddy + DB)
 
 ## Variables runtime UI
 
 - `API_BASE_URL` (défaut: `/api/v1`)
 - `API_TOKEN` (optionnel)
-- `API_UPSTREAM` (défaut: `core:8000`)
 
 Recommandation:
 
 - en production, utiliser `API_BASE_URL=/api/v1`
-- laisser Caddy proxyfier vers Core via `API_UPSTREAM`
-- éviter `API_BASE_URL=http://core:8000/api/v1` côté navigateur (hostname Docker non résolvable hors réseau conteneur)
+- éviter les hostnames Docker internes côté navigateur (`core:9000`, etc.).
+- utiliser la gateway LAN documentée dans la spec de déploiement.
 
-Pattern NAS + workstations (recommandé):
+Note:
 
-- NAS expose uniquement `ui` (port 8080), pas `core`.
-- `ui` proxyfie `/api/*` vers `core:8000` en interne Docker.
-- les agents desktop/workstations utilisent l'URL NAS:
-  - `http://192.168.0.14:8080/api/v1`
-- ainsi, `core` reste non exposé hors réseau Docker.
+- `docker-compose.prod.yml` reste un exemple local au repo UI.
+- la topologie et les règles d'exposition réseau restent centralisées dans les specs.
 
 ## Build image
 
@@ -44,6 +44,5 @@ docker build -t retaia-ui:local .
 ```bash
 docker run --rm -p 8080:80 \
   -e API_BASE_URL=/api/v1 \
-  -e API_UPSTREAM=host.docker.internal:8000 \
   retaia-ui:local
 ```
