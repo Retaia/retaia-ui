@@ -22,4 +22,11 @@ describe('useReviewApiRuntime', () => {
     expect(result.current.retryStatus).toBe('retrying')
     expect(result.current.apiClient).toBeDefined()
   })
+
+  it('falls back to stored asset source when query param is absent', () => {
+    window.localStorage.setItem('retaia_asset_source', 'api')
+    const { result } = renderHook(() => useReviewApiRuntime())
+
+    expect(result.current.isApiAssetSource).toBe(true)
+  })
 })

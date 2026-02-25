@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Container, Row } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { ActionPanels } from '../components/app/ActionPanels'
 import { AssetListSection } from '../components/app/AssetListSection'
 import { AppHeader } from '../components/app/AppHeader'
@@ -56,6 +57,7 @@ import {
 } from '../application/review/reviewPagePresentation'
 
 function ReviewPage() {
+  const navigate = useNavigate()
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t, i18n } = useTranslation()
   const { apiClient, apiRuntimeKey, isApiAssetSource, retryStatus, setRetryStatus } = useReviewApiRuntime()
@@ -734,6 +736,8 @@ function ReviewPage() {
       <AppHeader
         locale={locale}
         t={t}
+        onOpenSettings={() => navigate('/settings')}
+        onOpenAuth={() => navigate('/auth')}
         onChangeLanguage={(value) => {
           void i18n.changeLanguage(value)
         }}

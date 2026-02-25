@@ -32,6 +32,7 @@ Retaia UI implements the v1 review experience and follows a spec-first workflow:
 - Batch execution and reporting
 - Purge preview + confirmation flow
 - Auth UI (`/auth`): login/logout, recovery, verify email, MFA
+- Runtime settings UI (`/settings`): API base URL/token + asset source
 - i18n support (`en`, `fr`)
 - Contract-aligned BDD/E2E flows (mock + real API mode)
 

@@ -1,6 +1,9 @@
 export const API_TOKEN_STORAGE_KEY = 'retaia_api_token'
 export const API_BASE_URL_STORAGE_KEY = 'retaia_api_base_url'
 export const API_LOGIN_EMAIL_STORAGE_KEY = 'retaia_auth_email'
+export const ASSET_SOURCE_STORAGE_KEY = 'retaia_asset_source'
+
+export type AssetSourceSetting = 'mock' | 'api'
 
 function canUseStorage() {
   return typeof window !== 'undefined'
@@ -71,4 +74,20 @@ export function clearApiBaseUrl() {
 
 export function persistLoginEmail(email: string) {
   return safeSetStorageItem(API_LOGIN_EMAIL_STORAGE_KEY, email)
+}
+
+export function readStoredAssetSource(): AssetSourceSetting | '' {
+  const value = safeGetStorageItem(ASSET_SOURCE_STORAGE_KEY).trim().toLowerCase()
+  if (value === 'mock' || value === 'api') {
+    return value
+  }
+  return ''
+}
+
+export function persistAssetSource(source: AssetSourceSetting) {
+  return safeSetStorageItem(ASSET_SOURCE_STORAGE_KEY, source)
+}
+
+export function clearAssetSource() {
+  return safeRemoveStorageItem(ASSET_SOURCE_STORAGE_KEY)
 }

@@ -18,4 +18,11 @@ describe('AppRoutes', () => {
 
     expect(await screen.findByRole('heading', { name: 'Retaia UI' })).toBeInTheDocument()
   })
+
+  it('renders settings page on /settings', async () => {
+    setupApp('/settings')
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Configuration' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Connexion API (runtime)')).toBeInTheDocument()
+  })
 })

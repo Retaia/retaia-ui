@@ -16,6 +16,7 @@ Routes UI:
 - `/review`
 - `/review/:assetId` (deep-link détail)
 - `/auth`
+- `/settings` (configuration runtime UI/API)
 
 `App.tsx` ne contient pas de logique métier feature.
 La logique métier est portée par les couches `domain` et `application`, puis injectée dans les pages.
