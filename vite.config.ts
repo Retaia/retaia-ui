@@ -4,6 +4,53 @@ import { defineConfig } from 'vitest/config'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) {
+            return undefined
+          }
+
+          if (
+            id.includes('/node_modules/react-player/') ||
+            id.includes('/node_modules/hls.js/') ||
+            id.includes('/node_modules/dashjs/')
+          ) {
+            return 'media-vendor'
+          }
+
+          if (
+            id.includes('/node_modules/react-dom/') ||
+            id.includes('/node_modules/react/') ||
+            id.includes('/node_modules/react-router/') ||
+            id.includes('/node_modules/scheduler/')
+          ) {
+            return 'react-vendor'
+          }
+
+          if (
+            id.includes('/node_modules/react-bootstrap/') ||
+            id.includes('/node_modules/bootstrap/') ||
+            id.includes('/node_modules/bootswatch/') ||
+            id.includes('/node_modules/@restart/')
+          ) {
+            return 'ui-vendor'
+          }
+
+          if (
+            id.includes('/node_modules/@tanstack/') ||
+            id.includes('/node_modules/i18next/') ||
+            id.includes('/node_modules/react-i18next/')
+          ) {
+            return 'data-vendor'
+          }
+
+          return undefined
+        },
+      },
+    },
+  },
   css: {
     preprocessorOptions: {
       scss: {
