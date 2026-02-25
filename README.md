@@ -175,8 +175,8 @@ Release process and checklist:
 
 GitHub Release is tag-driven (workflow: `.github/workflows/release.yml`):
 
-- RC: `ui-vX.Y.Z-rc.N` (published as pre-release)
-- stable: `ui-vX.Y.Z` (published as stable release)
+- RC: `vX.Y.Z-rc.N` (published as pre-release)
+- stable: `vX.Y.Z` (published as stable release)
 - Docker image published to GHCR on tag push:
   - `ghcr.io/<org>/retaia-ui:vX.Y.Z-rc.N`
   - `ghcr.io/<org>/retaia-ui:vX.Y.Z`
@@ -187,8 +187,8 @@ Example RC1:
 ```bash
 git checkout master
 git pull --ff-only origin master
-git tag -a ui-v1.0.0-rc.1 -m "UI v1.0.0 RC1"
-git push origin ui-v1.0.0-rc.1
+git tag -a v1.0.0-rc.1 -m "UI v1.0.0 RC1"
+git push origin v1.0.0-rc.1
 ```
 
 Current v1 gate command:

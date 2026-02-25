@@ -83,7 +83,7 @@ Le workflow release est défini dans:
 
 Déclenchement:
 
-- `push` d'un tag `ui-v*`
+- `push` d'un tag `v*`
 
 Comportement:
 
@@ -91,7 +91,7 @@ Comportement:
 - packaging des artefacts `dist` en `.tar.gz` et `.zip`
 - génération d'un fichier `SHA256SUMS.txt`
 - publication GitHub Release automatique avec notes générées
-- `prerelease=true` si le tag matche `ui-vX.Y.Z-rc.N`
+- `prerelease=true` si le tag matche `vX.Y.Z-rc.N`
 
 ## Protection de `master`
 

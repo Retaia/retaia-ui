@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - "ui-v*"
+      - "v*"
 
 permissions:
   contents: write
@@ -69,7 +69,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          VERSION="${GITHUB_REF_NAME#ui-}"
+          VERSION="${GITHUB_REF_NAME}"
           echo "value=${VERSION}" >> "${GITHUB_OUTPUT}"
 
       - name: Detect stable tag
@@ -88,7 +88,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          IMAGE="ghcr.io/${GITHUB_REPOSITORY_OWNER}/retaia-ui"
+          OWNER_LC="${GITHUB_REPOSITORY_OWNER,,}"
+          IMAGE="ghcr.io/${OWNER_LC}/retaia-ui"
           VERSION="${{ steps.version.outputs.value }}"
           if [[ "${{ steps.stable.outputs.value }}" == "true" ]]; then
             {
