@@ -89,7 +89,11 @@ Comportement:
 
 - build UI production (`npm ci`, `npm run build`)
 - packaging des artefacts `dist` en `.tar.gz` et `.zip`
+- génération d'un SBOM CycloneDX (`*.sbom.cdx.json`)
 - génération d'un fichier `SHA256SUMS.txt`
+- signature keyless Cosign des artefacts release (`*.sig`, `*.pem`)
+- attestations provenance GitHub des artefacts release
+- publication image GHCR avec attestations OCI (`provenance` + `sbom`)
 - publication GitHub Release automatique avec notes générées
 - `prerelease=true` si le tag matche `vX.Y.Z-rcN`
 

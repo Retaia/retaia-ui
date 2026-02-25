@@ -31,6 +31,12 @@
 - publication GitHub Release automatique via `.github/workflows/release.yml`:
   - tag `v*-rc*` => GitHub pre-release
   - tag `v*` (sans suffixe `-rcN`) => GitHub release stable
+  - assets attendus:
+    - `retaia-ui-<tag>.tar.gz`
+    - `retaia-ui-<tag>.zip`
+    - `retaia-ui-<tag>.sbom.cdx.json`
+    - `SHA256SUMS.txt`
+    - signatures/certificats Cosign (`*.sig`, `*.pem`)
 
 ## Post-release
 

@@ -181,6 +181,12 @@ GitHub Release is tag-driven (workflow: `.github/workflows/release.yml`):
   - `ghcr.io/<org>/retaia-ui:vX.Y.Z-rcN`
   - `ghcr.io/<org>/retaia-ui:vX.Y.Z`
   - `ghcr.io/<org>/retaia-ui:latest` (stable tags only)
+- Release assets include:
+  - `retaia-ui-<tag>.tar.gz` and `retaia-ui-<tag>.zip`
+  - `retaia-ui-<tag>.sbom.cdx.json` (CycloneDX)
+  - `SHA256SUMS.txt`
+  - Cosign signatures/certificates for archive/zip/SBOM (`*.sig`, `*.pem`)
+- Docker publish includes OCI attestations with provenance + SBOM.
 
 Example RC1:
 
