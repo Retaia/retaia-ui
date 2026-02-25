@@ -25,6 +25,14 @@ Recommandation:
 - laisser Caddy proxyfier vers Core via `API_UPSTREAM`
 - éviter `API_BASE_URL=http://core:8000/api/v1` côté navigateur (hostname Docker non résolvable hors réseau conteneur)
 
+Pattern NAS + workstations (recommandé):
+
+- NAS expose uniquement `ui` (port 8080), pas `core`.
+- `ui` proxyfie `/api/*` vers `core:8000` en interne Docker.
+- les agents desktop/workstations utilisent l'URL NAS:
+  - `http://192.168.0.14:8080/api/v1`
+- ainsi, `core` reste non exposé hors réseau Docker.
+
 ## Build image
 
 ```bash

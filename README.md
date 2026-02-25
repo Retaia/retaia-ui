@@ -217,6 +217,14 @@ docker run --rm -p 8080:80 \
 Production compose example: `docker-compose.prod.yml`.
 Use relative `API_BASE_URL=/api/v1` for browser-safe calls and let Caddy reverse-proxy to Core.
 
+NAS/LAN deployment pattern (Core private, agents on workstations):
+
+- UI exposed on NAS IP (example): `http://192.168.0.14:8080`
+- Browser UI calls relative API path: `/api/v1`
+- Caddy in UI container proxies `/api/*` to internal Core service (`core:8000`)
+- Workstation agents call Core through the same exposed UI gateway URL:
+  - `http://192.168.0.14:8080/api/v1`
+
 ## License
 
 Licensed under the GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later).
