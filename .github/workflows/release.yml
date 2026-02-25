@@ -1,0 +1,87 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "ui-v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-release-assets:
+    name: Build UI assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build production bundle
+        run: npm run build
+
+      - name: Package release artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          OUT_DIR="release-assets"
+          DIST_DIR="dist"
+          PKG="retaia-ui-${TAG}"
+          mkdir -p "${OUT_DIR}/${PKG}"
+          cp -R "${DIST_DIR}/." "${OUT_DIR}/${PKG}/"
+          tar -C "${OUT_DIR}" -czf "${OUT_DIR}/${PKG}.tar.gz" "${PKG}"
+          (cd "${OUT_DIR}" && zip -rq "${PKG}.zip" "${PKG}")
+          sha256sum "${OUT_DIR}/${PKG}.tar.gz" "${OUT_DIR}/${PKG}.zip" > "${OUT_DIR}/SHA256SUMS.txt"
+
+      - name: Upload release assets artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-ui
+          retention-days: 14
+          path: |
+            release-assets/*.tar.gz
+            release-assets/*.zip
+            release-assets/SHA256SUMS.txt
+
+  create-github-release:
+    name: Publish GitHub Release
+    needs: build-release-assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Detect pre-release tag
+        id: prerelease
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          if [[ "${TAG}" =~ -rc\.[0-9]+$ ]]; then
+            echo "value=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "value=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          prerelease: ${{ steps.prerelease.outputs.value }}
+          files: |
+            release-assets/*.tar.gz
+            release-assets/*.zip
+            release-assets/SHA256SUMS.txt

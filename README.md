@@ -170,6 +170,20 @@ Release process and checklist:
 
 - `docs/RELEASE-CHECKLIST.md`
 
+GitHub Release is tag-driven (workflow: `.github/workflows/release.yml`):
+
+- RC: `ui-vX.Y.Z-rc.N` (published as pre-release)
+- stable: `ui-vX.Y.Z` (published as stable release)
+
+Example RC1:
+
+```bash
+git checkout master
+git pull --ff-only origin master
+git tag -a ui-v1.0.0-rc.1 -m "UI v1.0.0 RC1"
+git push origin ui-v1.0.0-rc.1
+```
+
 Current v1 gate command:
 
 - `npm run qa:v1:go-no-go`
