@@ -14,6 +14,7 @@ import { readLibraryFilterParams, writeLibraryFilterParams } from '../services/w
 const INITIAL_LIBRARY_ASSETS = INITIAL_ASSETS.filter(
   (asset) => asset.state === 'ARCHIVED' || asset.state === 'DECIDED_KEEP',
 )
+const DEFAULT_LIBRARY_PAGE_SIZE = 50
 
 export function useLibraryPageController() {
   const persistedWorkspaceState = readLibraryWorkspaceState()
@@ -23,6 +24,8 @@ export function useLibraryPageController() {
   const [sort, setSort] = useState<AssetSort>(queryFilters.sort ?? persistedWorkspaceState?.sort ?? '-created_at')
   const [assets, setAssets] = useState<Asset[]>(INITIAL_LIBRARY_ASSETS)
   const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>('idle')
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
+  const [loadingMoreAssets, setLoadingMoreAssets] = useState(false)
   const [assetDetailLoadState, setAssetDetailLoadState] = useState<'idle' | 'loading' | 'error'>('idle')
   const [savingMetadata, setSavingMetadata] = useState(false)
   const [metadataStatus, setMetadataStatus] = useState<{
@@ -41,21 +44,25 @@ export function useLibraryPageController() {
     const fetchAssets = async () => {
       setAssetsLoadState('loading')
       try {
-        const summaries = await apiClient.listAssetSummaries({
+        const response = await apiClient.listAssets({
           state: 'ARCHIVED',
           q: search.trim().length > 0 ? search.trim() : undefined,
           sort,
+          limit: DEFAULT_LIBRARY_PAGE_SIZE,
         })
         if (canceled) {
           return
         }
-        setAssets(summaries.map((summary, index) => mapApiSummaryToAsset(summary, index)))
+        const items = response.items ?? []
+        setAssets(items.map((summary, index) => mapApiSummaryToAsset(summary, index)))
+        setNextCursor(response.next_cursor ?? null)
         setAssetsLoadState('idle')
       } catch {
         if (canceled) {
           return
         }
         setAssetsLoadState('error')
+        setNextCursor(null)
       }
     }
 
@@ -64,6 +71,31 @@ export function useLibraryPageController() {
       canceled = true
     }
   }, [apiClient, isApiAssetSource, search, sort])
+
+  const loadMoreAssets = useCallback(async () => {
+    if (!isApiAssetSource || !nextCursor || loadingMoreAssets) {
+      return
+    }
+    setLoadingMoreAssets(true)
+    try {
+      const response = await apiClient.listAssets({
+        state: 'ARCHIVED',
+        q: search.trim().length > 0 ? search.trim() : undefined,
+        sort,
+        limit: DEFAULT_LIBRARY_PAGE_SIZE,
+        cursor: nextCursor,
+      })
+      const items = response.items ?? []
+      setAssets((current) => {
+        const offset = current.length
+        const nextAssets = items.map((summary, index) => mapApiSummaryToAsset(summary, offset + index))
+        return [...current, ...nextAssets]
+      })
+      setNextCursor(response.next_cursor ?? null)
+    } finally {
+      setLoadingMoreAssets(false)
+    }
+  }, [apiClient, isApiAssetSource, loadingMoreAssets, nextCursor, search, sort])
 
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
 
@@ -198,6 +230,9 @@ export function useLibraryPageController() {
     setSort,
     densityMode,
     assetsLoadState,
+    hasMoreAssets: isApiAssetSource && Boolean(nextCursor),
+    loadingMoreAssets,
+    loadMoreAssets,
     assetDetailLoadState,
     isApiAssetSource,
     savingMetadata,

@@ -216,6 +216,80 @@ describe('App', () => {
     }
   })
 
+  it('loads the next api page when clicking load more', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      const fetchMock = vi.fn((input: RequestInfo | URL) => {
+        const url = String(input)
+        if (url.endsWith('/app/policy')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                server_policy: {
+                  feature_flags: {
+                    'features.decisions.bulk': true,
+                  },
+                },
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        if (url.includes('/assets?') && url.includes('cursor=cursor-1')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                items: [
+                  { uuid: 'A-302', state: 'DECISION_PENDING', media_type: 'VIDEO', created_at: '2026-02-01T11:00:00Z' },
+                ],
+                next_cursor: null,
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        if (url.includes('/assets?')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                items: [
+                  { uuid: 'A-301', state: 'DECISION_PENDING', media_type: 'VIDEO', created_at: '2026-02-01T10:00:00Z' },
+                ],
+                next_cursor: 'cursor-1',
+              }),
+              {
+                status: 200,
+                headers: { 'content-type': 'application/json' },
+              },
+            ),
+          )
+        }
+        return Promise.resolve(
+          new Response(JSON.stringify({}), {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+        )
+      })
+      vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+
+      const { user } = setupApp('/review?source=api')
+      expect(await within(getAssetsPanel()).findByText('A-301')).toBeInTheDocument()
+      await user.click(await screen.findByTestId('review-load-more'))
+      expect(await within(getAssetsPanel()).findByText('A-302')).toBeInTheDocument()
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
+  })
+
   it('disables bulk decision actions when policy flag is OFF', async () => {
     const previous = import.meta.env.VITE_ASSET_SOURCE
     try {

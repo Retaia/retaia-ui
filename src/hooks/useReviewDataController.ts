@@ -15,6 +15,7 @@ type UseReviewDataControllerArgs = {
   setAssets: Dispatch<SetStateAction<Asset[]>>
 }
 
+const DEFAULT_ASSET_LIST_PAGE_SIZE = 50
 const DEFAULT_POLICY_POLL_INTERVAL_MS = 30_000
 const MIN_POLICY_POLL_INTERVAL_MS = 1_000
 const POLICY_429_BACKOFF_BASE_MS = 1_000
@@ -52,6 +53,8 @@ export function useReviewDataController({
   const [assetDetailLoadState, setAssetDetailLoadState] = useState<'idle' | 'loading' | 'error'>(
     'idle',
   )
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
+  const [loadingMoreAssets, setLoadingMoreAssets] = useState(false)
   const consecutive429ErrorsRef = useRef(0)
 
   useEffect(() => {
@@ -63,17 +66,23 @@ export function useReviewDataController({
     const fetchAssets = async () => {
       setAssetsLoadState('loading')
       try {
-        const summaries = await apiClient.listAssetSummaries(listQuery)
+        const response = await apiClient.listAssets({
+          ...listQuery,
+          limit: DEFAULT_ASSET_LIST_PAGE_SIZE,
+        })
         if (canceled) {
           return
         }
-        setAssets(summaries.map((summary, index) => mapApiSummaryToAsset(summary, index)))
+        const items = response.items ?? []
+        setAssets(items.map((summary, index) => mapApiSummaryToAsset(summary, index)))
+        setNextCursor(response.next_cursor ?? null)
         setAssetsLoadState('idle')
       } catch {
         if (canceled) {
           return
         }
         setAssetsLoadState('error')
+        setNextCursor(null)
       }
     }
 
@@ -82,6 +91,29 @@ export function useReviewDataController({
       canceled = true
     }
   }, [apiClient, isApiAssetSource, listQuery, setAssets])
+
+  const loadMoreAssets = async () => {
+    if (!isApiAssetSource || !nextCursor || loadingMoreAssets) {
+      return
+    }
+    setLoadingMoreAssets(true)
+    try {
+      const response = await apiClient.listAssets({
+        ...listQuery,
+        limit: DEFAULT_ASSET_LIST_PAGE_SIZE,
+        cursor: nextCursor,
+      })
+      const items = response.items ?? []
+      setAssets((current) => {
+        const offset = current.length
+        const nextAssets = items.map((summary, index) => mapApiSummaryToAsset(summary, offset + index))
+        return [...current, ...nextAssets]
+      })
+      setNextCursor(response.next_cursor ?? null)
+    } finally {
+      setLoadingMoreAssets(false)
+    }
+  }
 
   const policyQuery = useQuery({
     queryKey: ['app-policy', apiRuntimeKey],
@@ -172,5 +204,8 @@ export function useReviewDataController({
     policyLoadState,
     bulkDecisionsEnabled,
     assetDetailLoadState: isApiAssetSource && selectedAssetId ? assetDetailLoadState : 'idle',
+    hasMoreAssets: isApiAssetSource && Boolean(nextCursor),
+    loadingMoreAssets,
+    loadMoreAssets,
   }
 }

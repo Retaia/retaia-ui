@@ -14,6 +14,8 @@ type Props = {
   selectionStatusLabel: string
   densityMode: DensityMode
   emptyAssetsMessage: string
+  hasMoreAssets?: boolean
+  loadingMoreAssets?: boolean
   selectedAsset: Asset | null
   availability: ReturnType<typeof getActionAvailability>
   previewingPurge: boolean
@@ -33,6 +35,7 @@ type Props = {
   onRefreshAsset: () => Promise<void>
   onOpenStandaloneDetail?: (assetId: string) => void
   onKeywordClick?: (keyword: string) => void
+  onLoadMoreAssets?: () => Promise<void>
 }
 
 export function ReviewListDetailSection({
@@ -43,6 +46,8 @@ export function ReviewListDetailSection({
   selectionStatusLabel,
   densityMode,
   emptyAssetsMessage,
+  hasMoreAssets = false,
+  loadingMoreAssets = false,
   selectedAsset,
   availability,
   previewingPurge,
@@ -62,6 +67,7 @@ export function ReviewListDetailSection({
   onRefreshAsset,
   onOpenStandaloneDetail,
   onKeywordClick,
+  onLoadMoreAssets,
 }: Props) {
   return (
     <Row as="section" className="g-3 mt-1">
@@ -73,9 +79,12 @@ export function ReviewListDetailSection({
         selectionStatusLabel={selectionStatusLabel}
         densityMode={densityMode}
         emptyAssetsMessage={emptyAssetsMessage}
+        hasMoreAssets={hasMoreAssets}
+        loadingMoreAssets={loadingMoreAssets}
         onDecision={onDecision}
         onAssetClick={onAssetClick}
         assetListRegionRef={assetListRegionRef}
+        onLoadMoreAssets={onLoadMoreAssets}
       />
 
       <AssetDetailPanel
