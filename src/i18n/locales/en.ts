@@ -328,6 +328,7 @@ export const enTranslation = {
   'detail.refreshError': 'Asset refresh failed: {message}',
   'detail.openStandalone': 'Open detail page',
   'detail.backToReview': 'Back to review',
+  'detail.backToActivity': 'Back to activity',
   'detail.backToLibrary': 'Back to library',
   'detail.breadcrumbArchived': 'ARCHIVED',
   'detail.loading': 'Loading detail...',

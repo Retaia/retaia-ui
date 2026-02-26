@@ -25,6 +25,12 @@ export function StandaloneAssetDetailPage({ context }: Props) {
     ? '/activity'
     : '/review'
   const reviewRootLabel = reviewRootPath === '/activity' ? controller.t('app.nav.activity') : controller.t('app.nav.review')
+  const backButtonLabel =
+    context === 'review'
+      ? reviewRootPath === '/activity'
+        ? controller.t('detail.backToActivity')
+        : controller.t('detail.backToReview')
+      : controller.t('detail.backToLibrary')
 
   return (
     <Container as="main" className="py-4">
@@ -41,7 +47,7 @@ export function StandaloneAssetDetailPage({ context }: Props) {
       />
 
       <Button type="button" variant="outline-secondary" size="sm" onClick={() => navigate(backPath)}>
-        {context === 'review' ? controller.t('detail.backToReview') : controller.t('detail.backToLibrary')}
+        {backButtonLabel}
       </Button>
 
       <Breadcrumb className="mt-3 mb-0" data-testid="standalone-detail-breadcrumb">
