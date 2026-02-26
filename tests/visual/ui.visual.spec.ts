@@ -119,3 +119,52 @@ test('execute loading state baseline', async ({ page }) => {
   await page.getByRole('button', { name: 'Exécuter batch' }).click()
   await expect(page.locator('main')).toHaveScreenshot('execute-loading-state.png')
 })
+
+test('auth page baseline', async ({ page }) => {
+  await setStableUiStorage(page)
+  await page.goto('/auth')
+  await disableMotion(page)
+  await expect(page.locator('main')).toHaveScreenshot('auth-page.png')
+})
+
+test('settings page baseline', async ({ page }) => {
+  await setStableUiStorage(page)
+  await page.goto('/settings')
+  await disableMotion(page)
+  await expect(page.locator('main')).toHaveScreenshot('settings-page.png')
+})
+
+test('library page baseline', async ({ page }) => {
+  await setStableUiStorage(page)
+  await page.goto('/library')
+  await disableMotion(page)
+  await expect(page.locator('main')).toHaveScreenshot('library-page.png')
+})
+
+test('standalone detail review page baseline', async ({ page }) => {
+  await setStableUiStorage(page)
+  await page.goto('/review/detail/A-001')
+  await disableMotion(page)
+  await expect(page.locator('main')).toHaveScreenshot('detail-review-page.png')
+})
+
+test('batch route page baseline', async ({ page }) => {
+  await setStableUiStorage(page)
+  await page.goto('/batch')
+  await disableMotion(page)
+  await expect(page.locator('main')).toHaveScreenshot('batch-route-page.png')
+})
+
+test('batch reports route page baseline', async ({ page }) => {
+  await setStableUiStorage(page)
+  await page.goto('/batch/reports')
+  await disableMotion(page)
+  await expect(page.locator('main')).toHaveScreenshot('batch-reports-route-page.png')
+})
+
+test('activity route page baseline', async ({ page }) => {
+  await setStableUiStorage(page)
+  await page.goto('/activity')
+  await disableMotion(page)
+  await expect(page.locator('main')).toHaveScreenshot('activity-route-page.png')
+})
