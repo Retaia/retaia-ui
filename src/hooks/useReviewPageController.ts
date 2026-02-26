@@ -48,6 +48,7 @@ import {
 } from '../application/review/reviewPagePresentation'
 import { readReviewWorkspaceState, saveReviewWorkspaceState } from '../services/navigationSession'
 import { readReviewFilterParams, writeReviewFilterParams } from '../services/workspaceQueryParams'
+import type { ListAssetsQuery } from '../api/contracts'
 
 export type ReviewPageView = 'workspace' | 'batch' | 'reports' | 'activity'
 
@@ -70,7 +71,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   )
   const [sort, setSort] = useState<AssetSort>(queryFilters.sort ?? persistedWorkspaceState?.sort ?? '-created_at')
   const [search, setSearch] = useState(queryFilters.search ?? persistedWorkspaceState?.search ?? '')
-  const [batchOnly, setBatchOnly] = useState(queryFilters.batchOnly ?? persistedWorkspaceState?.batchOnly ?? false)
+  const [batchOnly, setBatchOnly] = useState(persistedWorkspaceState?.batchOnly ?? false)
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
   const [selectionAnchorId, setSelectionAnchorId] = useState<string | null>(null)
@@ -92,12 +93,36 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   } | null>(null)
   const [shouldRefreshSelectedAsset, setShouldRefreshSelectedAsset] = useState(false)
   const [refreshingSelectedAsset, setRefreshingSelectedAsset] = useState(false)
+  const listQuery = useMemo<ListAssetsQuery>(() => {
+    const now = new Date()
+    const from = new Date(now)
+    if (dateFilter === 'LAST_7_DAYS') {
+      from.setDate(from.getDate() - 7)
+    } else if (dateFilter === 'LAST_30_DAYS') {
+      from.setDate(from.getDate() - 30)
+    }
+    return {
+      state: filter === 'ALL' ? undefined : filter,
+      media_type:
+        mediaTypeFilter === 'IMAGE'
+          ? 'PHOTO'
+          : mediaTypeFilter === 'ALL' || mediaTypeFilter === 'OTHER'
+            ? undefined
+            : mediaTypeFilter,
+      q: search.trim().length > 0 ? search.trim() : undefined,
+      sort,
+      captured_at_from: dateFilter === 'ALL' ? undefined : from.toISOString(),
+      captured_at_to: dateFilter === 'ALL' ? undefined : now.toISOString(),
+    }
+  }, [dateFilter, filter, mediaTypeFilter, search, sort])
+
   const { assetsLoadState, policyLoadState, bulkDecisionsEnabled, assetDetailLoadState } =
     useReviewDataController({
       apiClient,
       apiRuntimeKey,
       isApiAssetSource,
       selectedAssetId,
+      listQuery,
       setAssets,
     })
   const visibleAssets = useMemo(() => {
@@ -138,9 +163,8 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       dateFilter,
       sort,
       search,
-      batchOnly,
     })
-  }, [batchOnly, dateFilter, filter, mediaTypeFilter, search, sort])
+  }, [dateFilter, filter, mediaTypeFilter, search, sort])
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -153,7 +177,6 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       setDateFilter(next.dateFilter ?? 'ALL')
       setSort(next.sort ?? '-created_at')
       setSearch(next.search ?? '')
-      setBatchOnly(next.batchOnly ?? false)
     }
     window.addEventListener('popstate', handlePopState)
     return () => {

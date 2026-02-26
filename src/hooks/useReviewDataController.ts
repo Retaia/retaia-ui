@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from 'react'
 import { mapApiSummaryToAsset } from '../api/assetMapper'
 import { ApiError, type ApiClient } from '../api/client'
+import type { ListAssetsQuery } from '../api/contracts'
 import type { Asset } from '../domain/assets'
 import { mergeAssetWithDetail } from '../domain/review/assetDetailMerge'
 
@@ -10,6 +11,7 @@ type UseReviewDataControllerArgs = {
   apiRuntimeKey: string
   isApiAssetSource: boolean
   selectedAssetId: string | null
+  listQuery: ListAssetsQuery
   setAssets: Dispatch<SetStateAction<Asset[]>>
 }
 
@@ -41,6 +43,7 @@ export function useReviewDataController({
   apiRuntimeKey,
   isApiAssetSource,
   selectedAssetId,
+  listQuery,
   setAssets,
 }: UseReviewDataControllerArgs) {
   const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>(
@@ -60,7 +63,7 @@ export function useReviewDataController({
     const fetchAssets = async () => {
       setAssetsLoadState('loading')
       try {
-        const summaries = await apiClient.listAssetSummaries()
+        const summaries = await apiClient.listAssetSummaries(listQuery)
         if (canceled) {
           return
         }
@@ -78,7 +81,7 @@ export function useReviewDataController({
     return () => {
       canceled = true
     }
-  }, [apiClient, isApiAssetSource, setAssets])
+  }, [apiClient, isApiAssetSource, listQuery, setAssets])
 
   const policyQuery = useQuery({
     queryKey: ['app-policy', apiRuntimeKey],
