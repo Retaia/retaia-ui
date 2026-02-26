@@ -1,5 +1,5 @@
 import { Container, Row } from 'react-bootstrap'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { AppHeader } from '../components/app/AppHeader'
 import { AssetDetailPanel } from '../components/app/AssetDetailPanel'
 import { LibraryListSection } from '../components/library/LibraryListSection'
@@ -7,7 +7,6 @@ import { useLibraryPageController } from '../hooks/useLibraryPageController'
 
 export function LibraryPage() {
   const navigate = useNavigate()
-  const location = useLocation()
   const controller = useLibraryPageController()
 
   return (
@@ -49,11 +48,13 @@ export function LibraryPage() {
           showDecisionActions={false}
           showPurgeActions={false}
           onKeywordClick={controller.onKeywordClick}
-          onOpenStandaloneDetail={(assetId) =>
-            navigate(
-              `/library/detail/${assetId}?from=${encodeURIComponent(`${location.pathname}${location.search}`)}`,
-            )
-          }
+          onOpenStandaloneDetail={(assetId) => {
+            const from =
+              typeof window === 'undefined'
+                ? '/library'
+                : `${window.location.pathname}${window.location.search}`
+            navigate(`/library/detail/${assetId}?from=${encodeURIComponent(from)}`)
+          }}
         />
       </Row>
     </Container>
