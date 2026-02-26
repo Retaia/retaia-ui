@@ -1,6 +1,9 @@
 import { act, renderHook } from '@testing-library/react'
+import { createElement, type ReactNode } from 'react'
+import { Provider } from 'react-redux'
 import { describe, expect, it, vi } from 'vitest'
 import { useAuthRecoveryController } from './useAuthRecoveryController'
+import { createAppStore } from '../../store'
 
 function createApiClientMock() {
   return {
@@ -15,11 +18,15 @@ function createApiClientMock() {
 describe('useAuthRecoveryController', () => {
   it('returns validation error when lost password request email is empty', async () => {
     const apiClient = createApiClientMock()
-    const { result } = renderHook(() =>
-      useAuthRecoveryController({
-        apiClient,
-        t: (key) => key,
-      }),
+    const store = createAppStore()
+    const wrapper = ({ children }: { children: ReactNode }) => createElement(Provider, { store, children })
+    const { result } = renderHook(
+      () =>
+        useAuthRecoveryController({
+          apiClient,
+          t: (key) => key,
+        }),
+      { wrapper },
     )
 
     await act(async () => {
@@ -36,11 +43,15 @@ describe('useAuthRecoveryController', () => {
   it('clears verify email token input after successful confirmation', async () => {
     const apiClient = createApiClientMock()
     apiClient.confirmEmailVerification.mockResolvedValue(undefined)
-    const { result } = renderHook(() =>
-      useAuthRecoveryController({
-        apiClient,
-        t: (key) => key,
-      }),
+    const store = createAppStore()
+    const wrapper = ({ children }: { children: ReactNode }) => createElement(Provider, { store, children })
+    const { result } = renderHook(
+      () =>
+        useAuthRecoveryController({
+          apiClient,
+          t: (key) => key,
+        }),
+      { wrapper },
     )
 
     act(() => {

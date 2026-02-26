@@ -15,7 +15,7 @@ import {
   setLibrarySearch,
   setLibrarySort,
 } from '../store/slices/libraryWorkspaceSlice'
-import { savePersistedLibraryWorkspaceState } from '../store/persistence/workspaceStorage'
+import { selectLibraryWorkspaceQueryModel } from '../store/selectors/workspaceSelectors'
 
 const INITIAL_LIBRARY_ASSETS = INITIAL_ASSETS.filter(
   (asset) => asset.state === 'ARCHIVED' || asset.state === 'DECIDED_KEEP',
@@ -24,7 +24,7 @@ const DEFAULT_LIBRARY_PAGE_SIZE = 50
 
 export function useLibraryPageController() {
   const dispatch = useAppDispatch()
-  const libraryWorkspace = useAppSelector((state) => state.libraryWorkspace)
+  const libraryWorkspace = useAppSelector(selectLibraryWorkspaceQueryModel)
   const { t, i18n } = useTranslation()
   const { search, sort } = libraryWorkspace
   const setSearch = useCallback((value: string) => {
@@ -205,10 +205,6 @@ export function useLibraryPageController() {
   }, [setSearch])
 
   useEffect(() => {
-    savePersistedLibraryWorkspaceState(libraryWorkspace)
-  }, [libraryWorkspace])
-
-  useEffect(() => {
     writeLibraryFilterParams(search, sort)
   }, [search, sort])
 
@@ -225,6 +221,7 @@ export function useLibraryPageController() {
         }),
       )
     }
+    handlePopState()
     window.addEventListener('popstate', handlePopState)
     return () => {
       window.removeEventListener('popstate', handlePopState)

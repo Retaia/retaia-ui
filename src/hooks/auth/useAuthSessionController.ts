@@ -1,16 +1,27 @@
-import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from 'react'
+import { useCallback, useEffect } from 'react'
 import { ApiError, type ApiClient } from '../../api/client'
 import { mapApiErrorToMessage } from '../../api/errorMapping'
 import {
-  loginWithContext,
   normalizeAuthUser,
   normalizeFeatures,
-  type AuthUserProfile,
 } from '../../application/auth/authUseCases'
 import { type FeatureState } from './useAuthFeatureGovernance'
-import { clearApiToken, persistApiToken, persistLoginEmail, readStoredLoginEmail } from '../../services/apiSession'
+import { clearApiToken, persistApiToken, persistLoginEmail } from '../../services/apiSession'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
+import {
+  setAuthEmailInput,
+  setAuthLoading,
+  setAuthOtpInput,
+  setAuthPasswordInput,
+  setAuthRequiresOtp,
+  setAuthStatus,
+  setAuthUser as setAuthUserAction,
+  setUserFeatureState as setUserFeatureStateAction,
+} from '../../store/slices/authUiSlice'
+import { loginWithContextThunk } from '../../store/thunks/authThunks'
 
 type Translator = (key: string, options?: Record<string, unknown>) => string
+type SetStateAction<T> = T | ((current: T) => T)
 
 type AuthSessionClient = Pick<ApiClient, 'login' | 'logout' | 'getCurrentUser' | 'getUserFeatures'>
 
@@ -19,79 +30,76 @@ export function useAuthSessionController(args: {
   t: Translator
   effectiveApiToken: string | null
   isApiAuthLockedByEnv: boolean
-  setApiTokenInput: Dispatch<SetStateAction<string>>
+  setApiTokenInput: (value: string) => void
 }) {
   const { apiClient, effectiveApiToken, isApiAuthLockedByEnv, setApiTokenInput, t } = args
-
-  const [authEmailInput, setAuthEmailInput] = useState(readStoredLoginEmail)
-  const [authPasswordInput, setAuthPasswordInput] = useState('')
-  const [authOtpInput, setAuthOtpInput] = useState('')
-  const [authStatus, setAuthStatus] = useState<{
-    kind: 'success' | 'error'
-    message: string
-  } | null>(null)
-  const [authLoading, setAuthLoading] = useState(false)
-  const [authRequiresOtp, setAuthRequiresOtp] = useState(false)
-  const [authUser, setAuthUser] = useState<AuthUserProfile | null>(null)
-  const [userFeatureState, setUserFeatureState] = useState<FeatureState | null>(null)
+  const dispatch = useAppDispatch()
+  const authEmailInput = useAppSelector((state) => state.authUi.authEmailInput)
+  const authPasswordInput = useAppSelector((state) => state.authUi.authPasswordInput)
+  const authOtpInput = useAppSelector((state) => state.authUi.authOtpInput)
+  const authStatus = useAppSelector((state) => state.authUi.authStatus)
+  const authLoading = useAppSelector((state) => state.authUi.authLoading)
+  const authRequiresOtp = useAppSelector((state) => state.authUi.authRequiresOtp)
+  const authUser = useAppSelector((state) => state.authUi.authUser)
+  const userFeatureState = useAppSelector((state) => state.authUi.userFeatureState)
 
   const handleLogin = useCallback(async () => {
-    const result = await loginWithContext({
+    const result = await dispatch(loginWithContextThunk({
       apiClient,
       email: authEmailInput,
       password: authPasswordInput,
       otpCode: authOtpInput,
-    })
+    })).unwrap()
     if (result.kind === 'validation_error') {
-      setAuthStatus({
+      dispatch(setAuthStatus({
         kind: 'error',
         message: t('app.authMissingCredentials'),
-      })
+      }))
       return false
     }
 
-    setAuthLoading(true)
-    setAuthStatus(null)
+    dispatch(setAuthLoading(true))
+    dispatch(setAuthStatus(null))
     try {
       if (result.kind === 'mfa_required') {
-        setAuthRequiresOtp(true)
-        setAuthStatus({
+        dispatch(setAuthRequiresOtp(true))
+        dispatch(setAuthStatus({
           kind: 'error',
           message: t('app.authMfaRequired'),
-        })
+        }))
         return false
       }
       if (result.kind === 'api_error') {
-        setAuthStatus({
+        dispatch(setAuthStatus({
           kind: 'error',
           message: t('app.authLoginError', {
             message: mapApiErrorToMessage(result.error, t),
           }),
-        })
+        }))
         return false
       }
 
       setApiTokenInput(result.accessToken)
       persistApiToken(result.accessToken)
       persistLoginEmail(result.loginEmail)
-      setUserFeatureState(result.featureState)
-      setAuthUser(result.authUser)
-      setAuthPasswordInput('')
-      setAuthOtpInput('')
-      setAuthRequiresOtp(false)
-      setAuthStatus({
+      dispatch(setUserFeatureStateAction(result.featureState))
+      dispatch(setAuthUserAction(result.authUser))
+      dispatch(setAuthPasswordInput(''))
+      dispatch(setAuthOtpInput(''))
+      dispatch(setAuthRequiresOtp(false))
+      dispatch(setAuthStatus({
         kind: 'success',
         message: t('app.authLoginSuccess'),
-      })
+      }))
       return true
     } finally {
-      setAuthLoading(false)
+      dispatch(setAuthLoading(false))
     }
-  }, [apiClient, authEmailInput, authOtpInput, authPasswordInput, setApiTokenInput, t])
+  }, [apiClient, authEmailInput, authOtpInput, authPasswordInput, dispatch, setApiTokenInput, t])
 
   const handleLogout = useCallback(async () => {
-    setAuthLoading(true)
-    setAuthStatus(null)
+    dispatch(setAuthLoading(true))
+    dispatch(setAuthStatus(null))
     try {
       await apiClient.logout()
     } catch {
@@ -99,23 +107,23 @@ export function useAuthSessionController(args: {
     } finally {
       setApiTokenInput('')
       clearApiToken()
-      setAuthPasswordInput('')
-      setAuthOtpInput('')
-      setAuthRequiresOtp(false)
-      setAuthUser(null)
-      setUserFeatureState(null)
-      setAuthLoading(false)
-      setAuthStatus({
+      dispatch(setAuthPasswordInput(''))
+      dispatch(setAuthOtpInput(''))
+      dispatch(setAuthRequiresOtp(false))
+      dispatch(setAuthUserAction(null))
+      dispatch(setUserFeatureStateAction(null))
+      dispatch(setAuthLoading(false))
+      dispatch(setAuthStatus({
         kind: 'success',
         message: t('app.authLogoutSuccess'),
-      })
+      }))
     }
-  }, [apiClient, setApiTokenInput, t])
+  }, [apiClient, dispatch, setApiTokenInput, t])
 
   useEffect(() => {
     if (!effectiveApiToken) {
-      setAuthUser(null)
-      setUserFeatureState(null)
+      dispatch(setAuthUserAction(null))
+      dispatch(setUserFeatureStateAction(null))
       return
     }
 
@@ -127,21 +135,21 @@ export function useAuthSessionController(args: {
         if (canceled) {
           return
         }
-        setUserFeatureState(normalizeFeatures(userFeatures))
-        setAuthUser(normalizeAuthUser(currentUser))
+        dispatch(setUserFeatureStateAction(normalizeFeatures(userFeatures)))
+        dispatch(setAuthUserAction(normalizeAuthUser(currentUser)))
       } catch (error) {
         if (canceled) {
           return
         }
-        setAuthUser(null)
-        setUserFeatureState(null)
+        dispatch(setAuthUserAction(null))
+        dispatch(setUserFeatureStateAction(null))
         if (!isApiAuthLockedByEnv && error instanceof ApiError && (error.status === 401 || error.status === 403)) {
           setApiTokenInput('')
           clearApiToken()
-          setAuthStatus({
+          dispatch(setAuthStatus({
             kind: 'error',
             message: t('app.authSessionExpired'),
-          })
+          }))
         }
       }
     }
@@ -150,22 +158,25 @@ export function useAuthSessionController(args: {
     return () => {
       canceled = true
     }
-  }, [apiClient, effectiveApiToken, isApiAuthLockedByEnv, setApiTokenInput, t])
+  }, [apiClient, dispatch, effectiveApiToken, isApiAuthLockedByEnv, setApiTokenInput, t])
 
   return {
     authEmailInput,
-    setAuthEmailInput,
+    setAuthEmailInput: (value: string) => dispatch(setAuthEmailInput(value)),
     authPasswordInput,
-    setAuthPasswordInput,
+    setAuthPasswordInput: (value: string) => dispatch(setAuthPasswordInput(value)),
     authOtpInput,
-    setAuthOtpInput,
+    setAuthOtpInput: (value: string) => dispatch(setAuthOtpInput(value)),
     authStatus,
     authLoading,
     authRequiresOtp,
     authUser,
-    setAuthUser,
+    setAuthUser: (value: SetStateAction<typeof authUser>) => {
+      const nextValue = typeof value === 'function' ? value(authUser) : value
+      dispatch(setAuthUserAction(nextValue))
+    },
     userFeatureState,
-    setUserFeatureState,
+    setUserFeatureState: (value: FeatureState | null) => dispatch(setUserFeatureStateAction(value)),
     handleLogin,
     handleLogout,
   }

@@ -8,18 +8,6 @@ describe('createAppStore', () => {
   })
 
   it('hydrates review workspace from query params over persisted state', () => {
-    window.localStorage.setItem(
-      'retaia_review_workspace_state',
-      JSON.stringify({
-        filter: 'DECIDED_KEEP',
-        mediaTypeFilter: 'AUDIO',
-        dateFilter: 'LAST_30_DAYS',
-        sort: '-updated_at',
-        search: 'persisted',
-        batchOnly: true,
-        batchIds: ['A-001'],
-      }),
-    )
     window.history.replaceState(
       window.history.state,
       '',
@@ -33,18 +21,11 @@ describe('createAppStore', () => {
     expect(state.mediaTypeFilter).toBe('VIDEO')
     expect(state.sort).toBe('name')
     expect(state.search).toBe('query')
-    expect(state.batchOnly).toBe(true)
-    expect(state.batchIds).toEqual(['A-001'])
+    expect(state.batchOnly).toBe(false)
+    expect(state.batchIds).toEqual([])
   })
 
   it('hydrates library workspace from query params over persisted state', () => {
-    window.localStorage.setItem(
-      'retaia_library_workspace_state',
-      JSON.stringify({
-        search: 'persisted',
-        sort: '-updated_at',
-      }),
-    )
     window.history.replaceState(window.history.state, '', '/library?q=archive&sort=name')
 
     const store = createAppStore()

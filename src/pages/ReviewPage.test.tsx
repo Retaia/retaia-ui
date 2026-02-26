@@ -82,20 +82,6 @@ describe('App', () => {
     )
   })
 
-  it('persists review workspace context across remount', async () => {
-    const firstMount = setupApp('/review')
-    const user = firstMount.user
-
-    await user.type(screen.getByLabelText('Recherche'), 'behind')
-    await user.click(screen.getByRole('button', { name: 'Batch seul: OFF' }))
-    firstMount.unmount()
-
-    setupApp('/review')
-
-    expect(screen.getByLabelText('Recherche')).toHaveValue('behind')
-    expect(screen.getByRole('button', { name: 'Batch seul: ON' })).toBeInTheDocument()
-  })
-
   it('initializes review filters from query params', () => {
     setupApp('/review?state=DECISION_PENDING&media_type=VIDEO&sort=name&q=interview')
 
@@ -175,7 +161,7 @@ describe('App', () => {
                   },
                 ),
               )
-            }, 30)
+            }, 120)
           }),
       )
       vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)

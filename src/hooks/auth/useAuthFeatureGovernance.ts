@@ -17,14 +17,14 @@ type UseAuthFeatureGovernanceArgs = {
   t: TFunction
   authUserIsAdmin: boolean
   userFeatureState: FeatureState | null
-  setUserFeatureState: React.Dispatch<React.SetStateAction<FeatureState | null>>
-  setAuthMfaStatus: React.Dispatch<
-    React.SetStateAction<{
+  setUserFeatureState: (value: FeatureState | null) => void
+  setAuthMfaStatus: (
+    value: {
       kind: 'success' | 'error'
       message: string
-    } | null>
-  >
-  setAuthMfaBusy: React.Dispatch<React.SetStateAction<boolean>>
+    } | null,
+  ) => void
+  setAuthMfaBusy: (value: boolean) => void
 }
 
 export function useAuthFeatureGovernance({
