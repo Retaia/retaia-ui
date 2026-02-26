@@ -1,6 +1,11 @@
 export const enTranslation = {
   'app.title': 'Retaia UI',
   'app.subtitle': 'Simple review UI for KEEP or REJECT decisions',
+  'app.navigation': 'Navigation',
+  'app.nav.review': 'Review',
+  'app.nav.batch': 'Batch ops',
+  'app.nav.reports': 'Reports',
+  'app.nav.activity': 'Activity',
   'app.language': 'Language',
   'app.language.fr': 'French',
   'app.language.en': 'English',

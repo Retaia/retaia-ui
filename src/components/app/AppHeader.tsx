@@ -4,16 +4,32 @@ import type { Locale } from '../../i18n/resources'
 
 type Props = {
   locale: Locale
-  t: (key: string) => string
+  t: (key: string, values?: Record<string, string | number>) => string
   onChangeLanguage: (locale: Locale) => void
   onOpenSettings: () => void
   onOpenAuth: () => void
+  onOpenReview: () => void
+  onOpenBatch: () => void
+  onOpenBatchReports: () => void
+  onOpenActivity: () => void
+  currentView?: 'workspace' | 'batch' | 'reports' | 'activity'
 }
 
-export function AppHeader({ locale, t, onChangeLanguage, onOpenSettings, onOpenAuth }: Props) {
+export function AppHeader({
+  locale,
+  t,
+  onChangeLanguage,
+  onOpenSettings,
+  onOpenAuth,
+  onOpenReview,
+  onOpenBatch,
+  onOpenBatchReports,
+  onOpenActivity,
+  currentView = 'workspace',
+}: Props) {
   return (
     <header className="mb-3">
-      <Stack direction="horizontal" className="justify-content-between align-items-start gap-2">
+      <Stack direction="horizontal" className="justify-content-between align-items-start gap-2 flex-wrap">
         <div>
           <h1 className="display-6 fw-bold mb-1">
             <img
@@ -27,6 +43,40 @@ export function AppHeader({ locale, t, onChangeLanguage, onOpenSettings, onOpenA
             {t('app.title')}
           </h1>
           <p className="text-secondary mb-0">{t('app.subtitle')}</p>
+          <Stack direction="horizontal" className="flex-wrap gap-2 mt-2" aria-label={t('app.navigation')}>
+            <Button
+              type="button"
+              size="sm"
+              variant={currentView === 'workspace' ? 'primary' : 'outline-primary'}
+              onClick={onOpenReview}
+            >
+              {t('app.nav.review')}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={currentView === 'batch' ? 'primary' : 'outline-primary'}
+              onClick={onOpenBatch}
+            >
+              {t('app.nav.batch')}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={currentView === 'reports' ? 'primary' : 'outline-primary'}
+              onClick={onOpenBatchReports}
+            >
+              {t('app.nav.reports')}
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={currentView === 'activity' ? 'primary' : 'outline-primary'}
+              onClick={onOpenActivity}
+            >
+              {t('app.nav.activity')}
+            </Button>
+          </Stack>
         </div>
         <Stack direction="horizontal" gap={2} aria-label={t('app.language')}>
           <Button type="button" size="sm" variant="outline-secondary" onClick={onOpenSettings}>
