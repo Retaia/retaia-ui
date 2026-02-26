@@ -1,4 +1,4 @@
-import { screen, waitFor, within } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -114,6 +114,22 @@ describe('App', () => {
     expect(window.location.search).toContain('filter=DECISION_PENDING')
     expect(window.location.search).toContain('q=foo')
     expect(window.location.search).toContain('batch=1')
+  })
+
+  it('restores review filters on browser back using query params history', async () => {
+    const { user } = setupApp('/review')
+
+    await user.selectOptions(screen.getByLabelText('Filtrer par état'), 'DECISION_PENDING')
+    await user.selectOptions(screen.getByLabelText('Filtrer par état'), 'DECIDED_REJECT')
+    expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECIDED_REJECT')
+
+    act(() => {
+      window.history.back()
+    })
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECISION_PENDING')
+    })
   })
 
   it('shows desktop selection and batch status hints', async () => {

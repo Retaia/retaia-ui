@@ -37,7 +37,7 @@ function toBatchOnlyFlag(value: string | null): boolean | null {
   return null
 }
 
-function replaceCurrentSearch(params: URLSearchParams) {
+function updateCurrentSearch(params: URLSearchParams, mode: 'push' | 'replace' = 'push') {
   if (typeof window === 'undefined') {
     return
   }
@@ -47,7 +47,11 @@ function replaceCurrentSearch(params: URLSearchParams) {
   if (nextUrl === currentUrl) {
     return
   }
-  window.history.replaceState(window.history.state, '', nextUrl)
+  if (mode === 'replace') {
+    window.history.replaceState(window.history.state, '', nextUrl)
+    return
+  }
+  window.history.pushState(window.history.state, '', nextUrl)
 }
 
 export function readReviewFilterParams(): Partial<ReviewFilterParams> {
@@ -70,7 +74,10 @@ export function readReviewFilterParams(): Partial<ReviewFilterParams> {
   }
 }
 
-export function writeReviewFilterParams(paramsState: ReviewFilterParams) {
+export function writeReviewFilterParams(
+  paramsState: ReviewFilterParams,
+  mode: 'push' | 'replace' = 'push',
+) {
   if (typeof window === 'undefined') {
     return
   }
@@ -101,7 +108,7 @@ export function writeReviewFilterParams(paramsState: ReviewFilterParams) {
   } else {
     params.delete('batch')
   }
-  replaceCurrentSearch(params)
+  updateCurrentSearch(params, mode)
 }
 
 export function readLibraryFilterParams(): { search?: string } {
@@ -115,7 +122,7 @@ export function readLibraryFilterParams(): { search?: string } {
   }
 }
 
-export function writeLibraryFilterParams(search: string) {
+export function writeLibraryFilterParams(search: string, mode: 'push' | 'replace' = 'push') {
   if (typeof window === 'undefined') {
     return
   }
@@ -126,5 +133,5 @@ export function writeLibraryFilterParams(search: string) {
   } else {
     params.set('q', normalizedSearch)
   }
-  replaceCurrentSearch(params)
+  updateCurrentSearch(params, mode)
 }

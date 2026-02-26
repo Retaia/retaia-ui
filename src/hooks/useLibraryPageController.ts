@@ -160,6 +160,20 @@ export function useLibraryPageController() {
     writeLibraryFilterParams(search)
   }, [search])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    const handlePopState = () => {
+      const next = readLibraryFilterParams()
+      setSearch(next.search ?? '')
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [])
+
   return {
     t,
     locale,
