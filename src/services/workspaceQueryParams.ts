@@ -67,6 +67,45 @@ function updateCurrentSearch(params: URLSearchParams, mode: 'push' | 'replace' =
   window.history.pushState(window.history.state, '', nextUrl)
 }
 
+function readCurrentSearchParams(): URLSearchParams | null {
+  if (typeof window === 'undefined') {
+    return null
+  }
+  return new URLSearchParams(window.location.search)
+}
+
+function readCommonListQueryParams(params: URLSearchParams): {
+  search?: string
+  sort?: AssetSort
+} {
+  const querySearch = params.get('q')
+  const querySort = params.get('sort')
+  return {
+    search: querySearch ?? undefined,
+    sort: isAssetSort(querySort) ? querySort : undefined,
+  }
+}
+
+function writeCommonListQueryParams(
+  params: URLSearchParams,
+  args: {
+    search: string
+    sort: AssetSort
+  },
+) {
+  const normalizedSearch = args.search.trim()
+  if (normalizedSearch.length === 0) {
+    params.delete('q')
+  } else {
+    params.set('q', normalizedSearch)
+  }
+  if (args.sort === '-created_at') {
+    params.delete('sort')
+  } else {
+    params.set('sort', args.sort)
+  }
+}
+
 function resolveDateFilterFromRange(range: ApiDateRange): AssetDateFilter | undefined {
   const fromValue = range.captured_at_from
   if (!fromValue) {
@@ -105,14 +144,13 @@ function resolveDateRange(dateFilter: AssetDateFilter): ApiDateRange {
 }
 
 export function readReviewFilterParams(): Partial<ReviewFilterParams> {
-  if (typeof window === 'undefined') {
+  const params = readCurrentSearchParams()
+  if (!params) {
     return {}
   }
-  const params = new URLSearchParams(window.location.search)
+  const common = readCommonListQueryParams(params)
   const queryState = params.get('state')
   const queryMedia = params.get('media_type')
-  const querySort = params.get('sort')
-  const querySearch = params.get('q')
   const dateFilter = resolveDateFilterFromRange({
     captured_at_from: params.get('captured_at_from') ?? undefined,
     captured_at_to: params.get('captured_at_to') ?? undefined,
@@ -124,8 +162,8 @@ export function readReviewFilterParams(): Partial<ReviewFilterParams> {
       ? (queryMedia === 'PHOTO' ? 'IMAGE' : queryMedia)
       : undefined,
     dateFilter,
-    sort: isAssetSort(querySort) ? querySort : undefined,
-    search: querySearch ?? undefined,
+    sort: common.sort,
+    search: common.search,
   }
 }
 
@@ -133,10 +171,10 @@ export function writeReviewFilterParams(
   paramsState: ReviewFilterParams,
   mode: 'push' | 'replace' = 'push',
 ) {
-  if (typeof window === 'undefined') {
+  const params = readCurrentSearchParams()
+  if (!params) {
     return
   }
-  const params = new URLSearchParams(window.location.search)
   if (paramsState.filter === 'ALL') {
     params.delete('state')
   } else {
@@ -147,11 +185,10 @@ export function writeReviewFilterParams(
   } else {
     params.set('media_type', paramsState.mediaTypeFilter === 'IMAGE' ? 'PHOTO' : paramsState.mediaTypeFilter)
   }
-  if (paramsState.sort === '-created_at') {
-    params.delete('sort')
-  } else {
-    params.set('sort', paramsState.sort)
-  }
+  writeCommonListQueryParams(params, {
+    search: paramsState.search,
+    sort: paramsState.sort,
+  })
   const dateRange = resolveDateRange(paramsState.dateFilter)
   if (!dateRange.captured_at_from) {
     params.delete('captured_at_from')
@@ -162,12 +199,6 @@ export function writeReviewFilterParams(
       params.set('captured_at_to', dateRange.captured_at_to)
     }
   }
-  const normalizedSearch = paramsState.search.trim()
-  if (normalizedSearch.length === 0) {
-    params.delete('q')
-  } else {
-    params.set('q', normalizedSearch)
-  }
   updateCurrentSearch(params, mode)
 }
 
@@ -175,16 +206,11 @@ export function readLibraryFilterParams(): {
   search?: string
   sort?: AssetSort
 } {
-  if (typeof window === 'undefined') {
+  const params = readCurrentSearchParams()
+  if (!params) {
     return {}
   }
-  const params = new URLSearchParams(window.location.search)
-  const querySearch = params.get('q')
-  const querySort = params.get('sort')
-  return {
-    search: querySearch ?? undefined,
-    sort: isAssetSort(querySort) ? querySort : undefined,
-  }
+  return readCommonListQueryParams(params)
 }
 
 export function writeLibraryFilterParams(
@@ -192,20 +218,10 @@ export function writeLibraryFilterParams(
   sort: AssetSort,
   mode: 'push' | 'replace' = 'push',
 ) {
-  if (typeof window === 'undefined') {
+  const params = readCurrentSearchParams()
+  if (!params) {
     return
   }
-  const params = new URLSearchParams(window.location.search)
-  const normalizedSearch = search.trim()
-  if (normalizedSearch.length === 0) {
-    params.delete('q')
-  } else {
-    params.set('q', normalizedSearch)
-  }
-  if (sort === '-created_at') {
-    params.delete('sort')
-  } else {
-    params.set('sort', sort)
-  }
+  writeCommonListQueryParams(params, { search, sort })
   updateCurrentSearch(params, mode)
 }

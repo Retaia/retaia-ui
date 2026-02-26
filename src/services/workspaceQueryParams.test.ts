@@ -1,0 +1,75 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  readLibraryFilterParams,
+  readReviewFilterParams,
+  writeLibraryFilterParams,
+  writeReviewFilterParams,
+} from './workspaceQueryParams'
+
+describe('workspaceQueryParams', () => {
+  beforeEach(() => {
+    window.history.replaceState({}, '', '/review')
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('reads review params using API-compatible keys', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-02-26T12:00:00.000Z'))
+    window.history.replaceState(
+      {},
+      '',
+      '/review?state=DECISION_PENDING&media_type=PHOTO&sort=name&q=interview&captured_at_from=2026-02-22T12:00:00.000Z',
+    )
+
+    const params = readReviewFilterParams()
+
+    expect(params.filter).toBe('DECISION_PENDING')
+    expect(params.mediaTypeFilter).toBe('IMAGE')
+    expect(params.sort).toBe('name')
+    expect(params.search).toBe('interview')
+    expect(params.dateFilter).toBe('LAST_7_DAYS')
+  })
+
+  it('writes review params and keeps unrelated query keys', () => {
+    window.history.replaceState({}, '', '/review?source=api')
+
+    writeReviewFilterParams({
+      filter: 'DECISION_PENDING',
+      mediaTypeFilter: 'IMAGE',
+      dateFilter: 'ALL',
+      sort: '-created_at',
+      search: ' interview ',
+    })
+
+    const params = new URLSearchParams(window.location.search)
+    expect(params.get('state')).toBe('DECISION_PENDING')
+    expect(params.get('media_type')).toBe('PHOTO')
+    expect(params.get('q')).toBe('interview')
+    expect(params.get('source')).toBe('api')
+    expect(params.get('sort')).toBeNull()
+    expect(params.get('captured_at_from')).toBeNull()
+    expect(params.get('captured_at_to')).toBeNull()
+  })
+
+  it('reads and writes library params with shared q/sort behavior', () => {
+    window.history.replaceState({}, '', '/library?foo=bar')
+    writeLibraryFilterParams(' ambiance ', 'name')
+
+    let params = new URLSearchParams(window.location.search)
+    expect(params.get('q')).toBe('ambiance')
+    expect(params.get('sort')).toBe('name')
+    expect(params.get('foo')).toBe('bar')
+
+    const parsed = readLibraryFilterParams()
+    expect(parsed.search).toBe('ambiance')
+    expect(parsed.sort).toBe('name')
+
+    writeLibraryFilterParams('', '-created_at')
+    params = new URLSearchParams(window.location.search)
+    expect(params.get('q')).toBeNull()
+    expect(params.get('sort')).toBeNull()
+  })
+})
