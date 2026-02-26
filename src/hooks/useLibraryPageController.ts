@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { mapApiSummaryToAsset } from '../api/assetMapper'
 import { INITIAL_ASSETS } from '../data/mockAssets'
-import { sortAssets, type Asset, type AssetSortKey, type SortOrder } from '../domain/assets'
+import { sortAssets, type Asset, type AssetSort } from '../domain/assets'
 import { mergeAssetWithDetail } from '../domain/review/assetDetailMerge'
 import { type Locale } from '../i18n/resources'
 import { mapReviewApiErrorToMessage } from '../infrastructure/review/apiReviewErrorAdapter'
@@ -20,12 +20,7 @@ export function useLibraryPageController() {
   const queryFilters = readLibraryFilterParams()
   const { t, i18n } = useTranslation()
   const [search, setSearch] = useState(queryFilters.search ?? persistedWorkspaceState?.search ?? '')
-  const [sortKey, setSortKey] = useState<AssetSortKey>(
-    queryFilters.sortKey ?? persistedWorkspaceState?.sortKey ?? 'CAPTURED_AT',
-  )
-  const [sortOrder, setSortOrder] = useState<SortOrder>(
-    queryFilters.sortOrder ?? persistedWorkspaceState?.sortOrder ?? 'DESC',
-  )
+  const [sort, setSort] = useState<AssetSort>(queryFilters.sort ?? persistedWorkspaceState?.sort ?? '-created_at')
   const [assets, setAssets] = useState<Asset[]>(INITIAL_LIBRARY_ASSETS)
   const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>('idle')
   const [assetDetailLoadState, setAssetDetailLoadState] = useState<'idle' | 'loading' | 'error'>('idle')
@@ -110,8 +105,8 @@ export function useLibraryPageController() {
         tags.some((tag) => tag.toLowerCase().includes(normalizedSearch))
       )
     })
-    return sortAssets(filtered, sortKey, sortOrder)
-  }, [assets, search, sortKey, sortOrder])
+    return sortAssets(filtered, sort)
+  }, [assets, search, sort])
 
   const selectedAsset = useMemo(
     () => assets.find((asset) => asset.id === selectedAssetId) ?? null,
@@ -157,12 +152,12 @@ export function useLibraryPageController() {
   const locale = (i18n.resolvedLanguage ?? 'fr') as Locale
 
   useEffect(() => {
-    saveLibraryWorkspaceState({ search, sortKey, sortOrder })
-  }, [search, sortKey, sortOrder])
+    saveLibraryWorkspaceState({ search, sort })
+  }, [search, sort])
 
   useEffect(() => {
-    writeLibraryFilterParams(search, sortKey, sortOrder)
-  }, [search, sortKey, sortOrder])
+    writeLibraryFilterParams(search, sort)
+  }, [search, sort])
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -171,8 +166,7 @@ export function useLibraryPageController() {
     const handlePopState = () => {
       const next = readLibraryFilterParams()
       setSearch(next.search ?? '')
-      setSortKey(next.sortKey ?? 'CAPTURED_AT')
-      setSortOrder(next.sortOrder ?? 'DESC')
+      setSort(next.sort ?? '-created_at')
     }
     window.addEventListener('popstate', handlePopState)
     return () => {
@@ -189,10 +183,8 @@ export function useLibraryPageController() {
     selectedAssetId,
     search,
     setSearch,
-    sortKey,
-    setSortKey,
-    sortOrder,
-    setSortOrder,
+    sort,
+    setSort,
     densityMode,
     assetsLoadState,
     assetDetailLoadState,

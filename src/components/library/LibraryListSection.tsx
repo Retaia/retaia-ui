@@ -3,7 +3,7 @@ import { Card, Col, Form } from 'react-bootstrap'
 import { BsArchive, BsSearch, BsSortDown } from 'react-icons/bs'
 import { AssetList } from '../AssetList'
 import type { Asset } from '../../domain/assets'
-import type { AssetSortKey, SortOrder } from '../../domain/assets'
+import type { AssetSort } from '../../domain/assets'
 import type { DensityMode } from '../../hooks/useDensityMode'
 
 type Props = {
@@ -12,11 +12,9 @@ type Props = {
   selectedAssetId: string | null
   densityMode: DensityMode
   search: string
-  sortKey: AssetSortKey
-  sortOrder: SortOrder
+  sort: AssetSort
   onSearchChange: (value: string) => void
-  onSortKeyChange: (value: AssetSortKey) => void
-  onSortOrderChange: (value: SortOrder) => void
+  onSortChange: (value: AssetSort) => void
   onAssetClick: (assetId: string, shiftKey: boolean) => void
 }
 
@@ -26,11 +24,9 @@ export function LibraryListSection({
   selectedAssetId,
   densityMode,
   search,
-  sortKey,
-  sortOrder,
+  sort,
   onSearchChange,
-  onSortKeyChange,
-  onSortOrderChange,
+  onSortChange,
   onAssetClick,
 }: Props) {
   return (
@@ -61,27 +57,16 @@ export function LibraryListSection({
           <Form.Select
             id="library-sort-key"
             data-testid="library-sort-key"
-            value={sortKey}
-            onChange={(event) => onSortKeyChange(event.currentTarget.value as AssetSortKey)}
+            value={sort}
+            onChange={(event) => onSortChange(event.currentTarget.value as AssetSort)}
             className="mb-2"
           >
-            <option value="CAPTURED_AT">{t('library.sortByCapturedAt')}</option>
-            <option value="NAME">{t('library.sortByName')}</option>
-            <option value="STATE">{t('library.sortByState')}</option>
-          </Form.Select>
-          <Form.Label htmlFor="library-sort-order" className="fw-semibold">
-            <BsSortDown className="me-1" aria-hidden="true" />
-            {t('library.sortOrder')}
-          </Form.Label>
-          <Form.Select
-            id="library-sort-order"
-            data-testid="library-sort-order"
-            value={sortOrder}
-            onChange={(event) => onSortOrderChange(event.currentTarget.value as SortOrder)}
-            className="mb-3"
-          >
-            <option value="DESC">{t('library.orderDesc')}</option>
-            <option value="ASC">{t('library.orderAsc')}</option>
+            <option value="-created_at">{t('library.sortCreatedAtDesc')}</option>
+            <option value="created_at">{t('library.sortCreatedAtAsc')}</option>
+            <option value="name">{t('library.sortNameAsc')}</option>
+            <option value="-name">{t('library.sortNameDesc')}</option>
+            <option value="state">{t('library.sortStateAsc')}</option>
+            <option value="-state">{t('library.sortStateDesc')}</option>
           </Form.Select>
           <AssetList
             assets={visibleAssets}

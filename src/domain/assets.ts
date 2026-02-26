@@ -6,8 +6,7 @@ export type AssetFilter = AssetState | 'ALL'
 export type AssetMediaType = (typeof ASSET_MEDIA_TYPES)[number]
 export type AssetMediaTypeFilter = AssetMediaType | 'ALL'
 export type AssetDateFilter = 'ALL' | 'LAST_7_DAYS' | 'LAST_30_DAYS'
-export type AssetSortKey = 'CAPTURED_AT' | 'NAME' | 'STATE'
-export type SortOrder = 'ASC' | 'DESC'
+export type AssetSort = 'created_at' | '-created_at' | 'name' | '-name' | 'state' | '-state'
 export type DecisionAction = 'KEEP' | 'REJECT' | 'CLEAR'
 
 export type Asset = {
@@ -83,17 +82,17 @@ export const filterAssets = (
 
 export const sortAssets = (
   assets: Asset[],
-  sortKey: AssetSortKey,
-  sortOrder: SortOrder,
+  sort: AssetSort,
 ): Asset[] => {
-  const direction = sortOrder === 'ASC' ? 1 : -1
+  const direction = sort.startsWith('-') ? -1 : 1
+  const sortKey = sort.startsWith('-') ? sort.slice(1) : sort
   const byName = (left: Asset, right: Asset) => left.name.localeCompare(right.name)
 
   return [...assets].sort((left, right) => {
-    if (sortKey === 'NAME') {
+    if (sortKey === 'name') {
       return direction * byName(left, right)
     }
-    if (sortKey === 'STATE') {
+    if (sortKey === 'state') {
       const byState = left.state.localeCompare(right.state)
       return byState !== 0 ? direction * byState : direction * byName(left, right)
     }

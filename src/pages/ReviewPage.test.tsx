@@ -95,13 +95,12 @@ describe('App', () => {
   })
 
   it('initializes review filters from query params', () => {
-    setupApp('/review?filter=DECISION_PENDING&media=VIDEO&date=LAST_7_DAYS&sort=NAME&order=ASC&q=interview&batch=1')
+    setupApp('/review?filter=DECISION_PENDING&media=VIDEO&date=LAST_7_DAYS&sort=name&q=interview&batch=1')
 
     expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECISION_PENDING')
     expect(document.getElementById('media-type-filter')).toHaveValue('VIDEO')
     expect(document.getElementById('captured-date-filter')).toHaveValue('LAST_7_DAYS')
-    expect(document.getElementById('sort-key-filter')).toHaveValue('NAME')
-    expect(document.getElementById('sort-order-filter')).toHaveValue('ASC')
+    expect(document.getElementById('sort-key-filter')).toHaveValue('name')
     expect(screen.getByLabelText('Recherche')).toHaveValue('interview')
     expect(screen.getByRole('button', { name: 'Batch seul: ON' })).toBeInTheDocument()
   })
@@ -110,14 +109,12 @@ describe('App', () => {
     const { user } = setupApp('/review')
 
     await user.selectOptions(screen.getByLabelText('Filtrer par état'), 'DECISION_PENDING')
-    await user.selectOptions(document.getElementById('sort-key-filter') as HTMLSelectElement, 'NAME')
-    await user.selectOptions(document.getElementById('sort-order-filter') as HTMLSelectElement, 'ASC')
+    await user.selectOptions(document.getElementById('sort-key-filter') as HTMLSelectElement, 'name')
     await user.type(screen.getByLabelText('Recherche'), 'foo')
     await user.click(screen.getByRole('button', { name: 'Batch seul: OFF' }))
 
     expect(window.location.search).toContain('filter=DECISION_PENDING')
-    expect(window.location.search).toContain('sort=NAME')
-    expect(window.location.search).toContain('order=ASC')
+    expect(window.location.search).toContain('sort=name')
     expect(window.location.search).toContain('q=foo')
     expect(window.location.search).toContain('batch=1')
   })

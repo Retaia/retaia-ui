@@ -2,8 +2,7 @@ import type {
   AssetDateFilter,
   AssetFilter,
   AssetMediaTypeFilter,
-  AssetSortKey,
-  SortOrder,
+  AssetSort,
 } from '../domain/assets'
 
 const REVIEW_WORKSPACE_STATE_KEY = 'retaia_review_workspace_state'
@@ -13,8 +12,7 @@ export type ReviewWorkspaceState = {
   filter: AssetFilter
   mediaTypeFilter: AssetMediaTypeFilter
   dateFilter: AssetDateFilter
-  sortKey: AssetSortKey
-  sortOrder: SortOrder
+  sort: AssetSort
   search: string
   batchOnly: boolean
   batchIds: string[]
@@ -22,8 +20,7 @@ export type ReviewWorkspaceState = {
 
 export type LibraryWorkspaceState = {
   search: string
-  sortKey: AssetSortKey
-  sortOrder: SortOrder
+  sort: AssetSort
 }
 
 function readJson<T>(key: string): T | null {
