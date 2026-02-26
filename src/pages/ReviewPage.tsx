@@ -42,8 +42,7 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           filter={controller.filter}
           mediaTypeFilter={controller.mediaTypeFilter}
           dateFilter={controller.dateFilter}
-          sortKey={controller.sortKey}
-          sortOrder={controller.sortOrder}
+          sort={controller.sort}
           search={controller.search}
           isApiAssetSource={controller.isApiAssetSource}
           assetsLoadState={controller.assetsLoadState}
@@ -52,8 +51,7 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           onFilterChange={controller.setFilter}
           onMediaTypeFilterChange={controller.setMediaTypeFilter}
           onDateFilterChange={controller.setDateFilter}
-          onSortKeyChange={controller.setSortKey}
-          onSortOrderChange={controller.setSortOrder}
+          onSortChange={controller.setSort}
           onSearchChange={controller.setSearch}
         />
       ) : null}

@@ -5,9 +5,8 @@ import type {
   AssetDateFilter,
   AssetFilter,
   AssetMediaTypeFilter,
-  AssetSortKey,
+  AssetSort,
   AssetState,
-  SortOrder,
 } from '../../domain/assets'
 import type { TFunction } from 'i18next'
 
@@ -18,8 +17,7 @@ type Props = {
   filter: AssetFilter
   mediaTypeFilter: AssetMediaTypeFilter
   dateFilter: AssetDateFilter
-  sortKey: AssetSortKey
-  sortOrder: SortOrder
+  sort: AssetSort
   search: string
   isApiAssetSource: boolean
   assetsLoadState: 'idle' | 'loading' | 'ready' | 'error'
@@ -28,8 +26,7 @@ type Props = {
   onFilterChange: (value: AssetFilter) => void
   onMediaTypeFilterChange: (value: AssetMediaTypeFilter) => void
   onDateFilterChange: (value: AssetDateFilter) => void
-  onSortKeyChange: (value: AssetSortKey) => void
-  onSortOrderChange: (value: SortOrder) => void
+  onSortChange: (value: AssetSort) => void
   onSearchChange: (value: string) => void
 }
 
@@ -40,8 +37,7 @@ export function ReviewOverviewSection({
   filter,
   mediaTypeFilter,
   dateFilter,
-  sortKey,
-  sortOrder,
+  sort,
   search,
   isApiAssetSource,
   assetsLoadState,
@@ -50,8 +46,7 @@ export function ReviewOverviewSection({
   onFilterChange,
   onMediaTypeFilterChange,
   onDateFilterChange,
-  onSortKeyChange,
-  onSortOrderChange,
+  onSortChange,
   onSearchChange,
 }: Props) {
   return (
@@ -71,20 +66,19 @@ export function ReviewOverviewSection({
         filter={filter}
         mediaTypeFilter={mediaTypeFilter}
         dateFilter={dateFilter}
-        sortKey={sortKey}
-        sortOrder={sortOrder}
+        sort={sort}
         search={search}
         labels={{
           filter: t('toolbar.filter'),
           mediaType: t('toolbar.mediaType'),
           date: t('toolbar.date'),
           sortBy: t('toolbar.sortBy'),
-          sortOrder: t('toolbar.sortOrder'),
-          sortByCapturedAt: t('toolbar.sortByCapturedAt'),
-          sortByName: t('toolbar.sortByName'),
-          sortByState: t('toolbar.sortByState'),
-          orderAsc: t('toolbar.orderAsc'),
-          orderDesc: t('toolbar.orderDesc'),
+          sortCreatedAtDesc: t('toolbar.sortCreatedAtDesc'),
+          sortCreatedAtAsc: t('toolbar.sortCreatedAtAsc'),
+          sortNameAsc: t('toolbar.sortNameAsc'),
+          sortNameDesc: t('toolbar.sortNameDesc'),
+          sortStateAsc: t('toolbar.sortStateAsc'),
+          sortStateDesc: t('toolbar.sortStateDesc'),
           search: t('toolbar.search'),
           searchPlaceholder: t('toolbar.placeholder'),
           all: t('toolbar.all'),
@@ -94,8 +88,7 @@ export function ReviewOverviewSection({
         onFilterChange={onFilterChange}
         onMediaTypeFilterChange={onMediaTypeFilterChange}
         onDateFilterChange={onDateFilterChange}
-        onSortKeyChange={onSortKeyChange}
-        onSortOrderChange={onSortOrderChange}
+        onSortChange={onSortChange}
         onSearchChange={onSearchChange}
       />
       <ReviewStatusAlerts

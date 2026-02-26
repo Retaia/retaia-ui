@@ -33,11 +33,9 @@ export function LibraryPage() {
           selectedAssetId={controller.selectedAssetId}
           densityMode={controller.densityMode}
           search={controller.search}
-          sortKey={controller.sortKey}
-          sortOrder={controller.sortOrder}
+          sort={controller.sort}
           onSearchChange={controller.setSearch}
-          onSortKeyChange={controller.setSortKey}
-          onSortOrderChange={controller.setSortOrder}
+          onSortChange={controller.setSort}
           onAssetClick={controller.onAssetClick}
         />
         <AssetDetailPanel
