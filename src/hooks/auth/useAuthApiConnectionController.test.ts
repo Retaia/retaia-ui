@@ -8,7 +8,7 @@ describe('useAuthApiConnectionController', () => {
     window.localStorage.clear()
   })
 
-  it('persists trimmed base url', () => {
+  it('normalizes base url on save', () => {
     const apiClient = {
       getCurrentUser: vi.fn(),
     }
@@ -31,7 +31,7 @@ describe('useAuthApiConnectionController', () => {
       result.current.saveApiConnectionSettings()
     })
 
-    expect(window.localStorage.getItem('retaia_api_base_url')).toBe('/api/v2')
+    expect(setApiBaseUrlInput).toHaveBeenCalledWith('/api/v2')
     expect(result.current.status).toEqual({
       kind: 'success',
       message: 'app.apiConnectionSaved',

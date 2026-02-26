@@ -5,17 +5,13 @@ import { useNavigate } from 'react-router-dom'
 import { useApiClient } from '../hooks/useApiClient'
 import { mapReviewApiErrorToMessage } from '../infrastructure/review/apiReviewErrorAdapter'
 import {
-  clearApiBaseUrl,
-  clearApiToken,
   clearAssetSource,
-  persistApiBaseUrl,
-  persistApiToken,
   persistAssetSource,
-  readStoredApiBaseUrl,
-  readStoredApiToken,
   readStoredAssetSource,
   type AssetSourceSetting,
 } from '../services/apiSession'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
+import { setApiBaseUrlInput, setApiTokenInput } from '../store/slices/authUiSlice'
 
 type Status = {
   kind: 'success' | 'error'
@@ -35,9 +31,10 @@ function resolveEnvAssetSource(value: unknown): AssetSourceSetting | null {
 export function SettingsPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
 
-  const [apiBaseUrlInput, setApiBaseUrlInput] = useState(readStoredApiBaseUrl)
-  const [apiTokenInput, setApiTokenInput] = useState(readStoredApiToken)
+  const apiBaseUrlInput = useAppSelector((state) => state.authUi.apiBaseUrlInput)
+  const apiTokenInput = useAppSelector((state) => state.authUi.apiTokenInput)
   const [assetSourceInput, setAssetSourceInput] = useState<AssetSourceSetting>(
     readStoredAssetSource() || 'mock',
   )
@@ -67,41 +64,28 @@ export function SettingsPage() {
   const saveConnectionSettings = () => {
     const nextBaseUrl = apiBaseUrlInput.trim()
     const nextToken = apiTokenInput.trim()
-    let ok = true
-
     if (!isApiBaseUrlLockedByEnv) {
-      ok = persistApiBaseUrl(nextBaseUrl) && ok
+      dispatch(setApiBaseUrlInput(nextBaseUrl))
     }
 
     if (!isApiAuthLockedByEnv) {
-      if (nextToken.length > 0) {
-        ok = persistApiToken(nextToken) && ok
-      } else {
-        ok = clearApiToken() && ok
-      }
+      dispatch(setApiTokenInput(nextToken))
     }
 
     setConnectionStatus(
-      ok
-        ? { kind: 'success', message: t('settings.connectionSaved') }
-        : { kind: 'error', message: t('settings.connectionSaveError') },
+      { kind: 'success', message: t('settings.connectionSaved') },
     )
   }
 
   const clearConnectionSettings = () => {
-    let ok = true
     if (!isApiBaseUrlLockedByEnv) {
-      ok = clearApiBaseUrl() && ok
-      setApiBaseUrlInput('')
+      dispatch(setApiBaseUrlInput(''))
     }
     if (!isApiAuthLockedByEnv) {
-      ok = clearApiToken() && ok
-      setApiTokenInput('')
+      dispatch(setApiTokenInput(''))
     }
     setConnectionStatus(
-      ok
-        ? { kind: 'success', message: t('settings.connectionCleared') }
-        : { kind: 'error', message: t('settings.connectionSaveError') },
+      { kind: 'success', message: t('settings.connectionCleared') },
     )
   }
 
@@ -194,7 +178,7 @@ export function SettingsPage() {
             id="settings-api-base-url-input"
             data-testid="settings-api-base-url-input"
             value={apiBaseUrlInput}
-            onChange={(event) => setApiBaseUrlInput(event.target.value)}
+            onChange={(event) => dispatch(setApiBaseUrlInput(event.target.value))}
             placeholder="/api/v1"
             disabled={isApiBaseUrlLockedByEnv}
           />
@@ -205,7 +189,7 @@ export function SettingsPage() {
             id="settings-api-token-input"
             data-testid="settings-api-token-input"
             value={apiTokenInput}
-            onChange={(event) => setApiTokenInput(event.target.value)}
+            onChange={(event) => dispatch(setApiTokenInput(event.target.value))}
             placeholder={t('settings.apiTokenPlaceholder')}
             disabled={isApiAuthLockedByEnv}
           />

@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
 import { type ApiClient } from '../../api/client'
 import { mapApiErrorToMessage } from '../../api/errorMapping'
-import { clearApiBaseUrl, persistApiBaseUrl } from '../../services/apiSession'
 
 type Translator = (key: string, options?: Record<string, unknown>) => string
 
@@ -20,31 +19,18 @@ export function useAuthApiConnectionController(args: {
   const { apiBaseUrlInput, apiClient, setApiBaseUrlInput, setApiConnectionStatus, t } = args
 
   const saveApiConnectionSettings = useCallback(() => {
-    if (persistApiBaseUrl(apiBaseUrlInput.trim())) {
-      setApiConnectionStatus({
-        kind: 'success',
-        message: t('app.apiConnectionSaved'),
-      })
-      return
-    }
+    setApiBaseUrlInput(apiBaseUrlInput.trim())
     setApiConnectionStatus({
-      kind: 'error',
-      message: t('app.apiConnectionSaveError'),
+      kind: 'success',
+      message: t('app.apiConnectionSaved'),
     })
-  }, [apiBaseUrlInput, setApiConnectionStatus, t])
+  }, [apiBaseUrlInput, setApiBaseUrlInput, setApiConnectionStatus, t])
 
   const clearApiConnectionSettings = useCallback(() => {
-    if (clearApiBaseUrl()) {
-      setApiBaseUrlInput('')
-      setApiConnectionStatus({
-        kind: 'success',
-        message: t('app.apiConnectionCleared'),
-      })
-      return
-    }
+    setApiBaseUrlInput('')
     setApiConnectionStatus({
-      kind: 'error',
-      message: t('app.apiConnectionSaveError'),
+      kind: 'success',
+      message: t('app.apiConnectionCleared'),
     })
   }, [setApiBaseUrlInput, setApiConnectionStatus, t])
 

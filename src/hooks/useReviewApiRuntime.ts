@@ -1,13 +1,14 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useApiClient } from './useApiClient'
-import { readStoredApiBaseUrl, readStoredApiToken, readStoredAssetSource } from '../services/apiSession'
+import { readStoredAssetSource } from '../services/apiSession'
+import { useAppSelector } from '../store/hooks'
 
 export function useReviewApiRuntime() {
   const { t } = useTranslation()
   const [retryStatus, setRetryStatus] = useState<string | null>(null)
-  const [apiTokenInput] = useState(readStoredApiToken)
-  const [apiBaseUrlInput] = useState(readStoredApiBaseUrl)
+  const apiTokenInput = useAppSelector((state) => state.authUi.apiTokenInput)
+  const apiBaseUrlInput = useAppSelector((state) => state.authUi.apiBaseUrlInput)
   const handleApiRetry = useCallback(
     ({ attempt, maxRetries }: { attempt: number; maxRetries: number }) => {
       setRetryStatus(

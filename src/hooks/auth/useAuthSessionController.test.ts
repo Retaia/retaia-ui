@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '../../api/client'
 import { useAuthSessionController } from './useAuthSessionController'
 import { createAppStore } from '../../store'
+import { setAuthEmailInput } from '../../store/slices/authUiSlice'
 
 function createApiClientMock() {
   return {
@@ -20,12 +21,12 @@ describe('useAuthSessionController', () => {
     window.localStorage.clear()
   })
 
-  it('initializes login email from localStorage', () => {
-    window.localStorage.setItem('retaia_auth_email', 'agent@retaia.test')
+  it('initializes login email from redux auth state', () => {
     const apiClient = createApiClientMock()
 
     const t = vi.fn((key: string) => key)
     const store = createAppStore()
+    store.dispatch(setAuthEmailInput('agent@retaia.test'))
     const wrapper = ({ children }: { children: ReactNode }) => createElement(Provider, { store, children })
     const { result } = renderHook(
       () =>
@@ -42,8 +43,7 @@ describe('useAuthSessionController', () => {
     expect(result.current.authEmailInput).toBe('agent@retaia.test')
   })
 
-  it('clears persisted token and reports expired session on 401 refresh', async () => {
-    window.localStorage.setItem('retaia_api_token', 'old-token')
+  it('clears in-memory token and reports expired session on 401 refresh', async () => {
     const apiClient = createApiClientMock()
     apiClient.getCurrentUser.mockRejectedValue(
       new ApiError(401, 'Unauthorized', {
@@ -75,7 +75,6 @@ describe('useAuthSessionController', () => {
     })
 
     expect(setApiTokenInput).toHaveBeenCalledWith('')
-    expect(window.localStorage.getItem('retaia_api_token')).toBeNull()
     expect(result.current.authStatus).toEqual({
       kind: 'error',
       message: 'app.authSessionExpired',

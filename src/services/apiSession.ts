@@ -56,26 +56,6 @@ export function readStoredLoginEmail() {
   return safeGetStorageItem(API_LOGIN_EMAIL_STORAGE_KEY)
 }
 
-export function persistApiToken(token: string) {
-  return safeSetStorageItem(API_TOKEN_STORAGE_KEY, token)
-}
-
-export function clearApiToken() {
-  return safeRemoveStorageItem(API_TOKEN_STORAGE_KEY)
-}
-
-export function persistApiBaseUrl(baseUrl: string) {
-  return safeSetStorageItem(API_BASE_URL_STORAGE_KEY, baseUrl)
-}
-
-export function clearApiBaseUrl() {
-  return safeRemoveStorageItem(API_BASE_URL_STORAGE_KEY)
-}
-
-export function persistLoginEmail(email: string) {
-  return safeSetStorageItem(API_LOGIN_EMAIL_STORAGE_KEY, email)
-}
-
 export function readStoredAssetSource(): AssetSourceSetting | '' {
   const value = safeGetStorageItem(ASSET_SOURCE_STORAGE_KEY).trim().toLowerCase()
   if (value === 'mock' || value === 'api') {
