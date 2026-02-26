@@ -6,6 +6,8 @@ export type AssetFilter = AssetState | 'ALL'
 export type AssetMediaType = (typeof ASSET_MEDIA_TYPES)[number]
 export type AssetMediaTypeFilter = AssetMediaType | 'ALL'
 export type AssetDateFilter = 'ALL' | 'LAST_7_DAYS' | 'LAST_30_DAYS'
+export type AssetSortKey = 'CAPTURED_AT' | 'NAME' | 'STATE'
+export type SortOrder = 'ASC' | 'DESC'
 export type DecisionAction = 'KEEP' | 'REJECT' | 'CLEAR'
 
 export type Asset = {
@@ -76,6 +78,37 @@ export const filterAssets = (
       asset.id.toLowerCase().includes(normalizedSearch)
 
     return matchesFilter && matchesType && matchesDate && matchesSearch
+  })
+}
+
+export const sortAssets = (
+  assets: Asset[],
+  sortKey: AssetSortKey,
+  sortOrder: SortOrder,
+): Asset[] => {
+  const direction = sortOrder === 'ASC' ? 1 : -1
+  const byName = (left: Asset, right: Asset) => left.name.localeCompare(right.name)
+
+  return [...assets].sort((left, right) => {
+    if (sortKey === 'NAME') {
+      return direction * byName(left, right)
+    }
+    if (sortKey === 'STATE') {
+      const byState = left.state.localeCompare(right.state)
+      return byState !== 0 ? direction * byState : direction * byName(left, right)
+    }
+
+    const leftDate = left.capturedAt ? Date.parse(left.capturedAt) : Number.NaN
+    const rightDate = right.capturedAt ? Date.parse(right.capturedAt) : Number.NaN
+    const leftValid = Number.isFinite(leftDate)
+    const rightValid = Number.isFinite(rightDate)
+    if (leftValid && rightValid && leftDate !== rightDate) {
+      return direction * (leftDate - rightDate)
+    }
+    if (leftValid !== rightValid) {
+      return leftValid ? -1 : 1
+    }
+    return direction * byName(left, right)
   })
 }
 
