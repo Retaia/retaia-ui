@@ -81,6 +81,40 @@ describe('AuthPage', () => {
     )
   })
 
+  it('blocks auth page navigation when unsaved sensitive fields exist and user cancels', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(unauthorizedResponse('auth-guard-1'))
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    const { user } = setupApp('/auth')
+
+    await user.type(screen.getByTestId('auth-password-input'), 'temporary-secret')
+    await user.click(screen.getByRole('button', { name: 'Retour review' }))
+
+    expect(confirmSpy).toHaveBeenCalledTimes(1)
+    expect(window.location.pathname).toBe('/auth')
+  })
+
+  it('allows auth page navigation when unsaved guard is confirmed', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(unauthorizedResponse('auth-guard-2'))
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const { user } = setupApp('/auth')
+
+    await user.type(screen.getByTestId('auth-password-input'), 'temporary-secret')
+    await user.click(screen.getByRole('button', { name: 'Retour review' }))
+
+    expect(window.location.pathname).toBe('/review')
+  })
+
+  it('registers beforeunload guard when auth fields are dirty', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(unauthorizedResponse('auth-guard-3'))
+    const { user } = setupApp('/auth')
+
+    await user.type(screen.getByTestId('auth-password-input'), 'temporary-secret')
+    const event = new Event('beforeunload', { cancelable: true })
+    window.dispatchEvent(event)
+
+    expect(event.defaultPrevented).toBe(true)
+  })
+
   it('requests lost password reset email', async () => {
     const fetchMock = vi.fn((input: RequestInfo | URL) => {
       const url = String(input)
