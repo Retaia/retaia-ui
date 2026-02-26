@@ -87,7 +87,7 @@ describe('AuthPage', () => {
     const { user } = setupApp('/auth')
 
     await user.type(screen.getByTestId('auth-password-input'), 'temporary-secret')
-    await user.click(screen.getByRole('button', { name: 'Retour review' }))
+    await user.click(screen.getByRole('button', { name: 'Retour à Review' }))
 
     expect(confirmSpy).toHaveBeenCalledTimes(1)
     expect(window.location.pathname).toBe('/auth')
@@ -99,7 +99,7 @@ describe('AuthPage', () => {
     const { user } = setupApp('/auth')
 
     await user.type(screen.getByTestId('auth-password-input'), 'temporary-secret')
-    await user.click(screen.getByRole('button', { name: 'Retour review' }))
+    await user.click(screen.getByRole('button', { name: 'Retour à Review' }))
 
     expect(window.location.pathname).toBe('/review')
   })
