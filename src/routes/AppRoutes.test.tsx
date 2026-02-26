@@ -25,4 +25,22 @@ describe('AppRoutes', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Configuration' })).toBeInTheDocument()
     expect(screen.getByLabelText('Connexion API (runtime)')).toBeInTheDocument()
   })
+
+  it('renders batch page on /batch', async () => {
+    setupApp('/batch')
+
+    expect(await screen.findByRole('heading', { name: 'Ops batch' })).toBeInTheDocument()
+  })
+
+  it('renders batch reports page on /batch/reports', async () => {
+    setupApp('/batch/reports')
+
+    expect(await screen.findByRole('heading', { name: 'Rapports' })).toBeInTheDocument()
+  })
+
+  it('renders activity page on /activity', async () => {
+    setupApp('/activity')
+
+    expect(await screen.findByRole('heading', { name: 'Activité' })).toBeInTheDocument()
+  })
 })
