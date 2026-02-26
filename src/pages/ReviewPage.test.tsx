@@ -77,6 +77,21 @@ describe('App', () => {
     await user.click(await screen.findByTestId('asset-open-standalone'))
 
     expect(window.location.pathname).toBe('/review/detail/A-001')
+    expect(decodeURIComponent(window.location.search)).toContain('from=/review')
+  })
+
+  it('persists review workspace context across remount', async () => {
+    const firstMount = setupApp('/review')
+    const user = firstMount.user
+
+    await user.type(screen.getByLabelText('Recherche'), 'behind')
+    await user.click(screen.getByRole('button', { name: 'Batch seul: OFF' }))
+    firstMount.unmount()
+
+    setupApp('/review')
+
+    expect(screen.getByLabelText('Recherche')).toHaveValue('behind')
+    expect(screen.getByRole('button', { name: 'Batch seul: ON' })).toBeInTheDocument()
   })
 
   it('shows desktop selection and batch status hints', async () => {

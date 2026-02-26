@@ -45,6 +45,7 @@ import {
   resolveEmptyAssetsMessage,
   resolveSelectionStatusLabel,
 } from '../application/review/reviewPagePresentation'
+import { readReviewWorkspaceState, saveReviewWorkspaceState } from '../services/navigationSession'
 
 export type ReviewPageView = 'workspace' | 'batch' | 'reports' | 'activity'
 
@@ -53,14 +54,17 @@ type ReviewPageProps = {
 }
 
 export function useReviewPageController({ view = 'workspace' }: ReviewPageProps = {}) {
+  const persistedWorkspaceState = readReviewWorkspaceState()
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t, i18n } = useTranslation()
   const { apiClient, apiRuntimeKey, isApiAssetSource, retryStatus, setRetryStatus } = useReviewApiRuntime()
-  const [filter, setFilter] = useState<AssetFilter>('ALL')
-  const [mediaTypeFilter, setMediaTypeFilter] = useState<AssetMediaTypeFilter>('ALL')
-  const [dateFilter, setDateFilter] = useState<AssetDateFilter>('ALL')
-  const [search, setSearch] = useState('')
-  const [batchOnly, setBatchOnly] = useState(false)
+  const [filter, setFilter] = useState<AssetFilter>(persistedWorkspaceState?.filter ?? 'ALL')
+  const [mediaTypeFilter, setMediaTypeFilter] = useState<AssetMediaTypeFilter>(
+    persistedWorkspaceState?.mediaTypeFilter ?? 'ALL',
+  )
+  const [dateFilter, setDateFilter] = useState<AssetDateFilter>(persistedWorkspaceState?.dateFilter ?? 'ALL')
+  const [search, setSearch] = useState(persistedWorkspaceState?.search ?? '')
+  const [batchOnly, setBatchOnly] = useState(persistedWorkspaceState?.batchOnly ?? false)
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
   const {
     selectedAssetId,
@@ -69,7 +73,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     setSelectionAnchorId,
     applySelectedAssetId,
   } = useReviewRouteSelection(INITIAL_ASSETS, assets)
-  const [batchIds, setBatchIds] = useState<string[]>([])
+  const [batchIds, setBatchIds] = useState<string[]>(persistedWorkspaceState?.batchIds ?? [])
   const { showShortcutsHelp, toggleShortcutsHelp } = useShortcutsHelpState()
   const { densityMode, toggleDensityMode } = useDensityMode()
   const [savingMetadata, setSavingMetadata] = useState(false)
@@ -108,6 +112,17 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     () => assets.find((asset) => asset.id === selectedAssetId) ?? null,
     [assets, selectedAssetId],
   )
+
+  useEffect(() => {
+    saveReviewWorkspaceState({
+      filter,
+      mediaTypeFilter,
+      dateFilter,
+      search,
+      batchOnly,
+      batchIds,
+    })
+  }, [batchIds, batchOnly, dateFilter, filter, mediaTypeFilter, search])
 
   useEffect(() => {
     if (isApiAssetSource && assetsLoadState === 'error') {

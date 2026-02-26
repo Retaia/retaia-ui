@@ -1,5 +1,5 @@
 import { Container } from 'react-bootstrap'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { AppHeader } from '../components/app/AppHeader'
 import { ActivitySection } from '../components/review/ActivitySection'
 import { BatchOperationsSection } from '../components/review/BatchOperationsSection'
@@ -15,6 +15,7 @@ type ReviewPageProps = {
 
 function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
   const navigate = useNavigate()
+  const location = useLocation()
   const controller = useReviewPageController({ view })
 
   return (
@@ -173,7 +174,11 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           onPreviewPurge={controller.previewSelectedAssetPurge}
           onExecutePurge={controller.executeSelectedAssetPurge}
           onRefreshAsset={controller.refreshSelectedAsset}
-          onOpenStandaloneDetail={(assetId) => navigate(`/review/detail/${assetId}`)}
+          onOpenStandaloneDetail={(assetId) =>
+            navigate(
+              `/review/detail/${assetId}?from=${encodeURIComponent(`${location.pathname}${location.search}`)}`,
+            )
+          }
         />
       ) : null}
     </Container>
