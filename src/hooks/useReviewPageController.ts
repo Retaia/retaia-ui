@@ -3,10 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { INITIAL_ASSETS } from '../data/mockAssets'
 import {
   type Asset,
-  type AssetDateFilter,
-  type AssetFilter,
-  type AssetMediaTypeFilter,
-  type AssetSort,
   type AssetState,
   countAssetsByState,
   filterAssets,
@@ -46,9 +42,8 @@ import {
   resolveEmptyAssetsMessage,
   resolveSelectionStatusLabel,
 } from '../application/review/reviewPagePresentation'
-import { readReviewWorkspaceState, saveReviewWorkspaceState } from '../services/navigationSession'
-import { readReviewFilterParams, writeReviewFilterParams } from '../services/workspaceQueryParams'
 import type { ListAssetsQuery } from '../api/contracts'
+import { useReviewWorkspaceFilters } from './review/useReviewWorkspaceFilters'
 
 export type ReviewPageView = 'workspace' | 'batch' | 'reports' | 'activity'
 
@@ -57,21 +52,25 @@ type ReviewPageProps = {
 }
 
 export function useReviewPageController({ view = 'workspace' }: ReviewPageProps = {}) {
-  const persistedWorkspaceState = readReviewWorkspaceState()
-  const queryFilters = readReviewFilterParams()
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t, i18n } = useTranslation()
   const { apiClient, apiRuntimeKey, isApiAssetSource, retryStatus, setRetryStatus } = useReviewApiRuntime()
-  const [filter, setFilter] = useState<AssetFilter>(queryFilters.filter ?? persistedWorkspaceState?.filter ?? 'ALL')
-  const [mediaTypeFilter, setMediaTypeFilter] = useState<AssetMediaTypeFilter>(
-    queryFilters.mediaTypeFilter ?? persistedWorkspaceState?.mediaTypeFilter ?? 'ALL',
-  )
-  const [dateFilter, setDateFilter] = useState<AssetDateFilter>(
-    queryFilters.dateFilter ?? persistedWorkspaceState?.dateFilter ?? 'ALL',
-  )
-  const [sort, setSort] = useState<AssetSort>(queryFilters.sort ?? persistedWorkspaceState?.sort ?? '-created_at')
-  const [search, setSearch] = useState(queryFilters.search ?? persistedWorkspaceState?.search ?? '')
-  const [batchOnly, setBatchOnly] = useState(persistedWorkspaceState?.batchOnly ?? false)
+  const {
+    filter,
+    setFilter,
+    mediaTypeFilter,
+    setMediaTypeFilter,
+    dateFilter,
+    setDateFilter,
+    sort,
+    setSort,
+    search,
+    setSearch,
+    batchOnly,
+    setBatchOnly,
+    batchIds,
+    setBatchIds,
+  } = useReviewWorkspaceFilters()
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
   const [selectionAnchorId, setSelectionAnchorId] = useState<string | null>(null)
@@ -79,7 +78,6 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     setSelectedAssetId(nextAssetId)
     setSelectionAnchorId(nextAssetId)
   }, [])
-  const [batchIds, setBatchIds] = useState<string[]>(persistedWorkspaceState?.batchIds ?? [])
   const { showShortcutsHelp, toggleShortcutsHelp } = useShortcutsHelpState()
   const { densityMode, toggleDensityMode } = useDensityMode()
   const [savingMetadata, setSavingMetadata] = useState(false)
@@ -155,46 +153,6 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     () => assets.find((asset) => asset.id === selectedAssetId) ?? null,
     [assets, selectedAssetId],
   )
-
-  useEffect(() => {
-    saveReviewWorkspaceState({
-      filter,
-      mediaTypeFilter,
-      dateFilter,
-      sort,
-      search,
-      batchOnly,
-      batchIds,
-    })
-  }, [batchIds, batchOnly, dateFilter, filter, mediaTypeFilter, search, sort])
-
-  useEffect(() => {
-    writeReviewFilterParams({
-      filter,
-      mediaTypeFilter,
-      dateFilter,
-      sort,
-      search,
-    })
-  }, [dateFilter, filter, mediaTypeFilter, search, sort])
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return
-    }
-    const handlePopState = () => {
-      const next = readReviewFilterParams()
-      setFilter(next.filter ?? 'ALL')
-      setMediaTypeFilter(next.mediaTypeFilter ?? 'ALL')
-      setDateFilter(next.dateFilter ?? 'ALL')
-      setSort(next.sort ?? '-created_at')
-      setSearch(next.search ?? '')
-    }
-    window.addEventListener('popstate', handlePopState)
-    return () => {
-      window.removeEventListener('popstate', handlePopState)
-    }
-  }, [])
 
   useEffect(() => {
     if (isApiAssetSource && assetsLoadState === 'error') {
@@ -474,12 +432,12 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
 
       void run()
     },
-    [batchIds, bulkDecisionsEnabled, finalizeBulkDecision, isApiAssetSource, submitDecisionsForIds, t],
+    [batchIds, bulkDecisionsEnabled, finalizeBulkDecision, isApiAssetSource, setBatchIds, submitDecisionsForIds, t],
   )
 
   const clearBatch = useCallback(() => {
     setBatchIds([])
-  }, [])
+  }, [setBatchIds])
   const applyDecisionToSelected = useCallback(
     (action: DecisionAction) => {
       if (!selectedAssetId) {
@@ -499,7 +457,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     setMediaTypeFilter('ALL')
     setDateFilter('ALL')
     setSearch('')
-  }, [dateFilter, filter, mediaTypeFilter, recordAction, search, t])
+  }, [dateFilter, filter, mediaTypeFilter, recordAction, search, setDateFilter, setFilter, setMediaTypeFilter, setSearch, t])
 
   const openNextPending = useCallback(() => {
     const target = assets.find((asset) => asset.state === 'DECISION_PENDING')
@@ -515,7 +473,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       setBatchOnly(false)
     }
     applySelectedAssetId(target.id)
-  }, [applySelectedAssetId, assets, batchOnly, dateFilter, filter, mediaTypeFilter, recordAction, search, t])
+  }, [applySelectedAssetId, assets, batchOnly, dateFilter, filter, mediaTypeFilter, recordAction, search, setBatchOnly, setDateFilter, setFilter, setMediaTypeFilter, setSearch, t])
 
   const {
     clearFilters,
@@ -706,7 +664,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       batchOnly ? t('activity.batchOnlyOff') : t('activity.batchOnlyOn'),
     )
     setBatchOnly((current) => !current)
-  }, [batchOnly, recordAction, t])
+  }, [batchOnly, recordAction, setBatchOnly, t])
 
   const selectAllVisibleInBatch = useCallback(() => {
     const missingCount = visibleAssets.filter((asset) => !batchIds.includes(asset.id)).length
@@ -718,7 +676,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       const merged = new Set([...current, ...visibleAssets.map((asset) => asset.id)])
       return [...merged]
     })
-  }, [batchIds, recordAction, t, visibleAssets])
+  }, [batchIds, recordAction, setBatchIds, t, visibleAssets])
 
   const availability = useMemo(
     () =>
@@ -826,7 +784,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   )
   const onKeywordClick = useCallback((keyword: string) => {
     setSearch(keyword)
-  }, [])
+  }, [setSearch])
 
   return {
     t,
