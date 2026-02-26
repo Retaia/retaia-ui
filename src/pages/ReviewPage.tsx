@@ -29,6 +29,7 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
         onOpenBatch={() => navigate('/batch')}
         onOpenBatchReports={() => navigate('/batch/reports')}
         onOpenActivity={() => navigate('/activity')}
+        onOpenLibrary={() => navigate('/library')}
         onChangeLanguage={controller.onChangeLanguage}
       />
 

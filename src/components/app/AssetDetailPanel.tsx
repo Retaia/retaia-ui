@@ -30,21 +30,23 @@ type DecisionStatus = {
 
 type Props = {
   selectedAsset: Asset | null
-  availability: ReturnType<typeof getActionAvailability>
-  previewingPurge: boolean
-  executingPurge: boolean
-  purgeStatus: PurgeStatus | null
+  availability?: ReturnType<typeof getActionAvailability>
+  previewingPurge?: boolean
+  executingPurge?: boolean
+  purgeStatus?: PurgeStatus | null
   decisionStatus: DecisionStatus | null
   savingMetadata: boolean
   metadataStatus: MetadataStatus | null
   t: (key: string, values?: Record<string, string>) => string
-  onDecision: (assetId: string, action: DecisionAction) => void
+  onDecision?: (assetId: string, action: DecisionAction) => void
   onSaveMetadata: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
-  onPreviewPurge: () => Promise<void>
-  onExecutePurge: () => Promise<void>
-  onRefreshAsset: () => Promise<void>
-  showRefreshAction: boolean
-  refreshingAsset: boolean
+  onPreviewPurge?: () => Promise<void>
+  onExecutePurge?: () => Promise<void>
+  onRefreshAsset?: () => Promise<void>
+  showRefreshAction?: boolean
+  refreshingAsset?: boolean
+  showDecisionActions?: boolean
+  showPurgeActions?: boolean
 }
 
 type MetadataEditorProps = {
@@ -164,9 +166,9 @@ function MetadataEditor({ selectedAsset, savingMetadata, t, onSaveMetadata }: Me
 export function AssetDetailPanel({
   selectedAsset,
   availability,
-  previewingPurge,
-  executingPurge,
-  purgeStatus,
+  previewingPurge = false,
+  executingPurge = false,
+  purgeStatus = null,
   decisionStatus,
   savingMetadata,
   metadataStatus,
@@ -176,9 +178,26 @@ export function AssetDetailPanel({
   onPreviewPurge,
   onExecutePurge,
   onRefreshAsset,
-  showRefreshAction,
-  refreshingAsset,
+  showRefreshAction = false,
+  refreshingAsset = false,
+  showDecisionActions = true,
+  showPurgeActions = true,
 }: Props) {
+  const effectiveAvailability = availability ?? getActionAvailability({
+    visibleCount: 0,
+    batchCount: 0,
+    previewingBatch: false,
+    executingBatch: false,
+    schedulingBatchExecution: false,
+    reportBatchId: null,
+    reportLoading: false,
+    undoCount: 0,
+    selectedAssetState: selectedAsset?.state ?? null,
+    previewingPurge,
+    executingPurge,
+    purgePreviewMatchesSelected: false,
+  })
+
   return (
     <Col as="section" xs={12} xl={4} aria-label={t('detail.region')}>
       <Card className="shadow-sm border-0 h-100 sticky-xl-top">
@@ -211,32 +230,34 @@ export function AssetDetailPanel({
                   </p>
                 </section>
               ) : null}
-              <Stack direction="horizontal" className="flex-wrap gap-2">
-                <Button
-                  type="button"
-                  variant="outline-success"
-                  onClick={() => onDecision(selectedAsset.id, 'KEEP')}
-                >
-                  <BsCheck2Circle className="me-1" aria-hidden="true" />
-                  KEEP
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline-danger"
-                  onClick={() => onDecision(selectedAsset.id, 'REJECT')}
-                >
-                  <BsXCircle className="me-1" aria-hidden="true" />
-                  REJECT
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline-secondary"
-                  onClick={() => onDecision(selectedAsset.id, 'CLEAR')}
-                >
-                  <BsTrash3 className="me-1" aria-hidden="true" />
-                  CLEAR
-                </Button>
-              </Stack>
+              {showDecisionActions && onDecision ? (
+                <Stack direction="horizontal" className="flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="outline-success"
+                    onClick={() => onDecision(selectedAsset.id, 'KEEP')}
+                  >
+                    <BsCheck2Circle className="me-1" aria-hidden="true" />
+                    KEEP
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline-danger"
+                    onClick={() => onDecision(selectedAsset.id, 'REJECT')}
+                  >
+                    <BsXCircle className="me-1" aria-hidden="true" />
+                    REJECT
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline-secondary"
+                    onClick={() => onDecision(selectedAsset.id, 'CLEAR')}
+                  >
+                    <BsTrash3 className="me-1" aria-hidden="true" />
+                    CLEAR
+                  </Button>
+                </Stack>
+              ) : null}
               <MetadataEditor
                 key={selectedAsset.id}
                 selectedAsset={selectedAsset}
@@ -244,30 +265,32 @@ export function AssetDetailPanel({
                 t={t}
                 onSaveMetadata={onSaveMetadata}
               />
-              <section className="border border-2 border-danger-subtle rounded p-3 mt-3">
-                <h3 className="h6 mb-2">{t('actions.purgeTitle')}</h3>
-                <p className="small text-secondary mb-2">{t('actions.purgeHelp')}</p>
-                <Stack direction="horizontal" className="flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    variant="outline-danger"
-                    onClick={() => void onPreviewPurge()}
-                    disabled={availability.previewPurgeDisabled}
-                  >
-                    <BsFilterCircle className="me-1" aria-hidden="true" />
-                    {previewingPurge ? t('actions.purgePreviewing') : t('actions.purgePreview')}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="danger"
-                    onClick={() => void onExecutePurge()}
-                    disabled={availability.executePurgeDisabled}
-                  >
-                    <BsTrash3 className="me-1" aria-hidden="true" />
-                    {executingPurge ? t('actions.purging') : t('actions.purgeConfirm')}
-                  </Button>
-                </Stack>
-              </section>
+              {showPurgeActions && onPreviewPurge && onExecutePurge ? (
+                <section className="border border-2 border-danger-subtle rounded p-3 mt-3">
+                  <h3 className="h6 mb-2">{t('actions.purgeTitle')}</h3>
+                  <p className="small text-secondary mb-2">{t('actions.purgeHelp')}</p>
+                  <Stack direction="horizontal" className="flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="outline-danger"
+                      onClick={() => void onPreviewPurge()}
+                      disabled={effectiveAvailability.previewPurgeDisabled}
+                    >
+                      <BsFilterCircle className="me-1" aria-hidden="true" />
+                      {previewingPurge ? t('actions.purgePreviewing') : t('actions.purgePreview')}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="danger"
+                      onClick={() => void onExecutePurge()}
+                      disabled={effectiveAvailability.executePurgeDisabled}
+                    >
+                      <BsTrash3 className="me-1" aria-hidden="true" />
+                      {executingPurge ? t('actions.purging') : t('actions.purgeConfirm')}
+                    </Button>
+                  </Stack>
+                </section>
+              ) : null}
             </div>
           ) : (
             <p className="text-secondary mb-0">
@@ -320,7 +343,7 @@ export function AssetDetailPanel({
               {metadataStatus.message}
             </p>
           ) : null}
-          {selectedAsset && showRefreshAction ? (
+          {selectedAsset && showRefreshAction && onRefreshAsset ? (
             <div className="mt-2">
               <Button
                 type="button"

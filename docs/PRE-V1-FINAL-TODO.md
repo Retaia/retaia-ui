@@ -50,10 +50,10 @@
 - [ ] (5) Hiérarchiser `ActionPanels` (actions fréquentes visibles, actions avancées repliables).
 
 ## Fonctionnel demandé
-- [ ] Ajouter une page `Library` listant les assets `ARCHIVED` avec recherche.
-- [ ] Ajouter le détail d'asset utilisable depuis la `Library` pour lecture + ajout de keywords.
+- [x] Ajouter une page `Library` listant les assets `ARCHIVED` avec recherche.
+- [x] Ajouter le détail d'asset utilisable depuis la `Library` pour lecture + ajout de keywords.
 - [ ] Ajouter une vraie page détail dans le flux review, en réutilisant le même écran que la `Library`.
-- [ ] Concevoir la `Library` comme un module first-class (routes dédiées, navigation dédiée, état/données dédiés).
+- [x] Concevoir la `Library` comme un module first-class (routes dédiées, navigation dédiée, état/données dédiés).
 
 ## Navigation (pre-v1)
 - [ ] Uniformiser le deep-linking sur toutes les pages (`/review/:id`, `/library/:id`, retour contextuel).
