@@ -13,10 +13,11 @@ describe('AppRoutes', () => {
     expect(screen.getByLabelText('Connexion API')).toBeInTheDocument()
   })
 
-  it('redirects unknown paths to /review', async () => {
+  it('redirects unknown paths to /not-found', async () => {
     setupApp('/unknown-route')
 
-    expect(await screen.findByRole('heading', { name: 'Retaia UI' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: '404 - Page introuvable' })).toBeInTheDocument()
+    expect(window.location.pathname).toBe('/not-found')
   })
 
   it('renders settings page on /settings', async () => {
@@ -51,18 +52,24 @@ describe('AppRoutes', () => {
     expect(screen.getByLabelText('Library des assets archivés')).toBeInTheDocument()
   })
 
-  it('redirects legacy review asset route to /review', async () => {
+  it('redirects legacy review asset route to /not-found', async () => {
     setupApp('/review/A-001')
 
-    expect(await screen.findByRole('heading', { name: 'Retaia UI' })).toBeInTheDocument()
-    expect(window.location.pathname).toBe('/review')
+    expect(await screen.findByRole('heading', { level: 1, name: '404 - Page introuvable' })).toBeInTheDocument()
+    expect(window.location.pathname).toBe('/not-found')
   })
 
-  it('redirects legacy library asset route to /review via fallback', async () => {
+  it('redirects legacy library asset route to /not-found via fallback', async () => {
     setupApp('/library/A-002')
 
-    expect(await screen.findByRole('heading', { name: 'Retaia UI' })).toBeInTheDocument()
-    expect(window.location.pathname).toBe('/review')
+    expect(await screen.findByRole('heading', { level: 1, name: '404 - Page introuvable' })).toBeInTheDocument()
+    expect(window.location.pathname).toBe('/not-found')
+  })
+
+  it('renders forbidden page on /forbidden', async () => {
+    setupApp('/forbidden')
+
+    expect(await screen.findByRole('heading', { level: 1, name: '403 - Accès interdit' })).toBeInTheDocument()
   })
 
   it('renders standalone review detail page on /review/detail/:assetId', async () => {
