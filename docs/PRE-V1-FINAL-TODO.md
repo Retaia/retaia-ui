@@ -57,7 +57,7 @@
 
 ## Navigation (pre-v1)
 - [ ] Uniformiser la navigation contextuelle via query params API (filtres/recherche/tri) et retour fiable.
-- [ ] Ajouter une navigation secondaire/breadcrumbs (`Review > Asset ...`, `Library > Archived > Asset ...`).
+- [x] Ajouter une navigation secondaire/breadcrumbs (`Review > Asset ...`, `Library > Archived > Asset ...`).
 - [ ] Persister le contexte inter-pages (`last route`, filtres actifs, scroll list, sélection courante).
 - [x] Rendre le comportement du bouton `Back` déterministe (retour liste vs écran précédent).
 - [ ] Ajouter une garde de navigation en cas d'édition metadata non sauvegardée.

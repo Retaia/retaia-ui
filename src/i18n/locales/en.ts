@@ -329,6 +329,7 @@ export const enTranslation = {
   'detail.openStandalone': 'Open detail page',
   'detail.backToReview': 'Back to review',
   'detail.backToLibrary': 'Back to library',
+  'detail.breadcrumbArchived': 'ARCHIVED',
   'detail.loading': 'Loading detail...',
   'detail.notFound': 'Asset not found for this route.',
   'detail.empty': 'Click an asset to open details.',
