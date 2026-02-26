@@ -27,18 +27,18 @@ describe('AppRoutes', () => {
     expect(screen.getByLabelText('Connexion API (runtime)')).toBeInTheDocument()
   })
 
-  it('redirects /batch to /review', async () => {
+  it('redirects /batch to /not-found', async () => {
     setupApp('/batch')
 
-    expect(await screen.findByRole('heading', { name: 'Retaia UI' })).toBeInTheDocument()
-    expect(window.location.pathname).toBe('/review')
+    expect(await screen.findByRole('heading', { level: 1, name: '404 - Page introuvable' })).toBeInTheDocument()
+    expect(window.location.pathname).toBe('/not-found')
   })
 
-  it('redirects /batch/reports to /review', async () => {
+  it('redirects /batch/reports to /not-found', async () => {
     setupApp('/batch/reports')
 
-    expect(await screen.findByRole('heading', { name: 'Retaia UI' })).toBeInTheDocument()
-    expect(window.location.pathname).toBe('/review')
+    expect(await screen.findByRole('heading', { level: 1, name: '404 - Page introuvable' })).toBeInTheDocument()
+    expect(window.location.pathname).toBe('/not-found')
   })
 
   it('renders activity page on /activity', async () => {

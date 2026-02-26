@@ -1,6 +1,7 @@
 import { Button, Stack } from 'react-bootstrap'
 import { BsFlagFill, BsGlobe2 } from 'react-icons/bs'
 import type { Locale } from '../../i18n/resources'
+import { reportUiNavigationAction } from '../../ui/telemetry'
 
 type Props = {
   locale: Locale
@@ -25,6 +26,11 @@ export function AppHeader({
   onOpenLibrary,
   currentView = 'workspace',
 }: Props) {
+  const trackNavigationAction = (origin: string, pathname: string, run: () => void) => {
+    reportUiNavigationAction({ origin, pathname })
+    run()
+  }
+
   return (
     <header className="mb-3">
       <Stack direction="horizontal" className="justify-content-between align-items-start gap-2 flex-wrap">
@@ -46,7 +52,7 @@ export function AppHeader({
               type="button"
               size="sm"
               variant={currentView === 'workspace' ? 'primary' : 'outline-primary'}
-              onClick={onOpenReview}
+              onClick={() => trackNavigationAction('header:review', '/review', onOpenReview)}
             >
               {t('app.nav.review')}
             </Button>
@@ -54,7 +60,7 @@ export function AppHeader({
               type="button"
               size="sm"
               variant={currentView === 'activity' ? 'primary' : 'outline-primary'}
-              onClick={onOpenActivity}
+              onClick={() => trackNavigationAction('header:activity', '/activity', onOpenActivity)}
             >
               {t('app.nav.activity')}
             </Button>
@@ -62,17 +68,27 @@ export function AppHeader({
               type="button"
               size="sm"
               variant={currentView === 'library' ? 'primary' : 'outline-primary'}
-              onClick={onOpenLibrary}
+              onClick={() => trackNavigationAction('header:library', '/library', onOpenLibrary)}
             >
               {t('app.nav.library')}
             </Button>
           </Stack>
         </div>
         <Stack direction="horizontal" gap={2} aria-label={t('app.language')}>
-          <Button type="button" size="sm" variant="outline-secondary" onClick={onOpenSettings}>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline-secondary"
+            onClick={() => trackNavigationAction('header:settings', '/settings', onOpenSettings)}
+          >
             {t('settings.openSettings')}
           </Button>
-          <Button type="button" size="sm" variant="outline-secondary" onClick={onOpenAuth}>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline-secondary"
+            onClick={() => trackNavigationAction('header:auth', '/auth', onOpenAuth)}
+          >
             {t('settings.openAuth')}
           </Button>
           <Button
