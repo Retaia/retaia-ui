@@ -106,7 +106,7 @@ When('je recherche {string}', async (term: string) => {
 })
 
 When('je clique sur le bouton {string}', async (buttonLabel: string) => {
-  const button = getPage().getByRole('button', { name: buttonLabel })
+  const button = getPage().getByRole('button', { name: buttonLabel, exact: true })
   await expect(button).toBeEnabled({ timeout: 10000 })
   await button.click()
 })
