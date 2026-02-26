@@ -6,7 +6,13 @@ export type AssetFilter = AssetState | 'ALL'
 export type AssetMediaType = (typeof ASSET_MEDIA_TYPES)[number]
 export type AssetMediaTypeFilter = AssetMediaType | 'ALL'
 export type AssetDateFilter = 'ALL' | 'LAST_7_DAYS' | 'LAST_30_DAYS'
-export type AssetSort = 'created_at' | '-created_at'
+export type AssetSort =
+  | 'created_at'
+  | '-created_at'
+  | 'updated_at'
+  | '-updated_at'
+  | 'name'
+  | '-name'
 export type DecisionAction = 'KEEP' | 'REJECT' | 'CLEAR'
 
 export type Asset = {
@@ -15,6 +21,7 @@ export type Asset = {
   state: AssetState
   mediaType?: AssetMediaType
   capturedAt?: string
+  updatedAt?: string
   proxyVideoUrl?: string | null
   proxyAudioUrl?: string | null
   proxyPhotoUrl?: string | null
@@ -85,11 +92,23 @@ export const sortAssets = (
   sort: AssetSort,
 ): Asset[] => {
   const direction = sort.startsWith('-') ? -1 : 1
+  const key = sort.startsWith('-') ? sort.slice(1) : sort
   const byName = (left: Asset, right: Asset) => left.name.localeCompare(right.name)
 
   return [...assets].sort((left, right) => {
-    const leftDate = left.capturedAt ? Date.parse(left.capturedAt) : Number.NaN
-    const rightDate = right.capturedAt ? Date.parse(right.capturedAt) : Number.NaN
+    if (key === 'name') {
+      return direction * byName(left, right)
+    }
+    const leftDateValue =
+      key === 'updated_at'
+        ? (left.updatedAt ?? left.capturedAt)
+        : left.capturedAt
+    const rightDateValue =
+      key === 'updated_at'
+        ? (right.updatedAt ?? right.capturedAt)
+        : right.capturedAt
+    const leftDate = leftDateValue ? Date.parse(leftDateValue) : Number.NaN
+    const rightDate = rightDateValue ? Date.parse(rightDateValue) : Number.NaN
     const leftValid = Number.isFinite(leftDate)
     const rightValid = Number.isFinite(rightDate)
     if (leftValid && rightValid && leftDate !== rightDate) {

@@ -63,6 +63,10 @@ export function LibraryListSection({
           >
             <option value="-created_at">{t('library.sortCreatedAtDesc')}</option>
             <option value="created_at">{t('library.sortCreatedAtAsc')}</option>
+            <option value="-updated_at">{t('library.sortUpdatedAtDesc')}</option>
+            <option value="updated_at">{t('library.sortUpdatedAtAsc')}</option>
+            <option value="name">{t('library.sortNameAsc')}</option>
+            <option value="-name">{t('library.sortNameDesc')}</option>
           </Form.Select>
           <AssetList
             assets={visibleAssets}
