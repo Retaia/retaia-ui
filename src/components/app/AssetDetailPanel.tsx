@@ -47,6 +47,7 @@ type Props = {
   refreshingAsset?: boolean
   showDecisionActions?: boolean
   showPurgeActions?: boolean
+  onOpenStandaloneDetail?: (assetId: string) => void
 }
 
 type MetadataEditorProps = {
@@ -182,6 +183,7 @@ export function AssetDetailPanel({
   refreshingAsset = false,
   showDecisionActions = true,
   showPurgeActions = true,
+  onOpenStandaloneDetail,
 }: Props) {
   const effectiveAvailability = availability ?? getActionAvailability({
     visibleCount: 0,
@@ -229,6 +231,19 @@ export function AssetDetailPanel({
                     {selectedAsset.transcriptPreview}
                   </p>
                 </section>
+              ) : null}
+              {onOpenStandaloneDetail ? (
+                <div className="mb-3">
+                  <Button
+                    type="button"
+                    variant="outline-secondary"
+                    size="sm"
+                    data-testid="asset-open-standalone"
+                    onClick={() => onOpenStandaloneDetail(selectedAsset.id)}
+                  >
+                    {t('detail.openStandalone')}
+                  </Button>
+                </div>
               ) : null}
               {showDecisionActions && onDecision ? (
                 <Stack direction="horizontal" className="flex-wrap gap-2">

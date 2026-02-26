@@ -52,7 +52,7 @@
 ## Fonctionnel demandé
 - [x] Ajouter une page `Library` listant les assets `ARCHIVED` avec recherche.
 - [x] Ajouter le détail d'asset utilisable depuis la `Library` pour lecture + ajout de keywords.
-- [ ] Ajouter une vraie page détail dans le flux review, en réutilisant le même écran que la `Library`.
+- [x] Ajouter une vraie page détail dans le flux review, en réutilisant le même écran que la `Library`.
 - [x] Concevoir la `Library` comme un module first-class (routes dédiées, navigation dédiée, état/données dédiés).
 
 ## Navigation (pre-v1)

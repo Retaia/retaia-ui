@@ -50,4 +50,18 @@ describe('AppRoutes', () => {
     expect(await screen.findByRole('heading', { name: 'Library ARCHIVED (1)' })).toBeInTheDocument()
     expect(screen.getByLabelText('Library des assets archivés')).toBeInTheDocument()
   })
+
+  it('renders standalone review detail page on /review/detail/:assetId', async () => {
+    setupApp('/review/detail/A-001')
+
+    expect(await screen.findByRole('button', { name: 'Retour review' })).toBeInTheDocument()
+    expect(screen.getByText('interview-camera-a.mov')).toBeInTheDocument()
+  })
+
+  it('renders standalone library detail page on /library/detail/:assetId', async () => {
+    setupApp('/library/detail/A-002')
+
+    expect(await screen.findByRole('button', { name: 'Retour library' })).toBeInTheDocument()
+    expect(screen.getByText('ambiance-plateau.wav')).toBeInTheDocument()
+  })
 })
