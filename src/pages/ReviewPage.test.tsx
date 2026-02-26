@@ -93,6 +93,30 @@ describe('App', () => {
     )
   })
 
+  it('blocks header navigation when metadata is dirty and user cancels', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    const { user } = setupApp('/review')
+
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.type(screen.getByTestId('asset-notes-input'), 'draft note')
+    await user.click(screen.getByRole('button', { name: 'Library' }))
+
+    expect(confirmSpy).toHaveBeenCalledTimes(1)
+    expect(window.location.pathname).toBe('/review')
+  })
+
+  it('allows header navigation when metadata is dirty and user confirms', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const { user } = setupApp('/review')
+
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.type(screen.getByTestId('asset-notes-input'), 'draft note')
+    await user.click(screen.getByRole('button', { name: 'Library' }))
+
+    expect(confirmSpy).toHaveBeenCalled()
+    expect(window.location.pathname).toBe('/library')
+  })
+
   it('initializes review filters from query params', () => {
     setupApp('/review?state=DECISION_PENDING&media_type=VIDEO&sort=name&q=interview')
 

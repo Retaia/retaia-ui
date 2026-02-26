@@ -1,5 +1,5 @@
 import { screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { setupApp } from '../test-utils/appTestUtils'
 
 describe('StandaloneAssetDetailPage', () => {
@@ -35,5 +35,16 @@ describe('StandaloneAssetDetailPage', () => {
     expect(await screen.findByTestId('standalone-detail-breadcrumb')).toHaveTextContent('Activité')
     await user.click(await screen.findByRole('button', { name: 'Retour à Activité' }))
     expect(window.location.pathname).toBe('/activity')
+  })
+
+  it('blocks back navigation when metadata is dirty and user cancels', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    const { user } = setupApp('/review/detail/A-001?from=%2Factivity')
+
+    await user.type(screen.getByTestId('asset-notes-input'), 'draft note')
+    await user.click(await screen.findByRole('button', { name: 'Retour activité' }))
+
+    expect(confirmSpy).toHaveBeenCalledTimes(1)
+    expect(window.location.pathname).toBe('/review/detail/A-001')
   })
 })

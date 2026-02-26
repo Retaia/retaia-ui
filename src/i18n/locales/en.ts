@@ -331,6 +331,7 @@ export const enTranslation = {
   'detail.backToActivity': 'Back to activity',
   'detail.backToLibrary': 'Back to library',
   'detail.breadcrumbArchived': 'ARCHIVED',
+  'detail.unsavedChangesConfirm': 'You have unsaved metadata changes. Leave this page anyway?',
   'detail.loading': 'Loading detail...',
   'detail.notFound': 'Asset not found for this route.',
   'detail.empty': 'Click an asset to open details.',

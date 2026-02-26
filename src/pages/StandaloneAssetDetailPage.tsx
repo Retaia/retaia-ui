@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { Breadcrumb, Button, Container, Row } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AppHeader } from '../components/app/AppHeader'
 import { AssetDetailPanel } from '../components/app/AssetDetailPanel'
 import { useStandaloneAssetDetailController } from '../hooks/useStandaloneAssetDetailController'
+import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard'
 
 type Props = {
   context: 'review' | 'library'
@@ -12,6 +14,8 @@ export function StandaloneAssetDetailPage({ context }: Props) {
   const navigate = useNavigate()
   const location = useLocation()
   const controller = useStandaloneAssetDetailController(context)
+  const [hasUnsavedMetadata, setHasUnsavedMetadata] = useState(false)
+  const confirmLeaveIfDirty = useUnsavedChangesGuard(hasUnsavedMetadata, controller.t('detail.unsavedChangesConfirm'))
   const params = new URLSearchParams(location.search)
   const fromParam = params.get('from')
   const isValidContextFrom =
@@ -38,25 +42,78 @@ export function StandaloneAssetDetailPage({ context }: Props) {
         locale={controller.locale}
         t={controller.t}
         currentView={currentView}
-        onOpenSettings={() => navigate('/settings')}
-        onOpenAuth={() => navigate('/auth')}
-        onOpenReview={() => navigate('/review')}
-        onOpenActivity={() => navigate('/activity')}
-        onOpenLibrary={() => navigate('/library')}
+        onOpenSettings={() => {
+          if (confirmLeaveIfDirty()) {
+            navigate('/settings')
+          }
+        }}
+        onOpenAuth={() => {
+          if (confirmLeaveIfDirty()) {
+            navigate('/auth')
+          }
+        }}
+        onOpenReview={() => {
+          if (confirmLeaveIfDirty()) {
+            navigate('/review')
+          }
+        }}
+        onOpenActivity={() => {
+          if (confirmLeaveIfDirty()) {
+            navigate('/activity')
+          }
+        }}
+        onOpenLibrary={() => {
+          if (confirmLeaveIfDirty()) {
+            navigate('/library')
+          }
+        }}
         onChangeLanguage={controller.onChangeLanguage}
       />
 
-      <Button type="button" variant="outline-secondary" size="sm" onClick={() => navigate(backPath)}>
+      <Button
+        type="button"
+        variant="outline-secondary"
+        size="sm"
+        onClick={() => {
+          if (confirmLeaveIfDirty()) {
+            navigate(backPath)
+          }
+        }}
+      >
         {backButtonLabel}
       </Button>
 
       <Breadcrumb className="mt-3 mb-0" data-testid="standalone-detail-breadcrumb">
         {context === 'review' ? (
-          <Breadcrumb.Item onClick={() => navigate(reviewRootPath)}>{reviewRootLabel}</Breadcrumb.Item>
+          <Breadcrumb.Item
+            onClick={() => {
+              if (confirmLeaveIfDirty()) {
+                navigate(reviewRootPath)
+              }
+            }}
+          >
+            {reviewRootLabel}
+          </Breadcrumb.Item>
         ) : (
           <>
-            <Breadcrumb.Item onClick={() => navigate('/library')}>{controller.t('app.nav.library')}</Breadcrumb.Item>
-            <Breadcrumb.Item onClick={() => navigate('/library')}>{controller.t('detail.breadcrumbArchived')}</Breadcrumb.Item>
+            <Breadcrumb.Item
+              onClick={() => {
+                if (confirmLeaveIfDirty()) {
+                  navigate('/library')
+                }
+              }}
+            >
+              {controller.t('app.nav.library')}
+            </Breadcrumb.Item>
+            <Breadcrumb.Item
+              onClick={() => {
+                if (confirmLeaveIfDirty()) {
+                  navigate('/library')
+                }
+              }}
+            >
+              {controller.t('detail.breadcrumbArchived')}
+            </Breadcrumb.Item>
           </>
         )}
         <Breadcrumb.Item active>
@@ -81,6 +138,7 @@ export function StandaloneAssetDetailPage({ context }: Props) {
           onSaveMetadata={controller.saveMetadata}
           showDecisionActions={false}
           showPurgeActions={false}
+          onMetadataDirtyChange={setHasUnsavedMetadata}
         />
       </Row>
     </Container>

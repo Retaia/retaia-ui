@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Badge, Button, Card, Col, Form, Stack } from 'react-bootstrap'
 import {
   BsCardChecklist,
@@ -49,6 +49,7 @@ type Props = {
   showPurgeActions?: boolean
   onOpenStandaloneDetail?: (assetId: string) => void
   onKeywordClick?: (keyword: string) => void
+  onMetadataDirtyChange?: (dirty: boolean) => void
 }
 
 type MetadataEditorProps = {
@@ -57,6 +58,7 @@ type MetadataEditorProps = {
   t: (key: string, values?: Record<string, string>) => string
   onSaveMetadata: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
   onKeywordClick?: (keyword: string) => void
+  onMetadataDirtyChange?: (dirty: boolean) => void
 }
 
 function MetadataEditor({
@@ -65,10 +67,24 @@ function MetadataEditor({
   t,
   onSaveMetadata,
   onKeywordClick,
+  onMetadataDirtyChange,
 }: MetadataEditorProps) {
   const [tagInput, setTagInput] = useState('')
   const [tagsDraft, setTagsDraft] = useState<string[]>(() => selectedAsset.tags ?? [])
   const [notesDraft, setNotesDraft] = useState(() => selectedAsset.notes ?? '')
+  const initialTags = useMemo(
+    () => [...(selectedAsset.tags ?? [])].sort(),
+    [selectedAsset.tags],
+  )
+  const currentTags = useMemo(
+    () => [...tagsDraft].sort(),
+    [tagsDraft],
+  )
+  const isDirty = notesDraft !== (selectedAsset.notes ?? '') || initialTags.join('|') !== currentTags.join('|')
+
+  useEffect(() => {
+    onMetadataDirtyChange?.(isDirty)
+  }, [isDirty, onMetadataDirtyChange])
 
   return (
     <section className="border rounded p-3 mt-3" aria-label={t('detail.taggingTitle')}>
@@ -206,6 +222,7 @@ export function AssetDetailPanel({
   showPurgeActions = true,
   onOpenStandaloneDetail,
   onKeywordClick,
+  onMetadataDirtyChange,
 }: Props) {
   const effectiveAvailability = availability ?? getActionAvailability({
     visibleCount: 0,
@@ -221,6 +238,12 @@ export function AssetDetailPanel({
     executingPurge,
     purgePreviewMatchesSelected: false,
   })
+
+  useEffect(() => {
+    if (!selectedAsset) {
+      onMetadataDirtyChange?.(false)
+    }
+  }, [onMetadataDirtyChange, selectedAsset])
 
   return (
     <Col as="section" xs={12} xl={4} aria-label={t('detail.region')}>
@@ -302,6 +325,7 @@ export function AssetDetailPanel({
                 t={t}
                 onSaveMetadata={onSaveMetadata}
                 onKeywordClick={onKeywordClick}
+                onMetadataDirtyChange={onMetadataDirtyChange}
               />
               {showPurgeActions && onPreviewPurge && onExecutePurge ? (
                 <section className="border border-2 border-danger-subtle rounded p-3 mt-3">

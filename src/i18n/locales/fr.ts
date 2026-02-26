@@ -331,6 +331,7 @@ export const frTranslation = {
   'detail.backToActivity': 'Retour à Activité',
   'detail.backToLibrary': 'Retour à Library',
   'detail.breadcrumbArchived': 'ARCHIVED',
+  'detail.unsavedChangesConfirm': 'Tu as des modifications metadata non sauvegardées. Quitter quand même ?',
   'detail.loading': "Chargement du détail...",
   'detail.notFound': "Asset introuvable pour cette route.",
   'detail.empty': 'Clique un asset pour ouvrir le détail.',
