@@ -1,4 +1,4 @@
-import { Button, Container, Row } from 'react-bootstrap'
+import { Breadcrumb, Button, Container, Row } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AppHeader } from '../components/app/AppHeader'
 import { AssetDetailPanel } from '../components/app/AssetDetailPanel'
@@ -41,6 +41,15 @@ export function StandaloneAssetDetailPage({ context }: Props) {
       <Button type="button" variant="outline-secondary" size="sm" onClick={() => navigate(backPath)}>
         {context === 'review' ? controller.t('detail.backToReview') : controller.t('detail.backToLibrary')}
       </Button>
+
+      <Breadcrumb className="mt-3 mb-0" data-testid="standalone-detail-breadcrumb">
+        <Breadcrumb.Item onClick={() => navigate(context === 'review' ? '/review' : '/library')}>
+          {context === 'review' ? controller.t('app.nav.review') : controller.t('app.nav.library')}
+        </Breadcrumb.Item>
+        <Breadcrumb.Item active>
+          {controller.selectedAsset?.id ?? controller.t('detail.title')}
+        </Breadcrumb.Item>
+      </Breadcrumb>
 
       {controller.loadingState === 'loading' ? (
         <p className="small text-secondary mt-3">{controller.t('detail.loading')}</p>
