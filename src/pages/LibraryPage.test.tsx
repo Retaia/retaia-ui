@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { setupApp } from '../test-utils/appTestUtils'
 
@@ -52,5 +52,22 @@ describe('LibraryPage', () => {
     await user.clear(screen.getByTestId('library-search-input'))
     await user.type(screen.getByTestId('library-search-input'), 'archive')
     expect(window.location.search).toContain('q=archive')
+  })
+
+  it('restores library search on browser back using query params history', async () => {
+    setupApp('/library')
+    const searchInput = screen.getByTestId('library-search-input')
+
+    fireEvent.change(searchInput, { target: { value: 'ambiance' } })
+    fireEvent.change(searchInput, { target: { value: 'archive' } })
+    expect(screen.getByTestId('library-search-input')).toHaveValue('archive')
+
+    act(() => {
+      window.history.back()
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('library-search-input')).toHaveValue('ambiance')
+    })
   })
 })

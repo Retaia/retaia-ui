@@ -137,6 +137,24 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   }, [batchOnly, dateFilter, filter, mediaTypeFilter, search])
 
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    const handlePopState = () => {
+      const next = readReviewFilterParams()
+      setFilter(next.filter ?? 'ALL')
+      setMediaTypeFilter(next.mediaTypeFilter ?? 'ALL')
+      setDateFilter(next.dateFilter ?? 'ALL')
+      setSearch(next.search ?? '')
+      setBatchOnly(next.batchOnly ?? false)
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [])
+
+  useEffect(() => {
     if (isApiAssetSource && assetsLoadState === 'error') {
       reportUiIssue('api.assets.load.error', {
         source: 'api',
