@@ -87,7 +87,8 @@
 ## Architecture applicative (pre-v1)
 - [ ] Splitter `useReviewPageController` en sous-hooks (`selection`, `decisions`, `batch`, `metadata/purge`, `navigation`).
 - [ ] Définir un contrat commun pour les controllers de page (shape état/actions) afin d'aligner `review` et `auth`.
-- [ ] Introduire un store global `Redux Toolkit` (migration incrémentale `review` -> `library` -> `auth`) pour centraliser l'état UI partagé.
+- [x] Introduire un store global `Redux Toolkit` (migration `review` + `library`) pour centraliser l'état UI partagé.
+- [ ] Finaliser la migration Redux côté `auth` (session, recovery, mfa, api-connection).
 - [ ] Documenter un diagramme de flux UI (écrans, transitions, état partagé) avec ownership par module.
 
 ## Performance (pre-v1)

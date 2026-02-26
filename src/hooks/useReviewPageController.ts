@@ -3,6 +3,10 @@ import { useTranslation } from 'react-i18next'
 import { INITIAL_ASSETS } from '../data/mockAssets'
 import {
   type Asset,
+  type AssetDateFilter,
+  type AssetFilter,
+  type AssetMediaTypeFilter,
+  type AssetSort,
   type AssetState,
   countAssetsByState,
   filterAssets,
@@ -43,7 +47,19 @@ import {
   resolveSelectionStatusLabel,
 } from '../application/review/reviewPagePresentation'
 import type { ListAssetsQuery } from '../api/contracts'
-import { useReviewWorkspaceFilters } from './review/useReviewWorkspaceFilters'
+import {
+  hydrateReviewWorkspace,
+  setReviewBatchIds,
+  setReviewBatchOnly,
+  setReviewDateFilter,
+  setReviewFilter,
+  setReviewMediaTypeFilter,
+  setReviewSearch,
+  setReviewSort,
+} from '../store/slices/reviewWorkspaceSlice'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
+import { readReviewFilterParams, writeReviewFilterParams } from '../services/workspaceQueryParams'
+import { savePersistedReviewWorkspaceState } from '../store/persistence/workspaceStorage'
 
 export type ReviewPageView = 'workspace' | 'batch' | 'reports' | 'activity'
 
@@ -55,22 +71,39 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t, i18n } = useTranslation()
   const { apiClient, apiRuntimeKey, isApiAssetSource, retryStatus, setRetryStatus } = useReviewApiRuntime()
+  const dispatch = useAppDispatch()
+  const reviewWorkspace = useAppSelector((state) => state.reviewWorkspace)
   const {
     filter,
-    setFilter,
     mediaTypeFilter,
-    setMediaTypeFilter,
     dateFilter,
-    setDateFilter,
     sort,
-    setSort,
     search,
-    setSearch,
     batchOnly,
-    setBatchOnly,
     batchIds,
-    setBatchIds,
-  } = useReviewWorkspaceFilters()
+  } = reviewWorkspace
+  const setFilter = useCallback((value: AssetFilter) => {
+    dispatch(setReviewFilter(value))
+  }, [dispatch])
+  const setMediaTypeFilter = useCallback((value: AssetMediaTypeFilter) => {
+    dispatch(setReviewMediaTypeFilter(value))
+  }, [dispatch])
+  const setDateFilter = useCallback((value: AssetDateFilter) => {
+    dispatch(setReviewDateFilter(value))
+  }, [dispatch])
+  const setSort = useCallback((value: AssetSort) => {
+    dispatch(setReviewSort(value))
+  }, [dispatch])
+  const setSearch = useCallback((value: string) => {
+    dispatch(setReviewSearch(value))
+  }, [dispatch])
+  const setBatchOnly = useCallback((value: boolean) => {
+    dispatch(setReviewBatchOnly(value))
+  }, [dispatch])
+  const setBatchIds = useCallback((value: string[] | ((current: string[]) => string[])) => {
+    const nextValue = typeof value === 'function' ? value(batchIds) : value
+    dispatch(setReviewBatchIds(nextValue))
+  }, [batchIds, dispatch])
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
   const [selectionAnchorId, setSelectionAnchorId] = useState<string | null>(null)
@@ -153,6 +186,42 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     () => assets.find((asset) => asset.id === selectedAssetId) ?? null,
     [assets, selectedAssetId],
   )
+
+  useEffect(() => {
+    savePersistedReviewWorkspaceState(reviewWorkspace)
+  }, [reviewWorkspace])
+
+  useEffect(() => {
+    writeReviewFilterParams({
+      filter,
+      mediaTypeFilter,
+      dateFilter,
+      sort,
+      search,
+    })
+  }, [dateFilter, filter, mediaTypeFilter, search, sort])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    const handlePopState = () => {
+      const next = readReviewFilterParams()
+      dispatch(
+        hydrateReviewWorkspace({
+          filter: next.filter ?? 'ALL',
+          mediaTypeFilter: next.mediaTypeFilter ?? 'ALL',
+          dateFilter: next.dateFilter ?? 'ALL',
+          sort: next.sort ?? '-created_at',
+          search: next.search ?? '',
+        }),
+      )
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [dispatch])
 
   useEffect(() => {
     if (isApiAssetSource && assetsLoadState === 'error') {
@@ -425,7 +494,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
           firstErrorMessage,
           activityMessage: t('activity.actionBatch', { action, count: successIds.length }),
           onSuccess: () => {
-            setBatchIds((current) => current.filter((id) => !successIds.includes(id)))
+            setBatchIds(batchIds.filter((id) => !successIds.includes(id)))
           },
         })
       }
@@ -527,7 +596,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     recordAction,
     onPurgeSuccess: (assetId) => {
       setAssets((current) => current.filter((asset) => asset.id !== assetId))
-      setBatchIds((current) => current.filter((id) => id !== assetId))
+      setBatchIds(batchIds.filter((id) => id !== assetId))
       if (selectedAssetId === assetId) {
         applySelectedAssetId(null)
       } else if (selectionAnchorId === assetId) {
@@ -663,7 +732,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     recordAction(
       batchOnly ? t('activity.batchOnlyOff') : t('activity.batchOnlyOn'),
     )
-    setBatchOnly((current) => !current)
+    setBatchOnly(!batchOnly)
   }, [batchOnly, recordAction, setBatchOnly, t])
 
   const selectAllVisibleInBatch = useCallback(() => {
@@ -672,10 +741,8 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       return
     }
     recordAction(t('activity.batchVisible', { count: missingCount }))
-    setBatchIds((current) => {
-      const merged = new Set([...current, ...visibleAssets.map((asset) => asset.id)])
-      return [...merged]
-    })
+    const merged = new Set([...batchIds, ...visibleAssets.map((asset) => asset.id)])
+    setBatchIds([...merged])
   }, [batchIds, recordAction, setBatchIds, t, visibleAssets])
 
   const availability = useMemo(

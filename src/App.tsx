@@ -1,12 +1,19 @@
 import { AppRoutes } from './routes/AppRoutes'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { appQueryClient } from './queryClient'
+import { Provider } from 'react-redux'
+import { useMemo } from 'react'
+import { createAppStore } from './store'
 
 function App() {
+  const store = useMemo(() => createAppStore(), [])
+
   return (
-    <QueryClientProvider client={appQueryClient}>
-      <AppRoutes />
-    </QueryClientProvider>
+    <Provider store={store}>
+      <QueryClientProvider client={appQueryClient}>
+        <AppRoutes />
+      </QueryClientProvider>
+    </Provider>
   )
 }
 

@@ -8,7 +8,7 @@ modulaire et testable (TDD + BDD).
 ## Entrée principale
 
 - `src/main.tsx` (bootstrap React + BrowserRouter)
-- `src/App.tsx` (point d'entrée UI qui délègue aux routes)
+- `src/App.tsx` (point d'entrée UI qui délègue aux routes + providers Redux/React Query)
 - `src/routes/AppRoutes.tsx` (composition des pages par route)
 
 Routes UI:
@@ -23,6 +23,19 @@ Routes UI:
 
 `App.tsx` ne contient pas de logique métier feature.
 La logique métier est portée par les couches `domain` et `application`, puis injectée dans les pages.
+
+## State Management
+
+- `src/store/index.ts`
+  Store Redux Toolkit global (slices `reviewWorkspace`, `libraryWorkspace`) avec préchargement depuis URL + localStorage.
+- `src/store/slices/reviewWorkspaceSlice.ts`
+  Source de vérité du workspace review (filtres, recherche, tri, mode batch, sélection batch IDs).
+- `src/store/slices/libraryWorkspaceSlice.ts`
+  Source de vérité du workspace library (recherche, tri).
+- `src/store/persistence/workspaceStorage.ts`
+  Persistance locale Redux (review/library) en localStorage.
+- `src/store/hooks.ts`
+  Hooks typés `useAppSelector` / `useAppDispatch`.
 
 ## Composants UI
 
@@ -79,6 +92,10 @@ La logique métier est portée par les couches `domain` et `application`, puis i
   Runtime Review (instanciation client API + stratégie de retry + détection source API).
 - `src/services/workspaceQueryParams.ts`
   Synchronisation des filtres/recherche/tri avec l'URL via query params alignés API (`state`, `media_type`, `q`, `sort`, `captured_at_from`, `captured_at_to`).
+- `src/hooks/useReviewPageController.ts`
+  Orchestrateur Review branché sur Redux pour les états workspace partagés.
+- `src/hooks/useLibraryPageController.ts`
+  Orchestrateur Library branché sur Redux pour recherche/tri partagés.
 - `src/hooks/useQuickFilters.ts`
   Presets de filtres + persistance localStorage.
 - `src/hooks/useDensityMode.ts`
