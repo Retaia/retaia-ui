@@ -7,6 +7,8 @@ import BatchReportsPage from '../pages/BatchReportsPage'
 import ActivityPage from '../pages/ActivityPage'
 import { LibraryPage } from '../pages/LibraryPage'
 import { StandaloneAssetDetailPage } from '../pages/StandaloneAssetDetailPage'
+import { NotFoundPage } from '../pages/NotFoundPage'
+import { ForbiddenPage } from '../pages/ForbiddenPage'
 
 export function AppRoutes() {
   return (
@@ -21,7 +23,9 @@ export function AppRoutes() {
       <Route path="/library/detail/:assetId" element={<StandaloneAssetDetailPage context="library" />} />
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/settings" element={<SettingsPage />} />
-      <Route path="*" element={<Navigate to="/review" replace />} />
+      <Route path="/forbidden" element={<ForbiddenPage />} />
+      <Route path="/not-found" element={<NotFoundPage />} />
+      <Route path="*" element={<Navigate to="/not-found" replace />} />
     </Routes>
   )
 }
