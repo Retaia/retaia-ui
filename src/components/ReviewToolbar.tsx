@@ -52,6 +52,7 @@ export function ReviewToolbar({
               <option value="DECISION_PENDING">DECISION_PENDING</option>
               <option value="DECIDED_KEEP">DECIDED_KEEP</option>
               <option value="DECIDED_REJECT">DECIDED_REJECT</option>
+              <option value="ARCHIVED">ARCHIVED</option>
             </Form.Select>
           </Col>
 

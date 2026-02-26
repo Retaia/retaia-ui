@@ -22,7 +22,7 @@ describe('assetMapper', () => {
     })
   })
 
-  it('maps non-review api states to nearest review state', () => {
+  it('maps non-review api states to explicit UI states', () => {
     expect(
       mapApiSummaryToAsset({
         uuid: 'asset-2',
@@ -30,7 +30,7 @@ describe('assetMapper', () => {
         state: 'ARCHIVED',
         created_at: '2026-02-12T10:00:00Z',
       }).state,
-    ).toBe('DECIDED_KEEP')
+    ).toBe('ARCHIVED')
 
     expect(
       mapApiSummaryToAsset({

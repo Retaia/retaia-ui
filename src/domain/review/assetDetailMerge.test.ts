@@ -49,4 +49,21 @@ describe('mergeAssetWithDetail', () => {
 
     expect(merged.state).toBe('DECIDED_REJECT')
   })
+
+  it('preserves archived state from detail payload when requested', () => {
+    const merged = mergeAssetWithDetail(
+      {
+        ...baseAsset,
+        state: 'DECISION_PENDING',
+      },
+      {
+        summary: {
+          state: 'ARCHIVED',
+        },
+      },
+      { includeDecisionState: true },
+    )
+
+    expect(merged.state).toBe('ARCHIVED')
+  })
 })

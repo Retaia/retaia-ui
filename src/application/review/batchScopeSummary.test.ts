@@ -18,6 +18,11 @@ const assets: Asset[] = [
     name: 'three.mp4',
     state: 'DECIDED_REJECT',
   },
+  {
+    id: 'a-4',
+    name: 'four.mp4',
+    state: 'ARCHIVED',
+  },
 ]
 
 describe('summarizeBatchScope', () => {
@@ -33,6 +38,14 @@ describe('summarizeBatchScope', () => {
     expect(summarizeBatchScope(assets, [])).toEqual({
       pending: 0,
       keep: 0,
+      reject: 0,
+    })
+  })
+
+  it('counts archived assets in keep bucket for batch summaries', () => {
+    expect(summarizeBatchScope(assets, ['a-4'])).toEqual({
+      pending: 0,
+      keep: 1,
       reject: 0,
     })
   })

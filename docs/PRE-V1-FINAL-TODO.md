@@ -13,7 +13,7 @@
 ### P0 (bloquant pre-v1)
 - [ ] Implémenter `Library` (liste ARCHIVED + recherche + page détail partagée review/library).
 - [ ] Stabiliser la navigation: persistance de contexte inter-pages + deep-linking homogène.
-- [ ] Corriger le modèle d'états domaine pour supporter `ARCHIVED` explicitement.
+- [x] Corriger le modèle d'états domaine pour supporter `ARCHIVED` explicitement.
 - [ ] Ajouter tests E2E cross-page critiques (review -> batch -> reports -> activity -> detail).
 
 ### P1 (important pre-v1)
@@ -80,7 +80,7 @@
 - [ ] Instrumenter les événements auth (attempt/success/failure par étape) pour pilotage UX.
 
 ## API & Contrat (pre-v1)
-- [ ] Gérer explicitement `ARCHIVED` comme état domaine (au lieu d'un mapping implicite vers KEEP).
+- [x] Gérer explicitement `ARCHIVED` comme état domaine (au lieu d'un mapping implicite vers KEEP).
 - [ ] Versionner/fixer les payloads UI critiques (batch report, asset detail, metadata).
 - [ ] Ajouter des tests contract pour les nouvelles routes (library, page détail partagée).
 

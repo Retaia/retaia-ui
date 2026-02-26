@@ -44,6 +44,7 @@ describe('assets domain', () => {
       DECISION_PENDING: 1,
       DECIDED_KEEP: 1,
       DECIDED_REJECT: 1,
+      ARCHIVED: 0,
     })
   })
 
@@ -83,6 +84,7 @@ describe('assets domain', () => {
     expect(getStateFromDecision('KEEP', 'DECISION_PENDING')).toBe('DECIDED_KEEP')
     expect(getStateFromDecision('REJECT', 'DECISION_PENDING')).toBe('DECIDED_REJECT')
     expect(getStateFromDecision('CLEAR', 'DECIDED_KEEP')).toBe('DECISION_PENDING')
+    expect(getStateFromDecision('CLEAR', 'ARCHIVED')).toBe('DECISION_PENDING')
     expect(getStateFromDecision('CLEAR', 'DECISION_PENDING')).toBe('DECISION_PENDING')
   })
 })
