@@ -42,7 +42,7 @@ export function AppRoutes() {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/forbidden" element={<ForbiddenPage />} />
         <Route path="/not-found" element={<NotFoundPage />} />
-        <Route path="*" element={<Navigate to="/not-found" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </>
   )
