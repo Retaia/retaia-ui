@@ -33,11 +33,10 @@ Permettre l'exploitation de la bibliothèque d'assets déjà traités:
 
 ### 4.1 Navigation principale
 - `Review` (ingest/review de nouveaux assets)
-- `Batch` (actions de masse)
-- `Reports` (résultats batch)
 - `Activity` (journal + undo)
 - `Library` (recherche/exploitation post-validation)
 - accès secondaires: `Auth`, `Settings`, changement langue
+- `Batch` et `Reports` sont à considérer comme des vues du mode de traitement batch (pas un pilier métier séparé)
 
 ### 4.2 Routes actuelles
 - `/` -> redirection `/review`
@@ -66,8 +65,8 @@ Fonctions clés:
 - raccourcis clavier opérateur
 - accès rapide à l'asset suivant à traiter
 
-### 5.2 Batch (`/batch`)
-Fonction: exécuter des actions de masse.
+### 5.2 Mode Batch (transverse Review + Library)
+Fonction: mode de traitement de masse activable depuis les contextes métier (`Review` et `Library`).
 
 Fonctions clés:
 - visualiser le scope batch sélectionné
@@ -76,14 +75,20 @@ Fonctions clés:
 - confirmation/annulation avant exécution finale
 - statuts d'exécution + gestion des erreurs
 
-### 5.3 Reports (`/batch/reports`)
-Fonction: rendre lisible le résultat d'une exécution batch.
+Note implémentation actuelle:
+- route dédiée: `/batch` (surface opérationnelle du mode batch)
+
+### 5.3 Reporting Batch
+Fonction: rendre lisible le résultat d'une exécution batch (mode batch).
 
 Fonctions clés:
 - afficher le statut global du batch
 - afficher compteurs succès/échecs
 - afficher le détail des erreurs
 - export des résultats (JSON/CSV)
+
+Note implémentation actuelle:
+- route dédiée: `/batch/reports`
 
 ### 5.4 Activity (`/activity`)
 Fonction: traçabilité opérateur.
