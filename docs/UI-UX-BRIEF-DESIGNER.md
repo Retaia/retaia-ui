@@ -40,12 +40,12 @@ Permettre l'exploitation de la bibliothèque d'assets déjà traités:
 
 ### 4.2 Routes actuelles
 - `/` -> redirection `/review`
-- `/review`, `/review/:assetId`
+- `/review`
 - `/review/detail/:assetId`
 - `/batch`
 - `/batch/reports`
 - `/activity`
-- `/library`, `/library/:assetId`
+- `/library`
 - `/library/detail/:assetId`
 - `/auth`
 - `/settings`
@@ -61,6 +61,8 @@ Fonctions clés:
 - décisions single: `KEEP` / `REJECT` / `CLEAR`
 - édition mots-clés et notes
 - filtres (état, type, date) + recherche
+- filtres et recherche pilotés par query params API (`state`, `media_type`, `q`, `sort`, `captured_at_from`, `captured_at_to`)
+- en mode API: la liste affichée reflète strictement la réponse API (pas de post-filtrage UI)
 - sélection batch depuis la liste
 - raccourcis clavier opérateur
 - accès rapide à l'asset suivant à traiter
@@ -103,8 +105,9 @@ Fonction: retrouver et réviser les assets déjà traités.
 
 Fonctions clés:
 - liste des assets de library (incluant archivés)
-- recherche texte (nom/id/mots-clés)
-- filtres/tri (état, type, date, etc.)
+- recherche texte API (`q`)
+- tri API (`sort`) et filtres API (`state`, `media_type`, `captured_at_from`, `captured_at_to`)
+- en mode API: pas de post-filtrage local UI
 - consultation du détail asset
 - édition mots-clés + notes
 - possibilité métier de `REJECT` un asset précédemment validé
@@ -117,6 +120,7 @@ Fonctions clés:
 - vue détail enrichie d'un asset
 - preview média + transcript (si disponible)
 - édition metadata
+- clic sur un mot-clé pour appliquer un filtre/recherche dans la liste d'origine
 - actions de décision selon contexte (review/library)
 - retour contextuel vers la page d'origine
 
@@ -144,7 +148,7 @@ Fonctions clés:
 - feedback immédiat après chaque action (succès/erreur)
 - gestion des conflits d'état (asset modifié côté serveur)
 - confirmations sur actions sensibles/destructives
-- deep-linking et navigation retour fiable
+- navigation retour fiable avec conservation des query params de filtres
 - accessibilité clavier
 
 ## 7) États UX obligatoires
