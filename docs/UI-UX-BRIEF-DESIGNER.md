@@ -1,166 +1,157 @@
 # Brief UI/UX Designer - Retaia UI
 
-## 1) Vue d'ensemble du produit
-Retaia UI est une interface web de revue média orientée efficacité opérateur (desktop-first), avec navigation multi-pages.
-Objectif: traiter des assets (image/audio/video) via décisions (`KEEP`, `REJECT`, `CLEAR`), piloter les opérations batch, consulter les rapports et l'activité, puis gérer la bibliothèque d'assets archivés.
+## 1) Objectif du document
+Ce document sert de brief fonctionnel pour le rebranding UI/UX.
+Le but est de décrire les fonctionnalités métier et les parcours utilisateur, sans imposer de direction visuelle.
 
-Principes UX actuels:
-- workflow rapide, orienté liste + détail
-- raccourcis clavier et actions de masse
-- gestion explicite des états runtime (loading, erreurs API, policy serveur)
-- i18n FR/EN native
+## 2) Les 2 objectifs produit principaux
 
-## 2) Architecture implémentée (routes)
-- `/` -> redirection vers `/review`
-- `/review` -> `Review Workspace`
-- `/review/:assetId` -> `Review Workspace` avec asset présélectionné
-- `/review/detail/:assetId` -> page détail standalone (contexte review)
-- `/batch` -> `Batch Operations`
-- `/batch/reports` -> `Batch Reports`
-- `/activity` -> `Review Activity`
-- `/library` -> `Library` (liste archivés)
-- `/library/:assetId` -> `Library` avec asset présélectionné
-- `/library/detail/:assetId` -> page détail standalone (contexte library)
-- `/auth` -> `Auth`
-- `/settings` -> `Settings`
-- `*` -> redirection vers `/review`
+### 2.1 Ingest / review de nouveaux fichiers
+Permettre à l'opérateur de traiter rapidement les nouveaux assets entrants:
+- ouvrir un asset (image/audio/video)
+- décider `KEEP` ou `REJECT` (et `CLEAR` pour annuler une décision)
+- ajouter/éditer des mots-clés et des notes (single et batch)
+- enchaîner les assets en file de review
+- exécuter des actions batch avec preview, confirmation et rapport
 
-Navigation primaire implémentée (header persistant):
-- `Review`, `Batch`, `Reports`, `Activity`, `Library`
-- accès secondaires: `Settings`, `Auth`, switch langue FR/EN
+### 2.2 Recherche et tri de la library
+Permettre l'exploitation de la bibliothèque d'assets déjà traités:
+- rechercher/filtrer/trier les assets de library
+- consulter le détail d'un asset
+- ajouter/éditer les mots-clés et notes
+- pouvoir `REJECT` un asset déjà validé (`KEEP`) si besoin métier
+- gérer les actions en single et batch selon le contexte
 
-## 3) Écrans et fonctionnalités
+## 3) Principes UX attendus
+- Priorité à la productivité opérateur (desktop-first, actions rapides).
+- Lecture simultanée liste + détail.
+- États système explicites (loading, succès, erreur, retry, indisponible).
+- Cohérence inter-pages (navigation, terminologie, feedback).
+- FR/EN natif.
 
-### 3.1 Review Workspace (`/review`, `/review/:assetId`)
-Écran principal de traitement unitaire.
+## 4) Architecture des écrans (fonctionnelle)
 
-Contenu:
-- header global + navigation primaire
-- summary cards (total, pending, keep, reject)
-- toolbar de filtres:
-  - état (`ALL`, `DECISION_PENDING`, `DECIDED_KEEP`, `DECIDED_REJECT`, `ARCHIVED`)
-  - type média (`ALL`, `VIDEO`, `AUDIO`, `IMAGE`, `OTHER`)
-  - date (`ALL`, `LAST_7_DAYS`, `LAST_30_DAYS`)
-  - recherche texte
-- alertes runtime API (assets/policy/bulk)
-- panneau d'actions workspace:
-  - vues/presets
-  - focus pending
-  - mode `batch only`
-  - décisions de masse sur visibles
-  - reset filtres
-  - densité de liste
-- carte `next pending`
-- layout liste + détail
+### 4.1 Navigation principale
+- `Review` (ingest/review de nouveaux assets)
+- `Batch` (actions de masse)
+- `Reports` (résultats batch)
+- `Activity` (journal + undo)
+- `Library` (recherche/exploitation post-validation)
+- accès secondaires: `Auth`, `Settings`, changement langue
 
-Colonne liste:
-- sélection active
-- sélection batch (incl. interactions clavier/sélection)
-- actions inline par asset (`KEEP/REJECT/CLEAR`)
-- états vides contextualisés
+### 4.2 Routes actuelles
+- `/` -> redirection `/review`
+- `/review`, `/review/:assetId`
+- `/review/detail/:assetId`
+- `/batch`
+- `/batch/reports`
+- `/activity`
+- `/library`, `/library/:assetId`
+- `/library/detail/:assetId`
+- `/auth`
+- `/settings`
 
-Colonne détail:
-- preview média (image/video/audio + fallback)
-- transcript (si présent)
-- décisions `KEEP/REJECT/CLEAR`
-- metadata (tags + notes) avec sauvegarde
-- purge (preview + confirm)
-- statuts (decision/metadata/purge)
-- action refresh en cas de conflit d'état API
-- CTA vers page détail standalone (`/review/detail/:assetId`)
+## 5) Fonctionnalités par écran
 
-### 3.2 Batch Operations (`/batch`)
-Vue dédiée aux actions batch, sans bruit du workspace.
+### 5.1 Review Workspace (`/review`)
+Fonction: traiter le flux entrant.
 
-Fonctions:
-- scope batch (pending/keep/reject)
-- actions batch (`KEEP batch`, `REJECT batch`, `clear`)
-- preview/exécution batch
-- timeline d'exécution
-- fenêtre d'annulation avant exécution
-- statuts preview/execute + retry API
+Fonctions clés:
+- vue liste des assets à traiter
+- panneau détail asset (preview média + metadata)
+- décisions single: `KEEP` / `REJECT` / `CLEAR`
+- édition mots-clés et notes
+- filtres (état, type, date) + recherche
+- sélection batch depuis la liste
+- raccourcis clavier opérateur
+- accès rapide à l'asset suivant à traiter
 
-### 3.3 Batch Reports (`/batch/reports`)
-Vue dédiée au reporting batch.
+### 5.2 Batch (`/batch`)
+Fonction: exécuter des actions de masse.
 
-Fonctions:
-- refresh rapport
-- export JSON/CSV
-- affichage `batch_id`
-- statut de rapport
-- rendu data de rapport (moved/failed + erreurs si disponibles)
+Fonctions clés:
+- visualiser le scope batch sélectionné
+- appliquer décision batch (`KEEP` / `REJECT`)
+- preview avant exécution
+- confirmation/annulation avant exécution finale
+- statuts d'exécution + gestion des erreurs
 
-### 3.4 Review Activity (`/activity`)
-Vue dédiée au journal opérateur.
+### 5.3 Reports (`/batch/reports`)
+Fonction: rendre lisible le résultat d'une exécution batch.
 
-Fonctions:
-- `undo` dernière action
-- compteur d'historique
-- log des actions
-- clear log
+Fonctions clés:
+- afficher le statut global du batch
+- afficher compteurs succès/échecs
+- afficher le détail des erreurs
+- export des résultats (JSON/CSV)
 
-### 3.5 Library (`/library`, `/library/:assetId`)
-Bibliothèque des assets archivés, avec consultation et enrichissement metadata.
+### 5.4 Activity (`/activity`)
+Fonction: traçabilité opérateur.
 
-Fonctions:
-- liste assets `ARCHIVED` (et keep en fallback local)
-- recherche sur nom, id et tags
-- sélection/lecture détail dans la même page
-- édition metadata (tags + notes)
-- CTA vers détail standalone (`/library/detail/:assetId`)
+Fonctions clés:
+- historique des actions
+- undo de la dernière action
+- nettoyage du journal
 
-Contraintes fonctionnelles:
-- pas d'actions de décision ni purge dans la library
-- objectif: consultation + enrichissement
+### 5.5 Library (`/library`)
+Fonction: retrouver et réviser les assets déjà traités.
 
-### 3.6 Standalone Asset Detail (`/review/detail/:assetId`, `/library/detail/:assetId`)
-Page détail commune réutilisée par review et library.
+Fonctions clés:
+- liste des assets de library (incluant archivés)
+- recherche texte (nom/id/mots-clés)
+- filtres/tri (état, type, date, etc.)
+- consultation du détail asset
+- édition mots-clés + notes
+- possibilité métier de `REJECT` un asset précédemment validé
+- actions single et batch selon les règles produit
 
-Fonctions:
-- même composant de détail que les vues principales
-- édition metadata (tags + notes)
-- états `loading` et `not found`
-- bouton retour contextuel (`Review` ou `Library`)
+### 5.6 Détail standalone (`/review/detail/:assetId`, `/library/detail/:assetId`)
+Fonction: focus complet sur un asset.
 
-Différences contextuelles:
-- contexte `review`: lecture asset dans scope review
-- contexte `library`: lecture asset dans scope archived/library
+Fonctions clés:
+- vue détail enrichie d'un asset
+- preview média + transcript (si disponible)
+- édition metadata
+- actions de décision selon contexte (review/library)
+- retour contextuel vers la page d'origine
 
-### 3.7 Auth (`/auth`)
-Écran auth modulaire (sous-controllers) pour session et gouvernance d'accès.
+### 5.7 Auth (`/auth`)
+Fonction: identité et accès.
 
-Fonctions:
+Fonctions clés:
 - login/logout
 - recovery mot de passe
 - vérification email
-- MFA/features governance
-- paramètres connexion API côté auth
+- MFA / gouvernance features
+- configuration connexion API côté session
 
-### 3.8 Settings (`/settings`)
-Écran configuration runtime.
+### 5.8 Settings (`/settings`)
+Fonction: configuration runtime de l'application.
 
-Fonctions:
-- paramètres forcés en lecture seule (env)
-- configuration connexion API (base URL/token + test/reset)
-- sélection source assets (mock/API)
+Fonctions clés:
+- paramètres techniques (API base URL, token)
+- test/réinitialisation connexion
+- sélection source de données (mock/API)
+- affichage des paramètres verrouillés par environnement
 
-## 4) Raccourcis et interactions clés
-- navigation liste: `j/k`, flèches, `Home/End`, `Enter`
-- sélection batch: `Shift+click`, `Shift+Space`, sélection de plage
-- actions rapides: `g/v/x`, `p`, `b`, `n`, `d`, `r`, `l`, `1/2/3`, `/`, `?`
-- multi-sélection: `Ctrl/Cmd+A`
-- undo: `Ctrl/Cmd+Z`
-- confirmation batch différée: `Shift+Enter`
+## 6) Interactions transverses à couvrir
+- actions single et batch cohérentes partout
+- feedback immédiat après chaque action (succès/erreur)
+- gestion des conflits d'état (asset modifié côté serveur)
+- confirmations sur actions sensibles/destructives
+- deep-linking et navigation retour fiable
+- accessibilité clavier
 
-## 5) États UX à couvrir en design
-- loading/error sur assets, détail, policy, batch, report
-- retries API et messages de conflit d'état
-- policy serveur qui désactive des actions
-- états vides multiples (liste, détail, pending, journal, recherche)
-- états de saisie metadata (saving/success/error)
-- comportement deep-link + retour contextuel
+## 7) États UX obligatoires
+- chargement initial et rechargement partiel
+- empty states (aucun résultat, aucun asset sélectionné, aucun pending)
+- succès d'action (décision, metadata, batch)
+- erreurs d'action (API, validation, permission)
+- indisponibilité partielle (feature/policy désactivée)
+- retry réseau
 
-## 6) Références visuelles existantes (snapshots)
+## 8) Références visuelles existantes
+Snapshots utiles comme base de compréhension des flux actuels:
 - `tests/visual/ui.visual.spec.ts-snapshots/summary-cards-darwin.png`
 - `tests/visual/ui.visual.spec.ts-snapshots/list-detail-open-darwin.png`
 - `tests/visual/ui.visual.spec.ts-snapshots/batch-activity-state-darwin.png`
@@ -168,9 +159,11 @@ Fonctions:
 - `tests/visual/ui.visual.spec.ts-snapshots/preview-error-state-darwin.png`
 - `tests/visual/ui.visual.spec.ts-snapshots/execute-loading-state-darwin.png`
 
-## 7) Notes design pour la version actuelle
-- produit desktop-first: prioriser densité lisible et hiérarchie visuelle claire
-- dissocier visuellement actions non destructives vs destructives
-- maintenir cohérence inter-pages via header/navigation communes
-- soigner continuité liste -> détail inline -> détail standalone
-- mobile supporté, mais flux expert majoritairement desktop
+## 9) Ce que le designer est libre de décider
+- direction artistique globale (brand, couleurs, typo, iconographie)
+- hiérarchie visuelle des écrans
+- patterns de navigation (tabs, sidebar, header, etc.)
+- densité visuelle desktop/mobile
+- design system détaillé (tokens, composants, variants)
+
+Contrainte: préserver la couverture fonctionnelle décrite ci-dessus.
