@@ -18,8 +18,8 @@
 
 ### P1 (important pre-v1)
 - [ ] Splitter `useReviewPageController` en sous-hooks métier.
-- [ ] Réduire la duplication visuelle entre `/review` et `/batch`.
-- [ ] Améliorer l'empty-state de `/batch/reports`.
+- [ ] Réduire la duplication visuelle entre les sections review/batch/report intégrées dans `/review`.
+- [ ] Améliorer l'empty-state de la section report batch dans `/review`.
 - [ ] Mettre en place gouvernance des raccourcis clavier (registre + règles).
 - [ ] Structurer auth en sous-pages/onglets et sous-controllers.
 
@@ -44,8 +44,8 @@
 
 ## UX/UI (retours écran)
 - [x] (1) Persister un `workspace state` minimal entre écrans (`filtres`, `batchIds`, sélection) pour éviter la perte de contexte au refresh.
-- [ ] (2) Réduire la duplication visuelle entre `/review` et `/batch` (faire de `/batch` un écran réellement spécialisé pipeline batch).
-- [ ] (3) Améliorer l'expérience empty-state de `/batch/reports` (CTA actionnable + rapport récent quand disponible).
+- [ ] (2) Réduire la duplication visuelle entre les sections review/batch de `/review` (pipeline batch plus lisible).
+- [ ] (3) Améliorer l'expérience empty-state de la section report batch (CTA actionnable + rapport récent quand disponible).
 - [ ] (4) Clarifier les libellés proches (`Ops batch` / `Vue batch` / `Mode batch`) pour accessibilité et lisibilité.
 - [ ] (5) Hiérarchiser `ActionPanels` (actions fréquentes visibles, actions avancées repliables).
 
@@ -117,7 +117,7 @@
 - [ ] Gérer permissions/403 par écran avec fallback explicite.
 
 ## Qualité & Tests (pre-v1)
-- [ ] Ajouter des tests visuels pour les nouvelles pages (`/batch`, `/batch/reports`, `/activity`).
+- [ ] Ajouter des tests visuels pour les pages critiques (`/review`, `/activity`, `/library`, `/auth`, `/settings`, détail standalone).
 - [ ] Ajouter des tests E2E pour les nouveaux parcours de navigation.
 - [ ] Renforcer la stratégie anti-flaky (retries ciblés + artefacts diagnostics).
 

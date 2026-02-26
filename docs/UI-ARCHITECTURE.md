@@ -15,8 +15,6 @@ Routes UI:
 
 - `/review`
 - `/review/detail/:assetId`
-- `/batch`
-- `/batch/reports`
 - `/activity`
 - `/library`
 - `/library/detail/:assetId`

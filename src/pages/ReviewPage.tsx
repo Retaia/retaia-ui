@@ -23,12 +23,10 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
       <AppHeader
         locale={controller.locale}
         t={controller.t}
-        currentView={view}
+        currentView={view === 'activity' ? 'activity' : 'workspace'}
         onOpenSettings={() => navigate('/settings')}
         onOpenAuth={() => navigate('/auth')}
         onOpenReview={() => navigate('/review')}
-        onOpenBatch={() => navigate('/batch')}
-        onOpenBatchReports={() => navigate('/batch/reports')}
         onOpenActivity={() => navigate('/activity')}
         onOpenLibrary={() => navigate('/library')}
         onChangeLanguage={controller.onChangeLanguage}

@@ -27,16 +27,18 @@ describe('AppRoutes', () => {
     expect(screen.getByLabelText('Connexion API (runtime)')).toBeInTheDocument()
   })
 
-  it('renders batch page on /batch', async () => {
+  it('redirects /batch to /review', async () => {
     setupApp('/batch')
 
-    expect(await screen.findByRole('heading', { name: 'Ops batch' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Retaia UI' })).toBeInTheDocument()
+    expect(window.location.pathname).toBe('/review')
   })
 
-  it('renders batch reports page on /batch/reports', async () => {
+  it('redirects /batch/reports to /review', async () => {
     setupApp('/batch/reports')
 
-    expect(await screen.findByRole('heading', { name: 'Rapports' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Retaia UI' })).toBeInTheDocument()
+    expect(window.location.pathname).toBe('/review')
   })
 
   it('renders activity page on /activity', async () => {

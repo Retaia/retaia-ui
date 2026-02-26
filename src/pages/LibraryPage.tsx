@@ -19,8 +19,6 @@ export function LibraryPage() {
         onOpenSettings={() => navigate('/settings')}
         onOpenAuth={() => navigate('/auth')}
         onOpenReview={() => navigate('/review')}
-        onOpenBatch={() => navigate('/batch')}
-        onOpenBatchReports={() => navigate('/batch/reports')}
         onOpenActivity={() => navigate('/activity')}
         onOpenLibrary={() => navigate('/library')}
         onChangeLanguage={controller.onChangeLanguage}
