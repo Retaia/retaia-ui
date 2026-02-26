@@ -39,6 +39,7 @@ function renderPanel(
     onSaveMetadata?: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
     onRefreshAsset?: () => Promise<void>
     showRefreshAction?: boolean
+    onKeywordClick?: (keyword: string) => void
   },
 ) {
   const onSaveMetadata = options?.onSaveMetadata ?? vi.fn(async () => {})
@@ -61,6 +62,7 @@ function renderPanel(
       onRefreshAsset={onRefreshAsset}
       showRefreshAction={options?.showRefreshAction ?? false}
       refreshingAsset={false}
+      onKeywordClick={options?.onKeywordClick}
     />,
   )
 }
@@ -202,5 +204,23 @@ describe('AssetDetailPanel media preview', () => {
 
     await user.click(screen.getByTestId('asset-refresh-action'))
     expect(onRefreshAsset).toHaveBeenCalled()
+  })
+
+  it('filters list when clicking a keyword tag', async () => {
+    const user = userEvent.setup()
+    const onKeywordClick = vi.fn()
+    renderPanel(
+      {
+        id: 'A-030',
+        name: 'asset.mov',
+        state: 'DECISION_PENDING',
+        mediaType: 'VIDEO',
+        tags: ['urgent'],
+      },
+      { onKeywordClick },
+    )
+
+    await user.click(screen.getByRole('button', { name: 'urgent' }))
+    expect(onKeywordClick).toHaveBeenCalledWith('urgent')
   })
 })

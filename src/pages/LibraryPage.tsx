@@ -47,6 +47,7 @@ export function LibraryPage() {
           onSaveMetadata={controller.onSaveMetadata}
           showDecisionActions={false}
           showPurgeActions={false}
+          onKeywordClick={controller.onKeywordClick}
           onOpenStandaloneDetail={(assetId) =>
             navigate(
               `/library/detail/${assetId}?from=${encodeURIComponent(`${location.pathname}${location.search}`)}`,
