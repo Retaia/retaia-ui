@@ -104,7 +104,7 @@ export function AssetList({
                   event.stopPropagation()
                   onDecision(asset.id, 'KEEP')
                 }}
-                disabled={asset.state === 'DECIDED_KEEP'}
+                disabled={asset.state === 'DECIDED_KEEP' || asset.state === 'ARCHIVED'}
               >
                 <BsCheck2Circle className="me-1" aria-hidden="true" />
                 {labels.keep}

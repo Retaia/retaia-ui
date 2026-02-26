@@ -1,4 +1,4 @@
-export const ASSET_STATES = ['DECISION_PENDING', 'DECIDED_KEEP', 'DECIDED_REJECT'] as const
+export const ASSET_STATES = ['DECISION_PENDING', 'DECIDED_KEEP', 'DECIDED_REJECT', 'ARCHIVED'] as const
 export const ASSET_MEDIA_TYPES = ['VIDEO', 'AUDIO', 'IMAGE', 'OTHER'] as const
 
 export type AssetState = (typeof ASSET_STATES)[number]
@@ -89,6 +89,7 @@ export const countAssetsByState = (assets: Asset[]): Record<AssetState, number> 
       DECISION_PENDING: 0,
       DECIDED_KEEP: 0,
       DECIDED_REJECT: 0,
+      ARCHIVED: 0,
     },
   )
 }
@@ -119,7 +120,11 @@ export const getStateFromDecision = (
   currentState: AssetState,
 ): AssetState => {
   if (action === 'CLEAR') {
-    if (currentState === 'DECIDED_KEEP' || currentState === 'DECIDED_REJECT') {
+    if (
+      currentState === 'DECIDED_KEEP' ||
+      currentState === 'DECIDED_REJECT' ||
+      currentState === 'ARCHIVED'
+    ) {
       return 'DECISION_PENDING'
     }
     return currentState

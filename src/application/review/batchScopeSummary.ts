@@ -15,7 +15,7 @@ export function summarizeBatchScope(assets: Asset[], batchIds: string[]): BatchS
     }
     if (asset.state === 'DECISION_PENDING') {
       summary.pending += 1
-    } else if (asset.state === 'DECIDED_KEEP') {
+    } else if (asset.state === 'DECIDED_KEEP' || asset.state === 'ARCHIVED') {
       summary.keep += 1
     } else if (asset.state === 'DECIDED_REJECT') {
       summary.reject += 1

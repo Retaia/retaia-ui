@@ -17,8 +17,11 @@ function mapMediaType(mediaType: ApiAssetSummary['media_type'] | undefined): Ass
 }
 
 function mapState(state: ApiAssetSummary['state'] | undefined): AssetState {
-  if (state === 'DECIDED_KEEP' || state === 'ARCHIVED') {
+  if (state === 'DECIDED_KEEP') {
     return 'DECIDED_KEEP'
+  }
+  if (state === 'ARCHIVED') {
+    return 'ARCHIVED'
   }
   if (state === 'DECIDED_REJECT' || state === 'REJECTED' || state === 'PURGED') {
     return 'DECIDED_REJECT'

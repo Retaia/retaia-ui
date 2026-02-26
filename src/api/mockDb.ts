@@ -1,7 +1,7 @@
 import type { ApiErrorPayload } from './client'
 import { INITIAL_ASSETS } from '../data/mockAssets'
 
-type MockAssetState = 'DECISION_PENDING' | 'DECIDED_KEEP' | 'DECIDED_REJECT' | 'REJECTED'
+type MockAssetState = 'DECISION_PENDING' | 'DECIDED_KEEP' | 'DECIDED_REJECT' | 'ARCHIVED' | 'REJECTED'
 
 type MockAsset = {
   uuid: string
@@ -58,6 +58,9 @@ function inferMediaType(name: string): MockAsset['media_type'] {
 function inferState(state: string): MockAssetState {
   if (state === 'DECIDED_KEEP') {
     return 'DECIDED_KEEP'
+  }
+  if (state === 'ARCHIVED') {
+    return 'ARCHIVED'
   }
   if (state === 'DECIDED_REJECT') {
     return 'DECIDED_REJECT'

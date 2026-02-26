@@ -10,7 +10,9 @@ import { useAssetRouteSelection } from './useAssetRouteSelection'
 import { useDensityMode } from './useDensityMode'
 import { useReviewApiRuntime } from './useReviewApiRuntime'
 
-const INITIAL_LIBRARY_ASSETS = INITIAL_ASSETS.filter((asset) => asset.state === 'DECIDED_KEEP')
+const INITIAL_LIBRARY_ASSETS = INITIAL_ASSETS.filter(
+  (asset) => asset.state === 'ARCHIVED' || asset.state === 'DECIDED_KEEP',
+)
 
 export function useLibraryPageController() {
   const { t, i18n } = useTranslation()

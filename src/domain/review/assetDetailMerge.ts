@@ -18,7 +18,12 @@ type AssetDetailLike = {
 }
 
 function toUiDecisionState(state: string | undefined): AssetState | null {
-  if (state === 'DECISION_PENDING' || state === 'DECIDED_KEEP' || state === 'DECIDED_REJECT') {
+  if (
+    state === 'DECISION_PENDING' ||
+    state === 'DECIDED_KEEP' ||
+    state === 'DECIDED_REJECT' ||
+    state === 'ARCHIVED'
+  ) {
     return state
   }
   return null
