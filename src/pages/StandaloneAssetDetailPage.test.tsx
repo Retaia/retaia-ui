@@ -31,8 +31,9 @@ describe('StandaloneAssetDetailPage', () => {
   it('uses contextual back route when from query is provided', async () => {
     const { user } = setupApp('/review/detail/A-001?from=%2Factivity')
 
+    expect(await screen.findByRole('button', { name: 'Retour activité' })).toBeInTheDocument()
     expect(await screen.findByTestId('standalone-detail-breadcrumb')).toHaveTextContent('Activité')
-    await user.click(await screen.findByRole('button', { name: 'Retour review' }))
+    await user.click(await screen.findByRole('button', { name: 'Retour activité' }))
     expect(window.location.pathname).toBe('/activity')
   })
 })
