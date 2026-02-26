@@ -45,13 +45,19 @@ describe('LibraryPage', () => {
   })
 
   it('initializes and syncs library search from query params', async () => {
-    const { user } = setupApp('/library?q=ambiance')
+    const { user } = setupApp('/library?q=ambiance&sort=NAME&order=ASC')
 
     expect(screen.getByTestId('library-search-input')).toHaveValue('ambiance')
+    expect(screen.getByTestId('library-sort-key')).toHaveValue('NAME')
+    expect(screen.getByTestId('library-sort-order')).toHaveValue('ASC')
 
     await user.clear(screen.getByTestId('library-search-input'))
     await user.type(screen.getByTestId('library-search-input'), 'archive')
+    await user.selectOptions(screen.getByTestId('library-sort-key'), 'STATE')
+    await user.selectOptions(screen.getByTestId('library-sort-order'), 'DESC')
     expect(window.location.search).toContain('q=archive')
+    expect(window.location.search).toContain('sort=STATE')
+    expect(window.location.search).not.toContain('order=ASC')
   })
 
   it('restores library search on browser back using query params history', async () => {

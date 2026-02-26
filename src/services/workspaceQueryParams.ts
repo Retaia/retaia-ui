@@ -1,10 +1,18 @@
-import type { AssetDateFilter, AssetFilter, AssetMediaTypeFilter } from '../domain/assets'
+import type {
+  AssetDateFilter,
+  AssetFilter,
+  AssetMediaTypeFilter,
+  AssetSortKey,
+  SortOrder,
+} from '../domain/assets'
 import { ASSET_MEDIA_TYPES, ASSET_STATES } from '../domain/assets'
 
 type ReviewFilterParams = {
   filter: AssetFilter
   mediaTypeFilter: AssetMediaTypeFilter
   dateFilter: AssetDateFilter
+  sortKey: AssetSortKey
+  sortOrder: SortOrder
   search: string
   batchOnly: boolean
 }
@@ -25,6 +33,14 @@ function isAssetMediaTypeFilter(value: string | null): value is AssetMediaTypeFi
 
 function isAssetDateFilter(value: string | null): value is AssetDateFilter {
   return value === 'ALL' || value === 'LAST_7_DAYS' || value === 'LAST_30_DAYS'
+}
+
+function isAssetSortKey(value: string | null): value is AssetSortKey {
+  return value === 'CAPTURED_AT' || value === 'NAME' || value === 'STATE'
+}
+
+function isSortOrder(value: string | null): value is SortOrder {
+  return value === 'ASC' || value === 'DESC'
 }
 
 function toBatchOnlyFlag(value: string | null): boolean | null {
@@ -62,6 +78,8 @@ export function readReviewFilterParams(): Partial<ReviewFilterParams> {
   const queryFilter = params.get('filter')
   const queryMedia = params.get('media')
   const queryDate = params.get('date')
+  const querySort = params.get('sort')
+  const queryOrder = params.get('order')
   const querySearch = params.get('q')
   const queryBatchOnly = params.get('batch')
 
@@ -69,6 +87,8 @@ export function readReviewFilterParams(): Partial<ReviewFilterParams> {
     filter: isAssetFilter(queryFilter) ? queryFilter : undefined,
     mediaTypeFilter: isAssetMediaTypeFilter(queryMedia) ? queryMedia : undefined,
     dateFilter: isAssetDateFilter(queryDate) ? queryDate : undefined,
+    sortKey: isAssetSortKey(querySort) ? querySort : undefined,
+    sortOrder: isSortOrder(queryOrder) ? queryOrder : undefined,
     search: querySearch ?? undefined,
     batchOnly: toBatchOnlyFlag(queryBatchOnly) ?? undefined,
   }
@@ -97,6 +117,16 @@ export function writeReviewFilterParams(
   } else {
     params.set('date', paramsState.dateFilter)
   }
+  if (paramsState.sortKey === 'CAPTURED_AT') {
+    params.delete('sort')
+  } else {
+    params.set('sort', paramsState.sortKey)
+  }
+  if (paramsState.sortOrder === 'DESC') {
+    params.delete('order')
+  } else {
+    params.set('order', paramsState.sortOrder)
+  }
   const normalizedSearch = paramsState.search.trim()
   if (normalizedSearch.length === 0) {
     params.delete('q')
@@ -111,18 +141,31 @@ export function writeReviewFilterParams(
   updateCurrentSearch(params, mode)
 }
 
-export function readLibraryFilterParams(): { search?: string } {
+export function readLibraryFilterParams(): {
+  search?: string
+  sortKey?: AssetSortKey
+  sortOrder?: SortOrder
+} {
   if (typeof window === 'undefined') {
     return {}
   }
   const params = new URLSearchParams(window.location.search)
   const querySearch = params.get('q')
+  const querySort = params.get('sort')
+  const queryOrder = params.get('order')
   return {
     search: querySearch ?? undefined,
+    sortKey: isAssetSortKey(querySort) ? querySort : undefined,
+    sortOrder: isSortOrder(queryOrder) ? queryOrder : undefined,
   }
 }
 
-export function writeLibraryFilterParams(search: string, mode: 'push' | 'replace' = 'push') {
+export function writeLibraryFilterParams(
+  search: string,
+  sortKey: AssetSortKey,
+  sortOrder: SortOrder,
+  mode: 'push' | 'replace' = 'push',
+) {
   if (typeof window === 'undefined') {
     return
   }
@@ -132,6 +175,16 @@ export function writeLibraryFilterParams(search: string, mode: 'push' | 'replace
     params.delete('q')
   } else {
     params.set('q', normalizedSearch)
+  }
+  if (sortKey === 'CAPTURED_AT') {
+    params.delete('sort')
+  } else {
+    params.set('sort', sortKey)
+  }
+  if (sortOrder === 'DESC') {
+    params.delete('order')
+  } else {
+    params.set('order', sortOrder)
   }
   updateCurrentSearch(params, mode)
 }

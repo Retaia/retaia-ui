@@ -1,16 +1,31 @@
-import type { AssetDateFilter, AssetFilter, AssetMediaTypeFilter } from '../domain/assets'
+import type {
+  AssetDateFilter,
+  AssetFilter,
+  AssetMediaTypeFilter,
+  AssetSortKey,
+  SortOrder,
+} from '../domain/assets'
 import { Card, Col, Form, Row } from 'react-bootstrap'
-import { BsCalendar3, BsFunnel, BsSearch, BsSliders2 } from 'react-icons/bs'
+import { BsCalendar3, BsFunnel, BsSearch, BsSliders2, BsSortDown } from 'react-icons/bs'
 
 type ReviewToolbarProps = {
   filter: AssetFilter
   mediaTypeFilter: AssetMediaTypeFilter
   dateFilter: AssetDateFilter
+  sortKey: AssetSortKey
+  sortOrder: SortOrder
   search: string
   labels: {
     filter: string
     mediaType: string
     date: string
+    sortBy: string
+    sortOrder: string
+    sortByCapturedAt: string
+    sortByName: string
+    sortByState: string
+    orderAsc: string
+    orderDesc: string
     search: string
     searchPlaceholder: string
     all: string
@@ -20,6 +35,8 @@ type ReviewToolbarProps = {
   onFilterChange: (filter: AssetFilter) => void
   onMediaTypeFilterChange: (filter: AssetMediaTypeFilter) => void
   onDateFilterChange: (filter: AssetDateFilter) => void
+  onSortKeyChange: (value: AssetSortKey) => void
+  onSortOrderChange: (value: SortOrder) => void
   onSearchChange: (search: string) => void
 }
 
@@ -27,11 +44,15 @@ export function ReviewToolbar({
   filter,
   mediaTypeFilter,
   dateFilter,
+  sortKey,
+  sortOrder,
   search,
   labels,
   onFilterChange,
   onMediaTypeFilterChange,
   onDateFilterChange,
+  onSortKeyChange,
+  onSortOrderChange,
   onSearchChange,
 }: ReviewToolbarProps) {
   return (
@@ -87,6 +108,37 @@ export function ReviewToolbar({
               <option value="ALL">{labels.all}</option>
               <option value="LAST_7_DAYS">{labels.date7d}</option>
               <option value="LAST_30_DAYS">{labels.date30d}</option>
+            </Form.Select>
+          </Col>
+
+          <Col xs={12} md={6}>
+            <Form.Label className="fw-semibold" htmlFor="sort-key-filter">
+              <BsSortDown className="me-1" aria-hidden="true" />
+              {labels.sortBy}
+            </Form.Label>
+            <Form.Select
+              id="sort-key-filter"
+              value={sortKey}
+              onChange={(event) => onSortKeyChange(event.target.value as AssetSortKey)}
+            >
+              <option value="CAPTURED_AT">{labels.sortByCapturedAt}</option>
+              <option value="NAME">{labels.sortByName}</option>
+              <option value="STATE">{labels.sortByState}</option>
+            </Form.Select>
+          </Col>
+
+          <Col xs={12} md={6}>
+            <Form.Label className="fw-semibold" htmlFor="sort-order-filter">
+              <BsSortDown className="me-1" aria-hidden="true" />
+              {labels.sortOrder}
+            </Form.Label>
+            <Form.Select
+              id="sort-order-filter"
+              value={sortOrder}
+              onChange={(event) => onSortOrderChange(event.target.value as SortOrder)}
+            >
+              <option value="DESC">{labels.orderDesc}</option>
+              <option value="ASC">{labels.orderAsc}</option>
             </Form.Select>
           </Col>
 

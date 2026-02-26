@@ -1,7 +1,14 @@
 import { ReviewSummary } from '../ReviewSummary'
 import { ReviewToolbar } from '../ReviewToolbar'
 import { ReviewStatusAlerts } from '../app/ReviewStatusAlerts'
-import type { AssetDateFilter, AssetFilter, AssetMediaTypeFilter, AssetState } from '../../domain/assets'
+import type {
+  AssetDateFilter,
+  AssetFilter,
+  AssetMediaTypeFilter,
+  AssetSortKey,
+  AssetState,
+  SortOrder,
+} from '../../domain/assets'
 import type { TFunction } from 'i18next'
 
 type Props = {
@@ -11,6 +18,8 @@ type Props = {
   filter: AssetFilter
   mediaTypeFilter: AssetMediaTypeFilter
   dateFilter: AssetDateFilter
+  sortKey: AssetSortKey
+  sortOrder: SortOrder
   search: string
   isApiAssetSource: boolean
   assetsLoadState: 'idle' | 'loading' | 'ready' | 'error'
@@ -19,6 +28,8 @@ type Props = {
   onFilterChange: (value: AssetFilter) => void
   onMediaTypeFilterChange: (value: AssetMediaTypeFilter) => void
   onDateFilterChange: (value: AssetDateFilter) => void
+  onSortKeyChange: (value: AssetSortKey) => void
+  onSortOrderChange: (value: SortOrder) => void
   onSearchChange: (value: string) => void
 }
 
@@ -29,6 +40,8 @@ export function ReviewOverviewSection({
   filter,
   mediaTypeFilter,
   dateFilter,
+  sortKey,
+  sortOrder,
   search,
   isApiAssetSource,
   assetsLoadState,
@@ -37,6 +50,8 @@ export function ReviewOverviewSection({
   onFilterChange,
   onMediaTypeFilterChange,
   onDateFilterChange,
+  onSortKeyChange,
+  onSortOrderChange,
   onSearchChange,
 }: Props) {
   return (
@@ -56,11 +71,20 @@ export function ReviewOverviewSection({
         filter={filter}
         mediaTypeFilter={mediaTypeFilter}
         dateFilter={dateFilter}
+        sortKey={sortKey}
+        sortOrder={sortOrder}
         search={search}
         labels={{
           filter: t('toolbar.filter'),
           mediaType: t('toolbar.mediaType'),
           date: t('toolbar.date'),
+          sortBy: t('toolbar.sortBy'),
+          sortOrder: t('toolbar.sortOrder'),
+          sortByCapturedAt: t('toolbar.sortByCapturedAt'),
+          sortByName: t('toolbar.sortByName'),
+          sortByState: t('toolbar.sortByState'),
+          orderAsc: t('toolbar.orderAsc'),
+          orderDesc: t('toolbar.orderDesc'),
           search: t('toolbar.search'),
           searchPlaceholder: t('toolbar.placeholder'),
           all: t('toolbar.all'),
@@ -70,6 +94,8 @@ export function ReviewOverviewSection({
         onFilterChange={onFilterChange}
         onMediaTypeFilterChange={onMediaTypeFilterChange}
         onDateFilterChange={onDateFilterChange}
+        onSortKeyChange={onSortKeyChange}
+        onSortOrderChange={onSortOrderChange}
         onSearchChange={onSearchChange}
       />
       <ReviewStatusAlerts
