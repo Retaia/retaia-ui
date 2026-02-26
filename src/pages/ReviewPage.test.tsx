@@ -70,6 +70,17 @@ describe('App', () => {
     expect(within(getDetailPanel()).getByText('ID: A-003')).toBeInTheDocument()
   })
 
+  it('restores selected asset from persisted workspace context', async () => {
+    window.localStorage.setItem(
+      'retaia_ui_workspace_context',
+      JSON.stringify({ reviewSelectedAssetId: 'A-003' }),
+    )
+    setupApp('/review')
+
+    expect(await screen.findByTestId('selection-status')).toHaveTextContent('A-003')
+    expect(within(getDetailPanel()).getByText('behind-the-scenes.jpg')).toBeInTheDocument()
+  })
+
   it('opens standalone detail page from detail panel action', async () => {
     const { user } = setupApp('/review?state=DECISION_PENDING&sort=name&q=interview')
 

@@ -1,5 +1,6 @@
+import { useEffect } from 'react'
 import { Container } from 'react-bootstrap'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { AppHeader } from '../components/app/AppHeader'
 import { ActivitySection } from '../components/review/ActivitySection'
 import { BatchOperationsSection } from '../components/review/BatchOperationsSection'
@@ -8,6 +9,7 @@ import { ReviewListDetailSection } from '../components/review/ReviewListDetailSe
 import { ReviewOverviewSection } from '../components/review/ReviewOverviewSection'
 import { ReviewWorkspaceSection } from '../components/review/ReviewWorkspaceSection'
 import { useReviewPageController, type ReviewPageView } from '../hooks/useReviewPageController'
+import { persistLastRoute, persistScrollY, readScrollY } from '../services/workspaceContextPersistence'
 
 type ReviewPageProps = {
   view?: ReviewPageView
@@ -15,7 +17,39 @@ type ReviewPageProps = {
 
 function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
   const navigate = useNavigate()
+  const location = useLocation()
   const controller = useReviewPageController({ view })
+  const isScrollableView = view === 'workspace' || view === 'batch'
+
+  useEffect(() => {
+    persistLastRoute(location.pathname, location.search)
+  }, [location.pathname, location.search])
+
+  useEffect(() => {
+    if (!isScrollableView || typeof window === 'undefined') {
+      return
+    }
+    const savedScrollY = readScrollY('review')
+    if (savedScrollY <= 0) {
+      return
+    }
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: savedScrollY, left: 0, behavior: 'auto' })
+    })
+  }, [isScrollableView])
+
+  useEffect(() => {
+    if (!isScrollableView || typeof window === 'undefined') {
+      return
+    }
+    const handleScroll = () => {
+      persistScrollY('review', window.scrollY)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [isScrollableView])
 
   return (
     <Container as="main" className="py-4">
