@@ -1,4 +1,4 @@
-import { Card, Col } from 'react-bootstrap'
+import { Button, Card, Col } from 'react-bootstrap'
 import { BsCollection, BsCrosshair, BsGrid3X3Gap, BsQuestionCircle } from 'react-icons/bs'
 import type { TFunction } from 'i18next'
 import { AssetList } from '../AssetList'
@@ -13,9 +13,12 @@ type AssetListSectionProps = {
   selectionStatusLabel: string
   densityMode: DensityMode
   emptyAssetsMessage: string
+  hasMoreAssets?: boolean
+  loadingMoreAssets?: boolean
   onDecision: (id: string, action: DecisionAction) => void
   onAssetClick: (assetId: string, shiftKey: boolean) => void
   assetListRegionRef: React.RefObject<HTMLElement | null>
+  onLoadMoreAssets?: () => Promise<void>
 }
 
 export function AssetListSection({
@@ -26,9 +29,12 @@ export function AssetListSection({
   selectionStatusLabel,
   densityMode,
   emptyAssetsMessage,
+  hasMoreAssets = false,
+  loadingMoreAssets = false,
   onDecision,
   onAssetClick,
   assetListRegionRef,
+  onLoadMoreAssets,
 }: AssetListSectionProps) {
   return (
     <Col as="section" xs={12} xl={8} aria-label={t('assets.region')} ref={assetListRegionRef}>
@@ -65,6 +71,19 @@ export function AssetListSection({
             onDecision={onDecision}
             onAssetClick={onAssetClick}
           />
+          {hasMoreAssets && onLoadMoreAssets ? (
+            <div className="d-flex justify-content-center mt-3">
+              <Button
+                type="button"
+                variant="outline-secondary"
+                data-testid="review-load-more"
+                onClick={() => void onLoadMoreAssets()}
+                disabled={loadingMoreAssets}
+              >
+                {loadingMoreAssets ? t('assets.loadingMore') : t('assets.loadMore')}
+              </Button>
+            </div>
+          ) : null}
         </Card.Body>
       </Card>
     </Col>

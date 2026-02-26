@@ -34,9 +34,12 @@ export function LibraryPage() {
           densityMode={controller.densityMode}
           search={controller.search}
           sort={controller.sort}
+          hasMoreAssets={controller.hasMoreAssets}
+          loadingMoreAssets={controller.loadingMoreAssets}
           onSearchChange={controller.setSearch}
           onSortChange={controller.setSort}
           onAssetClick={controller.onAssetClick}
+          onLoadMoreAssets={controller.loadMoreAssets}
         />
         <AssetDetailPanel
           selectedAsset={controller.selectedAsset}

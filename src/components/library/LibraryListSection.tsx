@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import { Card, Col, Form } from 'react-bootstrap'
+import { Button, Card, Col, Form } from 'react-bootstrap'
 import { BsArchive, BsSearch, BsSortDown } from 'react-icons/bs'
 import { AssetList } from '../AssetList'
 import type { Asset } from '../../domain/assets'
@@ -13,9 +13,12 @@ type Props = {
   densityMode: DensityMode
   search: string
   sort: AssetSort
+  hasMoreAssets?: boolean
+  loadingMoreAssets?: boolean
   onSearchChange: (value: string) => void
   onSortChange: (value: AssetSort) => void
   onAssetClick: (assetId: string, shiftKey: boolean) => void
+  onLoadMoreAssets?: () => Promise<void>
 }
 
 export function LibraryListSection({
@@ -25,9 +28,12 @@ export function LibraryListSection({
   densityMode,
   search,
   sort,
+  hasMoreAssets = false,
+  loadingMoreAssets = false,
   onSearchChange,
   onSortChange,
   onAssetClick,
+  onLoadMoreAssets,
 }: Props) {
   return (
     <Col as="section" xs={12} xl={8} aria-label={t('library.region')}>
@@ -84,6 +90,19 @@ export function LibraryListSection({
             onAssetClick={onAssetClick}
             showDecisionActions={false}
           />
+          {hasMoreAssets && onLoadMoreAssets ? (
+            <div className="d-flex justify-content-center mt-3">
+              <Button
+                type="button"
+                variant="outline-secondary"
+                data-testid="library-load-more"
+                onClick={() => void onLoadMoreAssets()}
+                disabled={loadingMoreAssets}
+              >
+                {loadingMoreAssets ? t('library.loadingMore') : t('library.loadMore')}
+              </Button>
+            </div>
+          ) : null}
         </Card.Body>
       </Card>
     </Col>

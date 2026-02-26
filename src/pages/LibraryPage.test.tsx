@@ -1,5 +1,5 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { setupApp } from '../test-utils/appTestUtils'
 
 describe('LibraryPage', () => {
@@ -72,5 +72,56 @@ describe('LibraryPage', () => {
     await waitFor(() => {
       expect(screen.getByTestId('library-search-input')).toHaveValue('ambiance')
     })
+  })
+
+  it('loads the next api page when clicking load more', async () => {
+    const previous = import.meta.env.VITE_ASSET_SOURCE
+    try {
+      import.meta.env.VITE_ASSET_SOURCE = 'api'
+      const fetchMock = vi.fn((input: RequestInfo | URL) => {
+        const url = String(input)
+        if (!url.includes('/assets')) {
+          return Promise.resolve(
+            new Response(JSON.stringify({ server_policy: { feature_flags: {} } }), {
+              status: 200,
+              headers: { 'content-type': 'application/json' },
+            }),
+          )
+        }
+        if (url.includes('cursor=cursor-1')) {
+          return Promise.resolve(
+            new Response(
+              JSON.stringify({
+                items: [
+                  { uuid: 'A-202', state: 'ARCHIVED', media_type: 'AUDIO', created_at: '2026-02-01T11:00:00Z' },
+                ],
+                next_cursor: null,
+              }),
+              { status: 200, headers: { 'content-type': 'application/json' } },
+            ),
+          )
+        }
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              items: [
+                { uuid: 'A-201', state: 'ARCHIVED', media_type: 'AUDIO', created_at: '2026-02-01T10:00:00Z' },
+              ],
+              next_cursor: 'cursor-1',
+            }),
+            { status: 200, headers: { 'content-type': 'application/json' } },
+          ),
+        )
+      })
+      vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
+
+      const { user } = setupApp('/library?source=api')
+      expect(await screen.findByText('A-201')).toBeInTheDocument()
+      await user.click(await screen.findByTestId('library-load-more'))
+      expect(await screen.findByText('A-202')).toBeInTheDocument()
+    } finally {
+      import.meta.env.VITE_ASSET_SOURCE = previous
+      vi.restoreAllMocks()
+    }
   })
 })

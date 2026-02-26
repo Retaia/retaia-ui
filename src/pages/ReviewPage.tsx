@@ -159,6 +159,8 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           selectionStatusLabel={controller.selectionStatusLabel}
           densityMode={controller.densityMode}
           emptyAssetsMessage={controller.emptyAssetsMessage}
+          hasMoreAssets={controller.hasMoreAssets}
+          loadingMoreAssets={controller.loadingMoreAssets}
           selectedAsset={controller.selectedAsset}
           availability={controller.effectiveAvailability}
           previewingPurge={controller.previewingPurge}
@@ -182,6 +184,7 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
             )
           }
           onKeywordClick={controller.onKeywordClick}
+          onLoadMoreAssets={controller.loadMoreAssets}
         />
       ) : null}
     </Container>

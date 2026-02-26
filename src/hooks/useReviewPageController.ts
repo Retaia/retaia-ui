@@ -116,7 +116,15 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     }
   }, [dateFilter, filter, mediaTypeFilter, search, sort])
 
-  const { assetsLoadState, policyLoadState, bulkDecisionsEnabled, assetDetailLoadState } =
+  const {
+    assetsLoadState,
+    policyLoadState,
+    bulkDecisionsEnabled,
+    assetDetailLoadState,
+    hasMoreAssets,
+    loadingMoreAssets,
+    loadMoreAssets,
+  } =
     useReviewDataController({
       apiClient,
       apiRuntimeKey,
@@ -844,6 +852,9 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     onKeywordClick,
     isApiAssetSource,
     assetsLoadState,
+    hasMoreAssets,
+    loadingMoreAssets,
+    loadMoreAssets,
     policyLoadState,
     bulkDecisionsEnabled,
     batchOnly,
