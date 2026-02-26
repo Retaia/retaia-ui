@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import { libraryWorkspaceReducer } from './slices/libraryWorkspaceSlice'
 import { reviewWorkspaceReducer } from './slices/reviewWorkspaceSlice'
 import { authUiReducer, createInitialAuthUiState } from './slices/authUiSlice'
+import { assetSyncReducer } from './slices/assetSyncSlice'
 import { readLibraryFilterParams, readReviewFilterParams } from '../services/workspaceQueryParams'
 import { combineReducers } from 'redux'
 import {
@@ -15,11 +16,13 @@ import {
   REHYDRATE,
 } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
+import { assetSyncMiddleware } from './middleware/assetSyncMiddleware'
 
 const rootReducer = combineReducers({
   reviewWorkspace: reviewWorkspaceReducer,
   libraryWorkspace: libraryWorkspaceReducer,
   authUi: authUiReducer,
+  assetSync: assetSyncReducer,
 })
 
 const persistedReducer = persistReducer(
@@ -50,6 +53,11 @@ function resolvePreloadedState(): ReturnType<typeof rootReducer> {
       sort: queryLibrary.sort ?? '-created_at',
     },
     authUi: createInitialAuthUiState(),
+    assetSync: {
+      patchesById: {},
+      pendingByMutationId: {},
+      lastError: null,
+    },
   }
 }
 
@@ -63,7 +71,7 @@ export function createAppStore() {
           ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
           ignoredActionPaths: ['meta.arg'],
         },
-      }),
+      }).concat(assetSyncMiddleware),
   })
   return store
 }

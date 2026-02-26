@@ -16,6 +16,7 @@ import {
   setLibrarySort,
 } from '../store/slices/libraryWorkspaceSlice'
 import { selectLibraryWorkspaceQueryModel } from '../store/selectors/workspaceSelectors'
+import { syncAssetMetadataThunk } from '../store/thunks/assetSyncThunks'
 
 const INITIAL_LIBRARY_ASSETS = INITIAL_ASSETS.filter(
   (asset) => asset.state === 'ARCHIVED' || asset.state === 'DECIDED_KEEP',
@@ -175,7 +176,15 @@ export function useLibraryPageController() {
       setSavingMetadata(true)
       setMetadataStatus(null)
       try {
-        await apiClient.updateAssetMetadata(assetId, payload)
+        if (isApiAssetSource) {
+          await dispatch(
+            syncAssetMetadataThunk({
+              assetId,
+              tags: payload.tags,
+              notes: payload.notes,
+            }),
+          ).unwrap()
+        }
         setAssets((current) =>
           current.map((asset) =>
             asset.id === assetId ? { ...asset, tags: payload.tags, notes: payload.notes } : asset,
@@ -196,7 +205,7 @@ export function useLibraryPageController() {
         setSavingMetadata(false)
       }
     },
-    [apiClient, t],
+    [dispatch, isApiAssetSource, t],
   )
 
   const locale = (i18n.resolvedLanguage ?? 'fr') as Locale

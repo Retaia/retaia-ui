@@ -7,11 +7,22 @@ const TEMPORARY_CODES = new Set(['TEMPORARY_UNAVAILABLE', 'RATE_LIMITED'])
 const LOCK_CODES = new Set(['LOCK_REQUIRED', 'LOCK_INVALID', 'STALE_LOCK_TOKEN'])
 
 export function mapApiErrorToMessage(error: unknown, t: TranslateFn) {
-  if (!(error instanceof ApiError)) {
+  const apiLikeError = error instanceof ApiError
+    ? error
+    : (
+      typeof error === 'object'
+      && error !== null
+      && 'status' in error
+      && 'payload' in error
+    )
+      ? (error as { status: number; payload?: { code?: string } })
+      : null
+
+  if (!apiLikeError) {
     return t('error.fallback', { message: 'UNKNOWN' })
   }
 
-  const code = error.payload?.code
+  const code = apiLikeError.payload?.code
   if (code && AUTHZ_CODES.has(code)) {
     return t('error.scope')
   }
@@ -30,10 +41,10 @@ export function mapApiErrorToMessage(error: unknown, t: TranslateFn) {
   if (code && TEMPORARY_CODES.has(code)) {
     return t('error.temporary')
   }
-  if (error.status >= 500) {
+  if (apiLikeError.status >= 500) {
     return t('error.temporary')
   }
 
-  const fallback = code ? `${code} (${error.status})` : `HTTP ${error.status}`
+  const fallback = code ? `${code} (${apiLikeError.status})` : `HTTP ${apiLikeError.status}`
   return t('error.fallback', { message: fallback })
 }
