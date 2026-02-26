@@ -32,6 +32,7 @@ type Props = {
   onExecutePurge: () => Promise<void>
   onRefreshAsset: () => Promise<void>
   onOpenStandaloneDetail?: (assetId: string) => void
+  onKeywordClick?: (keyword: string) => void
 }
 
 export function ReviewListDetailSection({
@@ -60,6 +61,7 @@ export function ReviewListDetailSection({
   onExecutePurge,
   onRefreshAsset,
   onOpenStandaloneDetail,
+  onKeywordClick,
 }: Props) {
   return (
     <Row as="section" className="g-3 mt-1">
@@ -94,6 +96,7 @@ export function ReviewListDetailSection({
         showRefreshAction={showRefreshAction}
         refreshingAsset={refreshingAsset}
         onOpenStandaloneDetail={onOpenStandaloneDetail}
+        onKeywordClick={onKeywordClick}
       />
     </Row>
   )

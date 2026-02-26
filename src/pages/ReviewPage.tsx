@@ -181,6 +181,7 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
               `/review/detail/${assetId}?from=${encodeURIComponent(`${location.pathname}${location.search}`)}`,
             )
           }
+          onKeywordClick={controller.onKeywordClick}
         />
       ) : null}
     </Container>

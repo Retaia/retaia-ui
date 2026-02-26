@@ -816,6 +816,9 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     },
     [i18n],
   )
+  const onKeywordClick = useCallback((keyword: string) => {
+    setSearch(keyword)
+  }, [])
 
   return {
     t,
@@ -838,6 +841,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     setDateFilter,
     setSort,
     setSearch,
+    onKeywordClick,
     isApiAssetSource,
     assetsLoadState,
     policyLoadState,
