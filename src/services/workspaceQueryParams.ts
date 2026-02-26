@@ -1,10 +1,16 @@
-import type { AssetDateFilter, AssetFilter, AssetMediaTypeFilter } from '../domain/assets'
+import type {
+  AssetDateFilter,
+  AssetFilter,
+  AssetMediaTypeFilter,
+  AssetSort,
+} from '../domain/assets'
 import { ASSET_MEDIA_TYPES, ASSET_STATES } from '../domain/assets'
 
 type ReviewFilterParams = {
   filter: AssetFilter
   mediaTypeFilter: AssetMediaTypeFilter
   dateFilter: AssetDateFilter
+  sort: AssetSort
   search: string
   batchOnly: boolean
 }
@@ -25,6 +31,17 @@ function isAssetMediaTypeFilter(value: string | null): value is AssetMediaTypeFi
 
 function isAssetDateFilter(value: string | null): value is AssetDateFilter {
   return value === 'ALL' || value === 'LAST_7_DAYS' || value === 'LAST_30_DAYS'
+}
+
+function isAssetSort(value: string | null): value is AssetSort {
+  return (
+    value === 'created_at' ||
+    value === '-created_at' ||
+    value === 'name' ||
+    value === '-name' ||
+    value === 'state' ||
+    value === '-state'
+  )
 }
 
 function toBatchOnlyFlag(value: string | null): boolean | null {
@@ -62,6 +79,7 @@ export function readReviewFilterParams(): Partial<ReviewFilterParams> {
   const queryFilter = params.get('filter')
   const queryMedia = params.get('media')
   const queryDate = params.get('date')
+  const querySort = params.get('sort')
   const querySearch = params.get('q')
   const queryBatchOnly = params.get('batch')
 
@@ -69,6 +87,7 @@ export function readReviewFilterParams(): Partial<ReviewFilterParams> {
     filter: isAssetFilter(queryFilter) ? queryFilter : undefined,
     mediaTypeFilter: isAssetMediaTypeFilter(queryMedia) ? queryMedia : undefined,
     dateFilter: isAssetDateFilter(queryDate) ? queryDate : undefined,
+    sort: isAssetSort(querySort) ? querySort : undefined,
     search: querySearch ?? undefined,
     batchOnly: toBatchOnlyFlag(queryBatchOnly) ?? undefined,
   }
@@ -97,6 +116,11 @@ export function writeReviewFilterParams(
   } else {
     params.set('date', paramsState.dateFilter)
   }
+  if (paramsState.sort === '-created_at') {
+    params.delete('sort')
+  } else {
+    params.set('sort', paramsState.sort)
+  }
   const normalizedSearch = paramsState.search.trim()
   if (normalizedSearch.length === 0) {
     params.delete('q')
@@ -111,18 +135,27 @@ export function writeReviewFilterParams(
   updateCurrentSearch(params, mode)
 }
 
-export function readLibraryFilterParams(): { search?: string } {
+export function readLibraryFilterParams(): {
+  search?: string
+  sort?: AssetSort
+} {
   if (typeof window === 'undefined') {
     return {}
   }
   const params = new URLSearchParams(window.location.search)
   const querySearch = params.get('q')
+  const querySort = params.get('sort')
   return {
     search: querySearch ?? undefined,
+    sort: isAssetSort(querySort) ? querySort : undefined,
   }
 }
 
-export function writeLibraryFilterParams(search: string, mode: 'push' | 'replace' = 'push') {
+export function writeLibraryFilterParams(
+  search: string,
+  sort: AssetSort,
+  mode: 'push' | 'replace' = 'push',
+) {
   if (typeof window === 'undefined') {
     return
   }
@@ -132,6 +165,11 @@ export function writeLibraryFilterParams(search: string, mode: 'push' | 'replace
     params.delete('q')
   } else {
     params.set('q', normalizedSearch)
+  }
+  if (sort === '-created_at') {
+    params.delete('sort')
+  } else {
+    params.set('sort', sort)
   }
   updateCurrentSearch(params, mode)
 }

@@ -1,16 +1,29 @@
-import type { AssetDateFilter, AssetFilter, AssetMediaTypeFilter } from '../domain/assets'
+import type {
+  AssetDateFilter,
+  AssetFilter,
+  AssetMediaTypeFilter,
+  AssetSort,
+} from '../domain/assets'
 import { Card, Col, Form, Row } from 'react-bootstrap'
-import { BsCalendar3, BsFunnel, BsSearch, BsSliders2 } from 'react-icons/bs'
+import { BsCalendar3, BsFunnel, BsSearch, BsSliders2, BsSortDown } from 'react-icons/bs'
 
 type ReviewToolbarProps = {
   filter: AssetFilter
   mediaTypeFilter: AssetMediaTypeFilter
   dateFilter: AssetDateFilter
+  sort: AssetSort
   search: string
   labels: {
     filter: string
     mediaType: string
     date: string
+    sortBy: string
+    sortCreatedAtDesc: string
+    sortCreatedAtAsc: string
+    sortNameAsc: string
+    sortNameDesc: string
+    sortStateAsc: string
+    sortStateDesc: string
     search: string
     searchPlaceholder: string
     all: string
@@ -20,6 +33,7 @@ type ReviewToolbarProps = {
   onFilterChange: (filter: AssetFilter) => void
   onMediaTypeFilterChange: (filter: AssetMediaTypeFilter) => void
   onDateFilterChange: (filter: AssetDateFilter) => void
+  onSortChange: (value: AssetSort) => void
   onSearchChange: (search: string) => void
 }
 
@@ -27,11 +41,13 @@ export function ReviewToolbar({
   filter,
   mediaTypeFilter,
   dateFilter,
+  sort,
   search,
   labels,
   onFilterChange,
   onMediaTypeFilterChange,
   onDateFilterChange,
+  onSortChange,
   onSearchChange,
 }: ReviewToolbarProps) {
   return (
@@ -87,6 +103,25 @@ export function ReviewToolbar({
               <option value="ALL">{labels.all}</option>
               <option value="LAST_7_DAYS">{labels.date7d}</option>
               <option value="LAST_30_DAYS">{labels.date30d}</option>
+            </Form.Select>
+          </Col>
+
+          <Col xs={12} md={12}>
+            <Form.Label className="fw-semibold" htmlFor="sort-key-filter">
+              <BsSortDown className="me-1" aria-hidden="true" />
+              {labels.sortBy}
+            </Form.Label>
+            <Form.Select
+              id="sort-key-filter"
+              value={sort}
+              onChange={(event) => onSortChange(event.target.value as AssetSort)}
+            >
+              <option value="-created_at">{labels.sortCreatedAtDesc}</option>
+              <option value="created_at">{labels.sortCreatedAtAsc}</option>
+              <option value="name">{labels.sortNameAsc}</option>
+              <option value="-name">{labels.sortNameDesc}</option>
+              <option value="state">{labels.sortStateAsc}</option>
+              <option value="-state">{labels.sortStateDesc}</option>
             </Form.Select>
           </Col>
 

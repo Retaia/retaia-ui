@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { mapApiSummaryToAsset } from '../api/assetMapper'
 import { INITIAL_ASSETS } from '../data/mockAssets'
-import type { Asset } from '../domain/assets'
+import { sortAssets, type Asset, type AssetSort } from '../domain/assets'
 import { mergeAssetWithDetail } from '../domain/review/assetDetailMerge'
 import { type Locale } from '../i18n/resources'
 import { mapReviewApiErrorToMessage } from '../infrastructure/review/apiReviewErrorAdapter'
@@ -20,6 +20,7 @@ export function useLibraryPageController() {
   const queryFilters = readLibraryFilterParams()
   const { t, i18n } = useTranslation()
   const [search, setSearch] = useState(queryFilters.search ?? persistedWorkspaceState?.search ?? '')
+  const [sort, setSort] = useState<AssetSort>(queryFilters.sort ?? persistedWorkspaceState?.sort ?? '-created_at')
   const [assets, setAssets] = useState<Asset[]>(INITIAL_LIBRARY_ASSETS)
   const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>('idle')
   const [assetDetailLoadState, setAssetDetailLoadState] = useState<'idle' | 'loading' | 'error'>('idle')
@@ -96,10 +97,7 @@ export function useLibraryPageController() {
 
   const visibleAssets = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase()
-    if (normalizedSearch.length === 0) {
-      return assets
-    }
-    return assets.filter((asset) => {
+    const filtered = normalizedSearch.length === 0 ? assets : assets.filter((asset) => {
       const tags = asset.tags ?? []
       return (
         asset.name.toLowerCase().includes(normalizedSearch) ||
@@ -107,7 +105,8 @@ export function useLibraryPageController() {
         tags.some((tag) => tag.toLowerCase().includes(normalizedSearch))
       )
     })
-  }, [assets, search])
+    return sortAssets(filtered, sort)
+  }, [assets, search, sort])
 
   const selectedAsset = useMemo(
     () => assets.find((asset) => asset.id === selectedAssetId) ?? null,
@@ -153,12 +152,12 @@ export function useLibraryPageController() {
   const locale = (i18n.resolvedLanguage ?? 'fr') as Locale
 
   useEffect(() => {
-    saveLibraryWorkspaceState({ search })
-  }, [search])
+    saveLibraryWorkspaceState({ search, sort })
+  }, [search, sort])
 
   useEffect(() => {
-    writeLibraryFilterParams(search)
-  }, [search])
+    writeLibraryFilterParams(search, sort)
+  }, [search, sort])
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -167,6 +166,7 @@ export function useLibraryPageController() {
     const handlePopState = () => {
       const next = readLibraryFilterParams()
       setSearch(next.search ?? '')
+      setSort(next.sort ?? '-created_at')
     }
     window.addEventListener('popstate', handlePopState)
     return () => {
@@ -183,6 +183,8 @@ export function useLibraryPageController() {
     selectedAssetId,
     search,
     setSearch,
+    sort,
+    setSort,
     densityMode,
     assetsLoadState,
     assetDetailLoadState,

@@ -6,9 +6,11 @@ import {
   type AssetDateFilter,
   type AssetFilter,
   type AssetMediaTypeFilter,
+  type AssetSort,
   type AssetState,
   countAssetsByState,
   filterAssets,
+  sortAssets,
   type DecisionAction,
   updateAssetsState,
 } from '../domain/assets'
@@ -66,6 +68,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   const [dateFilter, setDateFilter] = useState<AssetDateFilter>(
     queryFilters.dateFilter ?? persistedWorkspaceState?.dateFilter ?? 'ALL',
   )
+  const [sort, setSort] = useState<AssetSort>(queryFilters.sort ?? persistedWorkspaceState?.sort ?? '-created_at')
   const [search, setSearch] = useState(queryFilters.search ?? persistedWorkspaceState?.search ?? '')
   const [batchOnly, setBatchOnly] = useState(queryFilters.batchOnly ?? persistedWorkspaceState?.batchOnly ?? false)
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
@@ -102,12 +105,13 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       mediaType: mediaTypeFilter,
       date: dateFilter,
     })
+    const sorted = sortAssets(filtered, sort)
     if (!batchOnly) {
-      return filtered
+      return sorted
     }
     const batchIdSet = new Set(batchIds)
-    return filtered.filter((asset) => batchIdSet.has(asset.id))
-  }, [assets, batchIds, batchOnly, dateFilter, filter, mediaTypeFilter, search])
+    return sorted.filter((asset) => batchIdSet.has(asset.id))
+  }, [assets, batchIds, batchOnly, dateFilter, filter, mediaTypeFilter, search, sort])
 
   const counts = useMemo(() => countAssetsByState(assets), [assets])
   const selectedAsset = useMemo(
@@ -120,21 +124,23 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       filter,
       mediaTypeFilter,
       dateFilter,
+      sort,
       search,
       batchOnly,
       batchIds,
     })
-  }, [batchIds, batchOnly, dateFilter, filter, mediaTypeFilter, search])
+  }, [batchIds, batchOnly, dateFilter, filter, mediaTypeFilter, search, sort])
 
   useEffect(() => {
     writeReviewFilterParams({
       filter,
       mediaTypeFilter,
       dateFilter,
+      sort,
       search,
       batchOnly,
     })
-  }, [batchOnly, dateFilter, filter, mediaTypeFilter, search])
+  }, [batchOnly, dateFilter, filter, mediaTypeFilter, search, sort])
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -145,6 +151,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       setFilter(next.filter ?? 'ALL')
       setMediaTypeFilter(next.mediaTypeFilter ?? 'ALL')
       setDateFilter(next.dateFilter ?? 'ALL')
+      setSort(next.sort ?? '-created_at')
       setSearch(next.search ?? '')
       setBatchOnly(next.batchOnly ?? false)
     }
@@ -797,10 +804,12 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     filter,
     mediaTypeFilter,
     dateFilter,
+    sort,
     search,
     setFilter,
     setMediaTypeFilter,
     setDateFilter,
+    setSort,
     setSearch,
     isApiAssetSource,
     assetsLoadState,
