@@ -16,6 +16,7 @@ type AssetListProps = {
   }
   onDecision: (id: string, action: DecisionAction) => void
   onAssetClick: (id: string, shiftKey: boolean) => void
+  showDecisionActions?: boolean
 }
 
 export function AssetList({
@@ -26,6 +27,7 @@ export function AssetList({
   labels,
   onDecision,
   onAssetClick,
+  showDecisionActions = true,
 }: AssetListProps) {
   if (assets.length === 0) {
     return (
@@ -92,47 +94,49 @@ export function AssetList({
               </Badge>
             ) : null}
           </div>
-          <Stack direction="horizontal" gap={2} className="flex-wrap">
-            <Button
-              type="button"
-              size="sm"
-              variant="outline-success"
-              onClick={(event) => {
-                event.stopPropagation()
-                onDecision(asset.id, 'KEEP')
-              }}
-              disabled={asset.state === 'DECIDED_KEEP'}
-            >
-              <BsCheck2Circle className="me-1" aria-hidden="true" />
-              {labels.keep}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline-danger"
-              onClick={(event) => {
-                event.stopPropagation()
-                onDecision(asset.id, 'REJECT')
-              }}
-              disabled={asset.state === 'DECIDED_REJECT'}
-            >
-              <BsXCircle className="me-1" aria-hidden="true" />
-              {labels.reject}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline-secondary"
-              onClick={(event) => {
-                event.stopPropagation()
-                onDecision(asset.id, 'CLEAR')
-              }}
-              disabled={asset.state === 'DECISION_PENDING'}
-            >
-              <BsEraser className="me-1" aria-hidden="true" />
-              {labels.clear}
-            </Button>
-          </Stack>
+          {showDecisionActions ? (
+            <Stack direction="horizontal" gap={2} className="flex-wrap">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline-success"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onDecision(asset.id, 'KEEP')
+                }}
+                disabled={asset.state === 'DECIDED_KEEP'}
+              >
+                <BsCheck2Circle className="me-1" aria-hidden="true" />
+                {labels.keep}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline-danger"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onDecision(asset.id, 'REJECT')
+                }}
+                disabled={asset.state === 'DECIDED_REJECT'}
+              >
+                <BsXCircle className="me-1" aria-hidden="true" />
+                {labels.reject}
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline-secondary"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onDecision(asset.id, 'CLEAR')
+                }}
+                disabled={asset.state === 'DECISION_PENDING'}
+              >
+                <BsEraser className="me-1" aria-hidden="true" />
+                {labels.clear}
+              </Button>
+            </Stack>
+          ) : null}
         </ListGroup.Item>
       ))}
     </ListGroup>

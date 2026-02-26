@@ -5,6 +5,7 @@ import ReviewWorkspacePage from '../pages/ReviewWorkspacePage'
 import BatchOperationsPage from '../pages/BatchOperationsPage'
 import BatchReportsPage from '../pages/BatchReportsPage'
 import ActivityPage from '../pages/ActivityPage'
+import { LibraryPage } from '../pages/LibraryPage'
 
 export function AppRoutes() {
   return (
@@ -15,6 +16,8 @@ export function AppRoutes() {
       <Route path="/batch" element={<BatchOperationsPage />} />
       <Route path="/batch/reports" element={<BatchReportsPage />} />
       <Route path="/activity" element={<ActivityPage />} />
+      <Route path="/library" element={<LibraryPage />} />
+      <Route path="/library/:assetId" element={<LibraryPage />} />
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="*" element={<Navigate to="/review" replace />} />
