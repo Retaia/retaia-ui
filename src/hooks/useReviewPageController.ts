@@ -60,6 +60,7 @@ import {
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { readReviewFilterParams, writeReviewFilterParams } from '../services/workspaceQueryParams'
 import { selectReviewWorkspaceQueryModel } from '../store/selectors/workspaceSelectors'
+import { syncAssetDecisionThunk, syncAssetMetadataThunk } from '../store/thunks/assetSyncThunks'
 
 export type ReviewPageView = 'workspace' | 'batch' | 'reports' | 'activity'
 
@@ -332,8 +333,14 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
           targetId: id,
           action,
           isApiAssetSource,
-          submitAssetDecision: (targetId, targetAction) =>
-            apiClient.submitAssetDecision(targetId, { action: targetAction }, crypto.randomUUID()),
+          submitAssetDecision: async (targetId, targetAction) => {
+            if (targetAction !== 'KEEP' && targetAction !== 'REJECT') {
+              return
+            }
+            await dispatch(syncAssetDecisionThunk({ assetId: targetId, action: targetAction }))
+              .unwrap()
+              .then(() => undefined)
+          },
           mapErrorToMessage: mapDecisionErrorToMessage,
         })
 
@@ -360,7 +367,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
 
       void run()
     },
-    [apiClient, assets, isApiAssetSource, mapDecisionErrorToMessage, recordAction, t],
+    [assets, dispatch, isApiAssetSource, mapDecisionErrorToMessage, recordAction, t],
   )
 
   const submitDecisionsForIds = useCallback(
@@ -370,11 +377,13 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
         targetIds,
         action,
         submitAssetDecision: (id, nextAction) =>
-          apiClient.submitAssetDecision(id, { action: nextAction }, crypto.randomUUID()),
+          dispatch(syncAssetDecisionThunk({ assetId: id, action: nextAction }))
+            .unwrap()
+            .then(() => undefined),
         mapErrorToMessage: mapDecisionErrorToMessage,
       })
     },
-    [apiClient, isApiAssetSource, mapDecisionErrorToMessage],
+    [dispatch, isApiAssetSource, mapDecisionErrorToMessage],
   )
 
   const finalizeBulkDecision = useCallback(
@@ -620,7 +629,16 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
           isApiAssetSource,
           assetId,
           payload,
-          updateAssetMetadata: apiClient.updateAssetMetadata,
+          updateAssetMetadata: (targetAssetId, targetPayload) =>
+            dispatch(
+              syncAssetMetadataThunk({
+                assetId: targetAssetId,
+                tags: targetPayload.tags ?? [],
+                notes: targetPayload.notes ?? '',
+              }),
+            )
+              .unwrap()
+              .then(() => undefined),
         })
         if (result.kind === 'error') {
           setMetadataStatus({
@@ -641,7 +659,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
         setSavingMetadata(false)
       }
     },
-    [apiClient.updateAssetMetadata, isApiAssetSource, mapStateConflictAwareErrorToMessage, recordAction, t],
+    [dispatch, isApiAssetSource, mapStateConflictAwareErrorToMessage, recordAction, t],
   )
 
   const refreshSelectedAsset = useCallback(async () => {
