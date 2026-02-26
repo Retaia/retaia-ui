@@ -6,6 +6,7 @@ import BatchOperationsPage from '../pages/BatchOperationsPage'
 import BatchReportsPage from '../pages/BatchReportsPage'
 import ActivityPage from '../pages/ActivityPage'
 import { LibraryPage } from '../pages/LibraryPage'
+import { StandaloneAssetDetailPage } from '../pages/StandaloneAssetDetailPage'
 
 export function AppRoutes() {
   return (
@@ -13,11 +14,13 @@ export function AppRoutes() {
       <Route path="/" element={<Navigate to="/review" replace />} />
       <Route path="/review" element={<ReviewWorkspacePage />} />
       <Route path="/review/:assetId" element={<ReviewWorkspacePage />} />
+      <Route path="/review/detail/:assetId" element={<StandaloneAssetDetailPage context="review" />} />
       <Route path="/batch" element={<BatchOperationsPage />} />
       <Route path="/batch/reports" element={<BatchReportsPage />} />
       <Route path="/activity" element={<ActivityPage />} />
       <Route path="/library" element={<LibraryPage />} />
       <Route path="/library/:assetId" element={<LibraryPage />} />
+      <Route path="/library/detail/:assetId" element={<StandaloneAssetDetailPage context="library" />} />
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="*" element={<Navigate to="/review" replace />} />

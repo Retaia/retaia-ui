@@ -173,6 +173,7 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           onPreviewPurge={controller.previewSelectedAssetPurge}
           onExecutePurge={controller.executeSelectedAssetPurge}
           onRefreshAsset={controller.refreshSelectedAsset}
+          onOpenStandaloneDetail={(assetId) => navigate(`/review/detail/${assetId}`)}
         />
       ) : null}
     </Container>

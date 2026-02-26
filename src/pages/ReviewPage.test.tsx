@@ -70,6 +70,15 @@ describe('App', () => {
     expect(within(getDetailPanel()).getByText('ID: A-003')).toBeInTheDocument()
   })
 
+  it('opens standalone detail page from detail panel action', async () => {
+    const { user } = setupApp()
+
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    await user.click(await screen.findByTestId('asset-open-standalone'))
+
+    expect(window.location.pathname).toBe('/review/detail/A-001')
+  })
+
   it('shows desktop selection and batch status hints', async () => {
     const { user } = setupApp()
 
