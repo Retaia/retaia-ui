@@ -21,6 +21,10 @@ export function StandaloneAssetDetailPage({ context }: Props) {
       : /^\/library(\/|$|\?)/.test(fromParam))
   const backPath = isValidContextFrom ? fromParam : context === 'review' ? '/review' : '/library'
   const currentView = context === 'review' ? 'workspace' : 'library'
+  const reviewRootPath = isValidContextFrom && typeof fromParam === 'string' && fromParam.startsWith('/activity')
+    ? '/activity'
+    : '/review'
+  const reviewRootLabel = reviewRootPath === '/activity' ? controller.t('app.nav.activity') : controller.t('app.nav.review')
 
   return (
     <Container as="main" className="py-4">
@@ -41,9 +45,14 @@ export function StandaloneAssetDetailPage({ context }: Props) {
       </Button>
 
       <Breadcrumb className="mt-3 mb-0" data-testid="standalone-detail-breadcrumb">
-        <Breadcrumb.Item onClick={() => navigate(context === 'review' ? '/review' : '/library')}>
-          {context === 'review' ? controller.t('app.nav.review') : controller.t('app.nav.library')}
-        </Breadcrumb.Item>
+        {context === 'review' ? (
+          <Breadcrumb.Item onClick={() => navigate(reviewRootPath)}>{reviewRootLabel}</Breadcrumb.Item>
+        ) : (
+          <>
+            <Breadcrumb.Item onClick={() => navigate('/library')}>{controller.t('app.nav.library')}</Breadcrumb.Item>
+            <Breadcrumb.Item onClick={() => navigate('/library')}>{controller.t('detail.breadcrumbArchived')}</Breadcrumb.Item>
+          </>
+        )}
         <Breadcrumb.Item active>
           {controller.selectedAsset?.id ?? controller.t('detail.title')}
         </Breadcrumb.Item>

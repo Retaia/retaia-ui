@@ -329,6 +329,7 @@ export const frTranslation = {
   'detail.openStandalone': 'Ouvrir page détail',
   'detail.backToReview': 'Retour review',
   'detail.backToLibrary': 'Retour library',
+  'detail.breadcrumbArchived': 'ARCHIVED',
   'detail.loading': "Chargement du détail...",
   'detail.notFound': "Asset introuvable pour cette route.",
   'detail.empty': 'Clique un asset pour ouvrir le détail.',
