@@ -48,6 +48,7 @@ type Props = {
   showDecisionActions?: boolean
   showPurgeActions?: boolean
   onOpenStandaloneDetail?: (assetId: string) => void
+  onKeywordClick?: (keyword: string) => void
 }
 
 type MetadataEditorProps = {
@@ -55,9 +56,16 @@ type MetadataEditorProps = {
   savingMetadata: boolean
   t: (key: string, values?: Record<string, string>) => string
   onSaveMetadata: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
+  onKeywordClick?: (keyword: string) => void
 }
 
-function MetadataEditor({ selectedAsset, savingMetadata, t, onSaveMetadata }: MetadataEditorProps) {
+function MetadataEditor({
+  selectedAsset,
+  savingMetadata,
+  t,
+  onSaveMetadata,
+  onKeywordClick,
+}: MetadataEditorProps) {
   const [tagInput, setTagInput] = useState('')
   const [tagsDraft, setTagsDraft] = useState<string[]>(() => selectedAsset.tags ?? [])
   const [notesDraft, setNotesDraft] = useState(() => selectedAsset.notes ?? '')
@@ -72,7 +80,20 @@ function MetadataEditor({ selectedAsset, savingMetadata, t, onSaveMetadata }: Me
         {tagsDraft.length > 0 ? (
           tagsDraft.map((tag) => (
             <Badge key={tag} bg="secondary" className="d-inline-flex align-items-center">
-              {tag}
+              {onKeywordClick ? (
+                <Button
+                  type="button"
+                  variant="link"
+                  size="sm"
+                  data-testid="asset-tag-filter"
+                  className="text-white text-decoration-none p-0"
+                  onClick={() => onKeywordClick(tag)}
+                >
+                  {tag}
+                </Button>
+              ) : (
+                tag
+              )}
               <Button
                 type="button"
                 variant="link"
@@ -184,6 +205,7 @@ export function AssetDetailPanel({
   showDecisionActions = true,
   showPurgeActions = true,
   onOpenStandaloneDetail,
+  onKeywordClick,
 }: Props) {
   const effectiveAvailability = availability ?? getActionAvailability({
     visibleCount: 0,
@@ -279,6 +301,7 @@ export function AssetDetailPanel({
                 savingMetadata={savingMetadata}
                 t={t}
                 onSaveMetadata={onSaveMetadata}
+                onKeywordClick={onKeywordClick}
               />
               {showPurgeActions && onPreviewPurge && onExecutePurge ? (
                 <section className="border border-2 border-danger-subtle rounded p-3 mt-3">

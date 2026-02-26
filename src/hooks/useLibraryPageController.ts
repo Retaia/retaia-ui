@@ -157,6 +157,9 @@ export function useLibraryPageController() {
   )
 
   const locale = (i18n.resolvedLanguage ?? 'fr') as Locale
+  const onKeywordClick = useCallback((keyword: string) => {
+    setSearch(keyword)
+  }, [])
 
   useEffect(() => {
     saveLibraryWorkspaceState({ search, sort })
@@ -190,6 +193,7 @@ export function useLibraryPageController() {
     selectedAssetId,
     search,
     setSearch,
+    onKeywordClick,
     sort,
     setSort,
     densityMode,
