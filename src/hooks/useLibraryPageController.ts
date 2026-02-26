@@ -9,14 +9,16 @@ import { mapReviewApiErrorToMessage } from '../infrastructure/review/apiReviewEr
 import { useAssetRouteSelection } from './useAssetRouteSelection'
 import { useDensityMode } from './useDensityMode'
 import { useReviewApiRuntime } from './useReviewApiRuntime'
+import { readLibraryWorkspaceState, saveLibraryWorkspaceState } from '../services/navigationSession'
 
 const INITIAL_LIBRARY_ASSETS = INITIAL_ASSETS.filter(
   (asset) => asset.state === 'ARCHIVED' || asset.state === 'DECIDED_KEEP',
 )
 
 export function useLibraryPageController() {
+  const persistedWorkspaceState = readLibraryWorkspaceState()
   const { t, i18n } = useTranslation()
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(persistedWorkspaceState?.search ?? '')
   const [assets, setAssets] = useState<Asset[]>(INITIAL_LIBRARY_ASSETS)
   const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>('idle')
   const [assetDetailLoadState, setAssetDetailLoadState] = useState<'idle' | 'loading' | 'error'>('idle')
@@ -151,6 +153,10 @@ export function useLibraryPageController() {
   )
 
   const locale = (i18n.resolvedLanguage ?? 'fr') as Locale
+
+  useEffect(() => {
+    saveLibraryWorkspaceState({ search })
+  }, [search])
 
   return {
     t,

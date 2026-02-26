@@ -1,5 +1,5 @@
 import { Button, Container, Row } from 'react-bootstrap'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { AppHeader } from '../components/app/AppHeader'
 import { AssetDetailPanel } from '../components/app/AssetDetailPanel'
 import { useStandaloneAssetDetailController } from '../hooks/useStandaloneAssetDetailController'
@@ -10,8 +10,16 @@ type Props = {
 
 export function StandaloneAssetDetailPage({ context }: Props) {
   const navigate = useNavigate()
+  const location = useLocation()
   const controller = useStandaloneAssetDetailController(context)
-  const backPath = context === 'review' ? '/review' : '/library'
+  const params = new URLSearchParams(location.search)
+  const fromParam = params.get('from')
+  const isValidContextFrom =
+    typeof fromParam === 'string' &&
+    (context === 'review'
+      ? /^\/(review|batch|batch\/reports|activity)(\/|$|\?)/.test(fromParam)
+      : /^\/library(\/|$|\?)/.test(fromParam))
+  const backPath = isValidContextFrom ? fromParam : context === 'review' ? '/review' : '/library'
   const currentView = context === 'review' ? 'workspace' : 'library'
 
   return (

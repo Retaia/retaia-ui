@@ -26,5 +26,17 @@ describe('LibraryPage', () => {
 
     await user.click(await screen.findByTestId('asset-open-standalone'))
     expect(window.location.pathname).toBe('/library/detail/A-002')
+    expect(decodeURIComponent(window.location.search)).toContain('from=/library')
+  })
+
+  it('persists library search across remount', async () => {
+    const firstMount = setupApp('/library')
+    const user = firstMount.user
+    await user.type(screen.getByTestId('library-search-input'), 'ambiance')
+    firstMount.unmount()
+
+    setupApp('/library')
+
+    expect(screen.getByTestId('library-search-input')).toHaveValue('ambiance')
   })
 })

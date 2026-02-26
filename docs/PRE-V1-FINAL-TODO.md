@@ -43,7 +43,7 @@
 - [ ] Définir l'escalade support (L1/L2/dev) avec SLA et propriétaire par domaine (`review`, `auth`, `batch`).
 
 ## UX/UI (retours écran)
-- [ ] (1) Persister un `workspace state` minimal entre écrans (`filtres`, `batchIds`, sélection) pour éviter la perte de contexte au refresh.
+- [x] (1) Persister un `workspace state` minimal entre écrans (`filtres`, `batchIds`, sélection) pour éviter la perte de contexte au refresh.
 - [ ] (2) Réduire la duplication visuelle entre `/review` et `/batch` (faire de `/batch` un écran réellement spécialisé pipeline batch).
 - [ ] (3) Améliorer l'expérience empty-state de `/batch/reports` (CTA actionnable + rapport récent quand disponible).
 - [ ] (4) Clarifier les libellés proches (`Ops batch` / `Vue batch` / `Mode batch`) pour accessibilité et lisibilité.
@@ -59,7 +59,7 @@
 - [ ] Uniformiser le deep-linking sur toutes les pages (`/review/:id`, `/library/:id`, retour contextuel).
 - [ ] Ajouter une navigation secondaire/breadcrumbs (`Review > Asset ...`, `Library > Archived > Asset ...`).
 - [ ] Persister le contexte inter-pages (`last route`, filtres actifs, scroll list, sélection courante).
-- [ ] Rendre le comportement du bouton `Back` déterministe (retour liste vs écran précédent).
+- [x] Rendre le comportement du bouton `Back` déterministe (retour liste vs écran précédent).
 - [ ] Ajouter une garde de navigation en cas d'édition metadata non sauvegardée.
 - [ ] Uniformiser les labels de navigation pour éviter collisions UX/a11y/tests.
 - [ ] Ajouter des routes explicites `404` / `403` au lieu de redirections silencieuses.

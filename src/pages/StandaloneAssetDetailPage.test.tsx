@@ -16,4 +16,11 @@ describe('StandaloneAssetDetailPage', () => {
 
     expect(await screen.findByText('Asset introuvable pour cette route.')).toBeInTheDocument()
   })
+
+  it('uses contextual back route when from query is provided', async () => {
+    const { user } = setupApp('/review/detail/A-001?from=%2Fbatch')
+
+    await user.click(await screen.findByRole('button', { name: 'Retour review' }))
+    expect(window.location.pathname).toBe('/batch')
+  })
 })
