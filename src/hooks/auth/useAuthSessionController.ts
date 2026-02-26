@@ -6,7 +6,6 @@ import {
   normalizeFeatures,
 } from '../../application/auth/authUseCases'
 import { type FeatureState } from './useAuthFeatureGovernance'
-import { clearApiToken, persistApiToken, persistLoginEmail } from '../../services/apiSession'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import {
   setAuthEmailInput,
@@ -80,8 +79,7 @@ export function useAuthSessionController(args: {
       }
 
       setApiTokenInput(result.accessToken)
-      persistApiToken(result.accessToken)
-      persistLoginEmail(result.loginEmail)
+      dispatch(setAuthEmailInput(result.loginEmail))
       dispatch(setUserFeatureStateAction(result.featureState))
       dispatch(setAuthUserAction(result.authUser))
       dispatch(setAuthPasswordInput(''))
@@ -106,7 +104,6 @@ export function useAuthSessionController(args: {
       // local cleanup still applies if logout endpoint fails
     } finally {
       setApiTokenInput('')
-      clearApiToken()
       dispatch(setAuthPasswordInput(''))
       dispatch(setAuthOtpInput(''))
       dispatch(setAuthRequiresOtp(false))
@@ -145,7 +142,6 @@ export function useAuthSessionController(args: {
         dispatch(setUserFeatureStateAction(null))
         if (!isApiAuthLockedByEnv && error instanceof ApiError && (error.status === 401 || error.status === 403)) {
           setApiTokenInput('')
-          clearApiToken()
           dispatch(setAuthStatus({
             kind: 'error',
             message: t('app.authSessionExpired'),

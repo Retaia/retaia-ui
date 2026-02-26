@@ -5,17 +5,17 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { i18next } from '../../i18n'
 import { useAuthPageApiState } from './useAuthPageApiState'
 import { createAppStore } from '../../store'
+import { setApiBaseUrlInput, setApiTokenInput } from '../../store/slices/authUiSlice'
 
 describe('useAuthPageApiState', () => {
   beforeEach(() => {
     window.localStorage.clear()
   })
 
-  it('initializes api inputs from persisted storage', () => {
-    window.localStorage.setItem('retaia_api_token', 'token-123')
-    window.localStorage.setItem('retaia_api_base_url', '/api/custom')
-
+  it('initializes api inputs from redux auth state', () => {
     const store = createAppStore()
+    store.dispatch(setApiTokenInput('token-123'))
+    store.dispatch(setApiBaseUrlInput('/api/custom'))
     const wrapper = ({ children }: { children: ReactNode }) => createElement(Provider, { store, children })
     const { result } = renderHook(() => useAuthPageApiState({ t: i18next.t.bind(i18next) }), { wrapper })
 

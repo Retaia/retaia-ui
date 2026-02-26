@@ -4,17 +4,17 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { Provider } from 'react-redux'
 import { useAuthPageController } from './useAuthPageController'
 import { createAppStore } from '../store'
+import { setAuthEmailInput, setApiBaseUrlInput } from '../store/slices/authUiSlice'
 
 describe('useAuthPageController', () => {
   beforeEach(() => {
     window.localStorage.clear()
   })
 
-  it('initializes inputs from localStorage and persists api base url changes', () => {
-    window.localStorage.setItem('retaia_api_base_url', '/api/custom')
-    window.localStorage.setItem('retaia_auth_email', 'agent@retaia.test')
-
+  it('initializes inputs from auth state and normalizes api base url on save', () => {
     const store = createAppStore()
+    store.dispatch(setApiBaseUrlInput('/api/custom'))
+    store.dispatch(setAuthEmailInput('agent@retaia.test'))
     const wrapper = ({ children }: { children: ReactNode }) => createElement(Provider, { store, children })
     const { result } = renderHook(() => useAuthPageController(), { wrapper })
 
@@ -29,6 +29,6 @@ describe('useAuthPageController', () => {
       result.current.saveApiConnectionSettings()
     })
 
-    expect(window.localStorage.getItem('retaia_api_base_url')).toBe('/api/v2')
+    expect(result.current.apiBaseUrlInput).toBe('/api/v2')
   })
 })

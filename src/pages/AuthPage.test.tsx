@@ -312,7 +312,6 @@ describe('AuthPage', () => {
     })
 
     expect(screen.getByTestId('api-connection-status')).toHaveTextContent('Connexion API valide.')
-    expect(window.localStorage.getItem('retaia_api_token')).toBe('token-auth-1')
   })
 
   it('handles MFA_REQUIRED then retries login with otp', async () => {
@@ -370,7 +369,6 @@ describe('AuthPage', () => {
     await waitFor(() => {
       expect(screen.getByTestId('auth-status')).toHaveTextContent('Authentification réussie.')
     })
-    expect(window.localStorage.getItem('retaia_api_token')).toBe('token-auth-mfa')
   })
 
   it('shows 2FA controls only when globally and user enabled', async () => {
@@ -451,7 +449,6 @@ describe('AuthPage', () => {
     setupApp('/auth')
 
     expect(await screen.findByTestId('auth-status')).toHaveTextContent('Session expirée. Reconnecte-toi.')
-    expect(window.localStorage.getItem('retaia_api_token')).toBeNull()
   })
 
   it('runs 2FA setup then enable and disable actions', async () => {
