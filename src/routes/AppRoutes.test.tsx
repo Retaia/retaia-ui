@@ -77,14 +77,14 @@ describe('AppRoutes', () => {
   it('renders standalone review detail page on /review/detail/:assetId', async () => {
     setupApp('/review/detail/A-001')
 
-    expect(await screen.findByRole('button', { name: 'Retour review' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Retour à Review' })).toBeInTheDocument()
     expect(screen.getByText('interview-camera-a.mov')).toBeInTheDocument()
   })
 
   it('renders standalone library detail page on /library/detail/:assetId', async () => {
     setupApp('/library/detail/A-002')
 
-    expect(await screen.findByRole('button', { name: 'Retour library' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Retour à Library' })).toBeInTheDocument()
     expect(screen.getByText('ambiance-plateau.wav')).toBeInTheDocument()
   })
 })

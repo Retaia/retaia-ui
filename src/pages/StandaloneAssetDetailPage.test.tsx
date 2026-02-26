@@ -6,7 +6,7 @@ describe('StandaloneAssetDetailPage', () => {
   it('renders review standalone detail route', async () => {
     setupApp('/review/detail/A-001')
 
-    expect(await screen.findByRole('button', { name: 'Retour review' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Retour à Review' })).toBeInTheDocument()
     expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('Review')
     expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('A-001')
     const detail = screen.getByLabelText("Détail de l'asset")
@@ -16,7 +16,7 @@ describe('StandaloneAssetDetailPage', () => {
   it('renders library breadcrumb with archived level', async () => {
     setupApp('/library/detail/A-002')
 
-    expect(await screen.findByRole('button', { name: 'Retour library' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Retour à Library' })).toBeInTheDocument()
     expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('Library')
     expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('ARCHIVED')
     expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('A-002')
@@ -31,9 +31,9 @@ describe('StandaloneAssetDetailPage', () => {
   it('uses contextual back route when from query is provided', async () => {
     const { user } = setupApp('/review/detail/A-001?from=%2Factivity')
 
-    expect(await screen.findByRole('button', { name: 'Retour activité' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Retour à Activité' })).toBeInTheDocument()
     expect(await screen.findByTestId('standalone-detail-breadcrumb')).toHaveTextContent('Activité')
-    await user.click(await screen.findByRole('button', { name: 'Retour activité' }))
+    await user.click(await screen.findByRole('button', { name: 'Retour à Activité' }))
     expect(window.location.pathname).toBe('/activity')
   })
 })
