@@ -71,13 +71,15 @@ describe('App', () => {
   })
 
   it('opens standalone detail page from detail panel action', async () => {
-    const { user } = setupApp()
+    const { user } = setupApp('/review?state=DECISION_PENDING&sort=name&q=interview')
 
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
     await user.click(await screen.findByTestId('asset-open-standalone'))
 
     expect(window.location.pathname).toBe('/review/detail/A-001')
-    expect(decodeURIComponent(window.location.search)).toContain('from=/review')
+    expect(decodeURIComponent(window.location.search)).toContain(
+      'from=/review?state=DECISION_PENDING&sort=name&q=interview',
+    )
   })
 
   it('persists review workspace context across remount', async () => {
