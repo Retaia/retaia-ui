@@ -1,27 +1,8 @@
-import type {
-  AssetDateFilter,
-  AssetFilter,
-  AssetMediaTypeFilter,
-  AssetSort,
-} from '../domain/assets'
+import type { ReviewWorkspaceState } from '../slices/reviewWorkspaceSlice'
+import type { LibraryWorkspaceState } from '../slices/libraryWorkspaceSlice'
 
 const REVIEW_WORKSPACE_STATE_KEY = 'retaia_review_workspace_state'
 const LIBRARY_WORKSPACE_STATE_KEY = 'retaia_library_workspace_state'
-
-export type ReviewWorkspaceState = {
-  filter: AssetFilter
-  mediaTypeFilter: AssetMediaTypeFilter
-  dateFilter: AssetDateFilter
-  sort: AssetSort
-  search: string
-  batchOnly: boolean
-  batchIds: string[]
-}
-
-export type LibraryWorkspaceState = {
-  search: string
-  sort: AssetSort
-}
 
 function readJson<T>(key: string): T | null {
   if (typeof window === 'undefined') {
@@ -45,18 +26,18 @@ function writeJson<T>(key: string, value: T) {
   window.localStorage.setItem(key, JSON.stringify(value))
 }
 
-export function readReviewWorkspaceState() {
+export function readPersistedReviewWorkspaceState() {
   return readJson<ReviewWorkspaceState>(REVIEW_WORKSPACE_STATE_KEY)
 }
 
-export function saveReviewWorkspaceState(state: ReviewWorkspaceState) {
+export function savePersistedReviewWorkspaceState(state: ReviewWorkspaceState) {
   writeJson(REVIEW_WORKSPACE_STATE_KEY, state)
 }
 
-export function readLibraryWorkspaceState() {
+export function readPersistedLibraryWorkspaceState() {
   return readJson<LibraryWorkspaceState>(LIBRARY_WORKSPACE_STATE_KEY)
 }
 
-export function saveLibraryWorkspaceState(state: LibraryWorkspaceState) {
+export function savePersistedLibraryWorkspaceState(state: LibraryWorkspaceState) {
   writeJson(LIBRARY_WORKSPACE_STATE_KEY, state)
 }

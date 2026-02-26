@@ -8,8 +8,14 @@ import { type Locale } from '../i18n/resources'
 import { mapReviewApiErrorToMessage } from '../infrastructure/review/apiReviewErrorAdapter'
 import { useDensityMode } from './useDensityMode'
 import { useReviewApiRuntime } from './useReviewApiRuntime'
-import { readLibraryWorkspaceState, saveLibraryWorkspaceState } from '../services/navigationSession'
 import { readLibraryFilterParams, writeLibraryFilterParams } from '../services/workspaceQueryParams'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
+import {
+  hydrateLibraryWorkspace,
+  setLibrarySearch,
+  setLibrarySort,
+} from '../store/slices/libraryWorkspaceSlice'
+import { savePersistedLibraryWorkspaceState } from '../store/persistence/workspaceStorage'
 
 const INITIAL_LIBRARY_ASSETS = INITIAL_ASSETS.filter(
   (asset) => asset.state === 'ARCHIVED' || asset.state === 'DECIDED_KEEP',
@@ -17,11 +23,16 @@ const INITIAL_LIBRARY_ASSETS = INITIAL_ASSETS.filter(
 const DEFAULT_LIBRARY_PAGE_SIZE = 50
 
 export function useLibraryPageController() {
-  const persistedWorkspaceState = readLibraryWorkspaceState()
-  const queryFilters = readLibraryFilterParams()
+  const dispatch = useAppDispatch()
+  const libraryWorkspace = useAppSelector((state) => state.libraryWorkspace)
   const { t, i18n } = useTranslation()
-  const [search, setSearch] = useState(queryFilters.search ?? persistedWorkspaceState?.search ?? '')
-  const [sort, setSort] = useState<AssetSort>(queryFilters.sort ?? persistedWorkspaceState?.sort ?? '-created_at')
+  const { search, sort } = libraryWorkspace
+  const setSearch = useCallback((value: string) => {
+    dispatch(setLibrarySearch(value))
+  }, [dispatch])
+  const setSort = useCallback((value: AssetSort) => {
+    dispatch(setLibrarySort(value))
+  }, [dispatch])
   const [assets, setAssets] = useState<Asset[]>(INITIAL_LIBRARY_ASSETS)
   const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>('idle')
   const [nextCursor, setNextCursor] = useState<string | null>(null)
@@ -191,11 +202,11 @@ export function useLibraryPageController() {
   const locale = (i18n.resolvedLanguage ?? 'fr') as Locale
   const onKeywordClick = useCallback((keyword: string) => {
     setSearch(keyword)
-  }, [])
+  }, [setSearch])
 
   useEffect(() => {
-    saveLibraryWorkspaceState({ search, sort })
-  }, [search, sort])
+    savePersistedLibraryWorkspaceState(libraryWorkspace)
+  }, [libraryWorkspace])
 
   useEffect(() => {
     writeLibraryFilterParams(search, sort)
@@ -207,14 +218,18 @@ export function useLibraryPageController() {
     }
     const handlePopState = () => {
       const next = readLibraryFilterParams()
-      setSearch(next.search ?? '')
-      setSort(next.sort ?? '-created_at')
+      dispatch(
+        hydrateLibraryWorkspace({
+          search: next.search ?? '',
+          sort: next.sort ?? '-created_at',
+        }),
+      )
     }
     window.addEventListener('popstate', handlePopState)
     return () => {
       window.removeEventListener('popstate', handlePopState)
     }
-  }, [])
+  }, [dispatch])
 
   return {
     t,
