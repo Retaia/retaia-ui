@@ -51,6 +51,20 @@ describe('AppRoutes', () => {
     expect(screen.getByLabelText('Library des assets archivés')).toBeInTheDocument()
   })
 
+  it('redirects legacy review asset route to /review', async () => {
+    setupApp('/review/A-001')
+
+    expect(await screen.findByRole('heading', { name: 'Retaia UI' })).toBeInTheDocument()
+    expect(window.location.pathname).toBe('/review')
+  })
+
+  it('redirects legacy library asset route to /review via fallback', async () => {
+    setupApp('/library/A-002')
+
+    expect(await screen.findByRole('heading', { name: 'Retaia UI' })).toBeInTheDocument()
+    expect(window.location.pathname).toBe('/review')
+  })
+
   it('renders standalone review detail page on /review/detail/:assetId', async () => {
     setupApp('/review/detail/A-001')
 
