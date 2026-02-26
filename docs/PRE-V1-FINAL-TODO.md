@@ -14,7 +14,7 @@
 - [ ] Implémenter `Library` (liste ARCHIVED + recherche + page détail partagée review/library).
 - [ ] Stabiliser la navigation: persistance de contexte inter-pages + query params API homogènes.
 - [x] Corriger le modèle d'états domaine pour supporter `ARCHIVED` explicitement.
-- [ ] Ajouter tests E2E cross-page critiques (review -> batch -> reports -> activity -> detail).
+- [x] Ajouter tests E2E cross-page critiques (review -> activity -> library -> detail + retour contexte).
 
 ### P1 (important pre-v1)
 - [ ] Splitter `useReviewPageController` en sous-hooks métier.
@@ -63,7 +63,7 @@
 - [ ] Ajouter une garde de navigation en cas d'édition metadata non sauvegardée.
 - [ ] Uniformiser les labels de navigation pour éviter collisions UX/a11y/tests.
 - [ ] Ajouter des routes explicites `404` / `403` au lieu de redirections silencieuses.
-- [ ] Ajouter des tests E2E cross-page (review -> batch -> reports -> activity -> retour review).
+- [x] Ajouter des tests E2E cross-page (review -> activity -> library -> detail + retour contexte).
 - [ ] Permettre l'ouverture d'un asset en nouvel onglet sans perdre l'état du workspace.
 - [ ] Instrumenter les événements de navigation (screen_view + origine des actions).
 
