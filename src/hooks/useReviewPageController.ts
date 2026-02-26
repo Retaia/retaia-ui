@@ -21,7 +21,6 @@ import { useReviewApiRuntime } from '../hooks/useReviewApiRuntime'
 import { useReviewDataController } from '../hooks/useReviewDataController'
 import { useReviewHistory } from '../hooks/useReviewHistory'
 import { useReviewKeyboardShortcuts } from '../hooks/useReviewKeyboardShortcuts'
-import { useReviewRouteSelection } from '../hooks/useReviewRouteSelection'
 import { useSelectionFlow } from '../hooks/useSelectionFlow'
 import { type Locale } from '../i18n/resources'
 import { applySingleReviewDecision } from '../application/review/applySingleReviewDecision'
@@ -46,6 +45,7 @@ import {
   resolveSelectionStatusLabel,
 } from '../application/review/reviewPagePresentation'
 import { readReviewWorkspaceState, saveReviewWorkspaceState } from '../services/navigationSession'
+import { readReviewFilterParams, writeReviewFilterParams } from '../services/workspaceQueryParams'
 
 export type ReviewPageView = 'workspace' | 'batch' | 'reports' | 'activity'
 
@@ -55,24 +55,26 @@ type ReviewPageProps = {
 
 export function useReviewPageController({ view = 'workspace' }: ReviewPageProps = {}) {
   const persistedWorkspaceState = readReviewWorkspaceState()
+  const queryFilters = readReviewFilterParams()
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t, i18n } = useTranslation()
   const { apiClient, apiRuntimeKey, isApiAssetSource, retryStatus, setRetryStatus } = useReviewApiRuntime()
-  const [filter, setFilter] = useState<AssetFilter>(persistedWorkspaceState?.filter ?? 'ALL')
+  const [filter, setFilter] = useState<AssetFilter>(queryFilters.filter ?? persistedWorkspaceState?.filter ?? 'ALL')
   const [mediaTypeFilter, setMediaTypeFilter] = useState<AssetMediaTypeFilter>(
-    persistedWorkspaceState?.mediaTypeFilter ?? 'ALL',
+    queryFilters.mediaTypeFilter ?? persistedWorkspaceState?.mediaTypeFilter ?? 'ALL',
   )
-  const [dateFilter, setDateFilter] = useState<AssetDateFilter>(persistedWorkspaceState?.dateFilter ?? 'ALL')
-  const [search, setSearch] = useState(persistedWorkspaceState?.search ?? '')
-  const [batchOnly, setBatchOnly] = useState(persistedWorkspaceState?.batchOnly ?? false)
+  const [dateFilter, setDateFilter] = useState<AssetDateFilter>(
+    queryFilters.dateFilter ?? persistedWorkspaceState?.dateFilter ?? 'ALL',
+  )
+  const [search, setSearch] = useState(queryFilters.search ?? persistedWorkspaceState?.search ?? '')
+  const [batchOnly, setBatchOnly] = useState(queryFilters.batchOnly ?? persistedWorkspaceState?.batchOnly ?? false)
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
-  const {
-    selectedAssetId,
-    setSelectedAssetId,
-    selectionAnchorId,
-    setSelectionAnchorId,
-    applySelectedAssetId,
-  } = useReviewRouteSelection(INITIAL_ASSETS, assets)
+  const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
+  const [selectionAnchorId, setSelectionAnchorId] = useState<string | null>(null)
+  const applySelectedAssetId = useCallback((nextAssetId: string | null) => {
+    setSelectedAssetId(nextAssetId)
+    setSelectionAnchorId(nextAssetId)
+  }, [])
   const [batchIds, setBatchIds] = useState<string[]>(persistedWorkspaceState?.batchIds ?? [])
   const { showShortcutsHelp, toggleShortcutsHelp } = useShortcutsHelpState()
   const { densityMode, toggleDensityMode } = useDensityMode()
@@ -123,6 +125,34 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       batchIds,
     })
   }, [batchIds, batchOnly, dateFilter, filter, mediaTypeFilter, search])
+
+  useEffect(() => {
+    writeReviewFilterParams({
+      filter,
+      mediaTypeFilter,
+      dateFilter,
+      search,
+      batchOnly,
+    })
+  }, [batchOnly, dateFilter, filter, mediaTypeFilter, search])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    const handlePopState = () => {
+      const next = readReviewFilterParams()
+      setFilter(next.filter ?? 'ALL')
+      setMediaTypeFilter(next.mediaTypeFilter ?? 'ALL')
+      setDateFilter(next.dateFilter ?? 'ALL')
+      setSearch(next.search ?? '')
+      setBatchOnly(next.batchOnly ?? false)
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [])
 
   useEffect(() => {
     if (isApiAssetSource && assetsLoadState === 'error') {
@@ -499,7 +529,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       setAssets((current) => current.filter((asset) => asset.id !== assetId))
       setBatchIds((current) => current.filter((id) => id !== assetId))
       if (selectedAssetId === assetId) {
-        applySelectedAssetId(null, 'replace')
+        applySelectedAssetId(null)
       } else if (selectionAnchorId === assetId) {
         setSelectionAnchorId(null)
       }
