@@ -14,7 +14,12 @@ modulaire et testable (TDD + BDD).
 Routes UI:
 
 - `/review`
-- `/review/:assetId` (deep-link détail)
+- `/review/detail/:assetId`
+- `/batch`
+- `/batch/reports`
+- `/activity`
+- `/library`
+- `/library/detail/:assetId`
 - `/auth`
 - `/settings` (configuration runtime UI/API)
 
@@ -74,8 +79,8 @@ La logique métier est portée par les couches `domain` et `application`, puis i
   Configuration runtime API partagée (env + local storage + mock DB in-memory en `APP_ENV=test`) et création du client HTTP.
 - `src/hooks/useReviewApiRuntime.ts`
   Runtime Review (instanciation client API + stratégie de retry + détection source API).
-- `src/hooks/useReviewRouteSelection.ts`
-  Synchronisation état de sélection Review avec l'URL (`/review/:assetId` + query `asset`).
+- `src/services/workspaceQueryParams.ts`
+  Synchronisation des filtres/recherche/tri avec l'URL via query params alignés API (`state`, `media_type`, `q`, `sort`, `captured_at_from`, `captured_at_to`).
 - `src/hooks/useQuickFilters.ts`
   Presets de filtres + persistance localStorage.
 - `src/hooks/useDensityMode.ts`
