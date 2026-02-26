@@ -1,45 +1,77 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { libraryWorkspaceReducer } from './slices/libraryWorkspaceSlice'
 import { reviewWorkspaceReducer } from './slices/reviewWorkspaceSlice'
-import {
-  readPersistedLibraryWorkspaceState,
-  readPersistedReviewWorkspaceState,
-} from './persistence/workspaceStorage'
+import { authUiReducer, createInitialAuthUiState } from './slices/authUiSlice'
 import { readLibraryFilterParams, readReviewFilterParams } from '../services/workspaceQueryParams'
+import { combineReducers } from 'redux'
+import {
+  FLUSH,
+  PAUSE,
+  PERSIST,
+  persistReducer,
+  persistStore,
+  PURGE,
+  REGISTER,
+  REHYDRATE,
+} from 'redux-persist'
+import storage from 'redux-persist/lib/storage'
 
-function resolvePreloadedState() {
-  const persistedReview = readPersistedReviewWorkspaceState()
+const rootReducer = combineReducers({
+  reviewWorkspace: reviewWorkspaceReducer,
+  libraryWorkspace: libraryWorkspaceReducer,
+  authUi: authUiReducer,
+})
+
+const persistedReducer = persistReducer(
+  {
+    key: 'retaia-ui',
+    storage,
+    whitelist: ['reviewWorkspace', 'libraryWorkspace', 'authUi'],
+  },
+  rootReducer,
+)
+
+function resolvePreloadedState(): ReturnType<typeof rootReducer> {
   const queryReview = readReviewFilterParams()
-  const persistedLibrary = readPersistedLibraryWorkspaceState()
   const queryLibrary = readLibraryFilterParams()
 
   return {
     reviewWorkspace: {
-      filter: queryReview.filter ?? persistedReview?.filter ?? 'ALL',
-      mediaTypeFilter: queryReview.mediaTypeFilter ?? persistedReview?.mediaTypeFilter ?? 'ALL',
-      dateFilter: queryReview.dateFilter ?? persistedReview?.dateFilter ?? 'ALL',
-      sort: queryReview.sort ?? persistedReview?.sort ?? '-created_at',
-      search: queryReview.search ?? persistedReview?.search ?? '',
-      batchOnly: persistedReview?.batchOnly ?? false,
-      batchIds: persistedReview?.batchIds ?? [],
+      filter: queryReview.filter ?? 'ALL',
+      mediaTypeFilter: queryReview.mediaTypeFilter ?? 'ALL',
+      dateFilter: queryReview.dateFilter ?? 'ALL',
+      sort: queryReview.sort ?? '-created_at',
+      search: queryReview.search ?? '',
+      batchOnly: false,
+      batchIds: [],
     },
     libraryWorkspace: {
-      search: queryLibrary.search ?? persistedLibrary?.search ?? '',
-      sort: queryLibrary.sort ?? persistedLibrary?.sort ?? '-created_at',
+      search: queryLibrary.search ?? '',
+      sort: queryLibrary.sort ?? '-created_at',
     },
+    authUi: createInitialAuthUiState(),
   }
 }
 
 export function createAppStore() {
-  return configureStore({
-    reducer: {
-      reviewWorkspace: reviewWorkspaceReducer,
-      libraryWorkspace: libraryWorkspaceReducer,
-    },
-    preloadedState: resolvePreloadedState(),
+  const store = configureStore({
+    reducer: persistedReducer,
+    preloadedState: resolvePreloadedState() as unknown as ReturnType<typeof persistedReducer>,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: {
+          ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+          ignoredActionPaths: ['meta.arg'],
+        },
+      }),
   })
+  return store
 }
 
 export type AppStore = ReturnType<typeof createAppStore>
 export type RootState = ReturnType<AppStore['getState']>
 export type AppDispatch = AppStore['dispatch']
+
+export function createAppPersistor(store: AppStore) {
+  return persistStore(store)
+}

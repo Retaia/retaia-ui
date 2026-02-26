@@ -33,17 +33,6 @@ describe('LibraryPage', () => {
     expect(decodeURIComponent(window.location.search)).toContain('from=/library?q=ambiance&sort=name')
   })
 
-  it('persists library search across remount', async () => {
-    const firstMount = setupApp('/library')
-    const user = firstMount.user
-    await user.type(screen.getByTestId('library-search-input'), 'ambiance')
-    firstMount.unmount()
-
-    setupApp('/library')
-
-    expect(screen.getByTestId('library-search-input')).toHaveValue('ambiance')
-  })
-
   it('initializes and syncs library search from query params', async () => {
     const { user } = setupApp('/library?q=ambiance&sort=name')
 

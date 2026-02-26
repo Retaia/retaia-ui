@@ -1,13 +1,27 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { type ApiClient } from '../../api/client'
 import { mapApiErrorToMessage } from '../../api/errorMapping'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import {
-  adminConfirmVerifyEmail,
-  confirmVerifyEmail,
-  requestLostPassword,
-  requestVerifyEmail,
-  resetLostPassword,
-} from '../../application/auth/authUseCases'
+  setLostPasswordEmailInput,
+  setLostPasswordLoading,
+  setLostPasswordMode,
+  setLostPasswordNewPasswordInput,
+  setLostPasswordStatus,
+  setLostPasswordTokenInput,
+  setVerifyEmailInput,
+  setVerifyEmailLoading,
+  setVerifyEmailMode,
+  setVerifyEmailStatus,
+  setVerifyEmailTokenInput,
+} from '../../store/slices/authUiSlice'
+import {
+  adminConfirmVerifyEmailThunk,
+  confirmVerifyEmailThunk,
+  requestLostPasswordThunk,
+  requestVerifyEmailThunk,
+  resetLostPasswordThunk,
+} from '../../store/thunks/authThunks'
 
 type Translator = (key: string, options?: Record<string, unknown>) => string
 
@@ -20,213 +34,214 @@ type RecoveryClient = Pick<
   | 'adminConfirmEmailVerification'
 >
 
-type Status = {
-  kind: 'success' | 'error'
-  message: string
-}
+type SetStateAction<T> = T | ((current: T) => T)
 
 export function useAuthRecoveryController(args: {
   apiClient: RecoveryClient
   t: Translator
 }) {
   const { apiClient, t } = args
-  const [lostPasswordMode, setLostPasswordMode] = useState<'request' | 'reset'>('request')
-  const [lostPasswordEmailInput, setLostPasswordEmailInput] = useState('')
-  const [lostPasswordTokenInput, setLostPasswordTokenInput] = useState('')
-  const [lostPasswordNewPasswordInput, setLostPasswordNewPasswordInput] = useState('')
-  const [lostPasswordStatus, setLostPasswordStatus] = useState<Status | null>(null)
-  const [lostPasswordLoading, setLostPasswordLoading] = useState(false)
-  const [verifyEmailMode, setVerifyEmailMode] = useState<'request' | 'confirm' | 'admin'>('request')
-  const [verifyEmailInput, setVerifyEmailInput] = useState('')
-  const [verifyEmailTokenInput, setVerifyEmailTokenInput] = useState('')
-  const [verifyEmailStatus, setVerifyEmailStatus] = useState<Status | null>(null)
-  const [verifyEmailLoading, setVerifyEmailLoading] = useState(false)
+  const dispatch = useAppDispatch()
+  const lostPasswordMode = useAppSelector((state) => state.authUi.lostPasswordMode)
+  const lostPasswordEmailInput = useAppSelector((state) => state.authUi.lostPasswordEmailInput)
+  const lostPasswordTokenInput = useAppSelector((state) => state.authUi.lostPasswordTokenInput)
+  const lostPasswordNewPasswordInput = useAppSelector((state) => state.authUi.lostPasswordNewPasswordInput)
+  const lostPasswordStatus = useAppSelector((state) => state.authUi.lostPasswordStatus)
+  const lostPasswordLoading = useAppSelector((state) => state.authUi.lostPasswordLoading)
+  const verifyEmailMode = useAppSelector((state) => state.authUi.verifyEmailMode)
+  const verifyEmailInput = useAppSelector((state) => state.authUi.verifyEmailInput)
+  const verifyEmailTokenInput = useAppSelector((state) => state.authUi.verifyEmailTokenInput)
+  const verifyEmailStatus = useAppSelector((state) => state.authUi.verifyEmailStatus)
+  const verifyEmailLoading = useAppSelector((state) => state.authUi.verifyEmailLoading)
 
   const handleLostPasswordRequest = useCallback(async () => {
-    setLostPasswordLoading(true)
-    setLostPasswordStatus(null)
+    dispatch(setLostPasswordLoading(true))
+    dispatch(setLostPasswordStatus(null))
     try {
-      const result = await requestLostPassword({
+      const result = await dispatch(requestLostPasswordThunk({
         apiClient,
         email: lostPasswordEmailInput,
-      })
+      })).unwrap()
       if (result.kind === 'validation_error') {
-        setLostPasswordStatus({
+        dispatch(setLostPasswordStatus({
           kind: 'error',
           message: t('app.authLostPasswordEmailRequired'),
-        })
+        }))
         return
       }
       if (result.kind === 'api_error') {
-        setLostPasswordStatus({
+        dispatch(setLostPasswordStatus({
           kind: 'error',
           message: t('app.authLostPasswordRequestError', {
             message: mapApiErrorToMessage(result.error, t),
           }),
-        })
+        }))
         return
       }
-      setLostPasswordStatus({
+      dispatch(setLostPasswordStatus({
         kind: 'success',
         message: t('app.authLostPasswordRequestSent'),
-      })
+      }))
     } finally {
-      setLostPasswordLoading(false)
+      dispatch(setLostPasswordLoading(false))
     }
-  }, [apiClient, lostPasswordEmailInput, t])
+  }, [apiClient, dispatch, lostPasswordEmailInput, t])
 
   const handleLostPasswordReset = useCallback(async () => {
-    setLostPasswordLoading(true)
-    setLostPasswordStatus(null)
+    dispatch(setLostPasswordLoading(true))
+    dispatch(setLostPasswordStatus(null))
     try {
-      const result = await resetLostPassword({
+      const result = await dispatch(resetLostPasswordThunk({
         apiClient,
         token: lostPasswordTokenInput,
         newPassword: lostPasswordNewPasswordInput,
-      })
+      })).unwrap()
       if (result.kind === 'validation_error') {
-        setLostPasswordStatus({
+        dispatch(setLostPasswordStatus({
           kind: 'error',
           message: t('app.authLostPasswordResetMissing'),
-        })
+        }))
         return
       }
       if (result.kind === 'api_error') {
-        setLostPasswordStatus({
+        dispatch(setLostPasswordStatus({
           kind: 'error',
           message: t('app.authLostPasswordResetError', {
             message: mapApiErrorToMessage(result.error, t),
           }),
-        })
+        }))
         return
       }
-      setLostPasswordNewPasswordInput('')
-      setLostPasswordStatus({
+      dispatch(setLostPasswordNewPasswordInput(''))
+      dispatch(setLostPasswordStatus({
         kind: 'success',
         message: t('app.authLostPasswordResetSuccess'),
-      })
+      }))
     } finally {
-      setLostPasswordLoading(false)
+      dispatch(setLostPasswordLoading(false))
     }
-  }, [apiClient, lostPasswordNewPasswordInput, lostPasswordTokenInput, t])
+  }, [apiClient, dispatch, lostPasswordNewPasswordInput, lostPasswordTokenInput, t])
 
   const handleVerifyEmailRequest = useCallback(async () => {
-    setVerifyEmailLoading(true)
-    setVerifyEmailStatus(null)
+    dispatch(setVerifyEmailLoading(true))
+    dispatch(setVerifyEmailStatus(null))
     try {
-      const result = await requestVerifyEmail({
+      const result = await dispatch(requestVerifyEmailThunk({
         apiClient,
         email: verifyEmailInput,
-      })
+      })).unwrap()
       if (result.kind === 'validation_error') {
-        setVerifyEmailStatus({
+        dispatch(setVerifyEmailStatus({
           kind: 'error',
           message: t('app.authVerifyEmailInputRequired'),
-        })
+        }))
         return
       }
       if (result.kind === 'api_error') {
-        setVerifyEmailStatus({
+        dispatch(setVerifyEmailStatus({
           kind: 'error',
           message: t('app.authVerifyEmailRequestError', {
             message: mapApiErrorToMessage(result.error, t),
           }),
-        })
+        }))
         return
       }
-      setVerifyEmailStatus({
+      dispatch(setVerifyEmailStatus({
         kind: 'success',
         message: t('app.authVerifyEmailRequested'),
-      })
+      }))
     } finally {
-      setVerifyEmailLoading(false)
+      dispatch(setVerifyEmailLoading(false))
     }
-  }, [apiClient, t, verifyEmailInput])
+  }, [apiClient, dispatch, t, verifyEmailInput])
 
   const handleVerifyEmailConfirm = useCallback(async () => {
-    setVerifyEmailLoading(true)
-    setVerifyEmailStatus(null)
+    dispatch(setVerifyEmailLoading(true))
+    dispatch(setVerifyEmailStatus(null))
     try {
-      const result = await confirmVerifyEmail({
+      const result = await dispatch(confirmVerifyEmailThunk({
         apiClient,
         token: verifyEmailTokenInput,
-      })
+      })).unwrap()
       if (result.kind === 'validation_error') {
-        setVerifyEmailStatus({
+        dispatch(setVerifyEmailStatus({
           kind: 'error',
           message: t('app.authVerifyEmailTokenRequired'),
-        })
+        }))
         return
       }
       if (result.kind === 'api_error') {
-        setVerifyEmailStatus({
+        dispatch(setVerifyEmailStatus({
           kind: 'error',
           message: t('app.authVerifyEmailConfirmError', {
             message: mapApiErrorToMessage(result.error, t),
           }),
-        })
+        }))
         return
       }
-      setVerifyEmailTokenInput('')
-      setVerifyEmailStatus({
+      dispatch(setVerifyEmailTokenInput(''))
+      dispatch(setVerifyEmailStatus({
         kind: 'success',
         message: t('app.authVerifyEmailConfirmed'),
-      })
+      }))
     } finally {
-      setVerifyEmailLoading(false)
+      dispatch(setVerifyEmailLoading(false))
     }
-  }, [apiClient, t, verifyEmailTokenInput])
+  }, [apiClient, dispatch, t, verifyEmailTokenInput])
 
   const handleVerifyEmailAdminConfirm = useCallback(async () => {
-    setVerifyEmailLoading(true)
-    setVerifyEmailStatus(null)
+    dispatch(setVerifyEmailLoading(true))
+    dispatch(setVerifyEmailStatus(null))
     try {
-      const result = await adminConfirmVerifyEmail({
+      const result = await dispatch(adminConfirmVerifyEmailThunk({
         apiClient,
         email: verifyEmailInput,
-      })
+      })).unwrap()
       if (result.kind === 'validation_error') {
-        setVerifyEmailStatus({
+        dispatch(setVerifyEmailStatus({
           kind: 'error',
           message: t('app.authVerifyEmailInputRequired'),
-        })
+        }))
         return
       }
       if (result.kind === 'api_error') {
-        setVerifyEmailStatus({
+        dispatch(setVerifyEmailStatus({
           kind: 'error',
           message: t('app.authVerifyEmailAdminConfirmError', {
             message: mapApiErrorToMessage(result.error, t),
           }),
-        })
+        }))
         return
       }
-      setVerifyEmailStatus({
+      dispatch(setVerifyEmailStatus({
         kind: 'success',
         message: t('app.authVerifyEmailAdminConfirmed'),
-      })
+      }))
     } finally {
-      setVerifyEmailLoading(false)
+      dispatch(setVerifyEmailLoading(false))
     }
-  }, [apiClient, t, verifyEmailInput])
+  }, [apiClient, dispatch, t, verifyEmailInput])
 
   return {
     lostPasswordMode,
-    setLostPasswordMode,
+    setLostPasswordMode: (value: SetStateAction<'request' | 'reset'>) => {
+      const nextValue = typeof value === 'function' ? value(lostPasswordMode) : value
+      dispatch(setLostPasswordMode(nextValue))
+    },
     lostPasswordEmailInput,
-    setLostPasswordEmailInput,
+    setLostPasswordEmailInput: (value: string) => dispatch(setLostPasswordEmailInput(value)),
     lostPasswordTokenInput,
-    setLostPasswordTokenInput,
+    setLostPasswordTokenInput: (value: string) => dispatch(setLostPasswordTokenInput(value)),
     lostPasswordNewPasswordInput,
-    setLostPasswordNewPasswordInput,
+    setLostPasswordNewPasswordInput: (value: string) => dispatch(setLostPasswordNewPasswordInput(value)),
     lostPasswordStatus,
     lostPasswordLoading,
     verifyEmailMode,
-    setVerifyEmailMode,
+    setVerifyEmailMode: (value: 'request' | 'confirm' | 'admin') => dispatch(setVerifyEmailMode(value)),
     verifyEmailInput,
-    setVerifyEmailInput,
+    setVerifyEmailInput: (value: string) => dispatch(setVerifyEmailInput(value)),
     verifyEmailTokenInput,
-    setVerifyEmailTokenInput,
+    setVerifyEmailTokenInput: (value: string) => dispatch(setVerifyEmailTokenInput(value)),
     verifyEmailStatus,
     verifyEmailLoading,
     handleLostPasswordRequest,

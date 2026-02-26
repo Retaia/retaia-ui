@@ -1,7 +1,10 @@
 import { act, renderHook } from '@testing-library/react'
+import { createElement, type ReactNode } from 'react'
+import { Provider } from 'react-redux'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ApiError } from '../../api/client'
 import { useAuthSessionController } from './useAuthSessionController'
+import { createAppStore } from '../../store'
 
 function createApiClientMock() {
   return {
@@ -22,14 +25,18 @@ describe('useAuthSessionController', () => {
     const apiClient = createApiClientMock()
 
     const t = vi.fn((key: string) => key)
-    const { result } = renderHook(() =>
-      useAuthSessionController({
-        apiClient,
-        t,
-        effectiveApiToken: '',
-        isApiAuthLockedByEnv: false,
-        setApiTokenInput: vi.fn(),
-      }),
+    const store = createAppStore()
+    const wrapper = ({ children }: { children: ReactNode }) => createElement(Provider, { store, children })
+    const { result } = renderHook(
+      () =>
+        useAuthSessionController({
+          apiClient,
+          t,
+          effectiveApiToken: '',
+          isApiAuthLockedByEnv: false,
+          setApiTokenInput: vi.fn(),
+        }),
+      { wrapper },
     )
 
     expect(result.current.authEmailInput).toBe('agent@retaia.test')
@@ -49,14 +56,18 @@ describe('useAuthSessionController', () => {
 
     const setApiTokenInput = vi.fn()
     const t = vi.fn((key: string) => key)
-    const { result } = renderHook(() =>
-      useAuthSessionController({
-        apiClient,
-        t,
-        effectiveApiToken: 'old-token',
-        isApiAuthLockedByEnv: false,
-        setApiTokenInput,
-      }),
+    const store = createAppStore()
+    const wrapper = ({ children }: { children: ReactNode }) => createElement(Provider, { store, children })
+    const { result } = renderHook(
+      () =>
+        useAuthSessionController({
+          apiClient,
+          t,
+          effectiveApiToken: 'old-token',
+          isApiAuthLockedByEnv: false,
+          setApiTokenInput,
+        }),
+      { wrapper },
     )
 
     await act(async () => {

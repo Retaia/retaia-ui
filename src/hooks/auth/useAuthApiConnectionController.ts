@@ -1,4 +1,4 @@
-import { useCallback, type Dispatch, type SetStateAction } from 'react'
+import { useCallback } from 'react'
 import { type ApiClient } from '../../api/client'
 import { mapApiErrorToMessage } from '../../api/errorMapping'
 import { clearApiBaseUrl, persistApiBaseUrl } from '../../services/apiSession'
@@ -14,8 +14,8 @@ export function useAuthApiConnectionController(args: {
   apiClient: Pick<ApiClient, 'getCurrentUser'>
   t: Translator
   apiBaseUrlInput: string
-  setApiBaseUrlInput: Dispatch<SetStateAction<string>>
-  setApiConnectionStatus: Dispatch<SetStateAction<ApiConnectionStatus | null>>
+  setApiBaseUrlInput: (value: string) => void
+  setApiConnectionStatus: (value: ApiConnectionStatus | null) => void
 }) {
   const { apiBaseUrlInput, apiClient, setApiBaseUrlInput, setApiConnectionStatus, t } = args
 

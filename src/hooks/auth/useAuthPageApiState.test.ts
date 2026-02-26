@@ -1,7 +1,10 @@
 import { act, renderHook } from '@testing-library/react'
+import { createElement, type ReactNode } from 'react'
+import { Provider } from 'react-redux'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { i18next } from '../../i18n'
 import { useAuthPageApiState } from './useAuthPageApiState'
+import { createAppStore } from '../../store'
 
 describe('useAuthPageApiState', () => {
   beforeEach(() => {
@@ -12,14 +15,18 @@ describe('useAuthPageApiState', () => {
     window.localStorage.setItem('retaia_api_token', 'token-123')
     window.localStorage.setItem('retaia_api_base_url', '/api/custom')
 
-    const { result } = renderHook(() => useAuthPageApiState({ t: i18next.t.bind(i18next) }))
+    const store = createAppStore()
+    const wrapper = ({ children }: { children: ReactNode }) => createElement(Provider, { store, children })
+    const { result } = renderHook(() => useAuthPageApiState({ t: i18next.t.bind(i18next) }), { wrapper })
 
     expect(result.current.apiTokenInput).toBe('token-123')
     expect(result.current.apiBaseUrlInput).toBe('/api/custom')
   })
 
   it('exposes retry and auth error callbacks for api runtime feedback', () => {
-    const { result } = renderHook(() => useAuthPageApiState({ t: i18next.t.bind(i18next) }))
+    const store = createAppStore()
+    const wrapper = ({ children }: { children: ReactNode }) => createElement(Provider, { store, children })
+    const { result } = renderHook(() => useAuthPageApiState({ t: i18next.t.bind(i18next) }), { wrapper })
 
     act(() => {
       result.current.handleApiRetry({ attempt: 2, maxRetries: 3 })

@@ -59,7 +59,7 @@ import {
 } from '../store/slices/reviewWorkspaceSlice'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { readReviewFilterParams, writeReviewFilterParams } from '../services/workspaceQueryParams'
-import { savePersistedReviewWorkspaceState } from '../store/persistence/workspaceStorage'
+import { selectReviewWorkspaceQueryModel } from '../store/selectors/workspaceSelectors'
 
 export type ReviewPageView = 'workspace' | 'batch' | 'reports' | 'activity'
 
@@ -72,7 +72,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   const { t, i18n } = useTranslation()
   const { apiClient, apiRuntimeKey, isApiAssetSource, retryStatus, setRetryStatus } = useReviewApiRuntime()
   const dispatch = useAppDispatch()
-  const reviewWorkspace = useAppSelector((state) => state.reviewWorkspace)
+  const reviewWorkspace = useAppSelector(selectReviewWorkspaceQueryModel)
   const {
     filter,
     mediaTypeFilter,
@@ -188,10 +188,6 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   )
 
   useEffect(() => {
-    savePersistedReviewWorkspaceState(reviewWorkspace)
-  }, [reviewWorkspace])
-
-  useEffect(() => {
     writeReviewFilterParams({
       filter,
       mediaTypeFilter,
@@ -217,6 +213,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
         }),
       )
     }
+    handlePopState()
     window.addEventListener('popstate', handlePopState)
     return () => {
       window.removeEventListener('popstate', handlePopState)

@@ -1,6 +1,12 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import type { TFunction } from 'i18next'
-import { readStoredApiBaseUrl, readStoredApiToken } from '../../services/apiSession'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
+import {
+  setApiBaseUrlInput,
+  setApiConnectionStatus,
+  setApiTokenInput,
+  setAuthRetryStatus,
+} from '../../store/slices/authUiSlice'
 
 export type ApiConnectionStatus = {
   kind: 'success' | 'error'
@@ -12,38 +18,60 @@ type UseAuthPageApiStateParams = {
 }
 
 export function useAuthPageApiState({ t }: UseAuthPageApiStateParams) {
-  const [retryStatus, setRetryStatus] = useState<string | null>(null)
-  const [apiTokenInput, setApiTokenInput] = useState(readStoredApiToken)
-  const [apiBaseUrlInput, setApiBaseUrlInput] = useState(readStoredApiBaseUrl)
-  const [apiConnectionStatus, setApiConnectionStatus] = useState<ApiConnectionStatus | null>(null)
+  const dispatch = useAppDispatch()
+  const retryStatus = useAppSelector((state) => state.authUi.retryStatus)
+  const apiTokenInput = useAppSelector((state) => state.authUi.apiTokenInput)
+  const apiBaseUrlInput = useAppSelector((state) => state.authUi.apiBaseUrlInput)
+  const apiConnectionStatus = useAppSelector((state) => state.authUi.apiConnectionStatus)
 
   const handleApiAuthError = useCallback(() => {
-    setApiConnectionStatus({
+    dispatch(setApiConnectionStatus({
       kind: 'error',
       message: t('app.apiConnectionAuthError'),
-    })
-  }, [t])
+    }))
+  }, [dispatch, t])
 
   const handleApiRetry = useCallback(
     ({ attempt, maxRetries }: { attempt: number; maxRetries: number }) => {
-      setRetryStatus(
+      dispatch(setAuthRetryStatus(
         t('actions.retrying', {
           attempt,
           total: maxRetries + 1,
         }),
-      )
+      ))
     },
-    [t],
+    [dispatch, t],
+  )
+
+  const updateApiTokenInput = useCallback(
+    (value: string) => {
+      dispatch(setApiTokenInput(value))
+    },
+    [dispatch],
+  )
+
+  const updateApiBaseUrlInput = useCallback(
+    (value: string) => {
+      dispatch(setApiBaseUrlInput(value))
+    },
+    [dispatch],
+  )
+
+  const updateApiConnectionStatus = useCallback(
+    (value: ApiConnectionStatus | null) => {
+      dispatch(setApiConnectionStatus(value))
+    },
+    [dispatch],
   )
 
   return {
     retryStatus,
     apiTokenInput,
-    setApiTokenInput,
+    setApiTokenInput: updateApiTokenInput,
     apiBaseUrlInput,
-    setApiBaseUrlInput,
+    setApiBaseUrlInput: updateApiBaseUrlInput,
     apiConnectionStatus,
-    setApiConnectionStatus,
+    setApiConnectionStatus: updateApiConnectionStatus,
     handleApiAuthError,
     handleApiRetry,
   }

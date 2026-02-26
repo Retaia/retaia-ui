@@ -1,13 +1,21 @@
-import { useCallback, useState, type Dispatch, type SetStateAction } from 'react'
+import { useCallback } from 'react'
 import { type ApiClient } from '../../api/client'
 import { mapApiErrorToMessage } from '../../api/errorMapping'
-import { type AuthUserProfile, setupMfa, toggleMfa } from '../../application/auth/authUseCases'
+import { type AuthUserProfile } from '../../application/auth/authUseCases'
 import {
   getMfaToggleErrorKey,
   getMfaToggleSuccessKey,
   type MfaToggleTarget,
   updateAuthUserMfaFlag,
 } from '../../application/auth/mfaPresentation'
+import { useAppDispatch, useAppSelector } from '../../store/hooks'
+import {
+  setAuthMfaBusy,
+  setAuthMfaOtpAction,
+  setAuthMfaSetup,
+  setAuthMfaStatus,
+} from '../../store/slices/authUiSlice'
+import { setupMfaThunk, toggleMfaThunk } from '../../store/thunks/authThunks'
 
 type Translator = (key: string, options?: Record<string, unknown>) => string
 
@@ -21,84 +29,82 @@ type AuthMfaClient = Pick<ApiClient, 'setup2fa' | 'enable2fa' | 'disable2fa' | '
 export function useAuthMfaController(args: {
   apiClient: AuthMfaClient
   t: Translator
-  setAuthUser: Dispatch<SetStateAction<AuthUserProfile | null>>
+  setAuthUser: (value: AuthUserProfile | null | ((current: AuthUserProfile | null) => AuthUserProfile | null)) => void
 }) {
   const { apiClient, setAuthUser, t } = args
-
-  const [authMfaStatus, setAuthMfaStatus] = useState<AuthMfaStatus | null>(null)
-  const [authMfaBusy, setAuthMfaBusy] = useState(false)
-  const [authMfaSetup, setAuthMfaSetup] = useState<{
-    secret: string
-    otpauthUri: string
-  } | null>(null)
-  const [authMfaOtpAction, setAuthMfaOtpAction] = useState('')
+  const dispatch = useAppDispatch()
+  const authMfaStatus = useAppSelector((state) => state.authUi.authMfaStatus)
+  const authMfaBusy = useAppSelector((state) => state.authUi.authMfaBusy)
+  const authMfaSetup = useAppSelector((state) => state.authUi.authMfaSetup)
+  const authMfaOtpAction = useAppSelector((state) => state.authUi.authMfaOtpAction)
+  const authUser = useAppSelector((state) => state.authUi.authUser)
 
   const startMfaSetup = useCallback(async () => {
-    setAuthMfaBusy(true)
-    setAuthMfaStatus(null)
+    dispatch(setAuthMfaBusy(true))
+    dispatch(setAuthMfaStatus(null))
     try {
-      const result = await setupMfa({ apiClient })
+      const result = await dispatch(setupMfaThunk({ apiClient })).unwrap()
       if (result.kind === 'api_error') {
-        setAuthMfaStatus({
+        dispatch(setAuthMfaStatus({
           kind: 'error',
           message: t('app.authMfaSetupError', {
             message: mapApiErrorToMessage(result.error, t),
           }),
-        })
+        }))
         return
       }
-      setAuthMfaSetup(result.setup)
-      setAuthMfaStatus({
+      dispatch(setAuthMfaSetup(result.setup))
+      dispatch(setAuthMfaStatus({
         kind: 'success',
         message: t('app.authMfaSetupReady'),
-      })
+      }))
     } finally {
-      setAuthMfaBusy(false)
+      dispatch(setAuthMfaBusy(false))
     }
-  }, [apiClient, t])
+  }, [apiClient, dispatch, t])
 
   const submitMfaToggle = useCallback(
     async (target: MfaToggleTarget) => {
-      setAuthMfaBusy(true)
-      setAuthMfaStatus(null)
+      dispatch(setAuthMfaBusy(true))
+      dispatch(setAuthMfaStatus(null))
       try {
-        const result = await toggleMfa({
+        const result = await dispatch(toggleMfaThunk({
           apiClient,
           otpCode: authMfaOtpAction,
           target,
-        })
+        })).unwrap()
         if (result.kind === 'validation_error') {
-          setAuthMfaStatus({
+          dispatch(setAuthMfaStatus({
             kind: 'error',
             message: t('app.authOtpRequired'),
-          })
+          }))
           return
         }
         if (result.kind === 'api_error') {
-          setAuthMfaStatus({
+          dispatch(setAuthMfaStatus({
             kind: 'error',
             message: t(getMfaToggleErrorKey(target), {
               message: mapApiErrorToMessage(result.error, t),
             }),
-          })
+          }))
           return
         }
         if (result.kind === 'success_with_user') {
-          setAuthUser((currentUser) => updateAuthUserMfaFlag(currentUser, result.authUser.mfaEnabled))
+          setAuthUser(updateAuthUserMfaFlag(authUser, result.authUser.mfaEnabled))
         }
-        setAuthMfaOtpAction('')
+        dispatch(setAuthMfaOtpAction(''))
         if (target === 'enable') {
-          setAuthMfaSetup(null)
+          dispatch(setAuthMfaSetup(null))
         }
-        setAuthMfaStatus({
+        dispatch(setAuthMfaStatus({
           kind: 'success',
           message: t(getMfaToggleSuccessKey(target)),
-        })
+        }))
       } finally {
-        setAuthMfaBusy(false)
+        dispatch(setAuthMfaBusy(false))
       }
     },
-    [apiClient, authMfaOtpAction, setAuthUser, t],
+    [apiClient, authMfaOtpAction, authUser, dispatch, setAuthUser, t],
   )
 
   const enableMfa = useCallback(async () => {
@@ -110,19 +116,19 @@ export function useAuthMfaController(args: {
   }, [submitMfaToggle])
 
   const resetMfaState = useCallback(() => {
-    setAuthMfaStatus(null)
-    setAuthMfaSetup(null)
-    setAuthMfaOtpAction('')
-  }, [])
+    dispatch(setAuthMfaStatus(null))
+    dispatch(setAuthMfaSetup(null))
+    dispatch(setAuthMfaOtpAction(''))
+  }, [dispatch])
 
   return {
     authMfaStatus,
-    setAuthMfaStatus,
+    setAuthMfaStatus: (value: AuthMfaStatus | null) => dispatch(setAuthMfaStatus(value)),
     authMfaBusy,
-    setAuthMfaBusy,
+    setAuthMfaBusy: (value: boolean) => dispatch(setAuthMfaBusy(value)),
     authMfaSetup,
     authMfaOtpAction,
-    setAuthMfaOtpAction,
+    setAuthMfaOtpAction: (value: string) => dispatch(setAuthMfaOtpAction(value)),
     startMfaSetup,
     enableMfa,
     disableMfa,
