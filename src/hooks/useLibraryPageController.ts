@@ -41,7 +41,11 @@ export function useLibraryPageController() {
     const fetchAssets = async () => {
       setAssetsLoadState('loading')
       try {
-        const summaries = await apiClient.listAssetSummaries({ state: 'ARCHIVED' })
+        const summaries = await apiClient.listAssetSummaries({
+          state: 'ARCHIVED',
+          q: search.trim().length > 0 ? search.trim() : undefined,
+          sort,
+        })
         if (canceled) {
           return
         }
@@ -59,7 +63,7 @@ export function useLibraryPageController() {
     return () => {
       canceled = true
     }
-  }, [apiClient, isApiAssetSource])
+  }, [apiClient, isApiAssetSource, search, sort])
 
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
 
@@ -96,6 +100,9 @@ export function useLibraryPageController() {
   }, [apiClient, isApiAssetSource, selectedAssetId])
 
   const visibleAssets = useMemo(() => {
+    if (isApiAssetSource) {
+      return assets
+    }
     const normalizedSearch = search.trim().toLowerCase()
     const filtered = normalizedSearch.length === 0 ? assets : assets.filter((asset) => {
       const tags = asset.tags ?? []
@@ -106,7 +113,7 @@ export function useLibraryPageController() {
       )
     })
     return sortAssets(filtered, sort)
-  }, [assets, search, sort])
+  }, [assets, isApiAssetSource, search, sort])
 
   const selectedAsset = useMemo(
     () => assets.find((asset) => asset.id === selectedAssetId) ?? null,

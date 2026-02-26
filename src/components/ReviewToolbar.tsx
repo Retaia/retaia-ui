@@ -20,10 +20,6 @@ type ReviewToolbarProps = {
     sortBy: string
     sortCreatedAtDesc: string
     sortCreatedAtAsc: string
-    sortNameAsc: string
-    sortNameDesc: string
-    sortStateAsc: string
-    sortStateDesc: string
     search: string
     searchPlaceholder: string
     all: string
@@ -118,10 +114,6 @@ export function ReviewToolbar({
             >
               <option value="-created_at">{labels.sortCreatedAtDesc}</option>
               <option value="created_at">{labels.sortCreatedAtAsc}</option>
-              <option value="name">{labels.sortNameAsc}</option>
-              <option value="-name">{labels.sortNameDesc}</option>
-              <option value="state">{labels.sortStateAsc}</option>
-              <option value="-state">{labels.sortStateDesc}</option>
             </Form.Select>
           </Col>
 

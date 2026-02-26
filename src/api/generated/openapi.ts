@@ -1454,6 +1454,10 @@ export interface paths {
                     location_city?: string;
                     /** @description Bounding box filter `min_lon,min_lat,max_lon,max_lat` (uses secure derived spatial index). */
                     geo_bbox?: string;
+                    /** @description Inclusive lower bound on capture timestamp (ISO-8601). */
+                    captured_at_from?: string;
+                    /** @description Inclusive upper bound on capture timestamp (ISO-8601). */
+                    captured_at_to?: string;
                     sort?: string;
                     limit?: number;
                     cursor?: string;
