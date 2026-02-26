@@ -126,17 +126,21 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       setAssets,
     })
   const visibleAssets = useMemo(() => {
-    const filtered = filterAssets(assets, filter, search, {
-      mediaType: mediaTypeFilter,
-      date: dateFilter,
-    })
-    const sorted = sortAssets(filtered, sort)
+    const baseAssets = isApiAssetSource
+      ? assets
+      : sortAssets(
+          filterAssets(assets, filter, search, {
+            mediaType: mediaTypeFilter,
+            date: dateFilter,
+          }),
+          sort,
+        )
     if (!batchOnly) {
-      return sorted
+      return baseAssets
     }
     const batchIdSet = new Set(batchIds)
-    return sorted.filter((asset) => batchIdSet.has(asset.id))
-  }, [assets, batchIds, batchOnly, dateFilter, filter, mediaTypeFilter, search, sort])
+    return baseAssets.filter((asset) => batchIdSet.has(asset.id))
+  }, [assets, batchIds, batchOnly, dateFilter, filter, isApiAssetSource, mediaTypeFilter, search, sort])
 
   const counts = useMemo(() => countAssetsByState(assets), [assets])
   const selectedAsset = useMemo(

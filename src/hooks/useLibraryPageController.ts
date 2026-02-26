@@ -100,6 +100,9 @@ export function useLibraryPageController() {
   }, [apiClient, isApiAssetSource, selectedAssetId])
 
   const visibleAssets = useMemo(() => {
+    if (isApiAssetSource) {
+      return assets
+    }
     const normalizedSearch = search.trim().toLowerCase()
     const filtered = normalizedSearch.length === 0 ? assets : assets.filter((asset) => {
       const tags = asset.tags ?? []
@@ -110,7 +113,7 @@ export function useLibraryPageController() {
       )
     })
     return sortAssets(filtered, sort)
-  }, [assets, search, sort])
+  }, [assets, isApiAssetSource, search, sort])
 
   const selectedAsset = useMemo(
     () => assets.find((asset) => asset.id === selectedAssetId) ?? null,
