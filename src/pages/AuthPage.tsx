@@ -1,4 +1,5 @@
 import { Button, Card, Container } from 'react-bootstrap'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { ApiConnectionSettingsSection } from '../components/auth/ApiConnectionSettingsSection'
@@ -9,6 +10,26 @@ export function AuthPage() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const controller = useAuthPageController()
+  const confirmLeaveIfDirty = () => {
+    if (!controller.hasUnsavedAuthInputs) {
+      return true
+    }
+    return window.confirm(t('app.authUnsavedChangesConfirm'))
+  }
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!controller.hasUnsavedAuthInputs) {
+        return
+      }
+      event.preventDefault()
+      event.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [controller.hasUnsavedAuthInputs])
 
   return (
     <Container as="main" className="py-4">
@@ -18,10 +39,28 @@ export function AuthPage() {
           <p className="text-secondary mb-0">{t('app.apiConnectionSubtitle')}</p>
         </div>
         <div className="d-flex gap-2">
-          <Button type="button" size="sm" variant="outline-secondary" onClick={() => navigate('/settings')}>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline-secondary"
+            onClick={() => {
+              if (confirmLeaveIfDirty()) {
+                navigate('/settings')
+              }
+            }}
+          >
             {t('settings.openSettings')}
           </Button>
-          <Button type="button" size="sm" variant="outline-secondary" onClick={() => navigate('/review')}>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline-secondary"
+            onClick={() => {
+              if (confirmLeaveIfDirty()) {
+                navigate('/review')
+              }
+            }}
+          >
             {t('app.backToReview')}
           </Button>
         </div>

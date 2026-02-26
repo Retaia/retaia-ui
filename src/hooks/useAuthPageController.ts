@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAuthApiConnectionController } from './auth/useAuthApiConnectionController'
 import { useAuthPageApiState } from './auth/useAuthPageApiState'
@@ -145,6 +145,23 @@ export function useAuthPageController() {
     setAuthMfaStatus,
     setAuthMfaBusy,
   })
+  const hasUnsavedAuthInputs = useMemo(
+    () =>
+      [
+        authPasswordInput,
+        authOtpInput,
+        lostPasswordTokenInput,
+        lostPasswordNewPasswordInput,
+        verifyEmailTokenInput,
+      ].some((value) => value.trim().length > 0),
+    [
+      authOtpInput,
+      authPasswordInput,
+      lostPasswordNewPasswordInput,
+      lostPasswordTokenInput,
+      verifyEmailTokenInput,
+    ],
+  )
 
   return {
     retryStatus,
@@ -197,6 +214,7 @@ export function useAuthPageController() {
     mfaFeatureAvailable,
     mfaFeatureUserEnabled,
     mfaFeatureUserCanDisable,
+    hasUnsavedAuthInputs,
     handleLogin,
     handleLogout,
     handleLostPasswordRequest,

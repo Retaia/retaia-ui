@@ -29,6 +29,7 @@ export const enTranslation = {
   'app.authLoggingIn': 'Signing in...',
   'app.authLogout': 'Sign out',
   'app.authSignedOut': 'No authenticated user.',
+  'app.authUnsavedChangesConfirm': 'Unsaved authentication fields will be lost. Continue?',
   'app.authSignedInAs': 'Signed in as {identity}',
   'app.authMfaEnabled': '2FA enabled',
   'app.authMfaTitle': 'Two-factor authentication',

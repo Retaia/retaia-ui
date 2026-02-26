@@ -29,6 +29,7 @@ export const frTranslation = {
   'app.authLoggingIn': 'Connexion en cours...',
   'app.authLogout': 'Se déconnecter',
   'app.authSignedOut': 'Aucun utilisateur authentifié.',
+  'app.authUnsavedChangesConfirm': 'Des champs non sauvegardés seront perdus. Continuer ?',
   'app.authSignedInAs': 'Connecté en tant que {identity}',
   'app.authMfaEnabled': '2FA activée',
   'app.authMfaTitle': 'Authentification à deux facteurs',
