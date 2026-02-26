@@ -95,11 +95,11 @@ describe('App', () => {
   })
 
   it('initializes review filters from query params', () => {
-    setupApp('/review?state=DECISION_PENDING&media_type=VIDEO&sort=created_at&q=interview')
+    setupApp('/review?state=DECISION_PENDING&media_type=VIDEO&sort=name&q=interview')
 
     expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECISION_PENDING')
     expect(document.getElementById('media-type-filter')).toHaveValue('VIDEO')
-    expect(document.getElementById('sort-key-filter')).toHaveValue('created_at')
+    expect(document.getElementById('sort-key-filter')).toHaveValue('name')
     expect(screen.getByLabelText('Recherche')).toHaveValue('interview')
   })
 
@@ -107,12 +107,12 @@ describe('App', () => {
     const { user } = setupApp('/review')
 
     await user.selectOptions(screen.getByLabelText('Filtrer par état'), 'DECISION_PENDING')
-    await user.selectOptions(document.getElementById('sort-key-filter') as HTMLSelectElement, 'created_at')
+    await user.selectOptions(document.getElementById('sort-key-filter') as HTMLSelectElement, '-updated_at')
     await user.type(screen.getByLabelText('Recherche'), 'foo')
     await user.click(screen.getByRole('button', { name: 'Batch seul: OFF' }))
 
     expect(window.location.search).toContain('state=DECISION_PENDING')
-    expect(window.location.search).toContain('sort=created_at')
+    expect(window.location.search).toContain('sort=-updated_at')
     expect(window.location.search).toContain('q=foo')
     expect(window.location.search).not.toContain('batch=')
   })

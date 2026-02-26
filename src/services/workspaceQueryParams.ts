@@ -40,7 +40,14 @@ function isAssetMediaTypeFilter(value: string | null): value is ApiMediaTypePara
 }
 
 function isAssetSort(value: string | null): value is AssetSort {
-  return value === 'created_at' || value === '-created_at'
+  return (
+    value === 'created_at' ||
+    value === '-created_at' ||
+    value === 'updated_at' ||
+    value === '-updated_at' ||
+    value === 'name' ||
+    value === '-name'
+  )
 }
 
 function updateCurrentSearch(params: URLSearchParams, mode: 'push' | 'replace' = 'push') {
