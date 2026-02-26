@@ -7,6 +7,8 @@ describe('StandaloneAssetDetailPage', () => {
     setupApp('/review/detail/A-001')
 
     expect(await screen.findByRole('button', { name: 'Retour review' })).toBeInTheDocument()
+    expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('Review')
+    expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('A-001')
     const detail = screen.getByLabelText("Détail de l'asset")
     expect(within(detail).getByText('interview-camera-a.mov')).toBeInTheDocument()
   })
