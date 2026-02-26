@@ -17,7 +17,7 @@ export function StandaloneAssetDetailPage({ context }: Props) {
   const isValidContextFrom =
     typeof fromParam === 'string' &&
     (context === 'review'
-      ? /^\/(review|batch|batch\/reports|activity)(\/|$|\?)/.test(fromParam)
+      ? /^\/(review|activity)(\/|$|\?)/.test(fromParam)
       : /^\/library(\/|$|\?)/.test(fromParam))
   const backPath = isValidContextFrom ? fromParam : context === 'review' ? '/review' : '/library'
   const currentView = context === 'review' ? 'workspace' : 'library'
@@ -31,8 +31,6 @@ export function StandaloneAssetDetailPage({ context }: Props) {
         onOpenSettings={() => navigate('/settings')}
         onOpenAuth={() => navigate('/auth')}
         onOpenReview={() => navigate('/review')}
-        onOpenBatch={() => navigate('/batch')}
-        onOpenBatchReports={() => navigate('/batch/reports')}
         onOpenActivity={() => navigate('/activity')}
         onOpenLibrary={() => navigate('/library')}
         onChangeLanguage={controller.onChangeLanguage}

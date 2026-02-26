@@ -9,11 +9,9 @@ type Props = {
   onOpenSettings: () => void
   onOpenAuth: () => void
   onOpenReview: () => void
-  onOpenBatch: () => void
-  onOpenBatchReports: () => void
   onOpenActivity: () => void
   onOpenLibrary: () => void
-  currentView?: 'workspace' | 'batch' | 'reports' | 'activity' | 'library'
+  currentView?: 'workspace' | 'activity' | 'library'
 }
 
 export function AppHeader({
@@ -23,8 +21,6 @@ export function AppHeader({
   onOpenSettings,
   onOpenAuth,
   onOpenReview,
-  onOpenBatch,
-  onOpenBatchReports,
   onOpenActivity,
   onOpenLibrary,
   currentView = 'workspace',
@@ -53,22 +49,6 @@ export function AppHeader({
               onClick={onOpenReview}
             >
               {t('app.nav.review')}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={currentView === 'batch' ? 'primary' : 'outline-primary'}
-              onClick={onOpenBatch}
-            >
-              {t('app.nav.batch')}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={currentView === 'reports' ? 'primary' : 'outline-primary'}
-              onClick={onOpenBatchReports}
-            >
-              {t('app.nav.reports')}
             </Button>
             <Button
               type="button"

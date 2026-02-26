@@ -42,8 +42,6 @@ Permettre l'exploitation de la bibliothèque d'assets déjà traités:
 - `/` -> redirection `/review`
 - `/review`
 - `/review/detail/:assetId`
-- `/batch`
-- `/batch/reports`
 - `/activity`
 - `/library`
 - `/library/detail/:assetId`
@@ -78,7 +76,7 @@ Fonctions clés:
 - statuts d'exécution + gestion des erreurs
 
 Note implémentation actuelle:
-- route dédiée: `/batch` (surface opérationnelle du mode batch)
+- surface intégrée au workspace `/review` (pas de route dédiée)
 
 ### 5.3 Reporting Batch
 Fonction: rendre lisible le résultat d'une exécution batch (mode batch).
@@ -90,7 +88,7 @@ Fonctions clés:
 - export des résultats (JSON/CSV)
 
 Note implémentation actuelle:
-- route dédiée: `/batch/reports`
+- reporting intégré au workspace `/review` (pas de route dédiée)
 
 ### 5.4 Activity (`/activity`)
 Fonction: traçabilité opérateur.
