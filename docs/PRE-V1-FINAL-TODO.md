@@ -12,7 +12,7 @@
 
 ### P0 (bloquant pre-v1)
 - [ ] Implémenter `Library` (liste ARCHIVED + recherche + page détail partagée review/library).
-- [ ] Stabiliser la navigation: persistance de contexte inter-pages + deep-linking homogène.
+- [ ] Stabiliser la navigation: persistance de contexte inter-pages + query params filtres homogènes.
 - [x] Corriger le modèle d'états domaine pour supporter `ARCHIVED` explicitement.
 - [ ] Ajouter tests E2E cross-page critiques (review -> batch -> reports -> activity -> detail).
 
@@ -56,7 +56,7 @@
 - [x] Concevoir la `Library` comme un module first-class (routes dédiées, navigation dédiée, état/données dédiés).
 
 ## Navigation (pre-v1)
-- [ ] Uniformiser le deep-linking sur toutes les pages (`/review/:id`, `/library/:id`, retour contextuel).
+- [ ] Uniformiser les query params de filtres sur toutes les pages workspace (`/review`, `/library`) + retour contextuel depuis les pages détail.
 - [ ] Ajouter une navigation secondaire/breadcrumbs (`Review > Asset ...`, `Library > Archived > Asset ...`).
 - [ ] Persister le contexte inter-pages (`last route`, filtres actifs, scroll list, sélection courante).
 - [x] Rendre le comportement du bouton `Back` déterministe (retour liste vs écran précédent).

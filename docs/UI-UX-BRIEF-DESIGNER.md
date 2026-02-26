@@ -40,12 +40,12 @@ Permettre l'exploitation de la bibliothèque d'assets déjà traités:
 
 ### 4.2 Routes actuelles
 - `/` -> redirection `/review`
-- `/review`, `/review/:assetId`
+- `/review`
 - `/review/detail/:assetId`
 - `/batch`
 - `/batch/reports`
 - `/activity`
-- `/library`, `/library/:assetId`
+- `/library`
 - `/library/detail/:assetId`
 - `/auth`
 - `/settings`
@@ -144,7 +144,7 @@ Fonctions clés:
 - feedback immédiat après chaque action (succès/erreur)
 - gestion des conflits d'état (asset modifié côté serveur)
 - confirmations sur actions sensibles/destructives
-- deep-linking et navigation retour fiable
+- navigation retour fiable + query params de filtres
 - accessibilité clavier
 
 ## 7) États UX obligatoires

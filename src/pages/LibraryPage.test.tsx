@@ -13,8 +13,10 @@ describe('LibraryPage', () => {
     expect(screen.getByText("Aucun asset archivé pour les filtres en cours.")).toBeInTheDocument()
   })
 
-  it('opens detail from deep-link route', async () => {
-    setupApp('/library/A-002')
+  it('opens detail in panel after selecting an asset from list', async () => {
+    const { user } = setupApp('/library')
+
+    await user.click(await screen.findByText('ambiance-plateau.wav'))
 
     const detail = await screen.findByLabelText("Détail de l'asset")
     expect(within(detail).getByText('ambiance-plateau.wav')).toBeInTheDocument()
@@ -22,7 +24,9 @@ describe('LibraryPage', () => {
   })
 
   it('navigates to standalone detail page from detail panel action', async () => {
-    const { user } = setupApp('/library/A-002')
+    const { user } = setupApp('/library')
+
+    await user.click(await screen.findByText('ambiance-plateau.wav'))
 
     await user.click(await screen.findByTestId('asset-open-standalone'))
     expect(window.location.pathname).toBe('/library/detail/A-002')
@@ -38,5 +42,15 @@ describe('LibraryPage', () => {
     setupApp('/library')
 
     expect(screen.getByTestId('library-search-input')).toHaveValue('ambiance')
+  })
+
+  it('initializes and syncs library search from query params', async () => {
+    const { user } = setupApp('/library?q=ambiance')
+
+    expect(screen.getByTestId('library-search-input')).toHaveValue('ambiance')
+
+    await user.clear(screen.getByTestId('library-search-input'))
+    await user.type(screen.getByTestId('library-search-input'), 'archive')
+    expect(window.location.search).toContain('q=archive')
   })
 })

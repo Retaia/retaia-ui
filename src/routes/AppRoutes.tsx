@@ -13,13 +13,11 @@ export function AppRoutes() {
     <Routes>
       <Route path="/" element={<Navigate to="/review" replace />} />
       <Route path="/review" element={<ReviewWorkspacePage />} />
-      <Route path="/review/:assetId" element={<ReviewWorkspacePage />} />
       <Route path="/review/detail/:assetId" element={<StandaloneAssetDetailPage context="review" />} />
       <Route path="/batch" element={<BatchOperationsPage />} />
       <Route path="/batch/reports" element={<BatchReportsPage />} />
       <Route path="/activity" element={<ActivityPage />} />
       <Route path="/library" element={<LibraryPage />} />
-      <Route path="/library/:assetId" element={<LibraryPage />} />
       <Route path="/library/detail/:assetId" element={<StandaloneAssetDetailPage context="library" />} />
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/settings" element={<SettingsPage />} />

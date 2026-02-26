@@ -6,10 +6,10 @@ import type { Asset } from '../domain/assets'
 import { mergeAssetWithDetail } from '../domain/review/assetDetailMerge'
 import { type Locale } from '../i18n/resources'
 import { mapReviewApiErrorToMessage } from '../infrastructure/review/apiReviewErrorAdapter'
-import { useAssetRouteSelection } from './useAssetRouteSelection'
 import { useDensityMode } from './useDensityMode'
 import { useReviewApiRuntime } from './useReviewApiRuntime'
 import { readLibraryWorkspaceState, saveLibraryWorkspaceState } from '../services/navigationSession'
+import { readLibraryFilterParams, writeLibraryFilterParams } from '../services/workspaceQueryParams'
 
 const INITIAL_LIBRARY_ASSETS = INITIAL_ASSETS.filter(
   (asset) => asset.state === 'ARCHIVED' || asset.state === 'DECIDED_KEEP',
@@ -17,8 +17,9 @@ const INITIAL_LIBRARY_ASSETS = INITIAL_ASSETS.filter(
 
 export function useLibraryPageController() {
   const persistedWorkspaceState = readLibraryWorkspaceState()
+  const queryFilters = readLibraryFilterParams()
   const { t, i18n } = useTranslation()
-  const [search, setSearch] = useState(persistedWorkspaceState?.search ?? '')
+  const [search, setSearch] = useState(queryFilters.search ?? persistedWorkspaceState?.search ?? '')
   const [assets, setAssets] = useState<Asset[]>(INITIAL_LIBRARY_ASSETS)
   const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>('idle')
   const [assetDetailLoadState, setAssetDetailLoadState] = useState<'idle' | 'loading' | 'error'>('idle')
@@ -59,10 +60,7 @@ export function useLibraryPageController() {
     }
   }, [apiClient, isApiAssetSource])
 
-  const {
-    selectedAssetId,
-    applySelectedAssetId,
-  } = useAssetRouteSelection(INITIAL_LIBRARY_ASSETS, assets, { basePath: '/library' })
+  const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!isApiAssetSource || !selectedAssetId) {
@@ -118,9 +116,9 @@ export function useLibraryPageController() {
 
   const handleAssetClick = useCallback(
     (assetId: string) => {
-      applySelectedAssetId(assetId)
+      setSelectedAssetId(assetId)
     },
-    [applySelectedAssetId],
+    [],
   )
 
   const saveSelectedAssetMetadata = useCallback(
@@ -158,6 +156,10 @@ export function useLibraryPageController() {
     saveLibraryWorkspaceState({ search })
   }, [search])
 
+  useEffect(() => {
+    writeLibraryFilterParams(search)
+  }, [search])
+
   return {
     t,
     locale,
@@ -178,6 +180,6 @@ export function useLibraryPageController() {
     onChangeLanguage: (nextLocale: Locale) => {
       void i18n.changeLanguage(nextLocale)
     },
-    openAsset: applySelectedAssetId,
+    openAsset: setSelectedAssetId,
   }
 }

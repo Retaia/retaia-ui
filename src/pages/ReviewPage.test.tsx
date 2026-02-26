@@ -94,6 +94,28 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Batch seul: ON' })).toBeInTheDocument()
   })
 
+  it('initializes review filters from query params', () => {
+    setupApp('/review?filter=DECISION_PENDING&media=VIDEO&date=LAST_7_DAYS&q=interview&batch=1')
+
+    expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECISION_PENDING')
+    expect(document.getElementById('media-type-filter')).toHaveValue('VIDEO')
+    expect(document.getElementById('captured-date-filter')).toHaveValue('LAST_7_DAYS')
+    expect(screen.getByLabelText('Recherche')).toHaveValue('interview')
+    expect(screen.getByRole('button', { name: 'Batch seul: ON' })).toBeInTheDocument()
+  })
+
+  it('syncs review filters to query params', async () => {
+    const { user } = setupApp('/review')
+
+    await user.selectOptions(screen.getByLabelText('Filtrer par état'), 'DECISION_PENDING')
+    await user.type(screen.getByLabelText('Recherche'), 'foo')
+    await user.click(screen.getByRole('button', { name: 'Batch seul: OFF' }))
+
+    expect(window.location.search).toContain('filter=DECISION_PENDING')
+    expect(window.location.search).toContain('q=foo')
+    expect(window.location.search).toContain('batch=1')
+  })
+
   it('shows desktop selection and batch status hints', async () => {
     const { user } = setupApp()
 
