@@ -42,3 +42,31 @@ Feature: Parcours critiques de review
     Given je suis sur la page d'accueil
     When je bascule la langue en anglais
     Then le libellé de recherche anglais est visible
+
+  @critical
+  Scenario: Naviguer entre review activity library detail et retour contexte
+    Given je suis sur la page "/review?state=DECISION_PENDING&media_type=VIDEO&sort=name&q=interview"
+    When je clique sur le bouton "Activité"
+    Then l'URL courante contient "/activity"
+    When je clique sur le bouton "Review"
+    Then l'URL courante contient "/review"
+    And l'URL courante contient "state=DECISION_PENDING"
+    And l'URL courante contient "media_type=VIDEO"
+    And l'URL courante contient "sort=name"
+    And l'URL courante contient "q=interview"
+    When je clique sur l'asset "interview-camera-a.mov"
+    And je clique sur l'element testid "asset-open-standalone"
+    Then l'URL courante contient "/review/detail/A-001"
+    And l'URL courante contient "from=%2Freview%3Fstate%3DDECISION_PENDING"
+    When je clique sur le bouton "Retour review"
+    Then l'URL courante contient "/review"
+    And l'URL courante contient "state=DECISION_PENDING"
+    And l'URL courante contient "media_type=VIDEO"
+    And l'URL courante contient "sort=name"
+    And l'URL courante contient "q=interview"
+    When je clique sur le bouton "Library"
+    Then l'URL courante contient "/library"
+    Given je suis sur la page "/library/detail/A-002?from=%2Flibrary"
+    Then l'URL courante contient "/library/detail/A-002"
+    When je clique sur le bouton "Retour library"
+    Then l'URL courante contient "/library"

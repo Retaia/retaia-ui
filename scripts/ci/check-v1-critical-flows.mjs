@@ -8,6 +8,7 @@ const requiredSnippets = [
   "Scenario: Annuler une décision avec Ctrl/Cmd+Z",
   "Scenario: Confirmer une exécution batch avec Shift+Entrée",
   "Scenario: Changer la langue vers l'anglais",
+  "Scenario: Naviguer entre review activity library detail et retour contexte",
 ]
 
 const files = readdirSync(featuresDir).filter((name) => name.endsWith('.feature'))

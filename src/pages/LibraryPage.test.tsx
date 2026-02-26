@@ -24,13 +24,13 @@ describe('LibraryPage', () => {
   })
 
   it('navigates to standalone detail page from detail panel action', async () => {
-    const { user } = setupApp('/library')
+    const { user } = setupApp('/library?q=ambiance&sort=name')
 
     await user.click(await screen.findByText('ambiance-plateau.wav'))
 
     await user.click(await screen.findByTestId('asset-open-standalone'))
     expect(window.location.pathname).toBe('/library/detail/A-002')
-    expect(decodeURIComponent(window.location.search)).toContain('from=/library')
+    expect(decodeURIComponent(window.location.search)).toContain('from=/library?q=ambiance&sort=name')
   })
 
   it('persists library search across remount', async () => {
