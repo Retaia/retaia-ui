@@ -136,7 +136,7 @@ describe('App', () => {
     await user.selectOptions(screen.getByLabelText('Filtrer par état'), 'DECISION_PENDING')
     await user.selectOptions(document.getElementById('sort-key-filter') as HTMLSelectElement, '-updated_at')
     await user.type(screen.getByLabelText('Recherche'), 'foo')
-    await user.click(screen.getByRole('button', { name: 'Filtre batch: OFF' }))
+    await user.click(screen.getByRole('button', { name: 'Vue batch: désactivée' }))
 
     expect(window.location.search).toContain('state=DECISION_PENDING')
     expect(window.location.search).toContain('sort=-updated_at')
@@ -684,7 +684,7 @@ describe('App', () => {
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
     await user.keyboard('{/Shift}')
-    await user.click(screen.getByRole('button', { name: 'Batch' }))
+    await user.click(screen.getByRole('button', { name: 'Vue batch' }))
 
     expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
     expect(within(getAssetsPanel()).getByText('interview-camera-a.mov')).toBeInTheDocument()
@@ -739,7 +739,7 @@ describe('App', () => {
     setupApp()
 
     expect(screen.getByRole('heading', { name: 'Actions générales' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Actions batch' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Opérations batch' })).toBeInTheDocument()
   })
 
 
