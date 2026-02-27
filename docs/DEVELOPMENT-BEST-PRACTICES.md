@@ -182,3 +182,9 @@ Implémentation locale actuelle:
 
 - Appliquer le standard `Page + Controller + Sections` pour toute nouvelle page feature ou refactor majeur.
 - Référence détaillée: `docs/PAGE-CONTROLLER-SECTIONS-STANDARD.md`.
+
+## Scaffold de page
+
+- Pour initialiser une page orchestrée (page + controller + section), utiliser:
+  - `npm run scaffold:page -- --name <FeatureName>`
+- Détails et limites du générateur: `docs/PAGE-SCAFFOLDING.md`.
