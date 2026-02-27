@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Container } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AppHeader } from '../components/app/AppHeader'
@@ -10,6 +10,7 @@ import { ReviewOverviewSection } from '../components/review/ReviewOverviewSectio
 import { ReviewWorkspaceSection } from '../components/review/ReviewWorkspaceSection'
 import { useReviewPageController, type ReviewPageView } from '../hooks/useReviewPageController'
 import { persistLastRoute, persistScrollY, readScrollY } from '../services/workspaceContextPersistence'
+import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard'
 
 type ReviewPageProps = {
   view?: ReviewPageView
@@ -50,6 +51,8 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
       window.removeEventListener('scroll', handleScroll)
     }
   }, [isScrollableView])
+  const [hasUnsavedMetadata, setHasUnsavedMetadata] = useState(false)
+  const confirmLeaveIfDirty = useUnsavedChangesGuard(hasUnsavedMetadata, controller.t('detail.unsavedChangesConfirm'))
 
   return (
     <Container as="main" className="py-4">
@@ -57,11 +60,31 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
         locale={controller.locale}
         t={controller.t}
         currentView={view === 'activity' ? 'activity' : 'workspace'}
-        onOpenSettings={() => navigate('/settings')}
-        onOpenAuth={() => navigate('/auth')}
-        onOpenReview={() => navigate('/review')}
-        onOpenActivity={() => navigate('/activity')}
-        onOpenLibrary={() => navigate('/library')}
+        onOpenSettings={() => {
+          if (confirmLeaveIfDirty()) {
+            navigate('/settings')
+          }
+        }}
+        onOpenAuth={() => {
+          if (confirmLeaveIfDirty()) {
+            navigate('/auth')
+          }
+        }}
+        onOpenReview={() => {
+          if (confirmLeaveIfDirty()) {
+            navigate('/review')
+          }
+        }}
+        onOpenActivity={() => {
+          if (confirmLeaveIfDirty()) {
+            navigate('/activity')
+          }
+        }}
+        onOpenLibrary={() => {
+          if (confirmLeaveIfDirty()) {
+            navigate('/library')
+          }
+        }}
         onChangeLanguage={controller.onChangeLanguage}
       />
 
@@ -210,6 +233,9 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           onExecutePurge={controller.executeSelectedAssetPurge}
           onRefreshAsset={controller.refreshSelectedAsset}
           onOpenStandaloneDetail={(assetId) => {
+            if (!confirmLeaveIfDirty()) {
+              return
+            }
             const from =
               typeof window === 'undefined'
                 ? '/review'
@@ -218,6 +244,7 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           }}
           onKeywordClick={controller.onKeywordClick}
           onLoadMoreAssets={controller.loadMoreAssets}
+          onMetadataDirtyChange={setHasUnsavedMetadata}
         />
       ) : null}
     </Container>

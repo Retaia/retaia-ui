@@ -36,6 +36,7 @@ type Props = {
   onOpenStandaloneDetail?: (assetId: string) => void
   onKeywordClick?: (keyword: string) => void
   onLoadMoreAssets?: () => Promise<void>
+  onMetadataDirtyChange?: (dirty: boolean) => void
 }
 
 export function ReviewListDetailSection({
@@ -68,6 +69,7 @@ export function ReviewListDetailSection({
   onOpenStandaloneDetail,
   onKeywordClick,
   onLoadMoreAssets,
+  onMetadataDirtyChange,
 }: Props) {
   return (
     <Row as="section" className="g-3 mt-1">
@@ -106,6 +108,7 @@ export function ReviewListDetailSection({
         refreshingAsset={refreshingAsset}
         onOpenStandaloneDetail={onOpenStandaloneDetail}
         onKeywordClick={onKeywordClick}
+        onMetadataDirtyChange={onMetadataDirtyChange}
       />
     </Row>
   )
