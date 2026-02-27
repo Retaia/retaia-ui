@@ -42,7 +42,7 @@ describe('StandaloneAssetDetailPage', () => {
     const { user } = setupApp('/review/detail/A-001?from=%2Factivity')
 
     await user.type(screen.getByTestId('asset-notes-input'), 'draft note')
-    await user.click(await screen.findByRole('button', { name: 'Retour activité' }))
+    await user.click(await screen.findByRole('button', { name: 'Retour à Activité' }))
 
     expect(confirmSpy).toHaveBeenCalledTimes(1)
     expect(window.location.pathname).toBe('/review/detail/A-001')
