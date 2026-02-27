@@ -1,6 +1,7 @@
 import { Card } from 'react-bootstrap'
 import { BsLayers } from 'react-icons/bs'
 import { ActionBatchSection } from '../app/ActionBatchSection'
+import { BatchExecutionStatusAlerts } from './BatchExecutionStatusAlerts'
 import { getActionAvailability } from '../../domain/actionAvailability'
 
 type Props = {
@@ -65,39 +66,11 @@ export function BatchOperationsSection({
           onExecuteBatchMove={onExecuteBatchMove}
           onCancelPendingBatchExecution={onCancelPendingBatchExecution}
         />
-        {previewStatus ? (
-          <p
-            data-testid="batch-preview-status"
-            role="status"
-            aria-live="polite"
-            className={[
-              'mt-2',
-              'mb-0',
-              previewStatus.kind === 'success' ? 'text-success' : 'text-danger',
-            ].join(' ')}
-          >
-            {previewStatus.message}
-          </p>
-        ) : null}
-        {executeStatus ? (
-          <p
-            data-testid="batch-execute-status"
-            role="status"
-            aria-live="polite"
-            className={[
-              'mt-2',
-              'mb-0',
-              executeStatus.kind === 'success' ? 'text-success' : 'text-danger',
-            ].join(' ')}
-          >
-            {executeStatus.message}
-          </p>
-        ) : null}
-        {retryStatus ? (
-          <p data-testid="api-retry-status" role="status" aria-live="polite" className="small mt-2 mb-0 text-warning">
-            {retryStatus}
-          </p>
-        ) : null}
+        <BatchExecutionStatusAlerts
+          previewStatus={previewStatus}
+          executeStatus={executeStatus}
+          retryStatus={retryStatus}
+        />
       </Card.Body>
     </Card>
   )
