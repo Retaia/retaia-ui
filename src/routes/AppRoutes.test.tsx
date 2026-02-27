@@ -4,6 +4,28 @@ import { describe, expect, it } from 'vitest'
 import { setupApp } from '../test-utils/appTestUtils'
 
 describe('AppRoutes', () => {
+  it('restores saved workspace route when opening root path', async () => {
+    window.localStorage.setItem(
+      'retaia_ui_workspace_context',
+      JSON.stringify({ lastRoute: '/activity?q=recent' }),
+    )
+    setupApp('/')
+
+    expect(await screen.findByRole('heading', { name: 'Activité' })).toBeInTheDocument()
+    expect(window.location.pathname).toBe('/activity')
+  })
+
+  it('falls back to /review for invalid saved route when opening root path', async () => {
+    window.localStorage.setItem(
+      'retaia_ui_workspace_context',
+      JSON.stringify({ lastRoute: '/auth' }),
+    )
+    setupApp('/')
+
+    expect(await screen.findByRole('heading', { name: 'Assets (3)' })).toBeInTheDocument()
+    expect(window.location.pathname).toBe('/review')
+  })
+
   it('renders auth page on /auth', () => {
     setupApp('/auth')
 

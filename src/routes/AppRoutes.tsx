@@ -9,6 +9,7 @@ import { StandaloneAssetDetailPage } from '../pages/StandaloneAssetDetailPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { ForbiddenPage } from '../pages/ForbiddenPage'
 import { reportUiNavigationScreenView } from '../ui/telemetry'
+import { readLastRoute } from '../services/workspaceContextPersistence'
 
 function NavigationTelemetry() {
   const location = useLocation()
@@ -28,11 +29,16 @@ function NavigationTelemetry() {
 }
 
 export function AppRoutes() {
+  const savedRoute = readLastRoute()
+  const rootTarget = typeof savedRoute === 'string' && /^\/(review|activity|library)(\/|$|\?)/.test(savedRoute)
+    ? savedRoute
+    : '/review'
+
   return (
     <>
       <NavigationTelemetry />
       <Routes>
-        <Route path="/" element={<Navigate to="/review" replace />} />
+        <Route path="/" element={<Navigate to={rootTarget} replace />} />
         <Route path="/review" element={<ReviewWorkspacePage />} />
         <Route path="/review/detail/:assetId" element={<StandaloneAssetDetailPage context="review" />} />
         <Route path="/activity" element={<ActivityPage />} />
