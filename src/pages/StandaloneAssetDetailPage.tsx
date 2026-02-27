@@ -29,12 +29,8 @@ export function StandaloneAssetDetailPage({ context }: Props) {
     ? '/activity'
     : '/review'
   const reviewRootLabel = reviewRootPath === '/activity' ? controller.t('app.nav.activity') : controller.t('app.nav.review')
-  const backButtonLabel =
-    context === 'review'
-      ? reviewRootPath === '/activity'
-        ? controller.t('detail.backToActivity')
-        : controller.t('detail.backToReview')
-      : controller.t('detail.backToLibrary')
+  const backContextLabel = context === 'review' ? reviewRootLabel : controller.t('app.nav.library')
+  const backButtonLabel = controller.t('app.backToContext', { context: backContextLabel })
 
   return (
     <Container as="main" className="py-4">

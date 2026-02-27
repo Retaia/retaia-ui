@@ -141,7 +141,7 @@ export function SettingsPage() {
             {t('settings.openAuth')}
           </Button>
           <Button type="button" size="sm" variant="outline-secondary" onClick={() => navigate('/review')}>
-            {t('app.backToReview')}
+            {t('app.backToContext', { context: t('app.nav.review') })}
           </Button>
         </div>
       </div>
