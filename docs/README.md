@@ -17,6 +17,7 @@
 - `docs/UI-QUALITY-RUNBOOK.md`
 - `docs/UI-ACCESSIBILITY.md`
 - `docs/PR-CHECKLIST-UI-STATEFUL-REFACTOR.md`
+- `docs/KEYBOARD-SHORTCUTS-REGISTRY.md`
 - `bdd/features/`
 
 ## Lecture minimale avant de coder

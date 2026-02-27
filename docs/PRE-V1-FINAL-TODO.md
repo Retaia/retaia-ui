@@ -20,7 +20,7 @@
 - [ ] Splitter `useReviewPageController` en sous-hooks métier.
 - [ ] Réduire la duplication visuelle entre les sections review/batch/report intégrées dans `/review`.
 - [ ] Améliorer l'empty-state de la section report batch dans `/review`.
-- [ ] Mettre en place gouvernance des raccourcis clavier (registre + règles).
+- [x] Mettre en place gouvernance des raccourcis clavier (registre + règles).
 - [ ] Structurer auth en sous-pages/onglets et sous-controllers.
 
 ### P2 (durcissement)
@@ -100,7 +100,7 @@
 - [ ] Faire un audit clavier complet cross-page (focus management, skip links, traps).
 - [ ] Uniformiser les annonces ARIA pour tous les statuts asynchrones.
 - [ ] Vérifier contraste et états disabled/destructifs en conformité WCAG AA.
-- [ ] Définir un registre des raccourcis clavier (priorité, scope, conflits, exceptions en contexte saisie).
+- [x] Définir un registre des raccourcis clavier (priorité, scope, conflits, exceptions en contexte saisie).
 
 ## Design System (pre-v1)
 - [ ] Standardiser les design tokens (spacing, color, typo, elevation).

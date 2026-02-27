@@ -73,6 +73,10 @@ Raccourcis clavier desktop:
 - `n`: ouvre le prochain asset en `DECISION_PENDING` et recentre le contexte
 - `b`: bascule l'affichage "batch seul" sans quitter le contexte courant
 
+Registre de gouvernance:
+
+- source de vérité locale: `docs/KEYBOARD-SHORTCUTS-REGISTRY.md` (priorités, conflits, règles de blocage en saisie)
+
 Règles UX:
 
 - les boutons d'action d'une ligne (`KEEP/REJECT/CLEAR`) ne doivent pas déclencher l'ouverture du détail par propagation d'événement
