@@ -228,6 +228,7 @@ export const frTranslation = {
   'actions.executeError': 'Exécution en échec: {message}',
   'actions.retrying': 'Nouvelle tentative ({attempt}/{total})...',
   'actions.reportFetch': 'Rafraîchir rapport',
+  'actions.reportFetchCta': 'Rafraîchir maintenant',
   'actions.reportExportJson': 'Exporter JSON',
   'actions.reportExportCsv': 'Exporter CSV',
   'actions.reportExportDone': 'Rapport exporté ({format}).',
@@ -240,6 +241,12 @@ export const frTranslation = {
   'actions.reportNoErrors': "Aucun échec remonté dans le rapport.",
   'actions.reportReady': 'Rapport chargé pour {batchId}',
   'actions.reportEmpty': 'Aucun rapport chargé pour le moment.',
+  'actions.reportEmptyTitle': 'Aucun rapport affichable',
+  'actions.reportEmptyHintNoBatch':
+    'Exécute un batch puis clique sur "Rafraîchir rapport" pour charger le résultat.',
+  'actions.reportEmptyHintWithBatch':
+    'Aucun rapport disponible pour batch_id {batchId}. Clique sur "Rafraîchir rapport" pour réessayer.',
+  'actions.reportRecentFallback': 'Dernier rapport réussi affiché (batch_id: {batchId}).',
   'actions.reportError': 'Chargement rapport en échec: {message}',
   'actions.purgeTitle': 'Purge',
   'actions.purgeHelp': "Action destructive pour un asset rejeté. Prévisualisation obligatoire avant confirmation.",

@@ -8,6 +8,8 @@ type Props = {
   reportBatchId: string | null
   reportStatus: string | null
   reportData: unknown
+  lastSuccessfulReportBatchId: string | null
+  lastSuccessfulReportData: unknown
   reportExportStatus: string | null
   onRefreshBatchReport: () => Promise<void>
   onExportBatchReport: (format: 'json' | 'csv') => void
@@ -19,10 +21,15 @@ export function ActionReportSection({
   reportBatchId,
   reportStatus,
   reportData,
+  lastSuccessfulReportBatchId,
+  lastSuccessfulReportData,
   reportExportStatus,
   onRefreshBatchReport,
   onExportBatchReport,
 }: Props) {
+  const displayedReport = reportData ?? lastSuccessfulReportData
+  const showingRecentReport = !reportData && Boolean(lastSuccessfulReportData)
+
   return (
     <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
       <h3 className="h6 mb-2">
@@ -66,9 +73,35 @@ export function ActionReportSection({
           {reportStatus}
         </p>
       ) : null}
-      {reportData ? (
+      {displayedReport ? (
+        showingRecentReport ? (
+          <p className="small text-secondary mt-2 mb-1" data-testid="batch-report-recent-note">
+            {t('actions.reportRecentFallback', { batchId: lastSuccessfulReportBatchId ?? '-' })}
+          </p>
+        ) : null
+      ) : (
+        <div className="mt-2 p-2 rounded border bg-body-tertiary" data-testid="batch-report-empty-state">
+          <p className="small fw-semibold mb-1">{t('actions.reportEmptyTitle')}</p>
+          <p className="small text-secondary mb-2">
+            {reportBatchId
+              ? t('actions.reportEmptyHintWithBatch', { batchId: reportBatchId })
+              : t('actions.reportEmptyHintNoBatch')}
+          </p>
+          <Button
+            type="button"
+            size="sm"
+            variant="primary"
+            onClick={() => void onRefreshBatchReport()}
+            disabled={refreshReportDisabled}
+            data-testid="batch-report-empty-cta"
+          >
+            {t('actions.reportFetchCta')}
+          </Button>
+        </div>
+      )}
+      {displayedReport ? (
         <BatchReportView
-          report={reportData}
+          report={displayedReport}
           labels={{
             summary: t('actions.reportSummary'),
             status: t('actions.reportStatusLabel'),

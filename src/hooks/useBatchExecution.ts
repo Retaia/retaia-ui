@@ -62,6 +62,7 @@ export function useBatchExecution({
   const [reportLoading, setReportLoading] = useState(false)
   const [reportStatus, setReportStatus] = useState<string | null>(null)
   const [reportData, setReportData] = useState<unknown>(null)
+  const [lastSuccessfulReport, setLastSuccessfulReport] = useState<{ batchId: string; report: unknown } | null>(null)
   const [reportExportStatus, setReportExportStatus] = useState<string | null>(null)
 
   const pendingBatchExecutionTimer = useRef<number | null>(null)
@@ -130,11 +131,13 @@ export function useBatchExecution({
         const batchId = resolveBatchId(response)
         setReportBatchId(batchId)
         setExecuteStatus(buildExecuteSuccessStatus(t))
+        setReportExportStatus(null)
         if (!batchId) {
           return
         }
         setReportLoading(true)
         setReportStatus(null)
+        setReportData(null)
         try {
           const reportResult = await loadBatchReport({
             getMoveBatchReport: apiClient.getMoveBatchReport,
@@ -144,6 +147,7 @@ export function useBatchExecution({
           })
           if (reportResult.kind === 'success') {
             setReportData(reportResult.report)
+            setLastSuccessfulReport({ batchId, report: reportResult.report })
           }
           setReportStatus(reportResult.statusMessage)
         } finally {
@@ -218,6 +222,7 @@ export function useBatchExecution({
 
     setReportLoading(true)
     setReportStatus(null)
+    setReportExportStatus(null)
     setRetryStatus(null)
 
     try {
@@ -229,6 +234,7 @@ export function useBatchExecution({
       })
       if (reportResult.kind === 'success') {
         setReportData(reportResult.report)
+        setLastSuccessfulReport({ batchId: reportBatchId, report: reportResult.report })
       }
       setReportStatus(reportResult.statusMessage)
     } finally {
@@ -273,6 +279,7 @@ export function useBatchExecution({
     reportLoading,
     reportStatus,
     reportData,
+    lastSuccessfulReport,
     reportExportStatus,
     batchTimeline,
     pendingBatchUndoSeconds,
