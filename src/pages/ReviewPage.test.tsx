@@ -136,7 +136,7 @@ describe('App', () => {
     await user.selectOptions(screen.getByLabelText('Filtrer par état'), 'DECISION_PENDING')
     await user.selectOptions(document.getElementById('sort-key-filter') as HTMLSelectElement, '-updated_at')
     await user.type(screen.getByLabelText('Recherche'), 'foo')
-    await user.click(screen.getByRole('button', { name: 'Batch seul: OFF' }))
+    await user.click(screen.getByRole('button', { name: 'Filtre batch: OFF' }))
 
     expect(window.location.search).toContain('state=DECISION_PENDING')
     expect(window.location.search).toContain('sort=-updated_at')
@@ -656,7 +656,7 @@ describe('App', () => {
 
     expect(screen.getByRole('heading', { name: 'Assets (0)' })).toBeInTheDocument()
     expect(
-      screen.getByText('Mode batch seul actif. Ajoute des assets au batch via Shift+clic.'),
+      screen.getByText('Filtre batch actif. Ajoute des assets au batch via Shift+clic.'),
     ).toBeInTheDocument()
   })
 

@@ -27,7 +27,7 @@ describe('App batch flows', () => {
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
     await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
     await user.keyboard('{/Shift}')
-    await user.click(screen.getByRole('button', { name: 'Batch seul: OFF' }))
+    await user.click(screen.getByRole('button', { name: 'Filtre batch: OFF' }))
 
     expect(screen.getByRole('heading', { name: 'Assets (2)' })).toBeInTheDocument()
     expect(within(getAssetsPanel()).getByText('interview-camera-a.mov')).toBeInTheDocument()
