@@ -61,6 +61,7 @@ import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { readReviewFilterParams, writeReviewFilterParams } from '../services/workspaceQueryParams'
 import { selectReviewWorkspaceQueryModel } from '../store/selectors/workspaceSelectors'
 import { syncAssetDecisionThunk, syncAssetMetadataThunk } from '../store/thunks/assetSyncThunks'
+import { persistSelectedAssetId, readSelectedAssetId } from '../services/workspaceContextPersistence'
 
 export type ReviewPageView = 'workspace' | 'batch' | 'reports' | 'activity'
 
@@ -106,7 +107,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     dispatch(setReviewBatchIds(nextValue))
   }, [batchIds, dispatch])
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
-  const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
+  const [selectedAssetId, setSelectedAssetId] = useState<string | null>(() => readSelectedAssetId('review'))
   const [selectionAnchorId, setSelectionAnchorId] = useState<string | null>(null)
   const applySelectedAssetId = useCallback((nextAssetId: string | null) => {
     setSelectedAssetId(nextAssetId)
@@ -613,6 +614,10 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
 
   useEffect(() => {
     setMetadataStatus(null)
+  }, [selectedAssetId])
+
+  useEffect(() => {
+    persistSelectedAssetId('review', selectedAssetId)
   }, [selectedAssetId])
 
   useEffect(() => {

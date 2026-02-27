@@ -17,6 +17,7 @@ import {
 } from '../store/slices/libraryWorkspaceSlice'
 import { selectLibraryWorkspaceQueryModel } from '../store/selectors/workspaceSelectors'
 import { syncAssetMetadataThunk } from '../store/thunks/assetSyncThunks'
+import { persistSelectedAssetId, readSelectedAssetId } from '../services/workspaceContextPersistence'
 
 const INITIAL_LIBRARY_ASSETS = INITIAL_ASSETS.filter(
   (asset) => asset.state === 'ARCHIVED' || asset.state === 'DECIDED_KEEP',
@@ -109,7 +110,11 @@ export function useLibraryPageController() {
     }
   }, [apiClient, isApiAssetSource, loadingMoreAssets, nextCursor, search, sort])
 
-  const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
+  const [selectedAssetId, setSelectedAssetId] = useState<string | null>(() => readSelectedAssetId('library'))
+
+  useEffect(() => {
+    persistSelectedAssetId('library', selectedAssetId)
+  }, [selectedAssetId])
 
   useEffect(() => {
     if (!isApiAssetSource || !selectedAssetId) {

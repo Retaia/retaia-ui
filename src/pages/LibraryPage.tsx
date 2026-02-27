@@ -1,13 +1,46 @@
+import { useEffect } from 'react'
 import { Container, Row } from 'react-bootstrap'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { AppHeader } from '../components/app/AppHeader'
 import { AssetDetailPanel } from '../components/app/AssetDetailPanel'
 import { LibraryListSection } from '../components/library/LibraryListSection'
 import { useLibraryPageController } from '../hooks/useLibraryPageController'
+import { persistLastRoute, persistScrollY, readScrollY } from '../services/workspaceContextPersistence'
 
 export function LibraryPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const controller = useLibraryPageController()
+
+  useEffect(() => {
+    persistLastRoute(location.pathname, location.search)
+  }, [location.pathname, location.search])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    const savedScrollY = readScrollY('library')
+    if (savedScrollY <= 0) {
+      return
+    }
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: savedScrollY, left: 0, behavior: 'auto' })
+    })
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    const handleScroll = () => {
+      persistScrollY('library', window.scrollY)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
 
   return (
     <Container as="main" className="py-4">

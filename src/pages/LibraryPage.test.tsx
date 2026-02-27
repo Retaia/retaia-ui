@@ -23,6 +23,17 @@ describe('LibraryPage', () => {
     expect(within(detail).getByText('ID: A-002')).toBeInTheDocument()
   })
 
+  it('restores selected asset from persisted workspace context', async () => {
+    window.localStorage.setItem(
+      'retaia_ui_workspace_context',
+      JSON.stringify({ librarySelectedAssetId: 'A-002' }),
+    )
+    setupApp('/library')
+
+    const detail = await screen.findByLabelText("Détail de l'asset")
+    expect(within(detail).getByText('ambiance-plateau.wav')).toBeInTheDocument()
+  })
+
   it('navigates to standalone detail page from detail panel action', async () => {
     const { user } = setupApp('/library?q=ambiance&sort=name')
 
