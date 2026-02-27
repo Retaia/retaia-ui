@@ -38,6 +38,8 @@ describe('LibraryPage', () => {
     const { user } = setupApp('/library?q=ambiance&sort=name')
 
     await user.click(await screen.findByText('ambiance-plateau.wav'))
+    const newTabLink = await screen.findByTestId('asset-open-standalone-new-tab')
+    expect(decodeURIComponent(newTabLink.getAttribute('href') ?? '')).toContain('from=/library?q=ambiance&sort=name')
 
     await user.click(await screen.findByTestId('asset-open-standalone'))
     expect(window.location.pathname).toBe('/library/detail/A-002')

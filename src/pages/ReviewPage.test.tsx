@@ -85,6 +85,10 @@ describe('App', () => {
     const { user } = setupApp('/review?state=DECISION_PENDING&sort=name&q=interview')
 
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+    const newTabLink = await screen.findByTestId('asset-open-standalone-new-tab')
+    expect(decodeURIComponent(newTabLink.getAttribute('href') ?? '')).toContain(
+      'from=/review?state=DECISION_PENDING&sort=name&q=interview',
+    )
     await user.click(await screen.findByTestId('asset-open-standalone'))
 
     expect(window.location.pathname).toBe('/review/detail/A-001')
