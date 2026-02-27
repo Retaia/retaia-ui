@@ -8,6 +8,8 @@ type Props = {
   reportBatchId: string | null
   reportStatus: string | null
   reportData: unknown
+  lastSuccessfulReportBatchId: string | null
+  lastSuccessfulReportData: unknown
   reportExportStatus: string | null
   onRefreshBatchReport: () => Promise<void>
   onExportBatchReport: (format: 'json' | 'csv') => void
@@ -19,6 +21,8 @@ export function BatchReportsSection({
   reportBatchId,
   reportStatus,
   reportData,
+  lastSuccessfulReportBatchId,
+  lastSuccessfulReportData,
   reportExportStatus,
   onRefreshBatchReport,
   onExportBatchReport,
@@ -36,6 +40,8 @@ export function BatchReportsSection({
           reportBatchId={reportBatchId}
           reportStatus={reportStatus}
           reportData={reportData}
+          lastSuccessfulReportBatchId={lastSuccessfulReportBatchId}
+          lastSuccessfulReportData={lastSuccessfulReportData}
           reportExportStatus={reportExportStatus}
           onRefreshBatchReport={onRefreshBatchReport}
           onExportBatchReport={onExportBatchReport}

@@ -22,6 +22,8 @@ type Props = {
   reportBatchId: string | null
   reportStatus: string | null
   reportData: unknown
+  lastSuccessfulReportBatchId: string | null
+  lastSuccessfulReportData: unknown
   reportExportStatus: string | null
   undoStackLength: number
   activityLog: Array<{ id: number; label: string }>
@@ -69,6 +71,8 @@ export function ReviewWorkspaceSection(props: Props) {
     reportBatchId,
     reportStatus,
     reportData,
+    lastSuccessfulReportBatchId,
+    lastSuccessfulReportData,
     reportExportStatus,
     undoStackLength,
     activityLog,
@@ -117,6 +121,8 @@ export function ReviewWorkspaceSection(props: Props) {
         reportBatchId={reportBatchId}
         reportStatus={reportStatus}
         reportData={reportData}
+        lastSuccessfulReportBatchId={lastSuccessfulReportBatchId}
+        lastSuccessfulReportData={lastSuccessfulReportData}
         reportExportStatus={reportExportStatus}
         undoStackLength={undoStackLength}
         activityLog={activityLog}

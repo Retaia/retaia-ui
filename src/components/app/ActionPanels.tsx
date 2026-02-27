@@ -54,6 +54,8 @@ type Props = {
   reportBatchId: string | null
   reportStatus: string | null
   reportData: unknown
+  lastSuccessfulReportBatchId: string | null
+  lastSuccessfulReportData: unknown
   reportExportStatus: string | null
   undoStackLength: number
   activityLog: ActivityEntry[]
@@ -98,6 +100,8 @@ export function ActionPanels({
   reportBatchId,
   reportStatus,
   reportData,
+  lastSuccessfulReportBatchId,
+  lastSuccessfulReportData,
   reportExportStatus,
   undoStackLength,
   activityLog,
@@ -200,6 +204,8 @@ export function ActionPanels({
           reportBatchId={reportBatchId}
           reportStatus={reportStatus}
           reportData={reportData}
+          lastSuccessfulReportBatchId={lastSuccessfulReportBatchId}
+          lastSuccessfulReportData={lastSuccessfulReportData}
           reportExportStatus={reportExportStatus}
           onRefreshBatchReport={onRefreshBatchReport}
           onExportBatchReport={onExportBatchReport}

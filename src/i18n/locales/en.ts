@@ -228,6 +228,7 @@ export const enTranslation = {
   'actions.executeError': 'Execution failed: {message}',
   'actions.retrying': 'Retrying request ({attempt}/{total})...',
   'actions.reportFetch': 'Refresh report',
+  'actions.reportFetchCta': 'Refresh now',
   'actions.reportExportJson': 'Export JSON',
   'actions.reportExportCsv': 'Export CSV',
   'actions.reportExportDone': 'Report exported ({format}).',
@@ -240,6 +241,12 @@ export const enTranslation = {
   'actions.reportNoErrors': 'No failed items reported.',
   'actions.reportReady': 'Report loaded for {batchId}',
   'actions.reportEmpty': 'No report loaded yet.',
+  'actions.reportEmptyTitle': 'No report available yet',
+  'actions.reportEmptyHintNoBatch':
+    'Run a batch first, then click "Refresh report" to load results.',
+  'actions.reportEmptyHintWithBatch':
+    'No report is available for batch_id {batchId}. Click "Refresh report" to retry.',
+  'actions.reportRecentFallback': 'Showing last successful report (batch_id: {batchId}).',
   'actions.reportError': 'Report fetch failed: {message}',
   'actions.purgeTitle': 'Purge',
   'actions.purgeHelp': 'Destructive action for a rejected asset. Preview is required before confirm.',
