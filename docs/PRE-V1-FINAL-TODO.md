@@ -11,8 +11,8 @@
 ## Priorités (ordre d'exécution recommandé)
 
 ### P0 (bloquant pre-v1)
-- [ ] Implémenter `Library` (liste ARCHIVED + recherche + page détail partagée review/library).
-- [ ] Stabiliser la navigation: persistance de contexte inter-pages + query params API homogènes.
+- [x] Implémenter `Library` (liste ARCHIVED + recherche + page détail partagée review/library).
+- [x] Stabiliser la navigation: persistance de contexte inter-pages + query params API homogènes.
 - [x] Corriger le modèle d'états domaine pour supporter `ARCHIVED` explicitement.
 - [x] Ajouter tests E2E cross-page critiques (review -> activity -> library -> detail + retour contexte).
 
@@ -64,7 +64,7 @@
 - [ ] Uniformiser les labels de navigation pour éviter collisions UX/a11y/tests.
 - [x] Ajouter des routes explicites `404` / `403` au lieu de redirections silencieuses.
 - [x] Ajouter des tests E2E cross-page (review -> activity -> library -> detail + retour contexte).
-- [ ] Permettre l'ouverture d'un asset en nouvel onglet sans perdre l'état du workspace.
+- [x] Permettre l'ouverture d'un asset en nouvel onglet sans perdre l'état du workspace.
 - [x] Instrumenter les événements de navigation (screen_view + origine des actions).
 
 ## Auth (pre-v1)
@@ -73,7 +73,7 @@
 - [ ] Extraire un layout auth réutilisable (`AuthShell`, `AuthStatusBanner`, `AuthActions`) pour réduire la duplication UI.
 - [ ] Uniformiser la machine d'états async auth (`idle/loading/success/error`) sur tous les sous-flux.
 - [ ] Centraliser le mapping erreurs auth/API (codes, messages, retryabilité) dans un module unique.
-- [ ] Ajouter une garde de navigation en cas de formulaire auth modifié non sauvegardé.
+- [x] Ajouter une garde de navigation en cas de formulaire auth modifié non sauvegardé.
 - [ ] Ajouter des tests d'intégration par sous-flux auth (login, recovery, verify-email, MFA).
 - [ ] Ajouter des tests E2E auth multi-pages avec persistance de session au retour vers review/settings.
 - [ ] Définir une source unique d'état de session (token + user + features) partagée globalement.
