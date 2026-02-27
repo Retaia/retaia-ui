@@ -8,6 +8,7 @@ import { ActionJournalSection } from './ActionJournalSection'
 import { ActionQuickPanelSection } from './ActionQuickPanelSection'
 import { ActionReportSection } from './ActionReportSection'
 import { ActionShortcutsSection } from './ActionShortcutsSection'
+import { BatchExecutionStatusAlerts } from '../review/BatchExecutionStatusAlerts'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import { useQuickFilters } from '../../hooks/useQuickFilters'
 import { useDensityMode } from '../../hooks/useDensityMode'
@@ -165,39 +166,11 @@ export function ActionPanels({
           onExecuteBatchMove={onExecuteBatchMove}
           onCancelPendingBatchExecution={onCancelPendingBatchExecution}
         />
-        {previewStatus ? (
-          <p
-            data-testid="batch-preview-status"
-            role="status"
-            aria-live="polite"
-            className={[
-              'mt-2',
-              'mb-0',
-              previewStatus.kind === 'success' ? 'text-success' : 'text-danger',
-            ].join(' ')}
-          >
-            {previewStatus.message}
-          </p>
-        ) : null}
-        {executeStatus ? (
-          <p
-            data-testid="batch-execute-status"
-            role="status"
-            aria-live="polite"
-            className={[
-              'mt-2',
-              'mb-0',
-              executeStatus.kind === 'success' ? 'text-success' : 'text-danger',
-            ].join(' ')}
-          >
-            {executeStatus.message}
-          </p>
-        ) : null}
-        {retryStatus ? (
-          <p data-testid="api-retry-status" role="status" aria-live="polite" className="small mt-2 mb-0 text-warning">
-            {retryStatus}
-          </p>
-        ) : null}
+        <BatchExecutionStatusAlerts
+          previewStatus={previewStatus}
+          executeStatus={executeStatus}
+          retryStatus={retryStatus}
+        />
         <ActionReportSection
           t={t}
           refreshReportDisabled={availability.refreshReportDisabled}
