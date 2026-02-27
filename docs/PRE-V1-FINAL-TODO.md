@@ -125,4 +125,5 @@
 ## DevEx (pre-v1)
 - [x] Documenter le standard d'architecture (`pages + controller + sections`).
 - [ ] Ajouter un scaffold pour générer une page orchestrée.
+- [x] Ajouter un scaffold pour générer une page orchestrée.
 - [ ] Ajouter une checklist PR dédiée aux refactors UI stateful.
