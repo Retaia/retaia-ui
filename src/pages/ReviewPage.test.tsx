@@ -1381,6 +1381,7 @@ describe('App', () => {
     setupApp()
 
     expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Voir actions avancées' }))
     await user.click(screen.getByRole('button', { name: 'Voir raccourcis' }))
     expect(screen.getByText(/Raccourcis desktop:/)).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Masquer raccourcis' }))
@@ -1418,6 +1419,7 @@ describe('App', () => {
     window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
     setupApp()
 
+    await user.click(screen.getByRole('button', { name: 'Voir actions avancées' }))
     await user.click(screen.getByRole('button', { name: 'Voir raccourcis' }))
     expect(screen.getByTestId('shortcuts-overlay')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Navigation' })).toBeInTheDocument()

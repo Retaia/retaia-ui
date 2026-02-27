@@ -47,7 +47,7 @@
 - [ ] (2) Réduire la duplication visuelle entre les sections review/batch de `/review` (pipeline batch plus lisible).
 - [ ] (3) Améliorer l'expérience empty-state de la section report batch (CTA actionnable + rapport récent quand disponible).
 - [ ] (4) Clarifier les libellés proches (`Ops batch` / `Vue batch` / `Mode batch`) pour accessibilité et lisibilité.
-- [ ] (5) Hiérarchiser `ActionPanels` (actions fréquentes visibles, actions avancées repliables).
+- [x] (5) Hiérarchiser `ActionPanels` (actions fréquentes visibles, actions avancées repliables).
 
 ## Fonctionnel demandé
 - [x] Ajouter une page `Library` listant les assets `ARCHIVED` avec recherche.

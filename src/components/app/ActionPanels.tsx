@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import { Button, Card, Stack } from 'react-bootstrap'
 import {
   BsArrowClockwise,
+  BsChevronDown,
+  BsChevronUp,
   BsTools,
 } from 'react-icons/bs'
 import { ActionBatchSection } from './ActionBatchSection'
@@ -127,6 +130,9 @@ export function ActionPanels({
   onToggleShortcutsHelp,
   onOpenNextPending,
 }: Props) {
+  const [showAdvancedActions, setShowAdvancedActions] = useState(false)
+  const isAdvancedActionsOpen = showShortcutsHelp || showAdvancedActions
+
   return (
     <Card as="section" className="shadow-sm border-0 mt-3">
       <Card.Body>
@@ -225,14 +231,38 @@ export function ActionPanels({
           </p>
         </Stack>
         <ActionJournalSection t={t} activityLog={activityLog} onClearActivityLog={onClearActivityLog} />
-        <ActionShortcutsSection
-          t={t}
-          showShortcutsHelp={showShortcutsHelp}
-          onToggleShortcutsHelp={onToggleShortcutsHelp}
-          onFocusPending={onFocusPending}
-          onToggleBatchOnly={onToggleBatchOnly}
-          onOpenNextPending={onOpenNextPending}
-        />
+        <section className="border rounded p-3 mt-3">
+          <Stack direction="horizontal" className="justify-content-between align-items-center gap-2">
+            <h3 className="h6 mb-0">{t('actions.advancedTitle')}</h3>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline-secondary"
+              onClick={() => setShowAdvancedActions((value) => !value)}
+              aria-expanded={isAdvancedActionsOpen}
+              aria-controls="advanced-actions-panel"
+            >
+              {isAdvancedActionsOpen ? (
+                <BsChevronUp className="me-1" aria-hidden="true" />
+              ) : (
+                <BsChevronDown className="me-1" aria-hidden="true" />
+              )}
+              {isAdvancedActionsOpen ? t('actions.advancedHide') : t('actions.advancedShow')}
+            </Button>
+          </Stack>
+          {isAdvancedActionsOpen ? (
+            <div id="advanced-actions-panel" data-testid="actions-advanced-panel" className="mt-3">
+              <ActionShortcutsSection
+                t={t}
+                showShortcutsHelp={showShortcutsHelp}
+                onToggleShortcutsHelp={onToggleShortcutsHelp}
+                onFocusPending={onFocusPending}
+                onToggleBatchOnly={onToggleBatchOnly}
+                onOpenNextPending={onOpenNextPending}
+              />
+            </div>
+          ) : null}
+        </section>
       </Card.Body>
     </Card>
   )
