@@ -19,7 +19,7 @@
 ### P1 (important pre-v1)
 - [ ] Splitter `useReviewPageController` en sous-hooks métier.
 - [ ] Réduire la duplication visuelle entre les sections review/batch/report intégrées dans `/review`.
-- [ ] Améliorer l'empty-state de la section report batch dans `/review`.
+- [x] Améliorer l'empty-state de la section report batch dans `/review`.
 - [x] Mettre en place gouvernance des raccourcis clavier (registre + règles).
 - [ ] Structurer auth en sous-pages/onglets et sous-controllers.
 
@@ -45,7 +45,7 @@
 ## UX/UI (retours écran)
 - [x] (1) Persister un `workspace state` minimal entre écrans (`filtres`, `batchIds`, sélection) pour éviter la perte de contexte au refresh.
 - [ ] (2) Réduire la duplication visuelle entre les sections review/batch de `/review` (pipeline batch plus lisible).
-- [ ] (3) Améliorer l'expérience empty-state de la section report batch (CTA actionnable + rapport récent quand disponible).
+- [x] (3) Améliorer l'expérience empty-state de la section report batch (CTA actionnable + rapport récent quand disponible).
 - [x] (4) Clarifier les libellés proches (`Ops batch` / `Vue batch` / `Mode batch`) pour accessibilité et lisibilité.
 - [x] (5) Hiérarchiser `ActionPanels` (actions fréquentes visibles, actions avancées repliables).
 
