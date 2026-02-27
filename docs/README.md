@@ -15,6 +15,7 @@
 - `docs/RELEASE-CHECKLIST.md`
 - `docs/UI-QUALITY-RUNBOOK.md`
 - `docs/UI-ACCESSIBILITY.md`
+- `docs/PR-CHECKLIST-UI-STATEFUL-REFACTOR.md`
 - `bdd/features/`
 
 ## Lecture minimale avant de coder

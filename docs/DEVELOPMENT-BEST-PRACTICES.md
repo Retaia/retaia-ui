@@ -172,6 +172,7 @@ Implémentation locale actuelle:
 - Tests ajoutés/ajustés avant merge.
 - Aucun mélange massif feature + refactor + formatting.
 - Commit messages en Conventional Commits.
+- Pour les refactors UI stateful: appliquer la checklist dédiée `docs/PR-CHECKLIST-UI-STATEFUL-REFACTOR.md`.
 
 ## Workflow Git recommandé
 
