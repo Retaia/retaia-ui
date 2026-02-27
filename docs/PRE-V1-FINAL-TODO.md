@@ -123,6 +123,6 @@
 - [ ] Renforcer la stratégie anti-flaky (retries ciblés + artefacts diagnostics).
 
 ## DevEx (pre-v1)
-- [ ] Documenter le standard d'architecture (`pages + controller + sections`).
+- [x] Documenter le standard d'architecture (`pages + controller + sections`).
 - [ ] Ajouter un scaffold pour générer une page orchestrée.
 - [ ] Ajouter une checklist PR dédiée aux refactors UI stateful.

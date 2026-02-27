@@ -177,3 +177,8 @@ Implémentation locale actuelle:
 ## Workflow Git recommandé
 
 - Référence opérationnelle unique: `docs/UI-QUALITY-RUNBOOK.md`.
+
+## Standard architecture de page
+
+- Appliquer le standard `Page + Controller + Sections` pour toute nouvelle page feature ou refactor majeur.
+- Référence détaillée: `docs/PAGE-CONTROLLER-SECTIONS-STANDARD.md`.
