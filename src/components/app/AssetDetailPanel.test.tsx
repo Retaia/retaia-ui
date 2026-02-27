@@ -40,6 +40,8 @@ function renderPanel(
     onRefreshAsset?: () => Promise<void>
     showRefreshAction?: boolean
     onKeywordClick?: (keyword: string) => void
+    onOpenStandaloneDetail?: (assetId: string) => void
+    standaloneHref?: string
   },
 ) {
   const onSaveMetadata = options?.onSaveMetadata ?? vi.fn(async () => {})
@@ -62,6 +64,8 @@ function renderPanel(
       onRefreshAsset={onRefreshAsset}
       showRefreshAction={options?.showRefreshAction ?? false}
       refreshingAsset={false}
+      onOpenStandaloneDetail={options?.onOpenStandaloneDetail}
+      standaloneHref={options?.standaloneHref}
       onKeywordClick={options?.onKeywordClick}
     />,
   )
@@ -222,5 +226,26 @@ describe('AssetDetailPanel media preview', () => {
 
     await user.click(screen.getByRole('button', { name: 'urgent' }))
     expect(onKeywordClick).toHaveBeenCalledWith('urgent')
+  })
+
+  it('renders standalone detail new-tab link with context URL', () => {
+    const onOpenStandaloneDetail = vi.fn()
+    renderPanel(
+      {
+        id: 'A-040',
+        name: 'asset.mov',
+        state: 'DECISION_PENDING',
+        mediaType: 'VIDEO',
+      },
+      {
+        onOpenStandaloneDetail,
+        standaloneHref: '/review/detail/A-040?from=%2Freview%3Fq%3Dasset',
+      },
+    )
+
+    const newTabLink = screen.getByTestId('asset-open-standalone-new-tab')
+    expect(newTabLink).toHaveAttribute('href', '/review/detail/A-040?from=%2Freview%3Fq%3Dasset')
+    expect(newTabLink).toHaveAttribute('target', '_blank')
+    expect(newTabLink).toHaveAttribute('rel', 'noopener noreferrer')
   })
 })

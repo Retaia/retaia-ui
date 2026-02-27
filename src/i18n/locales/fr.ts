@@ -327,6 +327,7 @@ export const frTranslation = {
   'detail.refreshDone': "Détail de l'asset rafraîchi.",
   'detail.refreshError': 'Rafraîchissement asset en échec: {message}',
   'detail.openStandalone': 'Ouvrir page détail',
+  'detail.openStandaloneNewTab': 'Ouvrir dans un nouvel onglet',
   'detail.backToReview': 'Retour à Review',
   'detail.backToActivity': 'Retour à Activité',
   'detail.backToLibrary': 'Retour à Library',

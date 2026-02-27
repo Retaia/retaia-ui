@@ -34,6 +34,7 @@ type Props = {
   onExecutePurge: () => Promise<void>
   onRefreshAsset: () => Promise<void>
   onOpenStandaloneDetail?: (assetId: string) => void
+  standaloneHref?: string
   onKeywordClick?: (keyword: string) => void
   onLoadMoreAssets?: () => Promise<void>
   onMetadataDirtyChange?: (dirty: boolean) => void
@@ -67,6 +68,7 @@ export function ReviewListDetailSection({
   onExecutePurge,
   onRefreshAsset,
   onOpenStandaloneDetail,
+  standaloneHref,
   onKeywordClick,
   onLoadMoreAssets,
   onMetadataDirtyChange,
@@ -107,6 +109,7 @@ export function ReviewListDetailSection({
         showRefreshAction={showRefreshAction}
         refreshingAsset={refreshingAsset}
         onOpenStandaloneDetail={onOpenStandaloneDetail}
+        standaloneHref={standaloneHref}
         onKeywordClick={onKeywordClick}
         onMetadataDirtyChange={onMetadataDirtyChange}
       />

@@ -14,6 +14,13 @@ export function LibraryPage() {
   const controller = useLibraryPageController()
   const [hasUnsavedMetadata, setHasUnsavedMetadata] = useState(false)
   const confirmLeaveIfDirty = useUnsavedChangesGuard(hasUnsavedMetadata, controller.t('detail.unsavedChangesConfirm'))
+  const getStandaloneLibraryDetailHref = (assetId: string) => {
+    const from =
+      typeof window === 'undefined'
+        ? '/library'
+        : `${window.location.pathname}${window.location.search}`
+    return `/library/detail/${assetId}?from=${encodeURIComponent(from)}`
+  }
 
   useEffect(() => {
     persistLastRoute(location.pathname, location.search)
@@ -108,12 +115,9 @@ export function LibraryPage() {
             if (!confirmLeaveIfDirty()) {
               return
             }
-            const from =
-              typeof window === 'undefined'
-                ? '/library'
-                : `${window.location.pathname}${window.location.search}`
-            navigate(`/library/detail/${assetId}?from=${encodeURIComponent(from)}`)
+            navigate(getStandaloneLibraryDetailHref(assetId))
           }}
+          standaloneHref={controller.selectedAsset ? getStandaloneLibraryDetailHref(controller.selectedAsset.id) : undefined}
           onMetadataDirtyChange={setHasUnsavedMetadata}
         />
       </Row>

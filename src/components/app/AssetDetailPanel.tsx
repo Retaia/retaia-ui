@@ -48,6 +48,7 @@ type Props = {
   showDecisionActions?: boolean
   showPurgeActions?: boolean
   onOpenStandaloneDetail?: (assetId: string) => void
+  standaloneHref?: string
   onKeywordClick?: (keyword: string) => void
   onMetadataDirtyChange?: (dirty: boolean) => void
 }
@@ -221,6 +222,7 @@ export function AssetDetailPanel({
   showDecisionActions = true,
   showPurgeActions = true,
   onOpenStandaloneDetail,
+  standaloneHref,
   onKeywordClick,
   onMetadataDirtyChange,
 }: Props) {
@@ -277,17 +279,34 @@ export function AssetDetailPanel({
                   </p>
                 </section>
               ) : null}
-              {onOpenStandaloneDetail ? (
+              {onOpenStandaloneDetail || standaloneHref ? (
                 <div className="mb-3">
-                  <Button
-                    type="button"
-                    variant="outline-secondary"
-                    size="sm"
-                    data-testid="asset-open-standalone"
-                    onClick={() => onOpenStandaloneDetail(selectedAsset.id)}
-                  >
-                    {t('detail.openStandalone')}
-                  </Button>
+                  <Stack direction="horizontal" className="gap-2 flex-wrap">
+                    {onOpenStandaloneDetail ? (
+                      <Button
+                        type="button"
+                        variant="outline-secondary"
+                        size="sm"
+                        data-testid="asset-open-standalone"
+                        onClick={() => onOpenStandaloneDetail(selectedAsset.id)}
+                      >
+                        {t('detail.openStandalone')}
+                      </Button>
+                    ) : null}
+                    {standaloneHref ? (
+                      <Button
+                        as="a"
+                        href={standaloneHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        variant="outline-secondary"
+                        size="sm"
+                        data-testid="asset-open-standalone-new-tab"
+                      >
+                        {t('detail.openStandaloneNewTab')}
+                      </Button>
+                    ) : null}
+                  </Stack>
                 </div>
               ) : null}
               {showDecisionActions && onDecision ? (

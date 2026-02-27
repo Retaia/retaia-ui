@@ -53,6 +53,13 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
   }, [isScrollableView])
   const [hasUnsavedMetadata, setHasUnsavedMetadata] = useState(false)
   const confirmLeaveIfDirty = useUnsavedChangesGuard(hasUnsavedMetadata, controller.t('detail.unsavedChangesConfirm'))
+  const getStandaloneReviewDetailHref = (assetId: string) => {
+    const from =
+      typeof window === 'undefined'
+        ? '/review'
+        : `${window.location.pathname}${window.location.search}`
+    return `/review/detail/${assetId}?from=${encodeURIComponent(from)}`
+  }
 
   return (
     <Container as="main" className="py-4">
@@ -236,12 +243,9 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
             if (!confirmLeaveIfDirty()) {
               return
             }
-            const from =
-              typeof window === 'undefined'
-                ? '/review'
-                : `${window.location.pathname}${window.location.search}`
-            navigate(`/review/detail/${assetId}?from=${encodeURIComponent(from)}`)
+            navigate(getStandaloneReviewDetailHref(assetId))
           }}
+          standaloneHref={controller.selectedAsset ? getStandaloneReviewDetailHref(controller.selectedAsset.id) : undefined}
           onKeywordClick={controller.onKeywordClick}
           onLoadMoreAssets={controller.loadMoreAssets}
           onMetadataDirtyChange={setHasUnsavedMetadata}
