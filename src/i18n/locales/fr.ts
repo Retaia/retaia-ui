@@ -17,6 +17,7 @@ export const frTranslation = {
   'app.apiConnectionEnvLocked':
     'Configuration API verrouillée par des variables d’environnement.',
   'app.apiConnectionSubtitle': 'Gestion de session et connectivité API',
+  'app.backToContext': 'Retour à {context}',
   'app.backToReview': 'Retour à Review',
   'app.apiBaseUrlLabel': 'Base URL API',
   'app.authTitle': 'Authentification utilisateur',
@@ -328,9 +329,6 @@ export const frTranslation = {
   'detail.refreshError': 'Rafraîchissement asset en échec: {message}',
   'detail.openStandalone': 'Ouvrir page détail',
   'detail.openStandaloneNewTab': 'Ouvrir dans un nouvel onglet',
-  'detail.backToReview': 'Retour à Review',
-  'detail.backToActivity': 'Retour à Activité',
-  'detail.backToLibrary': 'Retour à Library',
   'detail.breadcrumbArchived': 'ARCHIVED',
   'detail.unsavedChangesConfirm': 'Tu as des modifications metadata non sauvegardées. Quitter quand même ?',
   'detail.loading': "Chargement du détail...",

@@ -17,6 +17,7 @@ export const enTranslation = {
   'app.apiConnectionEnvLocked':
     'API config is locked by environment variables.',
   'app.apiConnectionSubtitle': 'Session management and API connectivity',
+  'app.backToContext': 'Back to {context}',
   'app.backToReview': 'Back to review',
   'app.apiBaseUrlLabel': 'API base URL',
   'app.authTitle': 'User authentication',
@@ -328,9 +329,6 @@ export const enTranslation = {
   'detail.refreshError': 'Asset refresh failed: {message}',
   'detail.openStandalone': 'Open detail page',
   'detail.openStandaloneNewTab': 'Open in new tab',
-  'detail.backToReview': 'Back to review',
-  'detail.backToActivity': 'Back to activity',
-  'detail.backToLibrary': 'Back to library',
   'detail.breadcrumbArchived': 'ARCHIVED',
   'detail.unsavedChangesConfirm': 'You have unsaved metadata changes. Leave this page anyway?',
   'detail.loading': 'Loading detail...',

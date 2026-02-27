@@ -61,7 +61,7 @@ export function AuthPage() {
               }
             }}
           >
-            {t('app.backToReview')}
+            {t('app.backToContext', { context: t('app.nav.review') })}
           </Button>
         </div>
       </div>
