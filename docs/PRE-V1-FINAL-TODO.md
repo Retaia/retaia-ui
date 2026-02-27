@@ -46,7 +46,7 @@
 - [x] (1) Persister un `workspace state` minimal entre écrans (`filtres`, `batchIds`, sélection) pour éviter la perte de contexte au refresh.
 - [ ] (2) Réduire la duplication visuelle entre les sections review/batch de `/review` (pipeline batch plus lisible).
 - [x] (3) Améliorer l'expérience empty-state de la section report batch (CTA actionnable + rapport récent quand disponible).
-- [ ] (4) Clarifier les libellés proches (`Ops batch` / `Vue batch` / `Mode batch`) pour accessibilité et lisibilité.
+- [x] (4) Clarifier les libellés proches (`Ops batch` / `Vue batch` / `Mode batch`) pour accessibilité et lisibilité.
 - [x] (5) Hiérarchiser `ActionPanels` (actions fréquentes visibles, actions avancées repliables).
 
 ## Fonctionnel demandé
