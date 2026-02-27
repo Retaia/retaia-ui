@@ -58,14 +58,14 @@
 ## Navigation (pre-v1)
 - [ ] Uniformiser la navigation contextuelle via query params API (filtres/recherche/tri) et retour fiable.
 - [x] Ajouter une navigation secondaire/breadcrumbs (`Review > Asset ...`, `Library > Archived > Asset ...`).
-- [ ] Persister le contexte inter-pages (`last route`, filtres actifs, scroll list, sélection courante).
+- [x] Persister le contexte inter-pages (`last route`, filtres actifs, scroll list, sélection courante).
 - [x] Rendre le comportement du bouton `Back` déterministe (retour liste vs écran précédent).
-- [ ] Ajouter une garde de navigation en cas d'édition metadata non sauvegardée.
+- [x] Ajouter une garde de navigation en cas d'édition metadata non sauvegardée.
 - [ ] Uniformiser les labels de navigation pour éviter collisions UX/a11y/tests.
-- [ ] Ajouter des routes explicites `404` / `403` au lieu de redirections silencieuses.
+- [x] Ajouter des routes explicites `404` / `403` au lieu de redirections silencieuses.
 - [x] Ajouter des tests E2E cross-page (review -> activity -> library -> detail + retour contexte).
 - [ ] Permettre l'ouverture d'un asset en nouvel onglet sans perdre l'état du workspace.
-- [ ] Instrumenter les événements de navigation (screen_view + origine des actions).
+- [x] Instrumenter les événements de navigation (screen_view + origine des actions).
 
 ## Auth (pre-v1)
 - [ ] Extraire la logique auth en sous-controllers clairs (`session`, `recovery`, `verify-email`, `mfa`, `api-connection`) avec contrats stables.
@@ -118,8 +118,8 @@
 - [ ] Gérer permissions/403 par écran avec fallback explicite.
 
 ## Qualité & Tests (pre-v1)
-- [ ] Ajouter des tests visuels pour les pages critiques (`/review`, `/activity`, `/library`, `/auth`, `/settings`, détail standalone).
-- [ ] Ajouter des tests E2E pour les nouveaux parcours de navigation.
+- [x] Ajouter des tests visuels pour les pages critiques (`/review`, `/activity`, `/library`, `/auth`, `/settings`, détail standalone).
+- [x] Ajouter des tests E2E pour les nouveaux parcours de navigation.
 - [ ] Renforcer la stratégie anti-flaky (retries ciblés + artefacts diagnostics).
 
 ## DevEx (pre-v1)
