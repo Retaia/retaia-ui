@@ -871,6 +871,9 @@ span.flatpickr-weekday,
 }
 
 .retaia-nav-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   border: 1px solid var(--color-gray-200);
   background: #fff;
   color: var(--color-gray-700);
@@ -895,6 +898,19 @@ span.flatpickr-weekday,
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.retaia-shell__admin-label {
+  width: 100%;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-gray-500);
+}
+
+.retaia-admin-button {
+  justify-content: flex-start;
 }
 
 .retaia-shell__lang {
@@ -935,6 +951,10 @@ span.flatpickr-weekday,
     flex-direction: column;
   }
 
+  .retaia-admin-button {
+    width: 100%;
+  }
+
   .retaia-shell__lang {
     justify-content: flex-start;
   }
@@ -942,6 +962,10 @@ span.flatpickr-weekday,
   .retaia-shell__content {
     padding: 1.25rem 1.5rem;
   }
+}
+
+.retaia-nav-button__icon {
+  flex-shrink: 0;
 }
 
 .btn {

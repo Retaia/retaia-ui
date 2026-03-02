@@ -1,5 +1,12 @@
 import type { ReactNode } from 'react'
-import { BsFlagFill, BsGlobe2 } from 'react-icons/bs'
+import {
+  BsArchiveFill,
+  BsFlagFill,
+  BsGearFill,
+  BsGlobe2,
+  BsShieldLockFill,
+  BsXOctagonFill,
+} from 'react-icons/bs'
 import type { Locale } from '../../i18n/resources'
 import { reportUiNavigationAction } from '../../ui/telemetry'
 
@@ -36,18 +43,21 @@ export function AppHeader({
   const navItems = [
     {
       id: 'workspace',
+      icon: BsShieldLockFill,
       label: t('app.nav.review'),
       onClick: () => trackNavigationAction('sidebar:review', '/review', onOpenReview),
     },
     {
-      id: 'activity',
-      label: t('app.nav.activity'),
-      onClick: () => trackNavigationAction('sidebar:activity', '/activity', onOpenActivity),
-    },
-    {
       id: 'library',
+      icon: BsArchiveFill,
       label: t('app.nav.library'),
       onClick: () => trackNavigationAction('sidebar:library', '/library', onOpenLibrary),
+    },
+    {
+      id: 'activity',
+      icon: BsXOctagonFill,
+      label: t('app.nav.rejects'),
+      onClick: () => trackNavigationAction('sidebar:activity', '/activity', onOpenActivity),
     },
   ] as const
 
@@ -77,24 +87,28 @@ export function AppHeader({
               className={currentView === item.id ? 'retaia-nav-button is-active' : 'retaia-nav-button'}
               onClick={item.onClick}
             >
+              <item.icon className="retaia-nav-button__icon" aria-hidden="true" />
               {item.label}
             </button>
           ))}
         </nav>
 
         <div className="retaia-shell__sidebar-footer">
+          <div className="retaia-shell__admin-label">{t('app.adminMenu')}</div>
           <button
             type="button"
-            className="btn btn-outline-secondary btn-sm"
+            className="btn btn-outline-secondary btn-sm retaia-admin-button"
             onClick={() => trackNavigationAction('sidebar:settings', '/settings', onOpenSettings)}
           >
+            <BsGearFill className="retaia-nav-button__icon" aria-hidden="true" />
             {t('settings.openSettings')}
           </button>
           <button
             type="button"
-            className="btn btn-outline-secondary btn-sm"
+            className="btn btn-outline-secondary btn-sm retaia-admin-button"
             onClick={() => trackNavigationAction('sidebar:auth', '/auth', onOpenAuth)}
           >
+            <BsShieldLockFill className="retaia-nav-button__icon" aria-hidden="true" />
             {t('settings.openAuth')}
           </button>
           <div className="retaia-shell__lang" aria-label={t('app.language')}>
