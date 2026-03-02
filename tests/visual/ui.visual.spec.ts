@@ -38,7 +38,7 @@ test('batch and activity state baseline', async ({ page }) => {
   await page.getByText('interview-camera-a.mov').first().click()
   await page.getByText('behind-the-scenes.jpg').first().click()
   await page.keyboard.up('Shift')
-  await page.getByRole('button', { name: 'KEEP batch' }).click()
+  await page.getByRole('button', { name: 'Conserver batch' }).click()
   await expect(page.locator('main')).toHaveScreenshot('batch-activity-state.png')
 })
 
