@@ -35,7 +35,7 @@ Feature: Parcours critiques de review
     And je clique sur le bouton "Exécuter batch"
     And j'appuie sur la touche "Shift+Enter"
     Then le message "Exécution du batch acceptée" est visible
-    And le rapport batch affiche le statut "DONE"
+    And le rapport batch affiche le statut "Terminé"
 
   @critical
   Scenario: Changer la langue vers l'anglais
@@ -70,11 +70,11 @@ Feature: Parcours critiques de review
     And le testid "standalone-detail-breadcrumb" contient "Activité"
     When je clique sur le bouton "Retour à Activité"
     Then l'URL courante contient "/activity"
-    When je clique sur le bouton "Library"
+    When je clique sur le bouton "Bibliothèque"
     Then l'URL courante contient "/library"
     Given je suis sur la page "/library/detail/A-002?from=%2Flibrary"
     Then l'URL courante contient "/library/detail/A-002"
-    And le testid "standalone-detail-breadcrumb" contient "Library"
+    And le testid "standalone-detail-breadcrumb" contient "Bibliothèque"
     And le testid "standalone-detail-breadcrumb" contient "Archivés"
     When je clique sur le bouton "Retour à Library"
     Then l'URL courante contient "/library"

@@ -4,6 +4,8 @@ import { APP_URL, getBrowserRuntime, mockApiState, requireBddMockApiMode } from 
 
 const getPage = () => getBrowserRuntime().page
 
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
 Given("je suis sur la page d'accueil", async () => {
   await getPage().goto(APP_URL, { waitUntil: 'networkidle' })
 })
@@ -46,7 +48,7 @@ Then('le batch sélectionné affiche {int}', async (size: number) => {
 When('je rejette le premier asset de la liste', async () => {
   const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
   const firstRow = assetsPanel.locator('li.list-group-item').first()
-  await firstRow.getByRole('button', { name: 'REJECT' }).click()
+  await firstRow.getByRole('button', { name: /^(REJECT|Reject|Rejeter)$/i }).click()
 })
 
 Then('l\'état {string} est visible', async (stateLabel: string) => {
@@ -177,7 +179,16 @@ Then('le statut d\'exécution contient {string}', async (text: string) => {
 })
 
 Then('le rapport batch affiche le statut {string}', async (status: string) => {
-  await expect(getPage().getByTestId('batch-report-status-value')).toHaveText(status)
+  const normalized = status.trim().toUpperCase()
+  const aliases: Record<string, string[]> = {
+    DONE: ['DONE', 'Done', 'Terminé'],
+    PARTIAL: ['PARTIAL', 'Partial', 'Partiel'],
+    FAILED: ['FAILED', 'Failed', 'Échec'],
+    UNKNOWN: ['UNKNOWN', 'Unknown', 'Inconnu'],
+  }
+  const expectedValues = aliases[normalized] ?? [status]
+  const expectedPattern = new RegExp(`^(?:${expectedValues.map(escapeRegExp).join('|')})$`, 'i')
+  await expect(getPage().getByTestId('batch-report-status-value')).toHaveText(expectedPattern)
 })
 
 Then('le rapport batch affiche {int} assets déplacés', async (count: number) => {

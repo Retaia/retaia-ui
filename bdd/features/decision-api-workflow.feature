@@ -8,7 +8,7 @@ Feature: Workflow décision API
     When je clique sur l'asset "A-001"
     And j'appuie sur la touche "v"
     Then l'état "A-001 - Rejeté" est visible
-    And le message "Décision REJECT enregistrée" est visible
+    And le message "Décision Rejeter enregistrée" est visible
 
   Scenario: Conflit d'état sur une décision API
     Given le mock API retourne STATE_CONFLICT sur la décision asset

@@ -14,7 +14,7 @@ Feature: Workflow batch API
     And je clique sur le bouton "Exécuter maintenant"
     Then le statut d'exécution contient "acceptée"
     When je clique sur le bouton "Rafraîchir rapport"
-    Then le rapport batch affiche le statut "DONE"
+    Then le rapport batch affiche le statut "Terminé"
     And le rapport batch affiche 2 assets déplacés
     And le rapport batch affiche 0 assets en échec
 
@@ -25,7 +25,7 @@ Feature: Workflow batch API
     And je clique sur le bouton "Exécuter batch"
     And je clique sur le bouton "Exécuter maintenant"
     Then le statut d'exécution contient "acceptée"
-    And le rapport batch affiche le statut "DONE"
+    And le rapport batch affiche le statut "Terminé"
 
   Scenario: Fast-path desktop avec filtre batch-only puis exécution
     Given je suis sur la page d'accueil
@@ -36,7 +36,7 @@ Feature: Workflow batch API
     When je clique sur le bouton "Exécuter batch"
     And je clique sur le bouton "Exécuter maintenant"
     Then le statut d'exécution contient "acceptée"
-    And le rapport batch affiche le statut "DONE"
+    And le rapport batch affiche le statut "Terminé"
 
   Scenario: Exporter le rapport batch en JSON et CSV
     Given je suis sur la page d'accueil
