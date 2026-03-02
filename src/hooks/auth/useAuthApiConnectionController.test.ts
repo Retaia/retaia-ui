@@ -2,6 +2,11 @@ import { act, renderHook } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAuthApiConnectionController } from './useAuthApiConnectionController'
 import { useState } from 'react'
+import { formatLocalizedDateTime } from '../../services/dateTime'
+
+vi.mock('../../services/dateTime', () => ({
+  formatLocalizedDateTime: vi.fn((value: string) => value),
+}))
 
 describe('useAuthApiConnectionController', () => {
   beforeEach(() => {
@@ -104,6 +109,7 @@ describe('useAuthApiConnectionController', () => {
   })
 
   it('returns degraded success status when self-healing is active', async () => {
+    vi.mocked(formatLocalizedDateTime).mockReturnValueOnce('2 Mar 2026, 12:00')
     const apiClient = {
       getHealth: vi.fn().mockResolvedValue({
         status: 'degraded',
@@ -138,7 +144,14 @@ describe('useAuthApiConnectionController', () => {
     })
 
     expect(result.current.status?.kind).toBe('success')
-    expect(result.current.status?.message).toContain('app.apiConnectionTestOkDegraded:')
-    expect(result.current.status?.message).not.toContain('2026-03-02T12:00:00Z')
+    expect(result.current.status?.message).toBe('app.apiConnectionTestOkDegraded:2 Mar 2026, 12:00')
+    expect(formatLocalizedDateTime).toHaveBeenCalledWith(
+      '2026-03-02T12:00:00Z',
+      'en-GB',
+      expect.objectContaining({
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      }),
+    )
   })
 })

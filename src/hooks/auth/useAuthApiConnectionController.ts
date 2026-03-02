@@ -1,23 +1,13 @@
 import { useCallback } from 'react'
 import { type ApiClient } from '../../api/client'
 import { mapApiErrorToMessage } from '../../api/errorMapping'
+import { formatLocalizedDateTime } from '../../services/dateTime'
 
 type Translator = (key: string, options?: Record<string, unknown>) => string
 
 type ApiConnectionStatus = {
   kind: 'success' | 'error'
   message: string
-}
-
-function formatLocalizedDeadline(deadline: string, locale: string) {
-  const timestamp = Date.parse(deadline)
-  if (!Number.isFinite(timestamp)) {
-    return deadline
-  }
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(timestamp))
 }
 
 export function useAuthApiConnectionController(args: {
@@ -75,7 +65,10 @@ export function useAuthApiConnectionController(args: {
         message:
           degradedSelfHealingDeadline !== null
             ? t('app.apiConnectionTestOkDegraded', {
-              deadline: formatLocalizedDeadline(degradedSelfHealingDeadline, resolvedLocale),
+              deadline: formatLocalizedDateTime(degradedSelfHealingDeadline, resolvedLocale, {
+                dateStyle: 'medium',
+                timeStyle: 'short',
+              }),
             })
             : t('app.apiConnectionTestOk'),
       })
