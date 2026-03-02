@@ -9,6 +9,7 @@ import type {
   AuthLoginResponse,
   AuthLostPasswordResetPayload,
   AuthTokenPayload,
+  HealthResponse,
   ListAssetsQuery,
   ListAssetsResponse,
   MoveExecutePayload,
@@ -25,6 +26,7 @@ import {
   parseAssetSummariesResponse,
   parseAuth2faSetupResponse,
   parseCurrentUserResponse,
+  parseHealthResponse,
   parseMoveExecuteResponse,
   parseMoveReportResponse,
   parseUserFeaturesResponse,
@@ -45,6 +47,12 @@ export function createApiClient(
   return {
     listAssets: (query?: ListAssetsQuery) =>
       request<ListAssetsResponse>(`/assets${buildQueryString(query)}`),
+
+    getHealth: async () => {
+      const path = '/ops/readiness'
+      const result = await request<unknown>(path)
+      return parseHealthResponse(result, path) as HealthResponse
+    },
 
     listAssetSummaries: async (query?: ListAssetsQuery) => {
       const path = `/assets${buildQueryString(query)}`

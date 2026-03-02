@@ -3,6 +3,8 @@ import type { components, paths } from './generated/openapi'
 export type ListAssetsQuery = NonNullable<paths['/assets']['get']['parameters']['query']>
 export type ListAssetsResponse =
   paths['/assets']['get']['responses'][200]['content']['application/json']
+export type HealthResponse =
+  paths['/ops/readiness']['get']['responses'][200]['content']['application/json']
 export type AssetSummary = components['schemas']['AssetSummary']
 export type AssetDetail =
   paths['/assets/{uuid}']['get']['responses'][200]['content']['application/json']

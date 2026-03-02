@@ -9,7 +9,7 @@ import { useApiClient } from './useApiClient'
 import { useAuthFeatureGovernance } from './auth/useAuthFeatureGovernance'
 
 export function useAuthPageController() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const {
     retryStatus,
     apiTokenInput,
@@ -108,6 +108,7 @@ export function useAuthPageController() {
   } = useAuthApiConnectionController({
     apiClient,
     t,
+    locale: i18n.resolvedLanguage ?? undefined,
     apiBaseUrlInput,
     setApiBaseUrlInput,
     setApiConnectionStatus,

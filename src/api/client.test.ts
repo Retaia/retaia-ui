@@ -167,6 +167,31 @@ describe('api client', () => {
     expect(user.mfa_enabled).toBe(true)
   })
 
+  it('loads health payload with self-healing fields', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          status: 'degraded',
+          self_healing: {
+            active: true,
+            deadline_at: '2026-03-02T12:00:00Z',
+            max_self_healing_seconds: 300,
+          },
+          checks: [],
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    const health = await api.getHealth()
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/ops/readiness', expect.any(Object))
+    expect(health.status).toBe('degraded')
+    expect(health.self_healing.active).toBe(true)
+    expect(health.self_healing.max_self_healing_seconds).toBe(300)
+  })
+
   it('throws validation error when current user payload has no email', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify({ display_name: 'User' }), {

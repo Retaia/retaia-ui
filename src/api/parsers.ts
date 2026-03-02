@@ -2,6 +2,7 @@ import type { z } from 'zod'
 import { ApiError } from './errors'
 import type {
   AppFeaturesResponse,
+  HealthResponse,
   AppPolicyResponse,
   AssetDetail,
   AssetSummary,
@@ -12,6 +13,7 @@ import type {
 } from './contracts'
 import {
   appFeaturesResponseSchema,
+  healthResponseSchema,
   appPolicyResponseSchema,
   assetDetailResponseSchema,
   auth2faSetupResponseSchema,
@@ -105,6 +107,15 @@ export function parseAppFeaturesResponse(payload: unknown, path: string) {
     path,
     'expected feature payload object',
   ) as AppFeaturesResponse
+}
+
+export function parseHealthResponse(payload: unknown, path: string) {
+  return parseWithSchema(
+    healthResponseSchema,
+    payload,
+    path,
+    'expected health payload object',
+  ) as HealthResponse
 }
 
 export function parseCurrentUserResponse(payload: unknown, path: string) {

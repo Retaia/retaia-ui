@@ -161,6 +161,10 @@ describe('in-memory mock db for APP_ENV=test', () => {
     })
     expect(updatedAppFeatures.app_feature_enabled['features.auth.2fa']).toBe(false)
 
+    const health = await api.getHealth()
+    expect(health.status).toBe('ok')
+    expect(health.self_healing.active).toBe(false)
+
     const unknownResponse = await mockFetch('/api/v1/unknown-endpoint', {
       method: 'GET',
       headers: { Authorization: 'Bearer test-token-memory' },

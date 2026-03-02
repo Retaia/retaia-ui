@@ -104,6 +104,10 @@ export const enTranslation = {
   'app.apiConnectionSaveError': 'Unable to persist API configuration.',
   'app.apiConnectionAuthError': 'API authentication failed (401/403).',
   'app.apiConnectionTestOk': 'API connection is valid.',
+  'app.apiConnectionTestOkDegraded':
+    'API connection is valid (degraded mode with self-healing active until {deadline}).',
+  'app.apiConnectionHealthDown':
+    'API is unavailable (status down). Verify startup migration and retry.',
   'app.apiConnectionTestError': 'API connection test failed: {message}',
   'settings.title': 'Settings',
   'settings.subtitle': 'Runtime UI settings and API connectivity',
