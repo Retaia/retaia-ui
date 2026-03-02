@@ -260,8 +260,8 @@ export const enTranslation = {
   'actions.reportEmptyHintNoBatch':
     'Run a batch first, then click "Refresh report" to load results.',
   'actions.reportEmptyHintWithBatch':
-    'No report is available for batch_id {batchId}. Click "Refresh report" to retry.',
-  'actions.reportRecentFallback': 'Showing last successful report (batch_id: {batchId}).',
+    'No report is available for batch {batchId}. Click "Refresh report" to retry.',
+  'actions.reportRecentFallback': 'Showing last successful report (batch {batchId}).',
   'actions.reportError': 'Report fetch failed: {message}',
   'actions.purgeTitle': 'Purge',
   'actions.purgeHelp': 'Destructive action for a rejected asset. Preview is required before confirm.',
@@ -323,7 +323,7 @@ export const enTranslation = {
   'assets.loadingMore': 'Loading...',
   'detail.region': 'Asset detail',
   'detail.title': 'Detail',
-  'detail.id': 'ID: {id}',
+  'detail.id': 'Identifier: {id}',
   'detail.state': 'State: {state}',
   'detail.previewTitle': 'Media preview',
   'detail.previewUnavailable': 'Preview unavailable for this asset.',

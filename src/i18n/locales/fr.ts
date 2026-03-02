@@ -260,8 +260,8 @@ export const frTranslation = {
   'actions.reportEmptyHintNoBatch':
     'Exécute un batch puis clique sur "Rafraîchir rapport" pour charger le résultat.',
   'actions.reportEmptyHintWithBatch':
-    'Aucun rapport disponible pour batch_id {batchId}. Clique sur "Rafraîchir rapport" pour réessayer.',
-  'actions.reportRecentFallback': 'Dernier rapport réussi affiché (batch_id: {batchId}).',
+    'Aucun rapport disponible pour le batch {batchId}. Clique sur "Rafraîchir rapport" pour réessayer.',
+  'actions.reportRecentFallback': 'Dernier rapport réussi affiché (batch {batchId}).',
   'actions.reportError': 'Chargement rapport en échec: {message}',
   'actions.purgeTitle': 'Purge',
   'actions.purgeHelp': "Action destructive pour un asset rejeté. Prévisualisation obligatoire avant confirmation.",
@@ -323,7 +323,7 @@ export const frTranslation = {
   'assets.loadingMore': 'Chargement...',
   'detail.region': "Détail de l'asset",
   'detail.title': 'Détail',
-  'detail.id': 'ID: {id}',
+  'detail.id': 'Identifiant: {id}',
   'detail.state': 'État: {state}',
   'detail.previewTitle': 'Aperçu média',
   'detail.previewUnavailable': 'Aperçu indisponible pour cet asset.',

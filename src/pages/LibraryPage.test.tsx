@@ -20,7 +20,7 @@ describe('LibraryPage', () => {
 
     const detail = await screen.findByLabelText("Détail de l'asset")
     expect(within(detail).getByText('ambiance-plateau.wav')).toBeInTheDocument()
-    expect(within(detail).getByText('ID: A-002')).toBeInTheDocument()
+    expect(within(detail).getByText('Identifiant: A-002')).toBeInTheDocument()
   })
 
   it('restores selected asset from persisted workspace context', async () => {

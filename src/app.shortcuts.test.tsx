@@ -8,7 +8,7 @@ describe('App keyboard shortcuts', () => {
 
     await user.keyboard('n')
 
-    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
+    expect(within(getDetailPanel()).getByText('Identifiant: A-001')).toBeInTheDocument()
   })
 
   it('opens first visible asset with Enter shortcut', async () => {
@@ -16,7 +16,7 @@ describe('App keyboard shortcuts', () => {
 
     await user.keyboard('{Enter}')
 
-    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
+    expect(within(getDetailPanel()).getByText('Identifiant: A-001')).toBeInTheDocument()
   })
 
   it('navigates visible assets with j and k shortcuts', async () => {
@@ -24,20 +24,20 @@ describe('App keyboard shortcuts', () => {
 
     await user.keyboard('j')
     await user.keyboard('j')
-    expect(within(getDetailPanel()).getByText('ID: A-002')).toBeInTheDocument()
+    expect(within(getDetailPanel()).getByText('Identifiant: A-002')).toBeInTheDocument()
 
     await user.keyboard('k')
-    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
+    expect(within(getDetailPanel()).getByText('Identifiant: A-001')).toBeInTheDocument()
   })
 
   it('jumps to first and last visible asset with Home and End', async () => {
     const { user } = setupApp()
 
     await user.keyboard('{End}')
-    expect(within(getDetailPanel()).getByText('ID: A-003')).toBeInTheDocument()
+    expect(within(getDetailPanel()).getByText('Identifiant: A-003')).toBeInTheDocument()
 
     await user.keyboard('{Home}')
-    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
+    expect(within(getDetailPanel()).getByText('Identifiant: A-001')).toBeInTheDocument()
   })
 
   it('toggles selected asset in batch with Shift+Space', async () => {
@@ -63,7 +63,7 @@ describe('App keyboard shortcuts', () => {
     const { user } = setupApp()
 
     await user.keyboard('{Enter}')
-    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
+    expect(within(getDetailPanel()).getByText('Identifiant: A-001')).toBeInTheDocument()
 
     await user.keyboard('{Escape}')
     expect(within(getDetailPanel()).getByText('Clique un asset pour ouvrir le détail.')).toBeInTheDocument()

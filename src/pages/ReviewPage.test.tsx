@@ -67,7 +67,7 @@ describe('App', () => {
     await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
 
     expect(within(getDetailPanel()).getByText('behind-the-scenes.jpg')).toBeInTheDocument()
-    expect(within(getDetailPanel()).getByText('ID: A-003')).toBeInTheDocument()
+    expect(within(getDetailPanel()).getByText('Identifiant: A-003')).toBeInTheDocument()
   })
 
   it('restores selected asset from persisted workspace context', async () => {
@@ -1131,7 +1131,7 @@ describe('App', () => {
     await user.keyboard('n')
 
     expect(screen.getByRole('heading', { name: 'Assets (3)' })).toBeInTheDocument()
-    expect(within(getDetailPanel()).getByText('ID: A-001')).toBeInTheDocument()
+    expect(within(getDetailPanel()).getByText('Identifiant: A-001')).toBeInTheDocument()
   })
 
 
