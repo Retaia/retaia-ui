@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Container } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AppHeader } from '../components/app/AppHeader'
 import { ActivitySection } from '../components/review/ActivitySection'
@@ -62,39 +61,37 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
   }
 
   return (
-    <Container as="main" className="py-4">
-      <AppHeader
-        locale={controller.locale}
-        t={controller.t}
-        currentView={view === 'activity' ? 'activity' : 'workspace'}
-        onOpenSettings={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/settings')
-          }
-        }}
-        onOpenAuth={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/auth')
-          }
-        }}
-        onOpenReview={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/review')
-          }
-        }}
-        onOpenActivity={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/activity')
-          }
-        }}
-        onOpenLibrary={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/library')
-          }
-        }}
-        onChangeLanguage={controller.onChangeLanguage}
-      />
-
+    <AppHeader
+      locale={controller.locale}
+      t={controller.t}
+      currentView={view === 'activity' ? 'activity' : 'workspace'}
+      onOpenSettings={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/settings')
+        }
+      }}
+      onOpenAuth={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/auth')
+        }
+      }}
+      onOpenReview={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/review')
+        }
+      }}
+      onOpenActivity={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/activity')
+        }
+      }}
+      onOpenLibrary={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/library')
+        }
+      }}
+      onChangeLanguage={controller.onChangeLanguage}
+    >
       {(controller.isWorkspaceView || controller.isBatchView) ? (
         <ReviewOverviewSection
           t={controller.t}
@@ -255,7 +252,7 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           onMetadataDirtyChange={setHasUnsavedMetadata}
         />
       ) : null}
-    </Container>
+    </AppHeader>
   )
 }
 

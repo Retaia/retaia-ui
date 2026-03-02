@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Breadcrumb, Button, Container, Row } from 'react-bootstrap'
+import { Breadcrumb, Button } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AppHeader } from '../components/app/AppHeader'
 import { AssetDetailPanel } from '../components/app/AssetDetailPanel'
@@ -33,39 +33,37 @@ export function StandaloneAssetDetailPage({ context }: Props) {
   const backButtonLabel = controller.t('app.backToContext', { context: backContextLabel })
 
   return (
-    <Container as="main" className="py-4">
-      <AppHeader
-        locale={controller.locale}
-        t={controller.t}
-        currentView={currentView}
-        onOpenSettings={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/settings')
-          }
-        }}
-        onOpenAuth={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/auth')
-          }
-        }}
-        onOpenReview={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/review')
-          }
-        }}
-        onOpenActivity={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/activity')
-          }
-        }}
-        onOpenLibrary={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/library')
-          }
-        }}
-        onChangeLanguage={controller.onChangeLanguage}
-      />
-
+    <AppHeader
+      locale={controller.locale}
+      t={controller.t}
+      currentView={currentView}
+      onOpenSettings={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/settings')
+        }
+      }}
+      onOpenAuth={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/auth')
+        }
+      }}
+      onOpenReview={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/review')
+        }
+      }}
+      onOpenActivity={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/activity')
+        }
+      }}
+      onOpenLibrary={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/library')
+        }
+      }}
+      onChangeLanguage={controller.onChangeLanguage}
+    >
       <Button
         type="button"
         variant="outline-secondary"
@@ -124,7 +122,7 @@ export function StandaloneAssetDetailPage({ context }: Props) {
         <p className="small text-danger mt-3">{controller.t('detail.notFound')}</p>
       ) : null}
 
-      <Row className="g-3 mt-1 justify-content-center">
+      <section className="row g-3 mt-1 justify-content-center">
         <AssetDetailPanel
           selectedAsset={controller.selectedAsset}
           decisionStatus={null}
@@ -136,7 +134,7 @@ export function StandaloneAssetDetailPage({ context }: Props) {
           showPurgeActions={false}
           onMetadataDirtyChange={setHasUnsavedMetadata}
         />
-      </Row>
-    </Container>
+      </section>
+    </AppHeader>
   )
 }

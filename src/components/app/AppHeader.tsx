@@ -1,4 +1,4 @@
-import { Button, Stack } from 'react-bootstrap'
+import type { ReactNode } from 'react'
 import { BsFlagFill, BsGlobe2 } from 'react-icons/bs'
 import type { Locale } from '../../i18n/resources'
 import { reportUiNavigationAction } from '../../ui/telemetry'
@@ -13,6 +13,7 @@ type Props = {
   onOpenActivity: () => void
   onOpenLibrary: () => void
   currentView?: 'workspace' | 'activity' | 'library'
+  children?: ReactNode
 }
 
 export function AppHeader({
@@ -25,94 +26,103 @@ export function AppHeader({
   onOpenActivity,
   onOpenLibrary,
   currentView = 'workspace',
+  children,
 }: Props) {
   const trackNavigationAction = (origin: string, pathname: string, run: () => void) => {
     reportUiNavigationAction({ origin, pathname })
     run()
   }
 
+  const navItems = [
+    {
+      id: 'workspace',
+      label: t('app.nav.review'),
+      onClick: () => trackNavigationAction('sidebar:review', '/review', onOpenReview),
+    },
+    {
+      id: 'activity',
+      label: t('app.nav.activity'),
+      onClick: () => trackNavigationAction('sidebar:activity', '/activity', onOpenActivity),
+    },
+    {
+      id: 'library',
+      label: t('app.nav.library'),
+      onClick: () => trackNavigationAction('sidebar:library', '/library', onOpenLibrary),
+    },
+  ] as const
+
   return (
-    <header className="mb-3">
-      <Stack direction="horizontal" className="justify-content-between align-items-start gap-2 flex-wrap">
-        <div>
-          <h1 className="display-6 fw-bold mb-1">
-            <img
-              src="/retaia-logo-512.png"
-              width={28}
-              height={28}
-              className="me-2 rounded-2 align-text-top"
-              alt=""
-              aria-hidden="true"
-            />
-            {t('app.title')}
-          </h1>
-          <p className="text-secondary mb-0">{t('app.subtitle')}</p>
-          <Stack direction="horizontal" className="flex-wrap gap-2 mt-2" aria-label={t('app.navigation')}>
-            <Button
-              type="button"
-              size="sm"
-              variant={currentView === 'workspace' ? 'primary' : 'outline-primary'}
-              onClick={() => trackNavigationAction('header:review', '/review', onOpenReview)}
-            >
-              {t('app.nav.review')}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={currentView === 'activity' ? 'primary' : 'outline-primary'}
-              onClick={() => trackNavigationAction('header:activity', '/activity', onOpenActivity)}
-            >
-              {t('app.nav.activity')}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={currentView === 'library' ? 'primary' : 'outline-primary'}
-              onClick={() => trackNavigationAction('header:library', '/library', onOpenLibrary)}
-            >
-              {t('app.nav.library')}
-            </Button>
-          </Stack>
+    <div className="retaia-shell">
+      <aside className="retaia-shell__sidebar" aria-label={t('app.navigation')}>
+        <div className="retaia-shell__brand">
+          <img
+            src="/retaia-logo-512.png"
+            width={28}
+            height={28}
+            className="rounded-2 align-text-top"
+            alt=""
+            aria-hidden="true"
+          />
+          <div>
+            <h1 className="retaia-shell__title">{t('app.title')}</h1>
+            <p className="retaia-shell__subtitle">{t('app.subtitle')}</p>
+          </div>
         </div>
-        <Stack direction="horizontal" gap={2} aria-label={t('app.language')}>
-          <Button
+
+        <nav className="retaia-shell__nav" aria-label={t('app.navigation')}>
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={currentView === item.id ? 'retaia-nav-button is-active' : 'retaia-nav-button'}
+              onClick={item.onClick}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="retaia-shell__sidebar-footer">
+          <button
             type="button"
-            size="sm"
-            variant="outline-secondary"
-            onClick={() => trackNavigationAction('header:settings', '/settings', onOpenSettings)}
+            className="btn btn-outline-secondary btn-sm"
+            onClick={() => trackNavigationAction('sidebar:settings', '/settings', onOpenSettings)}
           >
             {t('settings.openSettings')}
-          </Button>
-          <Button
+          </button>
+          <button
             type="button"
-            size="sm"
-            variant="outline-secondary"
-            onClick={() => trackNavigationAction('header:auth', '/auth', onOpenAuth)}
+            className="btn btn-outline-secondary btn-sm"
+            onClick={() => trackNavigationAction('sidebar:auth', '/auth', onOpenAuth)}
           >
             {t('settings.openAuth')}
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant={locale === 'fr' ? 'primary' : 'outline-primary'}
-            onClick={() => onChangeLanguage('fr')}
-            aria-label={t('app.language.fr')}
-          >
-            <BsFlagFill className="me-1" aria-hidden="true" />
-            FR
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant={locale === 'en' ? 'primary' : 'outline-primary'}
-            onClick={() => onChangeLanguage('en')}
-            aria-label={t('app.language.en')}
-          >
-            <BsGlobe2 className="me-1" aria-hidden="true" />
-            EN
-          </Button>
-        </Stack>
-      </Stack>
-    </header>
+          </button>
+          <div className="retaia-shell__lang" aria-label={t('app.language')}>
+            <button
+              type="button"
+              className={locale === 'fr' ? 'btn btn-primary btn-sm' : 'btn btn-outline-primary btn-sm'}
+              onClick={() => onChangeLanguage('fr')}
+              aria-label={t('app.language.fr')}
+            >
+              <BsFlagFill className="me-1" aria-hidden="true" />
+              FR
+            </button>
+            <button
+              type="button"
+              className={locale === 'en' ? 'btn btn-primary btn-sm' : 'btn btn-outline-primary btn-sm'}
+              onClick={() => onChangeLanguage('en')}
+              aria-label={t('app.language.en')}
+            >
+              <BsGlobe2 className="me-1" aria-hidden="true" />
+              EN
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <main className="retaia-shell__main">
+        <div className="retaia-shell__content">{children}</div>
+      </main>
+    </div>
   )
 }
