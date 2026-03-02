@@ -31,8 +31,6 @@ export default defineConfig({
 
           if (
             id.includes('/node_modules/react-bootstrap/') ||
-            id.includes('/node_modules/bootstrap/') ||
-            id.includes('/node_modules/bootswatch/') ||
             id.includes('/node_modules/@restart/')
           ) {
             return 'ui-vendor'
@@ -48,14 +46,6 @@ export default defineConfig({
 
           return undefined
         },
-      },
-    },
-  },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        quietDeps: true,
-        silenceDeprecations: ['import'],
       },
     },
   },
