@@ -90,4 +90,44 @@ export default defineConfig([
       ],
     },
   },
+  {
+    files: ['src/**/*.test.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'node:fs',
+              message: 'Unit tests must not access real filesystem APIs.',
+            },
+            {
+              name: 'node:fs/promises',
+              message: 'Unit tests must not access real filesystem APIs.',
+            },
+            {
+              name: 'node:child_process',
+              message: 'Unit tests must not spawn real processes.',
+            },
+            {
+              name: 'node:net',
+              message: 'Unit tests must not access real network sockets.',
+            },
+            {
+              name: 'node:dgram',
+              message: 'Unit tests must not access real network sockets.',
+            },
+            {
+              name: 'node:http',
+              message: 'Unit tests must not access real HTTP clients/servers.',
+            },
+            {
+              name: 'node:https',
+              message: 'Unit tests must not access real HTTP clients/servers.',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ])
