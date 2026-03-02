@@ -2879,10 +2879,23 @@ export interface paths {
                     content: {
                         "application/json": {
                             /**
-                             * @description Overall status (`down` when database check fails; `degraded` when critical non-database checks fail).
+                             * @description Overall status (`down` when database check fails; `degraded` when critical non-database checks fail but auto-repair is active).
                              * @enum {string}
                              */
                             status: "ok" | "degraded" | "down";
+                            self_healing: {
+                                active: boolean;
+                                /**
+                                 * Format: date-time
+                                 * @description Auto-repair deadline in UTC; null when `active=false`.
+                                 */
+                                deadline_at: string | null;
+                                /**
+                                 * @description Normative maximum auto-repair window in seconds.
+                                 * @enum {integer}
+                                 */
+                                max_self_healing_seconds: 300;
+                            };
                             checks: {
                                 /** @description Check identifier (e.g. `database`, `ingest_watch_path`, `storage_writable`). */
                                 name: string;
