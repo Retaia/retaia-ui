@@ -227,6 +227,23 @@ export function createInMemoryMockApiFetch(): typeof fetch {
       return emptyResponse(204)
     }
 
+    if (pathname === '/ops/readiness' && method === 'GET') {
+      return jsonResponse(200, {
+        status: 'ok',
+        self_healing: {
+          active: false,
+          deadline_at: null,
+          max_self_healing_seconds: 300,
+        },
+        checks: [
+          {
+            name: 'database',
+            status: 'ok',
+          },
+        ],
+      })
+    }
+
     if (!hasAuth(init)) {
       return unauthorized()
     }

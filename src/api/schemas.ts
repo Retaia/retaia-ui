@@ -2,6 +2,20 @@ import { z } from 'zod'
 
 export const unknownObjectSchema = z.record(z.string(), z.unknown())
 
+export const healthResponseSchema = z
+  .object({
+    status: z.enum(['ok', 'degraded', 'down']),
+    self_healing: z
+      .object({
+        active: z.boolean(),
+        deadline_at: z.string().nullable(),
+        max_self_healing_seconds: z.number(),
+      })
+      .passthrough(),
+    checks: z.array(z.unknown()).optional(),
+  })
+  .passthrough()
+
 export const listAssetSummariesResponseSchema = z
   .object({
     items: z.array(unknownObjectSchema).optional().nullable(),

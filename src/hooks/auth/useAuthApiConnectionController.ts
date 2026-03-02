@@ -10,7 +10,7 @@ type ApiConnectionStatus = {
 }
 
 export function useAuthApiConnectionController(args: {
-  apiClient: Pick<ApiClient, 'getCurrentUser'>
+  apiClient: Pick<ApiClient, 'getCurrentUser'> & Partial<Pick<ApiClient, 'getHealth'>>
   t: Translator
   apiBaseUrlInput: string
   setApiBaseUrlInput: (value: string) => void
@@ -37,10 +37,32 @@ export function useAuthApiConnectionController(args: {
   const testApiConnection = useCallback(async () => {
     setApiConnectionStatus(null)
     try {
+      let degradedSelfHealingDeadline: string | null = null
+      if (typeof apiClient.getHealth === 'function') {
+        try {
+          const health = await apiClient.getHealth()
+          if (health.status === 'down') {
+            setApiConnectionStatus({
+              kind: 'error',
+              message: t('app.apiConnectionHealthDown'),
+            })
+            return
+          }
+          if (health.status === 'degraded' && health.self_healing.active) {
+            degradedSelfHealingDeadline = health.self_healing.deadline_at
+          }
+        } catch {
+          // Keep backward-compatible behavior when /health is unavailable.
+        }
+      }
+
       await apiClient.getCurrentUser()
       setApiConnectionStatus({
         kind: 'success',
-        message: t('app.apiConnectionTestOk'),
+        message:
+          degradedSelfHealingDeadline !== null
+            ? t('app.apiConnectionTestOkDegraded', { deadline: degradedSelfHealingDeadline })
+            : t('app.apiConnectionTestOk'),
       })
     } catch (error) {
       setApiConnectionStatus({

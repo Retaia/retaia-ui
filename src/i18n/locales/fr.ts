@@ -104,6 +104,10 @@ export const frTranslation = {
   'app.apiConnectionSaveError': 'Impossible de sauvegarder la configuration API.',
   'app.apiConnectionAuthError': 'Authentification API refusée (401/403).',
   'app.apiConnectionTestOk': 'Connexion API valide.',
+  'app.apiConnectionTestOkDegraded':
+    'Connexion API valide (mode dégradé en auto-réparation jusqu’à {deadline}).',
+  'app.apiConnectionHealthDown':
+    'API indisponible (status down). Vérifie la migration startup et réessaie.',
   'app.apiConnectionTestError': 'Test connexion API en échec: {message}',
   'settings.title': 'Configuration',
   'settings.subtitle': 'Paramètres runtime UI et connectivité API',

@@ -65,4 +65,80 @@ describe('useAuthApiConnectionController', () => {
       message: 'app.apiConnectionTestOk',
     })
   })
+
+  it('returns health down status and skips current user call', async () => {
+    const apiClient = {
+      getHealth: vi.fn().mockResolvedValue({
+        status: 'down',
+        self_healing: {
+          active: false,
+          deadline_at: null,
+          max_self_healing_seconds: 300,
+        },
+      }),
+      getCurrentUser: vi.fn(),
+    }
+    const { result } = renderHook(() => {
+      const [status, setStatus] = useState<{ kind: 'success' | 'error'; message: string } | null>(null)
+      return {
+        ...useAuthApiConnectionController({
+          apiClient,
+          t: (key) => key,
+          apiBaseUrlInput: '/api',
+          setApiBaseUrlInput: vi.fn(),
+          setApiConnectionStatus: setStatus,
+        }),
+        status,
+      }
+    })
+
+    await act(async () => {
+      await result.current.testApiConnection()
+    })
+
+    expect(apiClient.getCurrentUser).not.toHaveBeenCalled()
+    expect(result.current.status).toEqual({
+      kind: 'error',
+      message: 'app.apiConnectionHealthDown',
+    })
+  })
+
+  it('returns degraded success status when self-healing is active', async () => {
+    const apiClient = {
+      getHealth: vi.fn().mockResolvedValue({
+        status: 'degraded',
+        self_healing: {
+          active: true,
+          deadline_at: '2026-03-02T12:00:00Z',
+          max_self_healing_seconds: 300,
+        },
+      }),
+      getCurrentUser: vi.fn().mockResolvedValue({}),
+    }
+    const { result } = renderHook(() => {
+      const [status, setStatus] = useState<{ kind: 'success' | 'error'; message: string } | null>(null)
+      return {
+        ...useAuthApiConnectionController({
+          apiClient,
+          t: (key, options) =>
+            key === 'app.apiConnectionTestOkDegraded'
+              ? `${key}:${String(options?.deadline ?? '')}`
+              : key,
+          apiBaseUrlInput: '/api',
+          setApiBaseUrlInput: vi.fn(),
+          setApiConnectionStatus: setStatus,
+        }),
+        status,
+      }
+    })
+
+    await act(async () => {
+      await result.current.testApiConnection()
+    })
+
+    expect(result.current.status).toEqual({
+      kind: 'success',
+      message: 'app.apiConnectionTestOkDegraded:2026-03-02T12:00:00Z',
+    })
+  })
 })

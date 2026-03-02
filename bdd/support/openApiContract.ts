@@ -27,6 +27,7 @@ const MOCK_OPERATION_CONTRACTS: MockOperationContract[] = [
   { path: '/auth/verify-email/request', method: 'post' },
   { path: '/auth/verify-email/confirm', method: 'post' },
   { path: '/auth/verify-email/admin-confirm', method: 'post' },
+  { path: '/ops/readiness', method: 'get' },
   { path: '/app/policy', method: 'get' },
   { path: '/app/features', method: 'get' },
   { path: '/app/features', method: 'patch' },

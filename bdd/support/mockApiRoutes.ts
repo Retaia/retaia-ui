@@ -228,6 +228,22 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
     await route.fulfill({ status: 200 })
   })
 
+  await page.route('**/ops/readiness', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        status: 'ok',
+        self_healing: {
+          active: false,
+          deadline_at: null,
+          max_self_healing_seconds: 300,
+        },
+        checks: [{ name: 'database', status: 'ok' }],
+      }),
+    })
+  })
+
   await page.route('**/app/policy', async (route) => {
     await route.fulfill({
       status: 200,
