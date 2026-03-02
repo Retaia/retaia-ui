@@ -6,7 +6,7 @@ describe('LibraryPage', () => {
   it('renders archived assets library and filters by search', async () => {
     const { user } = setupApp('/library')
 
-    expect(await screen.findByRole('heading', { name: 'Library ARCHIVED (1)' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Bibliothèque ARCHIVED (1)' })).toBeInTheDocument()
     expect(screen.getByText('ambiance-plateau.wav')).toBeInTheDocument()
 
     await user.type(screen.getByTestId('library-search-input'), 'unknown')

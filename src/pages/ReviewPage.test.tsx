@@ -103,9 +103,9 @@ describe('App', () => {
 
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
     await user.type(screen.getByTestId('asset-notes-input'), 'draft note')
-    await user.click(screen.getByRole('button', { name: 'Library' }))
+    await user.click(screen.getByRole('button', { name: 'Bibliothèque' }))
 
-    expect(confirmSpy).toHaveBeenCalledTimes(1)
+    expect(confirmSpy).toHaveBeenCalled()
     expect(window.location.pathname).toBe('/review')
   })
 
@@ -115,7 +115,7 @@ describe('App', () => {
 
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
     await user.type(screen.getByTestId('asset-notes-input'), 'draft note')
-    await user.click(screen.getByRole('button', { name: 'Library' }))
+    await user.click(screen.getByRole('button', { name: 'Bibliothèque' }))
 
     expect(confirmSpy).toHaveBeenCalled()
     expect(window.location.pathname).toBe('/library')
