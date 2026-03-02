@@ -29,6 +29,10 @@ type ReviewToolbarProps = {
     all: string
     date7d: string
     date30d: string
+    statePending: string
+    stateKept: string
+    stateRejected: string
+    stateArchived: string
   }
   onFilterChange: (filter: AssetFilter) => void
   onMediaTypeFilterChange: (filter: AssetMediaTypeFilter) => void
@@ -65,10 +69,10 @@ export function ReviewToolbar({
               onChange={(event) => onFilterChange(event.target.value as AssetFilter)}
             >
               <option value="ALL">{labels.all}</option>
-              <option value="DECISION_PENDING">DECISION_PENDING</option>
-              <option value="DECIDED_KEEP">DECIDED_KEEP</option>
-              <option value="DECIDED_REJECT">DECIDED_REJECT</option>
-              <option value="ARCHIVED">ARCHIVED</option>
+              <option value="DECISION_PENDING">{labels.statePending}</option>
+              <option value="DECIDED_KEEP">{labels.stateKept}</option>
+              <option value="DECIDED_REJECT">{labels.stateRejected}</option>
+              <option value="ARCHIVED">{labels.stateArchived}</option>
             </Form.Select>
           </Col>
 

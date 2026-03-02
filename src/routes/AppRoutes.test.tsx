@@ -72,7 +72,7 @@ describe('AppRoutes', () => {
   it('renders library page on /library', async () => {
     setupApp('/library')
 
-    expect(await screen.findByRole('heading', { name: 'Bibliothèque ARCHIVED (1)' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Bibliothèque (1)' })).toBeInTheDocument()
     expect(screen.getByLabelText('Bibliothèque des assets archivés')).toBeInTheDocument()
   })
 

@@ -18,7 +18,7 @@ describe('StandaloneAssetDetailPage', () => {
 
     expect(await screen.findByRole('button', { name: 'Retour à Bibliothèque' })).toBeInTheDocument()
     expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('Bibliothèque')
-    expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('ARCHIVED')
+    expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('Archivés')
     expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('A-002')
   })
 
