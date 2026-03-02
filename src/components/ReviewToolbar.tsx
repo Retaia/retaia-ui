@@ -33,6 +33,10 @@ type ReviewToolbarProps = {
     stateKept: string
     stateRejected: string
     stateArchived: string
+    mediaTypeVideo: string
+    mediaTypeAudio: string
+    mediaTypeImage: string
+    mediaTypeOther: string
   }
   onFilterChange: (filter: AssetFilter) => void
   onMediaTypeFilterChange: (filter: AssetMediaTypeFilter) => void
@@ -87,10 +91,10 @@ export function ReviewToolbar({
               onChange={(event) => onMediaTypeFilterChange(event.target.value as AssetMediaTypeFilter)}
             >
               <option value="ALL">{labels.all}</option>
-              <option value="VIDEO">VIDEO</option>
-              <option value="AUDIO">AUDIO</option>
-              <option value="IMAGE">IMAGE</option>
-              <option value="OTHER">OTHER</option>
+              <option value="VIDEO">{labels.mediaTypeVideo}</option>
+              <option value="AUDIO">{labels.mediaTypeAudio}</option>
+              <option value="IMAGE">{labels.mediaTypeImage}</option>
+              <option value="OTHER">{labels.mediaTypeOther}</option>
             </Form.Select>
           </Col>
 

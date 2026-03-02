@@ -12,9 +12,9 @@ const assets = [
 const labels = {
   empty: 'Aucun asset ne correspond aux filtres.',
   batch: 'Batch',
-  keep: 'KEEP',
-  reject: 'REJECT',
-  clear: 'CLEAR',
+  keep: 'Conserver',
+  reject: 'Rejeter',
+  clear: 'Réinitialiser',
   state: (value: 'DECISION_PENDING' | 'DECIDED_KEEP' | 'DECIDED_REJECT' | 'ARCHIVED') => value,
 }
 
@@ -82,9 +82,9 @@ describe('AssetList', () => {
     await user.keyboard('{Enter}')
     expect(onAssetClick).toHaveBeenCalledWith('A-001', false)
 
-    const keepButtons = screen.getAllByRole('button', { name: 'KEEP' })
-    const rejectButtons = screen.getAllByRole('button', { name: 'REJECT' })
-    const clearButtons = screen.getAllByRole('button', { name: 'CLEAR' })
+    const keepButtons = screen.getAllByRole('button', { name: 'Conserver' })
+    const rejectButtons = screen.getAllByRole('button', { name: 'Rejeter' })
+    const clearButtons = screen.getAllByRole('button', { name: 'Réinitialiser' })
     const keepButton = keepButtons[0]
     const rejectButton = rejectButtons[0]
     const clearButton = clearButtons[1]

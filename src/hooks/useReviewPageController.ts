@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { INITIAL_ASSETS } from '../data/mockAssets'
 import {
   type Asset,
@@ -67,6 +68,16 @@ export type ReviewPageView = 'workspace' | 'batch' | 'reports' | 'activity'
 
 type ReviewPageProps = {
   view?: ReviewPageView
+}
+
+function getDecisionActionLabel(t: TFunction, action: 'KEEP' | 'REJECT' | 'CLEAR'): string {
+  if (action === 'KEEP') {
+    return t('actions.decisionKeep')
+  }
+  if (action === 'REJECT') {
+    return t('actions.decisionReject')
+  }
+  return t('actions.decisionClear')
 }
 
 export function useReviewPageController({ view = 'workspace' }: ReviewPageProps = {}) {
@@ -359,11 +370,12 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
           return
         }
 
-        recordAction(t('activity.actionDecision', { action, id }))
+        const actionLabel = getDecisionActionLabel(t, action)
+        recordAction(t('activity.actionDecision', { action: actionLabel, id }))
         setAssets(result.updatedAssets)
         setDecisionStatus({
           kind: 'success',
-          message: t('detail.decisionSaved', { id, action }),
+          message: t('detail.decisionSaved', { id, action: actionLabel }),
         })
       }
 
@@ -439,9 +451,10 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
         return
       }
 
+      const actionLabel = getDecisionActionLabel(t, action)
       setDecisionStatus({
         kind: 'success',
-        message: t('detail.decisionBulkSaved', { action, count: result.successCount }),
+        message: t('detail.decisionBulkSaved', { action: actionLabel, count: result.successCount }),
       })
     },
     [recordAction, t],
@@ -469,7 +482,10 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
           targetIds,
           successIds,
           firstErrorMessage,
-          activityMessage: t('activity.actionVisible', { action, count: successIds.length }),
+          activityMessage: t('activity.actionVisible', {
+            action: getDecisionActionLabel(t, action),
+            count: successIds.length,
+          }),
         })
       }
 
@@ -500,7 +516,10 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
           targetIds,
           successIds,
           firstErrorMessage,
-          activityMessage: t('activity.actionBatch', { action, count: successIds.length }),
+          activityMessage: t('activity.actionBatch', {
+            action: getDecisionActionLabel(t, action),
+            count: successIds.length,
+          }),
           onSuccess: () => {
             setBatchIds(batchIds.filter((id) => !successIds.includes(id)))
           },

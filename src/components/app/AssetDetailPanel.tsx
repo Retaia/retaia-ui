@@ -318,7 +318,7 @@ export function AssetDetailPanel({
                     onClick={() => onDecision(selectedAsset.id, 'KEEP')}
                   >
                     <BsCheck2Circle className="me-1" aria-hidden="true" />
-                    KEEP
+                    {t('actions.decisionKeep')}
                   </Button>
                   <Button
                     type="button"
@@ -326,7 +326,7 @@ export function AssetDetailPanel({
                     onClick={() => onDecision(selectedAsset.id, 'REJECT')}
                   >
                     <BsXCircle className="me-1" aria-hidden="true" />
-                    REJECT
+                    {t('actions.decisionReject')}
                   </Button>
                   <Button
                     type="button"
@@ -334,7 +334,7 @@ export function AssetDetailPanel({
                     onClick={() => onDecision(selectedAsset.id, 'CLEAR')}
                   >
                     <BsTrash3 className="me-1" aria-hidden="true" />
-                    CLEAR
+                    {t('actions.decisionClear')}
                   </Button>
                 </Stack>
               ) : null}

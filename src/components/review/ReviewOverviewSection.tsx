@@ -88,6 +88,10 @@ export function ReviewOverviewSection({
           stateKept: t('toolbar.stateKept'),
           stateRejected: t('toolbar.stateRejected'),
           stateArchived: t('toolbar.stateArchived'),
+          mediaTypeVideo: t('toolbar.mediaTypeVideo'),
+          mediaTypeAudio: t('toolbar.mediaTypeAudio'),
+          mediaTypeImage: t('toolbar.mediaTypeImage'),
+          mediaTypeOther: t('toolbar.mediaTypeOther'),
         }}
         onFilterChange={onFilterChange}
         onMediaTypeFilterChange={onMediaTypeFilterChange}

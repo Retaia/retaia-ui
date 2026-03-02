@@ -65,9 +65,9 @@ export function AssetListSection({
             labels={{
               empty: emptyAssetsMessage,
               batch: t('assets.batchBadge'),
-              keep: 'KEEP',
-              reject: 'REJECT',
-              clear: 'CLEAR',
+              keep: t('actions.decisionKeep'),
+              reject: t('actions.decisionReject'),
+              clear: t('actions.decisionClear'),
               state: (value) => t(ASSET_STATE_LABEL_KEYS[value]),
             }}
             onDecision={onDecision}

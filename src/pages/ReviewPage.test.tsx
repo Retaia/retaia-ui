@@ -13,7 +13,7 @@ describe('App', () => {
     setupApp()
 
     expect(screen.getByRole('heading', { name: 'Retaia UI' })).toBeInTheDocument()
-    expect(screen.getByText('Review simple pour décider KEEP ou REJECT')).toBeInTheDocument()
+    expect(screen.getByText('Review simple pour décider conserver ou rejeter')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Assets (3)' })).toBeInTheDocument()
     expect(within(getAssetsPanel()).getByText('interview-camera-a.mov')).toBeInTheDocument()
     expect(screen.getByLabelText('Résumé des assets')).toBeInTheDocument()
@@ -25,7 +25,7 @@ describe('App', () => {
 
     await user.click(screen.getByRole('button', { name: 'Anglais' }))
 
-    expect(screen.getByText('Simple review UI for KEEP or REJECT decisions')).toBeInTheDocument()
+    expect(screen.getByText('Simple review UI for keep or reject decisions')).toBeInTheDocument()
     expect(screen.getByLabelText('Search')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Show pending' })).toBeInTheDocument()
     expect(screen.getByLabelText('Asset detail')).toBeInTheDocument()
@@ -51,13 +51,13 @@ describe('App', () => {
       throw new Error('expected first asset row was not found')
     }
 
-    await user.click(within(assetRow).getByRole('button', { name: 'REJECT' }))
+    await user.click(within(assetRow).getByRole('button', { name: 'Rejeter' }))
     expect(screen.getByText('A-001 - Rejeté')).toBeInTheDocument()
 
-    await user.click(within(assetRow).getByRole('button', { name: 'CLEAR' }))
+    await user.click(within(assetRow).getByRole('button', { name: 'Réinitialiser' }))
     expect(screen.getByText('A-001 - En attente')).toBeInTheDocument()
 
-    await user.click(within(assetRow).getByRole('button', { name: 'KEEP' }))
+    await user.click(within(assetRow).getByRole('button', { name: 'Conserver' }))
     expect(screen.getByText('A-001 - Conservé')).toBeInTheDocument()
   })
 
@@ -357,10 +357,10 @@ describe('App', () => {
       setupApp('/review?source=api')
 
       expect(await screen.findByTestId('policy-bulk-disabled-status')).toBeVisible()
-      expect(screen.getByRole('button', { name: 'KEEP visibles' })).toBeDisabled()
-      expect(screen.getByRole('button', { name: 'REJECT visibles' })).toBeDisabled()
-      expect(screen.getByRole('button', { name: 'KEEP batch' })).toBeDisabled()
-      expect(screen.getByRole('button', { name: 'REJECT batch' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'Conserver visibles' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'Rejeter visibles' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'Conserver batch' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'Rejeter batch' })).toBeDisabled()
     } finally {
       import.meta.env.VITE_ASSET_SOURCE = previous
       vi.restoreAllMocks()
@@ -406,8 +406,8 @@ describe('App', () => {
       setupApp('/review?source=api')
 
       expect(await screen.findByTestId('policy-error-status')).toBeVisible()
-      expect(screen.getByRole('button', { name: 'KEEP visibles' })).toBeDisabled()
-      expect(screen.getByRole('button', { name: 'REJECT visibles' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'Conserver visibles' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'Rejeter visibles' })).toBeDisabled()
     } finally {
       import.meta.env.VITE_ASSET_SOURCE = previous
       vi.restoreAllMocks()
@@ -853,8 +853,8 @@ describe('App', () => {
     await user.keyboard('{/Shift}')
     await user.click(screen.getByRole('button', { name: 'Prévisualiser batch' }))
 
-    expect(screen.getByRole('button', { name: 'KEEP batch' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'REJECT batch' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Conserver batch' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Rejeter batch' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Vider batch' })).toBeDisabled()
     expect(screen.getByTestId('batch-busy-status')).toBeInTheDocument()
 
@@ -1095,7 +1095,7 @@ describe('App', () => {
   it('applies KEEP to all visible assets', async () => {
     const { user } = setupApp()
 
-    await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
+    await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
 
     expect(screen.getByText('A-001 - Conservé')).toBeInTheDocument()
     expect(screen.getByText('A-002 - Conservé')).toBeInTheDocument()
@@ -1107,7 +1107,7 @@ describe('App', () => {
 
     expect(screen.getByRole('heading', { name: 'Prochain asset à traiter' })).toBeInTheDocument()
     const firstPendingName = screen.getAllByText('interview-camera-a.mov')[0]
-    const rejectButton = screen.getAllByRole('button', { name: 'REJECT' })[0]
+    const rejectButton = screen.getAllByRole('button', { name: 'Rejeter' })[0]
     if (!firstPendingName || !rejectButton) {
       throw new Error('expected pending asset controls were not found')
     }
@@ -1142,10 +1142,10 @@ describe('App', () => {
   it('logs actions and allows undo with the dedicated button', async () => {
     const { user } = setupApp()
 
-    await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
+    await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
 
     const activityPanel = screen.getByLabelText("Journal d'actions")
-    expect(within(activityPanel).getByText('KEEP visibles (3)')).toBeInTheDocument()
+    expect(within(activityPanel).getByText('Conserver visibles (3)')).toBeInTheDocument()
     expect(screen.getByText('A-001 - Conservé')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Annuler dernière action' }))
@@ -1157,9 +1157,9 @@ describe('App', () => {
   it('clears activity log with dedicated action', async () => {
     const { user } = setupApp()
 
-    await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
+    await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
     const activityPanel = screen.getByLabelText("Journal d'actions")
-    expect(within(activityPanel).getByText('KEEP visibles (3)')).toBeInTheDocument()
+    expect(within(activityPanel).getByText('Conserver visibles (3)')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Vider journal' }))
 
@@ -1169,9 +1169,9 @@ describe('App', () => {
   it('clears activity log with l shortcut', async () => {
     const { user } = setupApp()
 
-    await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
+    await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
     const activityPanel = screen.getByLabelText("Journal d'actions")
-    expect(within(activityPanel).getByText('KEEP visibles (3)')).toBeInTheDocument()
+    expect(within(activityPanel).getByText('Conserver visibles (3)')).toBeInTheDocument()
 
     await user.keyboard('l')
 
@@ -1181,7 +1181,7 @@ describe('App', () => {
   it('supports undo with Ctrl+Z shortcut', async () => {
     const { user } = setupApp()
 
-    const rejectButton = screen.getAllByRole('button', { name: 'REJECT' })[0]
+    const rejectButton = screen.getAllByRole('button', { name: 'Rejeter' })[0]
     if (!rejectButton) {
       throw new Error('expected reject button was not found')
     }
@@ -1295,7 +1295,7 @@ describe('App', () => {
     expect(within(activityPanel).getByText('Sélection plage (1)')).toBeInTheDocument()
   })
 
-  it('applies KEEP REJECT and CLEAR to selected asset with g v x shortcuts', async () => {
+  it('applies keep reject and clear to selected asset with g v x shortcuts', async () => {
     const { user } = setupApp()
 
     await user.keyboard('{Enter}')
@@ -1582,7 +1582,7 @@ describe('App', () => {
 
       expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
       await user.click(within(getAssetsPanel()).getByText('A-001'))
-      await user.click(within(getDetailPanel()).getByRole('button', { name: 'REJECT' }))
+      await user.click(within(getDetailPanel()).getByRole('button', { name: 'Rejeter' }))
 
       await waitFor(() => {
         expect(fetchMock).toHaveBeenCalledWith(
@@ -1671,7 +1671,7 @@ describe('App', () => {
 
       expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
       await user.click(within(getAssetsPanel()).getByText('A-001'))
-      await user.click(within(getDetailPanel()).getByRole('button', { name: 'REJECT' }))
+      await user.click(within(getDetailPanel()).getByRole('button', { name: 'Rejeter' }))
 
       expect(screen.getByTestId('asset-decision-status')).toHaveTextContent("Conflit d'état")
       expect(screen.getByText('A-001 - En attente')).toBeInTheDocument()
@@ -1775,7 +1775,7 @@ describe('App', () => {
 
       expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
       await user.click(within(getAssetsPanel()).getByText('A-001'))
-      await user.click(within(getDetailPanel()).getByRole('button', { name: 'REJECT' }))
+      await user.click(within(getDetailPanel()).getByRole('button', { name: 'Rejeter' }))
 
       expect(screen.getByTestId('asset-decision-status')).toHaveTextContent("Conflit d'état")
       await user.click(screen.getByTestId('asset-refresh-action'))
@@ -1794,7 +1794,7 @@ describe('App', () => {
     }
   })
 
-  it('calls API decisions for KEEP visibles in API source mode', async () => {
+  it('calls API decisions for Conserver visibles in API source mode', async () => {
     const previous = import.meta.env.VITE_ASSET_SOURCE
     try {
       import.meta.env.VITE_ASSET_SOURCE = 'api'
@@ -1856,9 +1856,9 @@ describe('App', () => {
 
       expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'KEEP visibles' })).toBeEnabled()
+        expect(screen.getByRole('button', { name: 'Conserver visibles' })).toBeEnabled()
       })
-      await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
+      await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
 
       await waitFor(() => {
         const decisionCalls = fetchMock.mock.calls.filter((call) => {
@@ -1876,7 +1876,7 @@ describe('App', () => {
     }
   })
 
-  it('calls API decisions for KEEP batch in API source mode', async () => {
+  it('calls API decisions for Conserver batch in API source mode', async () => {
     const previous = import.meta.env.VITE_ASSET_SOURCE
     try {
       import.meta.env.VITE_ASSET_SOURCE = 'api'
@@ -1942,9 +1942,9 @@ describe('App', () => {
       await user.click(within(getAssetsPanel()).getByText('A-002'))
       await user.keyboard('{/Shift}')
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'KEEP batch' })).toBeEnabled()
+        expect(screen.getByRole('button', { name: 'Conserver batch' })).toBeEnabled()
       })
-      await user.click(screen.getByRole('button', { name: 'KEEP batch' }))
+      await user.click(screen.getByRole('button', { name: 'Conserver batch' }))
 
       await waitFor(() => {
         const decisionCalls = fetchMock.mock.calls.filter((call) => {
@@ -2042,9 +2042,9 @@ describe('App', () => {
 
       expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'KEEP visibles' })).toBeEnabled()
+        expect(screen.getByRole('button', { name: 'Conserver visibles' })).toBeEnabled()
       })
-      await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
+      await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
 
       await waitFor(() => {
         expect(decisionCallCount).toBe(2)
@@ -2158,7 +2158,7 @@ describe('App', () => {
     await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
     expect(screen.getByRole('button', { name: 'Confirmer purge' })).toBeDisabled()
 
-    await user.click(within(getDetailPanel()).getByRole('button', { name: 'KEEP' }))
+    await user.click(within(getDetailPanel()).getByRole('button', { name: 'Conserver' }))
     expect(screen.getByRole('button', { name: 'Prévisualiser purge' })).toBeDisabled()
   })
 })
