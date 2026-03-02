@@ -124,6 +124,7 @@ describe('useAuthApiConnectionController', () => {
             key === 'app.apiConnectionTestOkDegraded'
               ? `${key}:${String(options?.deadline ?? '')}`
               : key,
+          locale: 'en-GB',
           apiBaseUrlInput: '/api',
           setApiBaseUrlInput: vi.fn(),
           setApiConnectionStatus: setStatus,
@@ -136,9 +137,8 @@ describe('useAuthApiConnectionController', () => {
       await result.current.testApiConnection()
     })
 
-    expect(result.current.status).toEqual({
-      kind: 'success',
-      message: 'app.apiConnectionTestOkDegraded:2026-03-02T12:00:00Z',
-    })
+    expect(result.current.status?.kind).toBe('success')
+    expect(result.current.status?.message).toContain('app.apiConnectionTestOkDegraded:')
+    expect(result.current.status?.message).not.toContain('2026-03-02T12:00:00Z')
   })
 })

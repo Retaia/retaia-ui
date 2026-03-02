@@ -9,14 +9,27 @@ type ApiConnectionStatus = {
   message: string
 }
 
+function formatLocalizedDeadline(deadline: string, locale: string) {
+  const timestamp = Date.parse(deadline)
+  if (!Number.isFinite(timestamp)) {
+    return deadline
+  }
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(timestamp))
+}
+
 export function useAuthApiConnectionController(args: {
   apiClient: Pick<ApiClient, 'getCurrentUser'> & Partial<Pick<ApiClient, 'getHealth'>>
   t: Translator
+  locale?: string
   apiBaseUrlInput: string
   setApiBaseUrlInput: (value: string) => void
   setApiConnectionStatus: (value: ApiConnectionStatus | null) => void
 }) {
-  const { apiBaseUrlInput, apiClient, setApiBaseUrlInput, setApiConnectionStatus, t } = args
+  const { apiBaseUrlInput, apiClient, locale, setApiBaseUrlInput, setApiConnectionStatus, t } = args
+  const resolvedLocale = locale ?? (typeof navigator !== 'undefined' ? navigator.language : 'en')
 
   const saveApiConnectionSettings = useCallback(() => {
     setApiBaseUrlInput(apiBaseUrlInput.trim())
@@ -61,7 +74,9 @@ export function useAuthApiConnectionController(args: {
         kind: 'success',
         message:
           degradedSelfHealingDeadline !== null
-            ? t('app.apiConnectionTestOkDegraded', { deadline: degradedSelfHealingDeadline })
+            ? t('app.apiConnectionTestOkDegraded', {
+              deadline: formatLocalizedDeadline(degradedSelfHealingDeadline, resolvedLocale),
+            })
             : t('app.apiConnectionTestOk'),
       })
     } catch (error) {
@@ -72,7 +87,7 @@ export function useAuthApiConnectionController(args: {
         }),
       })
     }
-  }, [apiClient, setApiConnectionStatus, t])
+  }, [apiClient, resolvedLocale, setApiConnectionStatus, t])
 
   return {
     saveApiConnectionSettings,
