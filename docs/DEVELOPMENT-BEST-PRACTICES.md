@@ -129,6 +129,13 @@ Format attendu:
 - Intégration UI: composants + requêtes API mockées.
 - BDD/E2E: parcours critiques sur navigateur réel.
 
+Discipline obligatoire pour les tests unitaires :
+
+- un test unitaire couvre une seule unité (fichier/module) à la fois
+- toute dépendance externe à cette unité (lib tierce, réseau, filesystem, horloge, aléa, autre module applicatif) est mockée/stubbée/fakée
+- une dépendance non mockable proprement implique un reclassement du test en intégration
+- les requêtes réseau unitaires passent par mocks (MSW/fetch mock), jamais par un endpoint réel
+
 Mapping recommandé:
 
 - Unit/Integration: Vitest + Testing Library + MSW.
