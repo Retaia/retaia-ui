@@ -76,5 +76,5 @@ Feature: Parcours critiques de review
     Then l'URL courante contient "/library/detail/A-002"
     And le testid "standalone-detail-breadcrumb" contient "Bibliothèque"
     And le testid "standalone-detail-breadcrumb" contient "Archivés"
-    When je clique sur le bouton "Retour à Library"
+    When je clique sur le bouton "Retour à Bibliothèque"
     Then l'URL courante contient "/library"
