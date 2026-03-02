@@ -16,8 +16,8 @@ describe('App batch flows', () => {
     await user.click(screen.getByRole('button', { name: 'KEEP batch' }))
 
     expect(screen.getByText('Batch sélectionné: 0')).toBeInTheDocument()
-    expect(within(getAssetsPanel()).getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
-    expect(within(getAssetsPanel()).getByText('A-003 - DECIDED_KEEP')).toBeInTheDocument()
+    expect(within(getAssetsPanel()).getByText('A-001 - Conservé')).toBeInTheDocument()
+    expect(within(getAssetsPanel()).getByText('A-003 - Conservé')).toBeInTheDocument()
   })
 
   it('filters visible assets to current batch with batch-only toggle', async () => {

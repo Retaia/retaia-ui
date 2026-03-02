@@ -52,13 +52,13 @@ describe('App', () => {
     }
 
     await user.click(within(assetRow).getByRole('button', { name: 'REJECT' }))
-    expect(screen.getByText('A-001 - DECIDED_REJECT')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - Rejeté')).toBeInTheDocument()
 
     await user.click(within(assetRow).getByRole('button', { name: 'CLEAR' }))
-    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - En attente')).toBeInTheDocument()
 
     await user.click(within(assetRow).getByRole('button', { name: 'KEEP' }))
-    expect(screen.getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - Conservé')).toBeInTheDocument()
   })
 
   it('opens detail panel on click', async () => {
@@ -470,7 +470,7 @@ describe('App', () => {
 
       setupApp('/review?source=api')
 
-      expect(await screen.findByText('A-010 - DECISION_PENDING')).toBeInTheDocument()
+      expect(await screen.findByText('A-010 - En attente')).toBeInTheDocument()
     } finally {
       import.meta.env.VITE_ASSET_SOURCE = previous
       vi.restoreAllMocks()
@@ -536,7 +536,7 @@ describe('App', () => {
       vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
       const { user } = setupApp('/review?source=api')
 
-      expect(await screen.findByText('A-010 - DECISION_PENDING')).toBeInTheDocument()
+      expect(await screen.findByText('A-010 - En attente')).toBeInTheDocument()
       await user.click(within(getAssetsPanel()).getByText('A-010'))
 
       await waitFor(() => {
@@ -611,7 +611,7 @@ describe('App', () => {
 
       setupApp('/review?source=api')
 
-      expect(await screen.findByText('UNKNOWN-ASSET-1 - DECISION_PENDING')).toBeInTheDocument()
+      expect(await screen.findByText('UNKNOWN-ASSET-1 - En attente')).toBeInTheDocument()
     } finally {
       import.meta.env.VITE_ASSET_SOURCE = previous
       vi.restoreAllMocks()
@@ -666,7 +666,7 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'Voir à traiter' }))
 
     expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
-    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - En attente')).toBeInTheDocument()
   })
 
   it('applies saved pending view', async () => {
@@ -675,7 +675,7 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'À traiter' }))
 
     expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
-    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - En attente')).toBeInTheDocument()
   })
 
   it('applies saved batch view', async () => {
@@ -699,7 +699,7 @@ describe('App', () => {
     expect(screen.getByLabelText('Type')).toHaveValue('ALL')
     expect(screen.getByLabelText('Date de capture')).toHaveValue('LAST_7_DAYS')
     expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
-    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - En attente')).toBeInTheDocument()
   })
 
   it('loads persisted quick filter preset from local storage', async () => {
@@ -1097,9 +1097,9 @@ describe('App', () => {
 
     await user.click(screen.getByRole('button', { name: 'KEEP visibles' }))
 
-    expect(screen.getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
-    expect(screen.getByText('A-002 - DECIDED_KEEP')).toBeInTheDocument()
-    expect(screen.getByText('A-003 - DECIDED_KEEP')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - Conservé')).toBeInTheDocument()
+    expect(screen.getByText('A-002 - Conservé')).toBeInTheDocument()
+    expect(screen.getByText('A-003 - Conservé')).toBeInTheDocument()
   })
 
   it('handles next pending asset actions', async () => {
@@ -1146,12 +1146,12 @@ describe('App', () => {
 
     const activityPanel = screen.getByLabelText("Journal d'actions")
     expect(within(activityPanel).getByText('KEEP visibles (3)')).toBeInTheDocument()
-    expect(screen.getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - Conservé')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Annuler dernière action' }))
 
     expect(within(activityPanel).getByText('Annulation')).toBeInTheDocument()
-    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - En attente')).toBeInTheDocument()
   })
 
   it('clears activity log with dedicated action', async () => {
@@ -1186,10 +1186,10 @@ describe('App', () => {
       throw new Error('expected reject button was not found')
     }
     await user.click(rejectButton)
-    expect(screen.getByText('A-001 - DECIDED_REJECT')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - Rejeté')).toBeInTheDocument()
 
     await user.keyboard('{Control>}z{/Control}')
-    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - En attente')).toBeInTheDocument()
   })
 
   it('keeps selected row state and focuses row action button for keyboard navigation', async () => {
@@ -1300,13 +1300,13 @@ describe('App', () => {
 
     await user.keyboard('{Enter}')
     await user.keyboard('v')
-    expect(screen.getByText('A-001 - DECIDED_REJECT')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - Rejeté')).toBeInTheDocument()
 
     await user.keyboard('g')
-    expect(screen.getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - Conservé')).toBeInTheDocument()
 
     await user.keyboard('x')
-    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - En attente')).toBeInTheDocument()
   })
 
   it('ignores g v x shortcuts when typing in search input', async () => {
@@ -1315,7 +1315,7 @@ describe('App', () => {
     await user.click(screen.getByLabelText('Recherche'))
     await user.keyboard('v')
 
-    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - En attente')).toBeInTheDocument()
   })
 
 
@@ -1325,7 +1325,7 @@ describe('App', () => {
     await user.keyboard('p')
 
     expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
-    expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+    expect(screen.getByText('A-001 - En attente')).toBeInTheDocument()
   })
 
 
@@ -1501,7 +1501,7 @@ describe('App', () => {
 
       const { user } = setupApp('/review?source=api')
 
-      expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
       await user.click(within(getAssetsPanel()).getByText('A-001'))
       await user.type(screen.getByTestId('asset-tag-input'), 'urgent')
       await user.click(screen.getByTestId('asset-tag-add'))
@@ -1580,7 +1580,7 @@ describe('App', () => {
       vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
       const { user } = setupApp('/review?source=api')
 
-      expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
       await user.click(within(getAssetsPanel()).getByText('A-001'))
       await user.click(within(getDetailPanel()).getByRole('button', { name: 'REJECT' }))
 
@@ -1596,7 +1596,7 @@ describe('App', () => {
           }),
         )
       })
-      expect(screen.getByText('A-001 - DECIDED_REJECT')).toBeInTheDocument()
+      expect(screen.getByText('A-001 - Rejeté')).toBeInTheDocument()
     } finally {
       import.meta.env.VITE_ASSET_SOURCE = previous
       vi.restoreAllMocks()
@@ -1669,12 +1669,12 @@ describe('App', () => {
       vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
       const { user } = setupApp('/review?source=api')
 
-      expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
       await user.click(within(getAssetsPanel()).getByText('A-001'))
       await user.click(within(getDetailPanel()).getByRole('button', { name: 'REJECT' }))
 
       expect(screen.getByTestId('asset-decision-status')).toHaveTextContent("Conflit d'état")
-      expect(screen.getByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      expect(screen.getByText('A-001 - En attente')).toBeInTheDocument()
     } finally {
       import.meta.env.VITE_ASSET_SOURCE = previous
       vi.restoreAllMocks()
@@ -1773,7 +1773,7 @@ describe('App', () => {
       vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
       const { user } = setupApp('/review?source=api')
 
-      expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
       await user.click(within(getAssetsPanel()).getByText('A-001'))
       await user.click(within(getDetailPanel()).getByRole('button', { name: 'REJECT' }))
 
@@ -1783,7 +1783,7 @@ describe('App', () => {
       await waitFor(() => {
         expect(detailCalls).toBeGreaterThan(1)
       })
-      expect(screen.getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
+      expect(screen.getByText('A-001 - Conservé')).toBeInTheDocument()
       expect(screen.getByTestId('asset-decision-status')).toHaveTextContent(
         "Détail de l'asset rafraîchi.",
       )
@@ -1854,7 +1854,7 @@ describe('App', () => {
       vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
       const { user } = setupApp('/review?source=api')
 
-      expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'KEEP visibles' })).toBeEnabled()
       })
@@ -1868,8 +1868,8 @@ describe('App', () => {
         })
         expect(decisionCalls).toHaveLength(2)
       })
-      expect(screen.getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
-      expect(screen.getByText('A-002 - DECIDED_KEEP')).toBeInTheDocument()
+      expect(screen.getByText('A-001 - Conservé')).toBeInTheDocument()
+      expect(screen.getByText('A-002 - Conservé')).toBeInTheDocument()
     } finally {
       import.meta.env.VITE_ASSET_SOURCE = previous
       vi.restoreAllMocks()
@@ -1936,7 +1936,7 @@ describe('App', () => {
       vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
       const { user } = setupApp('/review?source=api')
 
-      expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
       await user.keyboard('{Shift>}')
       await user.click(within(getAssetsPanel()).getByText('A-001'))
       await user.click(within(getAssetsPanel()).getByText('A-002'))
@@ -1954,8 +1954,8 @@ describe('App', () => {
         })
         expect(decisionCalls).toHaveLength(2)
       })
-      expect(screen.getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
-      expect(screen.getByText('A-002 - DECIDED_KEEP')).toBeInTheDocument()
+      expect(screen.getByText('A-001 - Conservé')).toBeInTheDocument()
+      expect(screen.getByText('A-002 - Conservé')).toBeInTheDocument()
     } finally {
       import.meta.env.VITE_ASSET_SOURCE = previous
       vi.restoreAllMocks()
@@ -2040,7 +2040,7 @@ describe('App', () => {
       vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock)
       const { user } = setupApp('/review?source=api')
 
-      expect(await screen.findByText('A-001 - DECISION_PENDING')).toBeInTheDocument()
+      expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'KEEP visibles' })).toBeEnabled()
       })
@@ -2049,8 +2049,8 @@ describe('App', () => {
       await waitFor(() => {
         expect(decisionCallCount).toBe(2)
       })
-      const hasFirstAssetKept = screen.queryByText('A-001 - DECIDED_KEEP') !== null
-      const hasThirdAssetKept = screen.queryByText('A-003 - DECIDED_KEEP') !== null
+      const hasFirstAssetKept = screen.queryByText('A-001 - Conservé') !== null
+      const hasThirdAssetKept = screen.queryByText('A-003 - Conservé') !== null
       expect(hasFirstAssetKept || hasThirdAssetKept).toBe(true)
       expect(screen.getByTestId('asset-decision-status')).toHaveTextContent("Conflit d'état")
     } finally {

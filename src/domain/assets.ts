@@ -33,6 +33,13 @@ export type Asset = {
   transcriptStatus?: 'NONE' | 'RUNNING' | 'DONE' | 'FAILED'
 }
 
+export const ASSET_STATE_LABEL_KEYS: Record<AssetState, string> = {
+  DECISION_PENDING: 'toolbar.statePending',
+  DECIDED_KEEP: 'toolbar.stateKept',
+  DECIDED_REJECT: 'toolbar.stateRejected',
+  ARCHIVED: 'toolbar.stateArchived',
+}
+
 function inferMediaTypeFromName(name: string): AssetMediaType {
   const lower = name.toLowerCase()
   if (lower.endsWith('.mov') || lower.endsWith('.mp4') || lower.endsWith('.mxf')) {

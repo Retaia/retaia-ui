@@ -13,6 +13,7 @@ type AssetListProps = {
     keep: string
     reject: string
     clear: string
+    state: (value: Asset['state']) => string
   }
   onDecision: (id: string, action: DecisionAction) => void
   onAssetClick: (id: string, shiftKey: boolean) => void
@@ -86,7 +87,7 @@ export function AssetList({
               {asset.name}
             </Button>
             <p className={selectedAssetId === asset.id ? 'mb-0 text-white-50' : 'mb-0 text-secondary'}>
-              {asset.id} - {asset.state}
+              {asset.id} - {labels.state(asset.state)}
             </p>
             {batchIds.includes(asset.id) ? (
               <Badge bg="warning" className="mt-2">

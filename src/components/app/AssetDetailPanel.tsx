@@ -10,6 +10,7 @@ import {
   BsXCircle,
 } from 'react-icons/bs'
 import type { Asset, DecisionAction } from '../../domain/assets'
+import { ASSET_STATE_LABEL_KEYS } from '../../domain/assets'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import { AssetMediaPreview } from './AssetMediaPreview'
 
@@ -260,7 +261,7 @@ export function AssetDetailPanel({
               <strong className="d-block">{selectedAsset.name}</strong>
               <p className="text-secondary mb-1">{t('detail.id', { id: selectedAsset.id })}</p>
               <p className="text-secondary mb-3">
-                {t('detail.state', { state: selectedAsset.state })}
+                {t('detail.state', { state: t(ASSET_STATE_LABEL_KEYS[selectedAsset.state]) })}
               </p>
               <section className="mb-3" aria-label={t('detail.previewTitle')}>
                 <h3 className="h6 mb-2">{t('detail.previewTitle')}</h3>

@@ -15,6 +15,7 @@ const labels = {
   keep: 'KEEP',
   reject: 'REJECT',
   clear: 'CLEAR',
+  state: (value: 'DECISION_PENDING' | 'DECIDED_KEEP' | 'DECIDED_REJECT' | 'ARCHIVED') => value,
 }
 
 describe('AssetList', () => {
