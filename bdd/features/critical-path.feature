@@ -16,17 +16,17 @@ Feature: Parcours critiques de review
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je fais Maj+clic sur l'asset "behind-the-scenes.jpg"
     Then le batch sélectionné affiche 2
-    When je clique sur le bouton "KEEP batch"
-    Then l'état "A-001 - DECIDED_KEEP" est visible
-    And l'état "A-003 - DECIDED_KEEP" est visible
+    When je clique sur le bouton "Conserver batch"
+    Then l'état "A-001 - Conservé" est visible
+    And l'état "A-003 - Conservé" est visible
 
   @critical
   Scenario: Annuler une decision au clavier
     Given je suis sur la page d'accueil
     When je rejette le premier asset de la liste
-    Then l'état "A-001 - DECIDED_REJECT" est visible
+    Then l'état "A-001 - Rejeté" est visible
     When j'utilise le raccourci annuler
-    Then l'état "A-001 - DECISION_PENDING" est visible
+    Then l'état "A-001 - En attente" est visible
 
   @critical
   Scenario: Executer un batch et voir le rapport
@@ -75,6 +75,6 @@ Feature: Parcours critiques de review
     Given je suis sur la page "/library/detail/A-002?from=%2Flibrary"
     Then l'URL courante contient "/library/detail/A-002"
     And le testid "standalone-detail-breadcrumb" contient "Library"
-    And le testid "standalone-detail-breadcrumb" contient "ARCHIVED"
+    And le testid "standalone-detail-breadcrumb" contient "Archivés"
     When je clique sur le bouton "Retour à Library"
     Then l'URL courante contient "/library"
