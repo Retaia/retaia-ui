@@ -9,6 +9,10 @@ const labels = {
   failed: 'Échecs',
   errors: 'Erreurs',
   noErrors: 'Aucune erreur',
+  statusDone: 'Terminé',
+  statusPartial: 'Partiel',
+  statusFailed: 'Échec',
+  statusUnknown: 'Inconnu',
 }
 
 describe('BatchReportView', () => {
@@ -22,7 +26,7 @@ describe('BatchReportView', () => {
 
     const summary = screen.getByRole('region', { name: labels.summary })
     const table = within(summary).getByRole('table')
-    expect(within(table).getAllByText('DONE').length).toBeGreaterThan(0)
+    expect(within(table).getAllByText('Terminé').length).toBeGreaterThan(0)
     expect(within(table).getByText('7')).toBeVisible()
     expect(within(table).getByText('1')).toBeVisible()
     expect(screen.getByText(labels.noErrors)).toBeVisible()
@@ -36,7 +40,7 @@ describe('BatchReportView', () => {
       />,
     )
 
-    expect(screen.getAllByText('PARTIAL').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Partiel').length).toBeGreaterThan(0)
     expect(screen.getByText('3')).toBeVisible()
     expect(screen.getByText('2')).toBeVisible()
   })

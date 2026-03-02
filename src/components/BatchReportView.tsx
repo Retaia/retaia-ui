@@ -9,6 +9,10 @@ type BatchReportViewProps = {
     failed: string
     errors: string
     noErrors: string
+    statusDone: string
+    statusPartial: string
+    statusFailed: string
+    statusUnknown: string
   }
 }
 
@@ -28,6 +32,19 @@ function getStatusVariant(status: string) {
     return 'danger'
   }
   return 'secondary'
+}
+
+function getStatusLabel(status: string, labels: BatchReportViewProps['labels']) {
+  if (status === 'DONE') {
+    return labels.statusDone
+  }
+  if (status === 'PARTIAL') {
+    return labels.statusPartial
+  }
+  if (status === 'FAILED') {
+    return labels.statusFailed
+  }
+  return labels.statusUnknown
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -68,12 +85,13 @@ export function BatchReportView({ report, labels }: BatchReportViewProps) {
   const moved = asNumber(parsed.moved ?? parsed.moved_count)
   const failed = asNumber(parsed.failed ?? parsed.failed_count)
   const statusVariant = getStatusVariant(status)
+  const statusLabel = getStatusLabel(status, labels)
   const errors = parseErrors(parsed).sort((a, b) => a.assetId.localeCompare(b.assetId))
 
   return (
     <section className="mt-2" aria-label={labels.summary} data-testid="batch-report-summary">
       <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
-        <span className={`badge text-bg-${statusVariant}`}>{status}</span>
+        <span className={`badge text-bg-${statusVariant}`}>{statusLabel}</span>
         <span className="badge text-bg-success">
           <BsCheckCircleFill className="me-1" aria-hidden="true" />
           {`${labels.moved}: ${moved}`}
@@ -94,7 +112,7 @@ export function BatchReportView({ report, labels }: BatchReportViewProps) {
           </thead>
           <tbody>
             <tr>
-              <td data-testid="batch-report-status-value">{status}</td>
+              <td data-testid="batch-report-status-value">{statusLabel}</td>
               <td data-testid="batch-report-moved-value">{moved}</td>
               <td data-testid="batch-report-failed-value">{failed}</td>
             </tr>

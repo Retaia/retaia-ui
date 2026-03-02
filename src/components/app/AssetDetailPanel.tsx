@@ -14,6 +14,22 @@ import { ASSET_STATE_LABEL_KEYS } from '../../domain/assets'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import { AssetMediaPreview } from './AssetMediaPreview'
 
+function getTranscriptStatusLabel(
+  t: (key: string, values?: Record<string, string>) => string,
+  status: NonNullable<Asset['transcriptStatus']>,
+) {
+  if (status === 'DONE') {
+    return t('detail.transcriptStatusDone')
+  }
+  if (status === 'RUNNING') {
+    return t('detail.transcriptStatusRunning')
+  }
+  if (status === 'FAILED') {
+    return t('detail.transcriptStatusFailed')
+  }
+  return t('detail.transcriptStatusNone')
+}
+
 type PurgeStatus = {
   kind: 'success' | 'error'
   message: string
@@ -272,7 +288,9 @@ export function AssetDetailPanel({
                   <h3 className="h6 mb-1">{t('detail.transcriptTitle')}</h3>
                   {selectedAsset.transcriptStatus ? (
                     <p className="small text-secondary mb-1">
-                      {t('detail.transcriptStatus', { status: selectedAsset.transcriptStatus })}
+                      {t('detail.transcriptStatus', {
+                        status: getTranscriptStatusLabel(t, selectedAsset.transcriptStatus),
+                      })}
                     </p>
                   ) : null}
                   <p className="small mb-0" data-testid="asset-transcript-preview">

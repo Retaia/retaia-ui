@@ -905,9 +905,9 @@ describe('App', () => {
     )
     const reportSummary = screen.getByLabelText('Synthèse batch')
     expect(reportSummary).toBeInTheDocument()
-    expect(within(reportSummary).getAllByText('DONE').length).toBeGreaterThan(0)
+    expect(within(reportSummary).getAllByText('Terminé').length).toBeGreaterThan(0)
     expect(within(reportSummary).getByText('2')).toBeInTheDocument()
-    expect(screen.getByTestId('batch-report-status-value')).toHaveTextContent('DONE')
+    expect(screen.getByTestId('batch-report-status-value')).toHaveTextContent('Terminé')
     expect(screen.getByTestId('batch-report-moved-value')).toHaveTextContent('2')
     const liveRegions = screen.getAllByRole('status')
     expect(liveRegions.some((node) => node.textContent?.includes('Exécution du batch acceptée'))).toBe(
@@ -988,7 +988,7 @@ describe('App', () => {
     expect(screen.getByTestId('batch-report-status')).toHaveTextContent(
       'Rapport chargé pour batch-123',
     )
-    expect(screen.getByTestId('batch-report-status-value')).toHaveTextContent('DONE')
+    expect(screen.getByTestId('batch-report-status-value')).toHaveTextContent('Terminé')
     expect(screen.getByTestId('batch-report-moved-value')).toHaveTextContent('2')
     fetchSpy.mockRestore()
   })
