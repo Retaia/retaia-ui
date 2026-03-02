@@ -4,6 +4,7 @@ import { BsArchive, BsSearch, BsSortDown } from 'react-icons/bs'
 import { AssetList } from '../AssetList'
 import type { Asset } from '../../domain/assets'
 import type { AssetSort } from '../../domain/assets'
+import { ASSET_STATE_LABEL_KEYS } from '../../domain/assets'
 import type { DensityMode } from '../../hooks/useDensityMode'
 
 type Props = {
@@ -82,9 +83,10 @@ export function LibraryListSection({
             labels={{
               empty: t('library.empty'),
               batch: '',
-              keep: 'KEEP',
-              reject: 'REJECT',
-              clear: 'CLEAR',
+              keep: t('actions.decisionKeep'),
+              reject: t('actions.decisionReject'),
+              clear: t('actions.decisionClear'),
+              state: (value) => t(ASSET_STATE_LABEL_KEYS[value]),
             }}
             onDecision={() => {}}
             onAssetClick={onAssetClick}

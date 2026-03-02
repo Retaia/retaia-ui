@@ -17,21 +17,21 @@ Feature: Workflow de review desktop-like
   Scenario: Annuler une décision avec Ctrl/Cmd+Z
     Given je suis sur la page d'accueil
     When je rejette le premier asset de la liste
-    Then l'état "A-001 - DECIDED_REJECT" est visible
+    Then l'état "A-001 - Rejeté" est visible
     When j'utilise le raccourci annuler
-    Then l'état "A-001 - DECISION_PENDING" est visible
+    Then l'état "A-001 - En attente" est visible
 
   Scenario: Workflow batch complet avec sélection de plage et undo
     Given je suis sur la page d'accueil
     When j'ouvre le premier asset au clavier
     And j'étends la sélection de plage jusqu'à 3 assets
     Then le batch sélectionné affiche 3
-    When j'applique l'action "KEEP batch"
-    Then l'état "A-001 - DECIDED_KEEP" est visible
-    Then l'état "A-003 - DECIDED_KEEP" est visible
+    When j'applique l'action "Conserver batch"
+    Then l'état "A-001 - Conservé" est visible
+    Then l'état "A-003 - Conservé" est visible
     When j'utilise le raccourci annuler
-    Then l'état "A-001 - DECISION_PENDING" est visible
-    Then l'état "A-003 - DECIDED_REJECT" est visible
+    Then l'état "A-001 - En attente" est visible
+    Then l'état "A-003 - Rejeté" est visible
 
   Scenario: Filtres recherche et no-op sur reset
     Given je suis sur la page d'accueil
@@ -75,13 +75,13 @@ Feature: Workflow de review desktop-like
 
   Scenario: Vider le journal d'actions
     Given je suis sur la page d'accueil
-    When je clique sur le bouton "KEEP visibles"
+    When je clique sur le bouton "Conserver visibles"
     And je clique sur le bouton "Vider journal"
     Then le message "Aucune action pour le moment." est visible
 
   Scenario: Vider le journal avec le raccourci l
     Given je suis sur la page d'accueil
-    When je clique sur le bouton "KEEP visibles"
+    When je clique sur le bouton "Conserver visibles"
     And j'appuie sur la touche "l"
     Then le message "Aucune action pour le moment." est visible
 
@@ -111,22 +111,22 @@ Feature: Workflow de review desktop-like
     Given je suis sur la page d'accueil
     When je clique sur le bouton "Images rejetées"
     Then le titre principal "Assets (1)" est visible
-    And l'état "A-003 - DECIDED_REJECT" est visible
+    And l'état "A-003 - Rejeté" est visible
 
   Scenario: Décider KEEP/REJECT/CLEAR au clavier
     Given je suis sur la page d'accueil
     When j'ouvre le premier asset au clavier
     And j'appuie sur la touche "v"
-    Then l'état "A-001 - DECIDED_REJECT" est visible
+    Then l'état "A-001 - Rejeté" est visible
     When j'appuie sur la touche "g"
-    Then l'état "A-001 - DECIDED_KEEP" est visible
+    Then l'état "A-001 - Conservé" est visible
     When j'appuie sur la touche "x"
-    Then l'état "A-001 - DECISION_PENDING" est visible
+    Then l'état "A-001 - En attente" est visible
 
   Scenario: Appliquer le filtre pending au clavier
     Given je suis sur la page d'accueil
     When j'appuie sur la touche "p"
-    Then l'état "A-001 - DECISION_PENDING" est visible
+    Then l'état "A-001 - En attente" est visible
 
   Scenario: Basculer la densité de liste au clavier
     Given je suis sur la page d'accueil
@@ -137,7 +137,7 @@ Feature: Workflow de review desktop-like
     Given je suis sur la page d'accueil
     When j'appuie sur la touche "2"
     Then le titre principal "Assets (1)" est visible
-    And l'état "A-003 - DECIDED_REJECT" est visible
+    And l'état "A-003 - Rejeté" est visible
 
   Scenario: Focus recherche avec slash
     Given je suis sur la page d'accueil
@@ -169,12 +169,12 @@ Feature: Workflow de review desktop-like
     When je clique sur l'element testid "next-open"
     Then le panneau détail affiche l'asset "interview-camera-a.mov"
     When je clique sur l'element testid "next-reject"
-    Then l'état "A-001 - DECIDED_REJECT" est visible
+    Then l'état "A-001 - Rejeté" est visible
 
   Scenario: Décider KEEP via la carte prochain asset
     Given je suis sur la page d'accueil
     When je clique sur l'element testid "next-keep"
-    Then l'état "A-001 - DECIDED_KEEP" est visible
+    Then l'état "A-001 - Conservé" est visible
 
   Scenario: Vider la recherche avec Escape
     Given je suis sur la page d'accueil

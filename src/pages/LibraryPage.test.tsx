@@ -6,7 +6,7 @@ describe('LibraryPage', () => {
   it('renders archived assets library and filters by search', async () => {
     const { user } = setupApp('/library')
 
-    expect(await screen.findByRole('heading', { name: 'Library ARCHIVED (1)' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Bibliothèque (1)' })).toBeInTheDocument()
     expect(screen.getByText('ambiance-plateau.wav')).toBeInTheDocument()
 
     await user.type(screen.getByTestId('library-search-input'), 'unknown')
@@ -20,7 +20,7 @@ describe('LibraryPage', () => {
 
     const detail = await screen.findByLabelText("Détail de l'asset")
     expect(within(detail).getByText('ambiance-plateau.wav')).toBeInTheDocument()
-    expect(within(detail).getByText('ID: A-002')).toBeInTheDocument()
+    expect(within(detail).getByText('Identifiant: A-002')).toBeInTheDocument()
   })
 
   it('restores selected asset from persisted workspace context', async () => {

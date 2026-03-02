@@ -3,21 +3,21 @@ Feature: Workflow décisions batch API
   Je veux que les actions batch envoient des décisions au serveur
   Afin de garder l'état UI aligné avec l'API
 
-  Scenario: KEEP batch envoie une décision par asset du batch
+  Scenario: Conserver batch envoie une décision par asset du batch
     Given je suis sur la page d'accueil en mode source API
     When je fais Maj+clic sur l'asset "A-001"
     And je fais Maj+clic sur l'asset "A-003"
-    And je clique sur le bouton "KEEP batch"
+    And je clique sur le bouton "Conserver batch"
     Then le mock API a reçu 2 décisions asset
-    And l'état "A-001 - DECIDED_KEEP" est visible
-    And l'état "A-003 - DECIDED_KEEP" est visible
+    And l'état "A-001 - Conservé" est visible
+    And l'état "A-003 - Conservé" est visible
 
-  Scenario: KEEP batch conserve les succès quand une décision est en conflit
+  Scenario: Conserver batch conserve les succès quand une décision est en conflit
     Given le mock API retourne STATE_CONFLICT une seule fois sur la décision asset
     And je suis sur la page d'accueil en mode source API
     When je fais Maj+clic sur l'asset "A-001"
     And je fais Maj+clic sur l'asset "A-003"
-    And je clique sur le bouton "KEEP batch"
+    And je clique sur le bouton "Conserver batch"
     Then le mock API a reçu 2 décisions asset
     And le message "Conflit d'état" est visible
-    And l'état "A-003 - DECIDED_KEEP" est visible
+    And l'état "A-003 - Conservé" est visible

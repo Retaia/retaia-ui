@@ -39,4 +39,4 @@ Feature: Workflow desktop avancé
   Scenario: Action rapide depuis l'aide raccourcis pour ouvrir le pending
     Given je suis sur la page d'accueil
     When je clique sur le bouton "Aller à traiter"
-    Then l'état "A-001 - DECISION_PENDING" est visible
+    Then l'état "A-001 - En attente" est visible

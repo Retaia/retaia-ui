@@ -109,6 +109,10 @@ export function ActionReportSection({
             failed: t('actions.reportFailedLabel'),
             errors: t('actions.reportErrorsLabel'),
             noErrors: t('actions.reportNoErrors'),
+            statusDone: t('actions.reportStatusDone'),
+            statusPartial: t('actions.reportStatusPartial'),
+            statusFailed: t('actions.reportStatusFailed'),
+            statusUnknown: t('actions.reportStatusUnknown'),
           }}
         />
       ) : null}

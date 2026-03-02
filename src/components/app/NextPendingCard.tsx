@@ -45,7 +45,7 @@ export function NextPendingCard({
                 data-testid="next-keep"
               >
                 <BsCheck2Circle className="me-1" aria-hidden="true" />
-                KEEP
+                {t('actions.decisionKeep')}
               </Button>
               <Button
                 type="button"
@@ -54,7 +54,7 @@ export function NextPendingCard({
                 data-testid="next-reject"
               >
                 <BsXCircle className="me-1" aria-hidden="true" />
-                REJECT
+                {t('actions.decisionReject')}
               </Button>
             </Stack>
           </Stack>

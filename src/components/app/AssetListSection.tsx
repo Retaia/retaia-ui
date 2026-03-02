@@ -3,6 +3,7 @@ import { BsCollection, BsCrosshair, BsGrid3X3Gap, BsQuestionCircle } from 'react
 import type { TFunction } from 'i18next'
 import { AssetList } from '../AssetList'
 import type { Asset, DecisionAction } from '../../domain/assets'
+import { ASSET_STATE_LABEL_KEYS } from '../../domain/assets'
 import type { DensityMode } from '../../hooks/useDensityMode'
 
 type AssetListSectionProps = {
@@ -64,9 +65,10 @@ export function AssetListSection({
             labels={{
               empty: emptyAssetsMessage,
               batch: t('assets.batchBadge'),
-              keep: 'KEEP',
-              reject: 'REJECT',
-              clear: 'CLEAR',
+              keep: t('actions.decisionKeep'),
+              reject: t('actions.decisionReject'),
+              clear: t('actions.decisionClear'),
+              state: (value) => t(ASSET_STATE_LABEL_KEYS[value]),
             }}
             onDecision={onDecision}
             onAssetClick={onAssetClick}

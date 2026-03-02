@@ -7,8 +7,8 @@ Feature: Workflow décision API
     Given je suis sur la page d'accueil en mode source API
     When je clique sur l'asset "A-001"
     And j'appuie sur la touche "v"
-    Then l'état "A-001 - DECIDED_REJECT" est visible
-    And le message "Décision REJECT enregistrée" est visible
+    Then l'état "A-001 - Rejeté" est visible
+    And le message "Décision Rejeter enregistrée" est visible
 
   Scenario: Conflit d'état sur une décision API
     Given le mock API retourne STATE_CONFLICT sur la décision asset
@@ -16,7 +16,7 @@ Feature: Workflow décision API
     When je clique sur l'asset "A-001"
     And j'appuie sur la touche "v"
     Then le message "Conflit d'état" est visible
-    And l'état "A-001 - DECISION_PENDING" est visible
+    And l'état "A-001 - En attente" est visible
 
   Scenario: Proposer un rafraîchissement asset après conflit d'état
     Given le mock API retourne STATE_CONFLICT sur la décision asset

@@ -72,8 +72,8 @@ describe('AppRoutes', () => {
   it('renders library page on /library', async () => {
     setupApp('/library')
 
-    expect(await screen.findByRole('heading', { name: 'Library ARCHIVED (1)' })).toBeInTheDocument()
-    expect(screen.getByLabelText('Library des assets archivés')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Bibliothèque (1)' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Bibliothèque des assets archivés')).toBeInTheDocument()
   })
 
   it('renders not-found page on legacy review asset route without redirect', async () => {
@@ -106,7 +106,7 @@ describe('AppRoutes', () => {
   it('renders standalone library detail page on /library/detail/:assetId', async () => {
     setupApp('/library/detail/A-002')
 
-    expect(await screen.findByRole('button', { name: 'Retour à Library' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Retour à Bibliothèque' })).toBeInTheDocument()
     expect(screen.getByText('ambiance-plateau.wav')).toBeInTheDocument()
   })
 })

@@ -16,9 +16,9 @@ describe('StandaloneAssetDetailPage', () => {
   it('renders library breadcrumb with archived level', async () => {
     setupApp('/library/detail/A-002')
 
-    expect(await screen.findByRole('button', { name: 'Retour à Library' })).toBeInTheDocument()
-    expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('Library')
-    expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('ARCHIVED')
+    expect(await screen.findByRole('button', { name: 'Retour à Bibliothèque' })).toBeInTheDocument()
+    expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('Bibliothèque')
+    expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('Archivés')
     expect(screen.getByTestId('standalone-detail-breadcrumb')).toHaveTextContent('A-002')
   })
 

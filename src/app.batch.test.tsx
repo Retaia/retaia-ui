@@ -13,11 +13,11 @@ describe('App batch flows', () => {
 
     expect(screen.getByText('Batch sélectionné: 2')).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'KEEP batch' }))
+    await user.click(screen.getByRole('button', { name: 'Conserver batch' }))
 
     expect(screen.getByText('Batch sélectionné: 0')).toBeInTheDocument()
-    expect(within(getAssetsPanel()).getByText('A-001 - DECIDED_KEEP')).toBeInTheDocument()
-    expect(within(getAssetsPanel()).getByText('A-003 - DECIDED_KEEP')).toBeInTheDocument()
+    expect(within(getAssetsPanel()).getByText('A-001 - Conservé')).toBeInTheDocument()
+    expect(within(getAssetsPanel()).getByText('A-003 - Conservé')).toBeInTheDocument()
   })
 
   it('filters visible assets to current batch with batch-only toggle', async () => {
@@ -44,7 +44,7 @@ describe('App batch flows', () => {
     await user.keyboard('{/Shift}')
 
     expect(screen.getByText('À exécuter: 2')).toBeInTheDocument()
-    expect(screen.getByText('En attente: 1 · KEEP: 0 · REJECT: 1')).toBeInTheDocument()
+    expect(screen.getByText('En attente: 1 · Conservés: 0 · Rejetés: 1')).toBeInTheDocument()
   })
 
   it('confirms queued batch execution with Shift+Enter', async () => {

@@ -10,8 +10,25 @@ import {
   BsXCircle,
 } from 'react-icons/bs'
 import type { Asset, DecisionAction } from '../../domain/assets'
+import { ASSET_STATE_LABEL_KEYS } from '../../domain/assets'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import { AssetMediaPreview } from './AssetMediaPreview'
+
+function getTranscriptStatusLabel(
+  t: (key: string, values?: Record<string, string>) => string,
+  status: NonNullable<Asset['transcriptStatus']>,
+) {
+  if (status === 'DONE') {
+    return t('detail.transcriptStatusDone')
+  }
+  if (status === 'RUNNING') {
+    return t('detail.transcriptStatusRunning')
+  }
+  if (status === 'FAILED') {
+    return t('detail.transcriptStatusFailed')
+  }
+  return t('detail.transcriptStatusNone')
+}
 
 type PurgeStatus = {
   kind: 'success' | 'error'
@@ -260,7 +277,7 @@ export function AssetDetailPanel({
               <strong className="d-block">{selectedAsset.name}</strong>
               <p className="text-secondary mb-1">{t('detail.id', { id: selectedAsset.id })}</p>
               <p className="text-secondary mb-3">
-                {t('detail.state', { state: selectedAsset.state })}
+                {t('detail.state', { state: t(ASSET_STATE_LABEL_KEYS[selectedAsset.state]) })}
               </p>
               <section className="mb-3" aria-label={t('detail.previewTitle')}>
                 <h3 className="h6 mb-2">{t('detail.previewTitle')}</h3>
@@ -271,7 +288,9 @@ export function AssetDetailPanel({
                   <h3 className="h6 mb-1">{t('detail.transcriptTitle')}</h3>
                   {selectedAsset.transcriptStatus ? (
                     <p className="small text-secondary mb-1">
-                      {t('detail.transcriptStatus', { status: selectedAsset.transcriptStatus })}
+                      {t('detail.transcriptStatus', {
+                        status: getTranscriptStatusLabel(t, selectedAsset.transcriptStatus),
+                      })}
                     </p>
                   ) : null}
                   <p className="small mb-0" data-testid="asset-transcript-preview">
@@ -317,7 +336,7 @@ export function AssetDetailPanel({
                     onClick={() => onDecision(selectedAsset.id, 'KEEP')}
                   >
                     <BsCheck2Circle className="me-1" aria-hidden="true" />
-                    KEEP
+                    {t('actions.decisionKeep')}
                   </Button>
                   <Button
                     type="button"
@@ -325,7 +344,7 @@ export function AssetDetailPanel({
                     onClick={() => onDecision(selectedAsset.id, 'REJECT')}
                   >
                     <BsXCircle className="me-1" aria-hidden="true" />
-                    REJECT
+                    {t('actions.decisionReject')}
                   </Button>
                   <Button
                     type="button"
@@ -333,7 +352,7 @@ export function AssetDetailPanel({
                     onClick={() => onDecision(selectedAsset.id, 'CLEAR')}
                   >
                     <BsTrash3 className="me-1" aria-hidden="true" />
-                    CLEAR
+                    {t('actions.decisionClear')}
                   </Button>
                 </Stack>
               ) : null}

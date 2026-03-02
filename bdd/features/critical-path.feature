@@ -16,17 +16,17 @@ Feature: Parcours critiques de review
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je fais Maj+clic sur l'asset "behind-the-scenes.jpg"
     Then le batch sélectionné affiche 2
-    When je clique sur le bouton "KEEP batch"
-    Then l'état "A-001 - DECIDED_KEEP" est visible
-    And l'état "A-003 - DECIDED_KEEP" est visible
+    When je clique sur le bouton "Conserver batch"
+    Then l'état "A-001 - Conservé" est visible
+    And l'état "A-003 - Conservé" est visible
 
   @critical
   Scenario: Annuler une decision au clavier
     Given je suis sur la page d'accueil
     When je rejette le premier asset de la liste
-    Then l'état "A-001 - DECIDED_REJECT" est visible
+    Then l'état "A-001 - Rejeté" est visible
     When j'utilise le raccourci annuler
-    Then l'état "A-001 - DECISION_PENDING" est visible
+    Then l'état "A-001 - En attente" est visible
 
   @critical
   Scenario: Executer un batch et voir le rapport
@@ -35,7 +35,7 @@ Feature: Parcours critiques de review
     And je clique sur le bouton "Exécuter batch"
     And j'appuie sur la touche "Shift+Enter"
     Then le message "Exécution du batch acceptée" est visible
-    And le rapport batch affiche le statut "DONE"
+    And le rapport batch affiche le statut "Terminé"
 
   @critical
   Scenario: Changer la langue vers l'anglais
@@ -70,11 +70,11 @@ Feature: Parcours critiques de review
     And le testid "standalone-detail-breadcrumb" contient "Activité"
     When je clique sur le bouton "Retour à Activité"
     Then l'URL courante contient "/activity"
-    When je clique sur le bouton "Library"
+    When je clique sur le bouton "Bibliothèque"
     Then l'URL courante contient "/library"
     Given je suis sur la page "/library/detail/A-002?from=%2Flibrary"
     Then l'URL courante contient "/library/detail/A-002"
-    And le testid "standalone-detail-breadcrumb" contient "Library"
-    And le testid "standalone-detail-breadcrumb" contient "ARCHIVED"
-    When je clique sur le bouton "Retour à Library"
+    And le testid "standalone-detail-breadcrumb" contient "Bibliothèque"
+    And le testid "standalone-detail-breadcrumb" contient "Archivés"
+    When je clique sur le bouton "Retour à Bibliothèque"
     Then l'URL courante contient "/library"

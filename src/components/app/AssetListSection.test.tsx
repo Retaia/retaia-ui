@@ -63,7 +63,7 @@ describe('AssetListSection', () => {
       />,
     )
 
-    await user.click(screen.getByRole('button', { name: 'KEEP' }))
+    await user.click(screen.getByRole('button', { name: 'actions.decisionKeep' }))
     expect(onDecision).toHaveBeenCalledWith('A-001', 'KEEP')
 
     await user.click(screen.getByRole('button', { name: 'asset-a.mp4' }))
