@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Card, Stack } from '@ui-kit'
+import { Button, Card, Stack } from '@tailadmin'
 import {
   BsArrowClockwise,
   BsChevronDown,

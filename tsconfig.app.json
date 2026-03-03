@@ -12,7 +12,7 @@
     "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
-      "@ui-kit": ["src/ui/kit.tsx"]
+      "@tailadmin": ["src/ui/tailadmin.tsx"]
     },
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,

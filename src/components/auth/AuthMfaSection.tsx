@@ -1,4 +1,4 @@
-import { Button, Form } from '@ui-kit'
+import { Button, Form } from '@tailadmin'
 import type { TFunction } from 'i18next'
 
 type AuthMfaSectionProps = {

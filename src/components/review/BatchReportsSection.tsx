@@ -1,4 +1,4 @@
-import { Card } from '@ui-kit'
+import { Card } from '@tailadmin'
 import { BsBarChart } from 'react-icons/bs'
 import { ActionReportSection } from '../app/ActionReportSection'
 

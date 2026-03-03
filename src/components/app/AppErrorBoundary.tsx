@@ -1,6 +1,6 @@
 import type { ErrorInfo, ReactNode } from 'react'
 import { Component } from 'react'
-import { Alert, Button, Container } from '@ui-kit'
+import { Alert, Button, Container } from '@tailadmin'
 import { BsExclamationOctagon, BsArrowClockwise } from 'react-icons/bs'
 import { i18next } from '../../i18n'
 import { reportUiIssue } from '../../ui/telemetry'

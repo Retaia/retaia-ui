@@ -1,4 +1,4 @@
-import { Button, Stack } from '@ui-kit'
+import { Button, Stack } from '@tailadmin'
 import {
   BsArrowsCollapse,
   BsCameraVideo,

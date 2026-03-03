@@ -1,4 +1,4 @@
-import { Button, Card, Container } from '@ui-kit'
+import { Button, Card, Container } from '@tailadmin'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'

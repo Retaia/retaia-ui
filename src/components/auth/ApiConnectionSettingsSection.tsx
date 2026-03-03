@@ -1,4 +1,4 @@
-import { Button, Col, Form, Row } from '@ui-kit'
+import { Button, Col, Form, Row } from '@tailadmin'
 import type { TFunction } from 'i18next'
 import type { useAuthPageController } from '../../hooks/useAuthPageController'
 

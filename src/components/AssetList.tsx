@@ -1,5 +1,5 @@
 import type { Asset, DecisionAction } from '../domain/assets'
-import { Badge, Button, ListGroup, Stack } from '@ui-kit'
+import { Badge, Button, ListGroup, Stack } from '@tailadmin'
 import { BsCheck2Circle, BsEraser, BsInbox, BsXCircle } from 'react-icons/bs'
 
 type AssetListProps = {

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Breadcrumb, Button } from '@ui-kit'
+import { Breadcrumb, Button } from '@tailadmin'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AppHeader } from '../components/app/AppHeader'
 import { AssetDetailPanel } from '../components/app/AssetDetailPanel'

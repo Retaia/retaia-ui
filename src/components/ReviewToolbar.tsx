@@ -4,7 +4,7 @@ import type {
   AssetMediaTypeFilter,
   AssetSort,
 } from '../domain/assets'
-import { Card, Col, Form, Row } from '@ui-kit'
+import { Card, Col, Form, Row } from '@tailadmin'
 import { BsCalendar3, BsFunnel, BsSearch, BsSliders2, BsSortDown } from 'react-icons/bs'
 
 type ReviewToolbarProps = {

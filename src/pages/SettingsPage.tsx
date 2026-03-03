@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Button, Card, Container, Form } from '@ui-kit'
+import { Button, Card, Container, Form } from '@tailadmin'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useApiClient } from '../hooks/useApiClient'

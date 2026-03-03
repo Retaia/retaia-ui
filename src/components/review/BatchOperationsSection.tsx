@@ -1,4 +1,4 @@
-import { Card } from '@ui-kit'
+import { Card } from '@tailadmin'
 import { BsLayers } from 'react-icons/bs'
 import { ActionBatchSection } from '../app/ActionBatchSection'
 import { BatchExecutionStatusAlerts } from './BatchExecutionStatusAlerts'

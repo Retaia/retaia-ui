@@ -1,4 +1,4 @@
-import { Button, Stack } from '@ui-kit'
+import { Button, Stack } from '@tailadmin'
 import { BsArrowClockwise, BsBarChart, BsFileEarmarkArrowDown } from 'react-icons/bs'
 import { BatchReportView } from '../BatchReportView'
 

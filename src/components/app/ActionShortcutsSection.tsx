@@ -1,4 +1,4 @@
-import { Button, Col, Row, Stack } from '@ui-kit'
+import { Button, Col, Row, Stack } from '@tailadmin'
 import {
   BsArrowRightCircle,
   BsClockHistory,

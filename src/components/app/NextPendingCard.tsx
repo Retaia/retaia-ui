@@ -1,4 +1,4 @@
-import { Button, Card, Stack } from '@ui-kit'
+import { Button, Card, Stack } from '@tailadmin'
 import { BsArrowRightCircle, BsCardChecklist, BsCheck2Circle, BsInbox, BsXCircle } from 'react-icons/bs'
 import type { Asset, DecisionAction } from '../../domain/assets'
 

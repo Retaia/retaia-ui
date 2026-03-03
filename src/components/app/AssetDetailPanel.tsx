@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Badge, Button, Card, Col, Form, Stack } from '@ui-kit'
+import { Badge, Button, Card, Col, Form, Stack } from '@tailadmin'
 import {
   BsCardChecklist,
   BsCheck2Circle,

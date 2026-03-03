@@ -1,4 +1,4 @@
-import { Row } from '@ui-kit'
+import { Row } from '@tailadmin'
 import type { TFunction } from 'i18next'
 import { AssetListSection } from '../app/AssetListSection'
 import { AssetDetailPanel } from '../app/AssetDetailPanel'

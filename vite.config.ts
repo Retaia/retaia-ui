@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@ui-kit': fileURLToPath(new URL('./src/ui/kit.tsx', import.meta.url)),
+      '@tailadmin': fileURLToPath(new URL('./src/ui/tailadmin.tsx', import.meta.url)),
     },
   },
   build: {

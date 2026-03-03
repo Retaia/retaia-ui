@@ -1,4 +1,4 @@
-import { Alert } from '@ui-kit'
+import { Alert } from '@tailadmin'
 import { BsExclamationTriangle, BsInfoCircle } from 'react-icons/bs'
 import type { TFunction } from 'i18next'
 
