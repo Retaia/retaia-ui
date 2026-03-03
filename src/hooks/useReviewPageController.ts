@@ -1020,6 +1020,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     refreshingSelectedAsset,
     assetListRegionRef,
     handleAssetClick,
+    clearSelection,
     setBatchAssetSelected,
     saveSelectedAssetMetadata,
     previewSelectedAssetPurge,

@@ -214,6 +214,7 @@ export const frTranslation = {
   'actions.keepVisible': 'Conserver visibles',
   'actions.rejectVisible': 'Rejeter visibles',
   'actions.clearFilters': 'Réinitialiser filtres',
+  'actions.close': 'Fermer',
   'actions.densityComfortable': 'Densité: confortable',
   'actions.densityCompact': 'Densité: compacte',
   'actions.batchSelected': 'Batch sélectionné: {count}',

@@ -172,11 +172,15 @@ describe('App', () => {
     expect(screen.getByTestId('batch-status')).toHaveTextContent('Taille batch active: 1')
   })
 
-  it('keeps detail panel sticky on desktop viewport', () => {
-    setupApp()
+  it('opens detail panel as right sidebar', async () => {
+    const { user } = setupApp()
+    const sidebar = screen.getByTestId('review-detail-sidebar')
+    expect(sidebar).toHaveClass('translate-x-full')
 
-    const detailCard = within(getDetailPanel()).getByText('Détail').closest('.xl\\:sticky')
-    expect(detailCard).toHaveClass('xl:sticky', 'xl:top-4')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+
+    expect(sidebar).toHaveClass('translate-x-0', 'fixed', 'right-0')
+    expect(getDetailPanel()).toBeInTheDocument()
   })
 
   it('shows loading status when API source mode is enabled', async () => {

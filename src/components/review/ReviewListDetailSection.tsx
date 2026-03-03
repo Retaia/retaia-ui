@@ -41,6 +41,7 @@ type Props = {
   onKeywordClick?: (keyword: string) => void
   onLoadMoreAssets?: () => Promise<void>
   onMetadataDirtyChange?: (dirty: boolean) => void
+  onCloseDetail?: () => void
 }
 
 export function ReviewListDetailSection({
@@ -78,8 +79,10 @@ export function ReviewListDetailSection({
   onKeywordClick,
   onLoadMoreAssets,
   onMetadataDirtyChange,
+  onCloseDetail,
 }: Props) {
   return (
+    <>
     <section className="mt-1 flex flex-wrap gap-4">
       <AssetListSection
         t={t}
@@ -100,28 +103,42 @@ export function ReviewListDetailSection({
         onLoadMoreAssets={onLoadMoreAssets}
       />
 
-      <AssetDetailPanel
-        selectedAsset={selectedAsset}
-        availability={availability}
-        previewingPurge={previewingPurge}
-        executingPurge={executingPurge}
-        purgeStatus={purgeStatus}
-        decisionStatus={decisionStatus}
-        savingMetadata={savingMetadata}
-        metadataStatus={metadataStatus}
-        t={t}
-        onDecision={onDecision}
-        onSaveMetadata={onSaveMetadata}
-        onPreviewPurge={onPreviewPurge}
-        onExecutePurge={onExecutePurge}
-        onRefreshAsset={onRefreshAsset}
-        showRefreshAction={showRefreshAction}
-        refreshingAsset={refreshingAsset}
-        onOpenStandaloneDetail={onOpenStandaloneDetail}
-        standaloneHref={standaloneHref}
-        onKeywordClick={onKeywordClick}
-        onMetadataDirtyChange={onMetadataDirtyChange}
-      />
     </section>
+    <aside
+      data-testid="review-detail-sidebar"
+      className={[
+        'fixed right-0 top-0 z-40 h-screen w-full max-w-2xl border-l border-gray-200 bg-gray-50/90 p-4 backdrop-blur-sm transition-transform duration-300 dark:border-gray-700 dark:bg-gray-900/90',
+        selectedAsset ? 'translate-x-0' : 'translate-x-full',
+      ].join(' ')}
+      aria-hidden={!selectedAsset}
+    >
+      <div className="h-full overflow-y-auto">
+        <AssetDetailPanel
+          selectedAsset={selectedAsset}
+          availability={availability}
+          previewingPurge={previewingPurge}
+          executingPurge={executingPurge}
+          purgeStatus={purgeStatus}
+          decisionStatus={decisionStatus}
+          savingMetadata={savingMetadata}
+          metadataStatus={metadataStatus}
+          t={t}
+          onDecision={onDecision}
+          onSaveMetadata={onSaveMetadata}
+          onPreviewPurge={onPreviewPurge}
+          onExecutePurge={onExecutePurge}
+          onRefreshAsset={onRefreshAsset}
+          showRefreshAction={showRefreshAction}
+          refreshingAsset={refreshingAsset}
+          onOpenStandaloneDetail={onOpenStandaloneDetail}
+          standaloneHref={standaloneHref}
+          onKeywordClick={onKeywordClick}
+          onMetadataDirtyChange={onMetadataDirtyChange}
+          layoutMode="sidebar"
+          onClose={onCloseDetail}
+        />
+      </div>
+    </aside>
+    </>
   )
 }

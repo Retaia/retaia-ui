@@ -254,6 +254,7 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           onKeywordClick={controller.onKeywordClick}
           onLoadMoreAssets={controller.loadMoreAssets}
           onMetadataDirtyChange={setHasUnsavedMetadata}
+          onCloseDetail={controller.clearSelection}
         />
       ) : null}
     </AppHeader>

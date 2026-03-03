@@ -214,6 +214,7 @@ export const enTranslation = {
   'actions.keepVisible': 'Keep visible',
   'actions.rejectVisible': 'Reject visible',
   'actions.clearFilters': 'Reset filters',
+  'actions.close': 'Close',
   'actions.densityComfortable': 'Density: comfortable',
   'actions.densityCompact': 'Density: compact',
   'actions.batchSelected': 'Selected batch: {count}',
