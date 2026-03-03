@@ -5,18 +5,22 @@ import type { Asset } from '../../domain/assets'
 import type { AssetSort } from '../../domain/assets'
 import { ASSET_STATE_LABEL_KEYS } from '../../domain/assets'
 import type { DensityMode } from '../../hooks/useDensityMode'
+import type { DisplayType } from '../../hooks/useDisplayType'
+import { DisplayTypeToggle } from '../ui/DisplayTypeToggle'
 
 type Props = {
   t: TFunction
   visibleAssets: Asset[]
   selectedAssetId: string | null
   densityMode: DensityMode
+  displayType?: DisplayType
   search: string
   sort: AssetSort
   hasMoreAssets?: boolean
   loadingMoreAssets?: boolean
   onSearchChange: (value: string) => void
   onSortChange: (value: AssetSort) => void
+  onDisplayTypeChange?: (value: DisplayType) => void
   onAssetClick: (assetId: string, shiftKey: boolean) => void
   onLoadMoreAssets?: () => Promise<void>
 }
@@ -26,22 +30,33 @@ export function LibraryListSection({
   visibleAssets,
   selectedAssetId,
   densityMode,
+  displayType = 'TABLE',
   search,
   sort,
   hasMoreAssets = false,
   loadingMoreAssets = false,
   onSearchChange,
   onSortChange,
+  onDisplayTypeChange,
   onAssetClick,
   onLoadMoreAssets,
 }: Props) {
   return (
     <section className="w-full xl:w-8/12" aria-label={t('library.region')}>
       <div className="h-full rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-lg font-semibold text-gray-900">
             <BsArchive className="mr-2 inline-block" aria-hidden="true" />
             {t('library.title', { count: visibleAssets.length })}
           </h2>
+          <DisplayTypeToggle
+            label={t('assets.displayType')}
+            tableLabel={t('assets.displayTypeTable')}
+            cardsLabel={t('assets.displayTypeCards')}
+            value={displayType}
+            onChange={(value) => onDisplayTypeChange?.(value)}
+          />
+          </div>
           <p className="text-xs text-gray-500 mb-3">{t('library.subtitle')}</p>
           <label htmlFor="library-search" className="font-semibold text-sm text-gray-700">
             <BsSearch className="mr-1 inline-block" aria-hidden="true" />
@@ -77,9 +92,14 @@ export function LibraryListSection({
             assets={visibleAssets}
             selectedAssetId={selectedAssetId}
             batchIds={[]}
+            displayType={displayType}
             density={densityMode}
             labels={{
               empty: t('library.empty'),
+              select: t('assets.columnSelect'),
+              asset: t('assets.columnAsset'),
+              stateLabel: t('assets.columnState'),
+              actions: t('assets.columnActions'),
               keep: t('actions.decisionKeep'),
               reject: t('actions.decisionReject'),
               clear: t('actions.decisionClear'),

@@ -37,6 +37,7 @@ import {
 } from '../application/review/reviewAssetMaintenance'
 import { useShortcutsHelpState } from '../hooks/useShortcutsHelpState'
 import { useAssetListFocus } from '../hooks/useAssetListFocus'
+import { useDisplayType } from '../hooks/useDisplayType'
 import {
   isStateConflictApiError,
   mapReviewApiErrorToMessage,
@@ -126,6 +127,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   }, [])
   const { showShortcutsHelp, toggleShortcutsHelp } = useShortcutsHelpState()
   const { densityMode, toggleDensityMode } = useDensityMode()
+  const { displayType, setDisplayType } = useDisplayType('retaia_ui_review_asset_display_type')
   const [savingMetadata, setSavingMetadata] = useState(false)
   const [metadataStatus, setMetadataStatus] = useState<{
     kind: 'success' | 'error'
@@ -947,6 +949,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     bulkDecisionsEnabled,
     batchOnly,
     densityMode,
+    displayType,
     effectiveAvailability,
     batchIds,
     batchScope,
@@ -977,6 +980,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     applyDecisionToVisible,
     clearFilters,
     toggleDensityMode,
+    setDisplayType,
     applyDecisionToBatch,
     clearBatch,
     previewBatchMove,

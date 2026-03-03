@@ -46,8 +46,8 @@ describe('App', () => {
     const assetsPanel = getAssetsPanel()
     const assetRow = within(assetsPanel)
       .getByText('interview-camera-a.mov')
-      .closest('li')
-    if (!assetRow) {
+      .closest('[data-asset-id]')
+    if (!(assetRow instanceof HTMLElement)) {
       throw new Error('expected first asset row was not found')
     }
 
@@ -1195,8 +1195,8 @@ describe('App', () => {
   it('keeps selected row state and focuses row action button for keyboard navigation', async () => {
     const { user } = setupApp()
 
-    expect(within(getAssetsPanel()).getByRole('list', { name: 'asset-list' })).toBeInTheDocument()
-    const firstRow = within(getAssetsPanel()).getByRole('button', { name: 'interview-camera-a.mov' }).closest('li')
+    expect(within(getAssetsPanel()).getByRole('table', { name: 'asset-table' })).toBeInTheDocument()
+    const firstRow = within(getAssetsPanel()).getByRole('button', { name: 'interview-camera-a.mov' }).closest('[data-asset-id]')
     if (!firstRow) {
       throw new Error('expected first row was not found')
     }
@@ -1206,7 +1206,7 @@ describe('App', () => {
 
     const updatedFirstRow = within(getAssetsPanel())
       .getByRole('button', { name: 'interview-camera-a.mov' })
-      .closest('li')
+      .closest('[data-asset-id]')
     if (!updatedFirstRow) {
       throw new Error('expected updated first row was not found')
     }
@@ -1215,7 +1215,7 @@ describe('App', () => {
 
     await user.keyboard('j')
 
-    const secondRow = within(getAssetsPanel()).getByRole('button', { name: 'ambiance-plateau.wav' }).closest('li')
+    const secondRow = within(getAssetsPanel()).getByRole('button', { name: 'ambiance-plateau.wav' }).closest('[data-asset-id]')
     if (!secondRow) {
       throw new Error('expected second row was not found')
     }
@@ -1345,20 +1345,20 @@ describe('App', () => {
   it('toggles compact density with d shortcut', async () => {
     const { user } = setupApp()
 
-    const defaultRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('li')
+    const defaultRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('[data-asset-id]')
     if (!defaultRow) {
       throw new Error('expected default row not found')
     }
-    expect(defaultRow).toHaveClass('py-3')
+    expect(defaultRow).toHaveClass('text-sm')
     expect(screen.getByRole('button', { name: 'Densité: confortable' })).toBeInTheDocument()
 
     await user.keyboard('d')
 
-    const compactRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('li')
+    const compactRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('[data-asset-id]')
     if (!compactRow) {
       throw new Error('expected compact row not found')
     }
-    expect(compactRow).toHaveClass('py-2')
+    expect(compactRow).toHaveClass('text-xs')
     expect(screen.getByRole('button', { name: 'Densité: compacte' })).toBeInTheDocument()
   })
 
@@ -1366,11 +1366,11 @@ describe('App', () => {
     window.localStorage.setItem('retaia_ui_density_mode', 'COMPACT')
     setupApp()
 
-    const compactRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('li')
+    const compactRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('[data-asset-id]')
     if (!compactRow) {
       throw new Error('expected compact row not found')
     }
-    expect(compactRow).toHaveClass('py-2')
+    expect(compactRow).toHaveClass('text-xs')
     expect(screen.getByRole('button', { name: 'Densité: compacte' })).toBeInTheDocument()
   })
 

@@ -4,6 +4,7 @@ import { AssetDetailPanel } from '../app/AssetDetailPanel'
 import type { Asset, DecisionAction } from '../../domain/assets'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import type { DensityMode } from '../../hooks/useDensityMode'
+import type { DisplayType } from '../../hooks/useDisplayType'
 
 type Props = {
   t: TFunction
@@ -12,6 +13,7 @@ type Props = {
   batchIds: string[]
   selectionStatusLabel: string
   densityMode: DensityMode
+  displayType?: DisplayType
   emptyAssetsMessage: string
   hasMoreAssets?: boolean
   loadingMoreAssets?: boolean
@@ -29,6 +31,7 @@ type Props = {
   onDecision: (id: string, action: DecisionAction) => void
   onAssetClick: (assetId: string, shiftKey: boolean) => void
   onBatchSelectionChange?: (assetId: string, selected: boolean) => void
+  onDisplayTypeChange?: (value: DisplayType) => void
   onSaveMetadata: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
   onPreviewPurge: () => Promise<void>
   onExecutePurge: () => Promise<void>
@@ -47,6 +50,7 @@ export function ReviewListDetailSection({
   batchIds,
   selectionStatusLabel,
   densityMode,
+  displayType = 'TABLE',
   emptyAssetsMessage,
   hasMoreAssets = false,
   loadingMoreAssets = false,
@@ -64,6 +68,7 @@ export function ReviewListDetailSection({
   onDecision,
   onAssetClick,
   onBatchSelectionChange,
+  onDisplayTypeChange,
   onSaveMetadata,
   onPreviewPurge,
   onExecutePurge,
@@ -83,12 +88,14 @@ export function ReviewListDetailSection({
         batchIds={batchIds}
         selectionStatusLabel={selectionStatusLabel}
         densityMode={densityMode}
+        displayType={displayType}
         emptyAssetsMessage={emptyAssetsMessage}
         hasMoreAssets={hasMoreAssets}
         loadingMoreAssets={loadingMoreAssets}
         onDecision={onDecision}
         onAssetClick={onAssetClick}
         onBatchSelectionChange={onBatchSelectionChange}
+        onDisplayTypeChange={onDisplayTypeChange}
         assetListRegionRef={assetListRegionRef}
         onLoadMoreAssets={onLoadMoreAssets}
       />
