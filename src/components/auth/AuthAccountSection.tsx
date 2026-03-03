@@ -71,17 +71,17 @@ export function AuthAccountSection({ t, controller }: AuthAccountSectionProps) {
   } = controller
 
   return (
-    <section className="border border-2 border-secondary-subtle rounded p-3 mb-3" aria-label={t('app.authTitle')}>
+    <section className="border border-2 border-gray-200 rounded p-3 mb-3" aria-label={t('app.authTitle')}>
       <h3 className="h6 mb-2">{t('app.authTitle')}</h3>
       {authUser ? (
-        <p className="small mb-2 text-secondary" data-testid="auth-user-status">
+        <p className="small mb-2 text-gray-500" data-testid="auth-user-status">
           {t('app.authSignedInAs', {
             identity: authUser.displayName ?? authUser.email,
           })}
           {authUser.mfaEnabled ? ` · ${t('app.authMfaEnabled')}` : ''}
         </p>
       ) : (
-        <p className="small mb-2 text-secondary" data-testid="auth-user-status">
+        <p className="small mb-2 text-gray-500" data-testid="auth-user-status">
           {t('app.authSignedOut')}
         </p>
       )}
@@ -105,7 +105,7 @@ export function AuthAccountSection({ t, controller }: AuthAccountSectionProps) {
       ) : null}
 
       {authUser && !isApiAuthLockedByEnv ? (
-        <div className="d-flex flex-wrap gap-2 mt-2">
+        <div className="flex flex-wrap gap-2 mt-2">
           <Button
             type="button"
             size="sm"
@@ -119,7 +119,7 @@ export function AuthAccountSection({ t, controller }: AuthAccountSectionProps) {
         </div>
       ) : null}
 
-      {isApiAuthLockedByEnv ? <p className="small text-secondary mb-0">{t('app.authEnvLocked')}</p> : null}
+      {isApiAuthLockedByEnv ? <p className="small text-gray-500 mb-0">{t('app.authEnvLocked')}</p> : null}
       {authStatus ? (
         <p
           className={`small mt-2 mb-0 ${authStatus.kind === 'success' ? 'text-success' : 'text-danger'}`}

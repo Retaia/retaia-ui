@@ -33,12 +33,12 @@ export function AuthPage() {
 
   return (
     <Container as="main" className="py-4">
-      <div className="d-flex justify-content-between align-items-start gap-2 mb-3">
+      <div className="flex justify-between items-start gap-2 mb-3">
         <div>
-          <h1 className="display-6 fw-bold mb-1">{t('app.authTitle')}</h1>
-          <p className="text-secondary mb-0">{t('app.apiConnectionSubtitle')}</p>
+          <h1 className="text-4xl font-bold mb-1">{t('app.authTitle')}</h1>
+          <p className="text-gray-500 mb-0">{t('app.apiConnectionSubtitle')}</p>
         </div>
-        <div className="d-flex gap-2">
+        <div className="flex gap-2">
           <Button
             type="button"
             size="sm"

@@ -61,9 +61,9 @@ export function ReviewToolbar({
   return (
     <Card as="section" className="shadow-sm border-0 mt-3">
       <Card.Body>
-        <Row className="g-3">
+        <Row className="gap-4">
           <Col xs={12} md={4}>
-            <Form.Label className="fw-semibold" htmlFor="state-filter">
+            <Form.Label className="font-semibold" htmlFor="state-filter">
               <BsFunnel className="me-1" aria-hidden="true" />
               {labels.filter}
             </Form.Label>
@@ -81,7 +81,7 @@ export function ReviewToolbar({
           </Col>
 
           <Col xs={12} md={4}>
-            <Form.Label className="fw-semibold" htmlFor="media-type-filter">
+            <Form.Label className="font-semibold" htmlFor="media-type-filter">
               <BsSliders2 className="me-1" aria-hidden="true" />
               {labels.mediaType}
             </Form.Label>
@@ -99,7 +99,7 @@ export function ReviewToolbar({
           </Col>
 
           <Col xs={12} md={4}>
-            <Form.Label className="fw-semibold" htmlFor="captured-date-filter">
+            <Form.Label className="font-semibold" htmlFor="captured-date-filter">
               <BsCalendar3 className="me-1" aria-hidden="true" />
               {labels.date}
             </Form.Label>
@@ -115,7 +115,7 @@ export function ReviewToolbar({
           </Col>
 
           <Col xs={12} md={12}>
-            <Form.Label className="fw-semibold" htmlFor="sort-key-filter">
+            <Form.Label className="font-semibold" htmlFor="sort-key-filter">
               <BsSortDown className="me-1" aria-hidden="true" />
               {labels.sortBy}
             </Form.Label>
@@ -134,7 +134,7 @@ export function ReviewToolbar({
           </Col>
 
           <Col xs={12}>
-            <Form.Label className="fw-semibold" htmlFor="asset-search">
+            <Form.Label className="font-semibold" htmlFor="asset-search">
               <BsSearch className="me-1" aria-hidden="true" />
               {labels.search}
             </Form.Label>

@@ -26,7 +26,7 @@ export function ActivitySection({
           <BsListUl className="me-2" aria-hidden="true" />
           {t('app.nav.activity')}
         </h2>
-        <Stack direction="horizontal" className="flex-wrap align-items-center gap-2 mt-2">
+        <Stack direction="horizontal" className="flex-wrap items-center gap-2 mt-2">
           <Button
             type="button"
             variant="warning"
@@ -36,7 +36,7 @@ export function ActivitySection({
             <BsArrowClockwise className="me-1" aria-hidden="true" />
             {t('actions.undo')}
           </Button>
-          <p className="mb-0 fw-semibold text-secondary">
+          <p className="mb-0 font-semibold text-gray-500">
             {t('actions.history', { count: undoStackLength })}
           </p>
         </Stack>

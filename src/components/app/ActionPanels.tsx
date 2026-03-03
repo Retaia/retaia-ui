@@ -189,7 +189,7 @@ export function ActionPanels({
           onRefreshBatchReport={onRefreshBatchReport}
           onExportBatchReport={onExportBatchReport}
         />
-        <Stack direction="horizontal" className="flex-wrap align-items-center gap-2 mt-3">
+        <Stack direction="horizontal" className="flex-wrap items-center gap-2 mt-3">
           <Button
             type="button"
             variant="warning"
@@ -199,13 +199,13 @@ export function ActionPanels({
             <BsArrowClockwise className="me-1" aria-hidden="true" />
             {t('actions.undo')}
           </Button>
-          <p className="mb-0 fw-semibold text-secondary">
+          <p className="mb-0 font-semibold text-gray-500">
             {t('actions.history', { count: undoStackLength })}
           </p>
         </Stack>
         <ActionJournalSection t={t} activityLog={activityLog} onClearActivityLog={onClearActivityLog} />
         <section className="border rounded p-3 mt-3">
-          <Stack direction="horizontal" className="justify-content-between align-items-center gap-2">
+          <Stack direction="horizontal" className="justify-between items-center gap-2">
             <h3 className="h6 mb-0">{t('actions.advancedTitle')}</h3>
             <Button
               type="button"

@@ -17,9 +17,9 @@ export function AuthAppFeatureSection({
   onToggle,
 }: AuthAppFeatureSectionProps) {
   return (
-    <section className="border border-2 border-secondary-subtle rounded p-3 mt-3" aria-label={t('app.authAppFeatureTitle')}>
+    <section className="border border-2 border-gray-200 rounded p-3 mt-3" aria-label={t('app.authAppFeatureTitle')}>
       <h4 className="h6 mb-2">{t('app.authAppFeatureTitle')}</h4>
-      <p className="small text-secondary mb-2" data-testid="auth-app-feature-state">
+      <p className="small text-gray-500 mb-2" data-testid="auth-app-feature-state">
         {appMfaFeatureEnabled ? t('app.authAppFeatureStateOn') : t('app.authAppFeatureStateOff')}
       </p>
       <Button

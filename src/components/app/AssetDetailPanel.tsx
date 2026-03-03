@@ -110,10 +110,10 @@ function MetadataEditor({
         <BsTag className="me-1" aria-hidden="true" />
         {t('detail.taggingTitle')}
       </h3>
-      <div className="d-flex flex-wrap gap-2 mb-2" data-testid="asset-tag-list">
+      <div className="flex flex-wrap gap-2 mb-2" data-testid="asset-tag-list">
         {tagsDraft.length > 0 ? (
           tagsDraft.map((tag) => (
-            <Badge key={tag} bg="secondary" className="d-inline-flex align-items-center">
+            <Badge key={tag} bg="secondary" className="inline-flex items-center">
               {onKeywordClick ? (
                 <Button
                   type="button"
@@ -143,7 +143,7 @@ function MetadataEditor({
             </Badge>
           ))
         ) : (
-          <span className="small text-secondary">{t('detail.noTags')}</span>
+          <span className="small text-gray-500">{t('detail.noTags')}</span>
         )}
       </div>
       <Form.Label htmlFor="asset-tag-input" className="small mb-1">
@@ -266,7 +266,7 @@ export function AssetDetailPanel({
 
   return (
     <Col as="section" xs={12} xl={4} aria-label={t('detail.region')}>
-      <Card className="shadow-sm border-0 h-100 sticky-xl-top">
+      <Card className="shadow-sm border-0 h-full xl:sticky xl:top-4">
         <Card.Body>
           <h2 className="h5">
             <BsCardChecklist className="me-2" aria-hidden="true" />
@@ -274,9 +274,9 @@ export function AssetDetailPanel({
           </h2>
           {selectedAsset ? (
             <div>
-              <strong className="d-block">{selectedAsset.name}</strong>
-              <p className="text-secondary mb-1">{t('detail.id', { id: selectedAsset.id })}</p>
-              <p className="text-secondary mb-3">
+              <strong className="block">{selectedAsset.name}</strong>
+              <p className="text-gray-500 mb-1">{t('detail.id', { id: selectedAsset.id })}</p>
+              <p className="text-gray-500 mb-3">
                 {t('detail.state', { state: t(ASSET_STATE_LABEL_KEYS[selectedAsset.state]) })}
               </p>
               <section className="mb-3" aria-label={t('detail.previewTitle')}>
@@ -287,7 +287,7 @@ export function AssetDetailPanel({
                 <section className="mb-3" aria-label={t('detail.transcriptTitle')}>
                   <h3 className="h6 mb-1">{t('detail.transcriptTitle')}</h3>
                   {selectedAsset.transcriptStatus ? (
-                    <p className="small text-secondary mb-1">
+                    <p className="small text-gray-500 mb-1">
                       {t('detail.transcriptStatus', {
                         status: getTranscriptStatusLabel(t, selectedAsset.transcriptStatus),
                       })}
@@ -366,9 +366,9 @@ export function AssetDetailPanel({
                 onMetadataDirtyChange={onMetadataDirtyChange}
               />
               {showPurgeActions && onPreviewPurge && onExecutePurge ? (
-                <section className="border border-2 border-danger-subtle rounded p-3 mt-3">
+                <section className="border border-2 border-error-200 rounded p-3 mt-3">
                   <h3 className="h6 mb-2">{t('actions.purgeTitle')}</h3>
-                  <p className="small text-secondary mb-2">{t('actions.purgeHelp')}</p>
+                  <p className="small text-gray-500 mb-2">{t('actions.purgeHelp')}</p>
                   <Stack direction="horizontal" className="flex-wrap gap-2">
                     <Button
                       type="button"
@@ -393,7 +393,7 @@ export function AssetDetailPanel({
               ) : null}
             </div>
           ) : (
-            <p className="text-secondary mb-0">
+            <p className="text-gray-500 mb-0">
               <BsInbox className="me-1" aria-hidden="true" />
               {t('detail.empty')}
             </p>

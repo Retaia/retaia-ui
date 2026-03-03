@@ -39,21 +39,21 @@ export function AssetListSection({
 }: AssetListSectionProps) {
   return (
     <Col as="section" xs={12} xl={8} aria-label={t('assets.region')} ref={assetListRegionRef}>
-      <Card className="shadow-sm border-0 h-100">
+      <Card className="shadow-sm border-0 h-full">
         <Card.Body>
           <h2 className="h5">
             <BsGrid3X3Gap className="me-2" aria-hidden="true" />
             {t('assets.title', { count: visibleAssets.length })}
           </h2>
-          <p className="small mb-1 text-secondary" data-testid="selection-status">
+          <p className="small mb-1 text-gray-500" data-testid="selection-status">
             <BsCrosshair className="me-1" aria-hidden="true" />
             {selectionStatusLabel}
           </p>
-          <p className="small mb-2 text-secondary" data-testid="batch-status">
+          <p className="small mb-2 text-gray-500" data-testid="batch-status">
             <BsCollection className="me-1" aria-hidden="true" />
             {t('assets.batchStatus', { count: batchIds.length })}
           </p>
-          <p className="small text-secondary">
+          <p className="small text-gray-500">
             <BsQuestionCircle className="me-1" aria-hidden="true" />
             {t('assets.help')}
           </p>
@@ -74,7 +74,7 @@ export function AssetListSection({
             onAssetClick={onAssetClick}
           />
           {hasMoreAssets && onLoadMoreAssets ? (
-            <div className="d-flex justify-content-center mt-3">
+            <div className="flex justify-center mt-3">
               <Button
                 type="button"
                 variant="outline-secondary"

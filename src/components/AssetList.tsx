@@ -32,7 +32,7 @@ export function AssetList({
 }: AssetListProps) {
   if (assets.length === 0) {
     return (
-      <p className="text-secondary mb-0">
+      <p className="text-gray-500 mb-0">
         <BsInbox className="me-1" aria-hidden="true" />
         {labels.empty}
       </p>
@@ -50,13 +50,13 @@ export function AssetList({
           data-asset-id={asset.id}
           action
           className={[
-            'd-flex',
-            'justify-content-between',
-            'align-items-center',
+            'flex',
+            'justify-between',
+            'items-center',
             'gap-3',
             compact ? 'py-2' : 'py-3',
             selectedAssetId === asset.id ? 'active border-primary' : '',
-            batchIds.includes(asset.id) ? 'list-group-item-warning' : '',
+            batchIds.includes(asset.id) ? 'bg-warning-50' : '',
           ]
             .join(' ')
             .trim()}
@@ -64,7 +64,7 @@ export function AssetList({
           role="listitem"
           aria-current={selectedAssetId === asset.id ? 'true' : undefined}
         >
-          <div className="flex-grow-1">
+          <div className="grow">
             <Button
               type="button"
               data-asset-open="true"
@@ -72,9 +72,9 @@ export function AssetList({
               className={[
                 'p-0',
                 'text-start',
-                'fw-semibold',
+                'font-semibold',
                 'text-decoration-none',
-                selectedAssetId === asset.id ? 'text-white' : 'text-body',
+                selectedAssetId === asset.id ? 'text-white' : 'text-gray-900',
                 compact ? 'small' : '',
               ]
                 .join(' ')
@@ -86,7 +86,7 @@ export function AssetList({
             >
               {asset.name}
             </Button>
-            <p className={selectedAssetId === asset.id ? 'mb-0 text-white-50' : 'mb-0 text-secondary'}>
+            <p className={selectedAssetId === asset.id ? 'mb-0 text-white/70' : 'mb-0 text-gray-500'}>
               {asset.id} - {labels.state(asset.state)}
             </p>
             {batchIds.includes(asset.id) ? (

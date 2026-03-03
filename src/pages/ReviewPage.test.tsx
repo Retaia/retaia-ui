@@ -176,8 +176,8 @@ describe('App', () => {
   it('keeps detail panel sticky on desktop viewport', () => {
     setupApp()
 
-    const detailCard = within(getDetailPanel()).getByText('Détail').closest('.sticky-xl-top')
-    expect(detailCard).toHaveClass('sticky-xl-top')
+    const detailCard = within(getDetailPanel()).getByText('Détail').closest('.xl\\:sticky')
+    expect(detailCard).toHaveClass('xl:sticky', 'xl:top-4')
   })
 
   it('shows loading status when API source mode is enabled', async () => {

@@ -23,9 +23,9 @@ export function ApiConnectionSettingsSection({ t, controller }: ApiConnectionSet
   return (
     <>
       {isApiConfigLockedByEnv ? (
-        <p className="small text-secondary mb-3">{t('app.apiConnectionEnvLocked')}</p>
+        <p className="small text-gray-500 mb-3">{t('app.apiConnectionEnvLocked')}</p>
       ) : null}
-      <Row className="g-2">
+      <Row className="gap-2">
         <Col md={12}>
           <Form.Label htmlFor="api-base-url-input" className="small mb-1">
             {t('app.apiBaseUrlLabel')}
@@ -40,7 +40,7 @@ export function ApiConnectionSettingsSection({ t, controller }: ApiConnectionSet
           />
         </Col>
       </Row>
-      <div className="d-flex flex-wrap gap-2 mt-3">
+      <div className="flex flex-wrap gap-2 mt-3">
         <Button
           type="button"
           size="sm"
@@ -82,7 +82,7 @@ export function ApiConnectionSettingsSection({ t, controller }: ApiConnectionSet
         </p>
       ) : null}
       {retryStatus ? (
-        <p className="small text-secondary mt-2 mb-0" data-testid="retry-status">
+        <p className="small text-gray-500 mt-2 mb-0" data-testid="retry-status">
           {retryStatus}
         </p>
       ) : null}

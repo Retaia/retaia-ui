@@ -83,7 +83,7 @@ export function LibraryPage() {
       }}
       onChangeLanguage={controller.onChangeLanguage}
     >
-      <div className="row g-3 mt-1">
+      <div className="flex flex-wrap gap-4 mt-1">
         <LibraryListSection
           t={controller.t}
           visibleAssets={controller.visibleAssets}

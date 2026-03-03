@@ -57,13 +57,13 @@ export function ActionBatchSection({
   onCancelPendingBatchExecution,
 }: Props) {
   return (
-    <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
+    <section className="border border-2 border-gray-200 rounded p-3 mt-3">
       <h3 className="h6 mb-2">
         <BsLayers className="me-1" aria-hidden="true" />
         {t('actions.batchPanel')}
       </h3>
-      <Stack direction="horizontal" className="flex-wrap align-items-center gap-2">
-        <p className="mb-0 fw-semibold text-secondary">{t('actions.batchSelected', { count: batchIdsLength })}</p>
+      <Stack direction="horizontal" className="flex-wrap items-center gap-2">
+        <p className="mb-0 font-semibold text-gray-500">{t('actions.batchSelected', { count: batchIdsLength })}</p>
         <Button
           type="button"
           variant="outline-success"
@@ -115,8 +115,8 @@ export function ActionBatchSection({
         </Button>
       </Stack>
       <section className="mt-2" aria-label={t('actions.batchScope')}>
-        <p className="mb-1 small text-secondary">{t('actions.batchScopeCount', { count: batchIdsLength })}</p>
-        <p className="mb-0 small text-secondary">
+        <p className="mb-1 small text-gray-500">{t('actions.batchScopeCount', { count: batchIdsLength })}</p>
+        <p className="mb-0 small text-gray-500">
           {[
             t('actions.batchScopePending', { count: batchScope.pending }),
             t('actions.batchScopeKeep', { count: batchScope.keep }),
@@ -125,15 +125,15 @@ export function ActionBatchSection({
         </p>
       </section>
       <section className="mt-2" aria-label={t('actions.timelineTitle')}>
-        <p className="mb-1 small text-secondary">{t('actions.timelineTitle')}</p>
-        <div data-testid="batch-timeline" className="d-flex flex-wrap gap-2">
+        <p className="mb-1 small text-gray-500">{t('actions.timelineTitle')}</p>
+        <div data-testid="batch-timeline" className="flex flex-wrap gap-2">
           {batchTimeline.map((step) => (
             <span
               key={step.key}
               className={[
                 'badge',
-                step.active ? 'text-bg-info' : step.done ? 'text-bg-success' : 'text-bg-secondary',
-                step.error ? 'text-bg-danger' : '',
+                step.active ? 'bg-blue-light-100 text-blue-light-800' : step.done ? 'bg-success-100 text-success-800' : 'bg-gray-100 text-gray-700',
+                step.error ? 'bg-error-100 text-error-800' : '',
               ].join(' ')}
             >
               {step.label}
@@ -142,7 +142,7 @@ export function ActionBatchSection({
         </div>
       </section>
       {previewingBatch || executingBatch ? (
-        <p data-testid="batch-busy-status" className="small text-secondary mt-2 mb-0">
+        <p data-testid="batch-busy-status" className="small text-gray-500 mt-2 mb-0">
           {t('actions.batchBusy')}
         </p>
       ) : null}

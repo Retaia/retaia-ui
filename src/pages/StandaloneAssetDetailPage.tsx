@@ -116,13 +116,13 @@ export function StandaloneAssetDetailPage({ context }: Props) {
       </Breadcrumb>
 
       {controller.loadingState === 'loading' ? (
-        <p className="small text-secondary mt-3">{controller.t('detail.loading')}</p>
+        <p className="small text-gray-500 mt-3">{controller.t('detail.loading')}</p>
       ) : null}
       {controller.showNotFound ? (
         <p className="small text-danger mt-3">{controller.t('detail.notFound')}</p>
       ) : null}
 
-      <section className="row g-3 mt-1 justify-content-center">
+      <section className="flex flex-wrap gap-4 mt-1 justify-center">
         <AssetDetailPanel
           selectedAsset={controller.selectedAsset}
           decisionStatus={null}

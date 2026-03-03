@@ -26,8 +26,8 @@ export function ActionShortcutsSection({
   onOpenNextPending,
 }: Props) {
   return (
-    <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
-      <Stack direction="horizontal" className="justify-content-between align-items-center gap-2">
+    <section className="border border-2 border-gray-200 rounded p-3 mt-3">
+      <Stack direction="horizontal" className="justify-between items-center gap-2">
         <h3 className="h6 mb-0">
           <BsKeyboard className="me-1" aria-hidden="true" />
           {t('actions.shortcutsTitle')}
@@ -43,8 +43,8 @@ export function ActionShortcutsSection({
       </Stack>
       {showShortcutsHelp ? (
         <section data-testid="shortcuts-overlay" className="mt-3 border border-secondary rounded p-3">
-          <p className="small text-secondary mb-2">{t('actions.shortcuts')}</p>
-          <Row className="g-3">
+          <p className="small text-gray-500 mb-2">{t('actions.shortcuts')}</p>
+          <Row className="gap-4">
             <Col xs={12} md={4}>
               <h4 className="h6 mb-2">{t('actions.shortcutsNavTitle')}</h4>
               <ul className="small mb-0">

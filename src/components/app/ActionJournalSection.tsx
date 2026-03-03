@@ -14,8 +14,8 @@ type Props = {
 
 export function ActionJournalSection({ t, activityLog, onClearActivityLog }: Props) {
   return (
-    <section className="border border-2 border-secondary-subtle rounded p-3 mt-3" aria-label={t('actions.journal')}>
-      <Stack direction="horizontal" className="justify-content-between align-items-center gap-2 mb-2">
+    <section className="border border-2 border-gray-200 rounded p-3 mt-3" aria-label={t('actions.journal')}>
+      <Stack direction="horizontal" className="justify-between items-center gap-2 mb-2">
         <h3 className="h6 mb-0">
           <BsListUl className="me-1" aria-hidden="true" />
           {t('actions.journal')}
@@ -32,7 +32,7 @@ export function ActionJournalSection({ t, activityLog, onClearActivityLog }: Pro
         </Button>
       </Stack>
       {activityLog.length === 0 ? (
-        <p className="text-secondary mb-0">
+        <p className="text-gray-500 mb-0">
           <BsInbox className="me-1" aria-hidden="true" />
           {t('actions.journalEmpty')}
         </p>

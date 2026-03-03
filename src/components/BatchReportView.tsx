@@ -34,6 +34,19 @@ function getStatusVariant(status: string) {
   return 'secondary'
 }
 
+function getStatusBadgeClass(statusVariant: ReturnType<typeof getStatusVariant>) {
+  if (statusVariant === 'success') {
+    return 'bg-success-100 text-success-800'
+  }
+  if (statusVariant === 'warning') {
+    return 'bg-warning-100 text-warning-800'
+  }
+  if (statusVariant === 'danger') {
+    return 'bg-error-100 text-error-800'
+  }
+  return 'bg-gray-100 text-gray-700'
+}
+
 function getStatusLabel(status: string, labels: BatchReportViewProps['labels']) {
   if (status === 'DONE') {
     return labels.statusDone
@@ -90,31 +103,31 @@ export function BatchReportView({ report, labels }: BatchReportViewProps) {
 
   return (
     <section className="mt-2" aria-label={labels.summary} data-testid="batch-report-summary">
-      <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
-        <span className={`badge text-bg-${statusVariant}`}>{statusLabel}</span>
-        <span className="badge text-bg-success">
+      <div className="flex flex-wrap items-center gap-2 mb-2">
+        <span className={`badge ${getStatusBadgeClass(statusVariant)}`}>{statusLabel}</span>
+        <span className="badge bg-success-100 text-success-800">
           <BsCheckCircleFill className="me-1" aria-hidden="true" />
           {`${labels.moved}: ${moved}`}
         </span>
-        <span className="badge text-bg-danger">
+        <span className="badge bg-error-100 text-error-800">
           <BsXCircle className="me-1" aria-hidden="true" />
           {`${labels.failed}: ${failed}`}
         </span>
       </div>
-      <div className="table-responsive">
-        <table className="table table-sm table-bordered align-middle mb-2">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-sm mb-2">
           <thead>
             <tr>
-              <th>{labels.status}</th>
-              <th>{labels.moved}</th>
-              <th>{labels.failed}</th>
+              <th className="border border-gray-200 p-2 text-left align-middle">{labels.status}</th>
+              <th className="border border-gray-200 p-2 text-left align-middle">{labels.moved}</th>
+              <th className="border border-gray-200 p-2 text-left align-middle">{labels.failed}</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td data-testid="batch-report-status-value">{statusLabel}</td>
-              <td data-testid="batch-report-moved-value">{moved}</td>
-              <td data-testid="batch-report-failed-value">{failed}</td>
+              <td className="border border-gray-200 p-2 align-middle" data-testid="batch-report-status-value">{statusLabel}</td>
+              <td className="border border-gray-200 p-2 align-middle" data-testid="batch-report-moved-value">{moved}</td>
+              <td className="border border-gray-200 p-2 align-middle" data-testid="batch-report-failed-value">{failed}</td>
             </tr>
           </tbody>
         </table>
@@ -125,24 +138,24 @@ export function BatchReportView({ report, labels }: BatchReportViewProps) {
         {`${labels.errors} (${errors.length})`}
       </h4>
       {errors.length === 0 ? (
-        <p className="small mb-0 text-secondary">
+        <p className="small mb-0 text-gray-500">
           <BsInfoCircle className="me-1" aria-hidden="true" />
           {labels.noErrors}
         </p>
       ) : (
-        <div className="table-responsive">
-          <table className="table table-sm table-striped align-middle mb-0">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-sm mb-0">
             <thead>
               <tr>
-                <th>asset_id</th>
-                <th>reason</th>
+                <th className="border border-gray-200 p-2 text-left align-middle">asset_id</th>
+                <th className="border border-gray-200 p-2 text-left align-middle">reason</th>
               </tr>
             </thead>
             <tbody>
               {errors.map((row, index) => (
-                <tr key={`${row.assetId}-${index}`}>
-                  <td data-testid="batch-report-error-asset">{row.assetId}</td>
-                  <td data-testid="batch-report-error-reason">{row.reason}</td>
+                <tr key={`${row.assetId}-${index}`} className="odd:bg-gray-50">
+                  <td className="border border-gray-200 p-2 align-middle" data-testid="batch-report-error-asset">{row.assetId}</td>
+                  <td className="border border-gray-200 p-2 align-middle" data-testid="batch-report-error-reason">{row.reason}</td>
                 </tr>
               ))}
             </tbody>

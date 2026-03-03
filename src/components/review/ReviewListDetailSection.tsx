@@ -74,7 +74,7 @@ export function ReviewListDetailSection({
   onMetadataDirtyChange,
 }: Props) {
   return (
-    <Row as="section" className="g-3 mt-1">
+    <Row as="section" className="gap-4 mt-1">
       <AssetListSection
         t={t}
         visibleAssets={visibleAssets}

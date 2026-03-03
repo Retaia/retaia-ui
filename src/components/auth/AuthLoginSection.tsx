@@ -30,7 +30,7 @@ export function AuthLoginSection({
 }: AuthLoginSectionProps) {
   return (
     <>
-      <Row className="g-2">
+      <Row className="gap-2">
         <Col md={4}>
           <Form.Label htmlFor="auth-email-input" className="small mb-1">
             {t('app.authEmailLabel')}
@@ -75,7 +75,7 @@ export function AuthLoginSection({
           />
         </Col>
       </Row>
-      <div className="d-flex flex-wrap gap-2 mt-3">
+      <div className="flex flex-wrap gap-2 mt-3">
         <Button
           type="button"
           size="sm"

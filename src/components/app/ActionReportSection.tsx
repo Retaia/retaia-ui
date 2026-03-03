@@ -31,12 +31,12 @@ export function ActionReportSection({
   const showingRecentReport = !reportData && Boolean(lastSuccessfulReportData)
 
   return (
-    <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
+    <section className="border border-2 border-gray-200 rounded p-3 mt-3">
       <h3 className="h6 mb-2">
         <BsBarChart className="me-1" aria-hidden="true" />
         {t('actions.reportTitle')}
       </h3>
-      <Stack direction="horizontal" className="flex-wrap align-items-center gap-2">
+      <Stack direction="horizontal" className="flex-wrap items-center gap-2">
         <Button
           type="button"
           variant="outline-info"
@@ -64,25 +64,25 @@ export function ActionReportSection({
           <BsFileEarmarkArrowDown className="me-1" aria-hidden="true" />
           {t('actions.reportExportCsv')}
         </Button>
-        <p className="small text-secondary mb-0">
+        <p className="small text-gray-500 mb-0">
           {reportBatchId ? `batch_id: ${reportBatchId}` : t('actions.reportEmpty')}
         </p>
       </Stack>
       {reportStatus ? (
-        <p data-testid="batch-report-status" role="status" aria-live="polite" className="small mt-2 mb-0 text-secondary">
+        <p data-testid="batch-report-status" role="status" aria-live="polite" className="small mt-2 mb-0 text-gray-500">
           {reportStatus}
         </p>
       ) : null}
       {displayedReport ? (
         showingRecentReport ? (
-          <p className="small text-secondary mt-2 mb-1" data-testid="batch-report-recent-note">
+          <p className="small text-gray-500 mt-2 mb-1" data-testid="batch-report-recent-note">
             {t('actions.reportRecentFallback', { batchId: lastSuccessfulReportBatchId ?? '-' })}
           </p>
         ) : null
       ) : (
         <div className="mt-2 p-2 rounded border bg-body-tertiary" data-testid="batch-report-empty-state">
-          <p className="small fw-semibold mb-1">{t('actions.reportEmptyTitle')}</p>
-          <p className="small text-secondary mb-2">
+          <p className="small font-semibold mb-1">{t('actions.reportEmptyTitle')}</p>
+          <p className="small text-gray-500 mb-2">
             {reportBatchId
               ? t('actions.reportEmptyHintWithBatch', { batchId: reportBatchId })
               : t('actions.reportEmptyHintNoBatch')}
@@ -117,7 +117,7 @@ export function ActionReportSection({
         />
       ) : null}
       {reportExportStatus ? (
-        <p data-testid="batch-report-export-status" className="small mt-2 mb-0 text-secondary">
+        <p data-testid="batch-report-export-status" className="small mt-2 mb-0 text-gray-500">
           {reportExportStatus}
         </p>
       ) : null}

@@ -96,5 +96,5 @@ export function AssetMediaPreview({ selectedAsset, t }: Props) {
     )
   }
 
-  return <p className="small text-secondary mb-0">{t('detail.previewUnavailable')}</p>
+  return <p className="small text-gray-500 mb-0">{t('detail.previewUnavailable')}</p>
 }

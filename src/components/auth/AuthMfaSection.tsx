@@ -35,19 +35,19 @@ export function AuthMfaSection({
   onDisableMfa,
 }: AuthMfaSectionProps) {
   return (
-    <section className="border border-2 border-secondary-subtle rounded p-3 mt-3" aria-label={t('app.authMfaTitle')}>
+    <section className="border border-2 border-gray-200 rounded p-3 mt-3" aria-label={t('app.authMfaTitle')}>
       <h4 className="h6 mb-2">{t('app.authMfaTitle')}</h4>
       {!mfaFeatureAvailable ? (
-        <p className="small text-secondary mb-0" data-testid="auth-mfa-feature-disabled">
+        <p className="small text-gray-500 mb-0" data-testid="auth-mfa-feature-disabled">
           {t('app.authMfaFeatureUnavailable')}
         </p>
       ) : (
         <>
-          <p className="small text-secondary mb-2" data-testid="auth-mfa-state">
+          <p className="small text-gray-500 mb-2" data-testid="auth-mfa-state">
             {authUserMfaEnabled ? t('app.authMfaStateOn') : t('app.authMfaStateOff')}
           </p>
           {mfaFeatureUserCanDisable ? (
-            <div className="d-flex flex-wrap gap-2 mb-2">
+            <div className="flex flex-wrap gap-2 mb-2">
               <Button
                 type="button"
                 size="sm"
@@ -63,7 +63,7 @@ export function AuthMfaSection({
           {mfaFeatureUserEnabled ? (
             <>
               {!authUserMfaEnabled ? (
-                <div className="d-flex flex-wrap gap-2 mb-2">
+                <div className="flex flex-wrap gap-2 mb-2">
                   <Button
                     type="button"
                     size="sm"
@@ -77,7 +77,7 @@ export function AuthMfaSection({
                 </div>
               ) : null}
               {authMfaSetup ? (
-                <div className="small text-secondary mb-2" data-testid="auth-mfa-setup-material">
+                <div className="small text-gray-500 mb-2" data-testid="auth-mfa-setup-material">
                   <div>
                     {t('app.authMfaSecretLabel')}: {authMfaSetup.secret}
                   </div>
@@ -86,7 +86,7 @@ export function AuthMfaSection({
                   </div>
                 </div>
               ) : null}
-              <div className="d-flex flex-column gap-2">
+              <div className="flex flex-col gap-2">
                 <div>
                   <Form.Label htmlFor="auth-mfa-otp-action-input" className="small mb-1">
                     {t('app.authOtpLabel')}
@@ -127,7 +127,7 @@ export function AuthMfaSection({
               </div>
             </>
           ) : (
-            <p className="small text-secondary mb-0" data-testid="auth-mfa-user-disabled">
+            <p className="small text-gray-500 mb-0" data-testid="auth-mfa-user-disabled">
               {t('app.authMfaFeatureUserDisabled')}
             </p>
           )}

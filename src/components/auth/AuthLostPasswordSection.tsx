@@ -33,9 +33,9 @@ export function AuthLostPasswordSection({
   onReset,
 }: AuthLostPasswordSectionProps) {
   return (
-    <section className="border border-2 border-secondary-subtle rounded p-3 mt-3" aria-label={t('app.authLostPasswordTitle')}>
+    <section className="border border-2 border-gray-200 rounded p-3 mt-3" aria-label={t('app.authLostPasswordTitle')}>
       <h4 className="h6 mb-2">{t('app.authLostPasswordTitle')}</h4>
-      <div className="d-flex flex-wrap gap-2 mb-2">
+      <div className="flex flex-wrap gap-2 mb-2">
         <Button
           type="button"
           size="sm"

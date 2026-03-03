@@ -8,9 +8,9 @@ export function NotFoundPage() {
 
   return (
     <Container as="main" className="py-4">
-      <h1 className="display-6 fw-bold mb-2">{t('errors.notFoundTitle')}</h1>
-      <p className="text-secondary mb-3">{t('errors.notFoundBody')}</p>
-      <div className="d-flex gap-2">
+      <h1 className="text-4xl font-bold mb-2">{t('errors.notFoundTitle')}</h1>
+      <p className="text-gray-500 mb-3">{t('errors.notFoundBody')}</p>
+      <div className="flex gap-2">
         <Button type="button" variant="primary" onClick={() => navigate('/review')}>
           {t('app.nav.review')}
         </Button>

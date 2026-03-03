@@ -38,14 +38,14 @@ export function LibraryListSection({
 }: Props) {
   return (
     <Col as="section" xs={12} xl={8} aria-label={t('library.region')}>
-      <Card className="shadow-sm border-0 h-100">
+      <Card className="shadow-sm border-0 h-full">
         <Card.Body>
           <h2 className="h5">
             <BsArchive className="me-2" aria-hidden="true" />
             {t('library.title', { count: visibleAssets.length })}
           </h2>
-          <p className="small text-secondary mb-3">{t('library.subtitle')}</p>
-          <Form.Label htmlFor="library-search" className="fw-semibold">
+          <p className="small text-gray-500 mb-3">{t('library.subtitle')}</p>
+          <Form.Label htmlFor="library-search" className="font-semibold">
             <BsSearch className="me-1" aria-hidden="true" />
             {t('library.search')}
           </Form.Label>
@@ -57,7 +57,7 @@ export function LibraryListSection({
             placeholder={t('library.searchPlaceholder')}
             className="mb-3"
           />
-          <Form.Label htmlFor="library-sort-key" className="fw-semibold">
+          <Form.Label htmlFor="library-sort-key" className="font-semibold">
             <BsSortDown className="me-1" aria-hidden="true" />
             {t('library.sortBy')}
           </Form.Label>
@@ -93,7 +93,7 @@ export function LibraryListSection({
             showDecisionActions={false}
           />
           {hasMoreAssets && onLoadMoreAssets ? (
-            <div className="d-flex justify-content-center mt-3">
+            <div className="flex justify-center mt-3">
               <Button
                 type="button"
                 variant="outline-secondary"

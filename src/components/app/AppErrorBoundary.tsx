@@ -41,7 +41,7 @@ export class AppErrorBoundary extends Component<Props, State> {
     return (
       <Container as="main" className="py-4">
         <Alert variant="danger" data-testid="app-fatal-error">
-          <h1 className="h4 d-flex align-items-center">
+          <h1 className="h4 flex items-center">
             <BsExclamationOctagon className="me-2" aria-hidden="true" />
             {i18next.t('app.fatalErrorTitle')}
           </h1>

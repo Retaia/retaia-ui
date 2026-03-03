@@ -131,12 +131,12 @@ export function SettingsPage() {
 
   return (
     <Container as="main" className="py-4">
-      <div className="d-flex justify-content-between align-items-start gap-2 mb-3">
+      <div className="flex justify-between items-start gap-2 mb-3">
         <div>
-          <h1 className="display-6 fw-bold mb-1">{t('settings.title')}</h1>
-          <p className="text-secondary mb-0">{t('settings.subtitle')}</p>
+          <h1 className="text-4xl font-bold mb-1">{t('settings.title')}</h1>
+          <p className="text-gray-500 mb-0">{t('settings.subtitle')}</p>
         </div>
-        <div className="d-flex gap-2">
+        <div className="flex gap-2">
           <Button type="button" size="sm" variant="outline-secondary" onClick={() => navigate('/auth')}>
             {t('settings.openAuth')}
           </Button>
@@ -160,10 +160,10 @@ export function SettingsPage() {
             <li>{t('settings.mockDbMode', { value: shouldUseInMemoryMockDb ? 'ON' : 'OFF' })}</li>
           </ul>
           {isApiConfigLockedByEnv ? (
-            <p className="small text-secondary mt-2 mb-0">{t('app.apiConnectionEnvLocked')}</p>
+            <p className="small text-gray-500 mt-2 mb-0">{t('app.apiConnectionEnvLocked')}</p>
           ) : null}
           {isAssetSourceLockedByEnv ? (
-            <p className="small text-secondary mt-2 mb-0">{t('settings.assetSourceEnvLocked')}</p>
+            <p className="small text-gray-500 mt-2 mb-0">{t('settings.assetSourceEnvLocked')}</p>
           ) : null}
         </Card.Body>
       </Card>
@@ -194,7 +194,7 @@ export function SettingsPage() {
             disabled={isApiAuthLockedByEnv}
           />
 
-          <div className="d-flex flex-wrap gap-2 mt-3">
+          <div className="flex flex-wrap gap-2 mt-3">
             <Button type="button" size="sm" variant="primary" onClick={saveConnectionSettings}>
               {t('app.apiConnectionSave')}
             </Button>
@@ -242,7 +242,7 @@ export function SettingsPage() {
             onChange={() => setAssetSourceInput('api')}
           />
 
-          <div className="d-flex flex-wrap gap-2 mt-3">
+          <div className="flex flex-wrap gap-2 mt-3">
             <Button type="button" size="sm" variant="primary" onClick={saveAssetSource} disabled={isAssetSourceLockedByEnv}>
               {t('settings.assetSourceSave')}
             </Button>

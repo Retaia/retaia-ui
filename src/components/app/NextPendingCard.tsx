@@ -23,10 +23,10 @@ export function NextPendingCard({
           {t('next.title')}
         </h2>
         {nextPendingAsset ? (
-          <Stack direction="horizontal" className="flex-wrap justify-content-between align-items-center gap-3">
+          <Stack direction="horizontal" className="flex-wrap justify-between items-center gap-3">
             <div>
-              <strong className="d-block">{nextPendingAsset.name}</strong>
-              <p className="text-secondary mb-0">{nextPendingAsset.id}</p>
+              <strong className="block">{nextPendingAsset.name}</strong>
+              <p className="text-gray-500 mb-0">{nextPendingAsset.id}</p>
             </div>
             <Stack direction="horizontal" gap={2}>
               <Button
@@ -59,7 +59,7 @@ export function NextPendingCard({
             </Stack>
           </Stack>
         ) : (
-          <p className="text-secondary mb-0">
+          <p className="text-gray-500 mb-0">
             <BsInbox className="me-1" aria-hidden="true" />
             {t('next.empty')}
           </p>

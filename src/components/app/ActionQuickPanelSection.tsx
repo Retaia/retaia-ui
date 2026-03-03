@@ -49,7 +49,7 @@ export function ActionQuickPanelSection({
   onToggleDensityMode,
 }: Props) {
   return (
-    <section className="border border-2 border-secondary-subtle rounded p-3 mt-2">
+    <section className="border border-2 border-gray-200 rounded p-3 mt-2">
       <h3 className="h6 mb-2">
         <BsLightningCharge className="me-1" aria-hidden="true" />
         {t('actions.quickPanel')}

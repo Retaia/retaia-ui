@@ -96,7 +96,7 @@ describe('BatchReportView', () => {
 
     expect(screen.getByText('Déplacés: 2')).toBeInTheDocument()
     expect(screen.getByText('Échecs: 0')).toBeInTheDocument()
-    expect(container.querySelector('.text-bg-success')).toBeTruthy()
+    expect(container.querySelector('.bg-success-100.text-success-800')).toBeTruthy()
   })
 
   it('falls back to raw JSON when report is not an object', () => {
