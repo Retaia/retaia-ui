@@ -1,4 +1,3 @@
-import { Row } from '@tailadmin'
 import type { TFunction } from 'i18next'
 import { AssetListSection } from '../app/AssetListSection'
 import { AssetDetailPanel } from '../app/AssetDetailPanel'
@@ -74,7 +73,7 @@ export function ReviewListDetailSection({
   onMetadataDirtyChange,
 }: Props) {
   return (
-    <Row as="section" className="gap-4 mt-1">
+    <section className="mt-1 flex flex-wrap gap-4">
       <AssetListSection
         t={t}
         visibleAssets={visibleAssets}
@@ -113,6 +112,6 @@ export function ReviewListDetailSection({
         onKeywordClick={onKeywordClick}
         onMetadataDirtyChange={onMetadataDirtyChange}
       />
-    </Row>
+    </section>
   )
 }

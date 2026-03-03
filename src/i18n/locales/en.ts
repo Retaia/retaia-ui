@@ -11,6 +11,7 @@ export const enTranslation = {
   'app.language': 'Language',
   'app.language.fr': 'French',
   'app.language.en': 'English',
+  'app.themeToggle': 'Toggle light/dark mode',
   'app.adminMenu': 'Admin',
   'app.fatalErrorTitle': 'Unexpected UI error',
   'app.fatalErrorBody': 'The interface crashed. You can reload the page to continue.',

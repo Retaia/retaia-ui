@@ -4,11 +4,14 @@ import {
   BsFlagFill,
   BsGearFill,
   BsGlobe2,
+  BsMoonStarsFill,
   BsShieldLockFill,
+  BsSunFill,
   BsXOctagonFill,
 } from 'react-icons/bs'
 import type { Locale } from '../../i18n/resources'
 import { reportUiNavigationAction } from '../../ui/telemetry'
+import { useTailadminTheme } from '../../ui/tailadmin-theme'
 
 type Props = {
   locale: Locale
@@ -39,6 +42,7 @@ export function AppHeader({
     reportUiNavigationAction({ origin, pathname })
     run()
   }
+  const { resolvedTheme, toggleMode } = useTailadminTheme()
 
   const navButtonClass = (active: boolean) =>
     [
@@ -134,6 +138,15 @@ export function AppHeader({
             {t('settings.openAuth')}
           </button>
           <div className="inline-flex gap-2" aria-label={t('app.language')}>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
+              onClick={toggleMode}
+              aria-label={t('app.themeToggle')}
+              title={t('app.themeToggle')}
+            >
+              {resolvedTheme === 'dark' ? <BsSunFill aria-hidden="true" /> : <BsMoonStarsFill aria-hidden="true" />}
+            </button>
             <button
               type="button"
               className={langButtonClass(locale === 'fr')}

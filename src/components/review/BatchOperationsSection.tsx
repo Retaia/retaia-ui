@@ -1,4 +1,3 @@
-import { Card } from '@tailadmin'
 import { BsLayers } from 'react-icons/bs'
 import { ActionBatchSection } from '../app/ActionBatchSection'
 import { BatchExecutionStatusAlerts } from './BatchExecutionStatusAlerts'
@@ -44,10 +43,9 @@ export function BatchOperationsSection({
   onCancelPendingBatchExecution,
 }: Props) {
   return (
-    <Card as="section" className="shadow-sm border-0 mt-3">
-      <Card.Body>
-        <h2 className="h5 mb-3">
-          <BsLayers className="me-2" aria-hidden="true" />
+    <section className="mt-3 rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm">
+        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+          <BsLayers className="mr-2 inline-block" aria-hidden="true" />
           {t('app.nav.batch')}
         </h2>
         <ActionBatchSection
@@ -71,7 +69,6 @@ export function BatchOperationsSection({
           executeStatus={executeStatus}
           retryStatus={retryStatus}
         />
-      </Card.Body>
-    </Card>
+    </section>
   )
 }

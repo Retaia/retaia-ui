@@ -1,4 +1,3 @@
-import { Button } from '@tailadmin'
 import type { TFunction } from 'i18next'
 import type { useAuthPageController } from '../../hooks/useAuthPageController'
 import { AuthAppFeatureSection } from './AuthAppFeatureSection'
@@ -72,16 +71,16 @@ export function AuthAccountSection({ t, controller }: AuthAccountSectionProps) {
 
   return (
     <section className="border border-2 border-gray-200 rounded p-3 mb-3" aria-label={t('app.authTitle')}>
-      <h3 className="h6 mb-2">{t('app.authTitle')}</h3>
+      <h3 className="mb-2 text-base font-semibold text-gray-900">{t('app.authTitle')}</h3>
       {authUser ? (
-        <p className="small mb-2 text-gray-500" data-testid="auth-user-status">
+        <p className="text-xs mb-2 text-gray-500" data-testid="auth-user-status">
           {t('app.authSignedInAs', {
             identity: authUser.displayName ?? authUser.email,
           })}
           {authUser.mfaEnabled ? ` · ${t('app.authMfaEnabled')}` : ''}
         </p>
       ) : (
-        <p className="small mb-2 text-gray-500" data-testid="auth-user-status">
+        <p className="text-xs mb-2 text-gray-500" data-testid="auth-user-status">
           {t('app.authSignedOut')}
         </p>
       )}
@@ -106,23 +105,22 @@ export function AuthAccountSection({ t, controller }: AuthAccountSectionProps) {
 
       {authUser && !isApiAuthLockedByEnv ? (
         <div className="flex flex-wrap gap-2 mt-2">
-          <Button
+          <button
             type="button"
-            size="sm"
-            variant="outline-secondary"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
             data-testid="auth-logout"
             disabled={authLoading}
             onClick={() => void handleLogout()}
           >
             {t('app.authLogout')}
-          </Button>
+          </button>
         </div>
       ) : null}
 
-      {isApiAuthLockedByEnv ? <p className="small text-gray-500 mb-0">{t('app.authEnvLocked')}</p> : null}
+      {isApiAuthLockedByEnv ? <p className="text-xs text-gray-500 mb-0">{t('app.authEnvLocked')}</p> : null}
       {authStatus ? (
         <p
-          className={`small mt-2 mb-0 ${authStatus.kind === 'success' ? 'text-success' : 'text-danger'}`}
+          className={`text-xs mt-2 mb-0 ${authStatus.kind === 'success' ? 'text-success-700' : 'text-error-700'}`}
           data-testid="auth-status"
           role="status"
           aria-live="polite"

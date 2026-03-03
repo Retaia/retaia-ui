@@ -144,6 +144,6 @@ describe('AssetList', () => {
       throw new Error('expected row not found')
     }
     expect(option).toHaveClass('py-2')
-    expect(screen.getByRole('button', { name: 'interview-camera-a.mov' })).toHaveClass('small')
+    expect(screen.getByRole('button', { name: 'interview-camera-a.mov' })).toHaveClass('text-xs')
   })
 })

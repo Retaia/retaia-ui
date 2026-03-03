@@ -1,15 +1,9 @@
 import react from '@vitejs/plugin-react'
-import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  resolve: {
-    alias: {
-      '@tailadmin': fileURLToPath(new URL('./src/ui/tailadmin.tsx', import.meta.url)),
-    },
-  },
   build: {
     rollupOptions: {
       output: {

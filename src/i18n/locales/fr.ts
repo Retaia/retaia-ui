@@ -11,6 +11,7 @@ export const frTranslation = {
   'app.language': 'Langue',
   'app.language.fr': 'Français',
   'app.language.en': 'Anglais',
+  'app.themeToggle': 'Basculer mode clair/sombre',
   'app.adminMenu': 'Admin',
   'app.fatalErrorTitle': 'Erreur UI inattendue',
   'app.fatalErrorBody': "L'interface a rencontré une erreur. Recharge la page pour continuer.",

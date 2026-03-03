@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { Button, Card, Container, Form } from '@tailadmin'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useApiClient } from '../hooks/useApiClient'
@@ -130,26 +129,33 @@ export function SettingsPage() {
   }
 
   return (
-    <Container as="main" className="py-4">
+    <main className="mx-auto w-full max-w-6xl px-3 py-4">
       <div className="flex justify-between items-start gap-2 mb-3">
         <div>
           <h1 className="text-4xl font-bold mb-1">{t('settings.title')}</h1>
           <p className="text-gray-500 mb-0">{t('settings.subtitle')}</p>
         </div>
         <div className="flex gap-2">
-          <Button type="button" size="sm" variant="outline-secondary" onClick={() => navigate('/auth')}>
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
+            onClick={() => navigate('/auth')}
+          >
             {t('settings.openAuth')}
-          </Button>
-          <Button type="button" size="sm" variant="outline-secondary" onClick={() => navigate('/review')}>
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
+            onClick={() => navigate('/review')}
+          >
             {t('app.backToContext', { context: t('app.nav.review') })}
-          </Button>
+          </button>
         </div>
       </div>
 
-      <Card as="section" className="shadow-sm border-0 mb-3" aria-label={t('settings.lockedSection')}>
-        <Card.Body>
-          <h2 className="h6 mb-2">{t('settings.lockedSection')}</h2>
-          <ul className="small mb-0">
+      <section className="mb-3 rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm" aria-label={t('settings.lockedSection')}>
+          <h2 className="mb-2 text-base font-semibold text-gray-900">{t('settings.lockedSection')}</h2>
+          <ul className="mb-0 text-xs text-gray-700">
             <li>{t('settings.effectiveApiBaseUrl', { value: effectiveApiBaseUrl })}</li>
             <li>
               {t('settings.effectiveApiToken', {
@@ -160,55 +166,67 @@ export function SettingsPage() {
             <li>{t('settings.mockDbMode', { value: shouldUseInMemoryMockDb ? 'ON' : 'OFF' })}</li>
           </ul>
           {isApiConfigLockedByEnv ? (
-            <p className="small text-gray-500 mt-2 mb-0">{t('app.apiConnectionEnvLocked')}</p>
+            <p className="mt-2 mb-0 text-xs text-gray-500">{t('app.apiConnectionEnvLocked')}</p>
           ) : null}
           {isAssetSourceLockedByEnv ? (
-            <p className="small text-gray-500 mt-2 mb-0">{t('settings.assetSourceEnvLocked')}</p>
+            <p className="mt-2 mb-0 text-xs text-gray-500">{t('settings.assetSourceEnvLocked')}</p>
           ) : null}
-        </Card.Body>
-      </Card>
+      </section>
 
-      <Card as="section" className="shadow-sm border-0 mb-3" aria-label={t('settings.connectionSection')}>
-        <Card.Body>
-          <h2 className="h6 mb-3">{t('settings.connectionSection')}</h2>
-          <Form.Label htmlFor="settings-api-base-url-input" className="small mb-1">
+      <section className="mb-3 rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm" aria-label={t('settings.connectionSection')}>
+          <h2 className="mb-3 text-base font-semibold text-gray-900">{t('settings.connectionSection')}</h2>
+          <label htmlFor="settings-api-base-url-input" className="mb-1 inline-block text-xs font-medium text-gray-700">
             {t('app.apiBaseUrlLabel')}
-          </Form.Label>
-          <Form.Control
+          </label>
+          <input
             id="settings-api-base-url-input"
             data-testid="settings-api-base-url-input"
             value={apiBaseUrlInput}
             onChange={(event) => dispatch(setApiBaseUrlInput(event.target.value))}
             placeholder="/api/v1"
             disabled={isApiBaseUrlLockedByEnv}
+            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
-          <Form.Label htmlFor="settings-api-token-input" className="small mb-1 mt-3">
+          <label htmlFor="settings-api-token-input" className="mb-1 mt-3 inline-block text-xs font-medium text-gray-700">
             {t('settings.apiTokenLabel')}
-          </Form.Label>
-          <Form.Control
+          </label>
+          <input
             id="settings-api-token-input"
             data-testid="settings-api-token-input"
             value={apiTokenInput}
             onChange={(event) => dispatch(setApiTokenInput(event.target.value))}
             placeholder={t('settings.apiTokenPlaceholder')}
             disabled={isApiAuthLockedByEnv}
+            className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
 
           <div className="flex flex-wrap gap-2 mt-3">
-            <Button type="button" size="sm" variant="primary" onClick={saveConnectionSettings}>
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-lg border border-brand-500 bg-brand-500 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors hover:border-brand-600 hover:bg-brand-600"
+              onClick={saveConnectionSettings}
+            >
               {t('app.apiConnectionSave')}
-            </Button>
-            <Button type="button" size="sm" variant="outline-primary" onClick={() => void testConnection()}>
+            </button>
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-lg border border-brand-500 bg-white px-2.5 py-1.5 text-xs font-semibold text-brand-600 transition-colors hover:bg-brand-50"
+              onClick={() => void testConnection()}
+            >
               {t('app.apiConnectionTest')}
-            </Button>
-            <Button type="button" size="sm" variant="outline-secondary" onClick={clearConnectionSettings}>
+            </button>
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
+              onClick={clearConnectionSettings}
+            >
               {t('app.apiConnectionClear')}
-            </Button>
+            </button>
           </div>
 
           {connectionStatus ? (
             <p
-              className={`small mt-2 mb-0 ${connectionStatus.kind === 'success' ? 'text-success' : 'text-danger'}`}
+              className={`mt-2 mb-0 text-xs ${connectionStatus.kind === 'success' ? 'text-success-700' : 'text-error-700'}`}
               data-testid="settings-connection-status"
               role="status"
               aria-live="polite"
@@ -216,50 +234,57 @@ export function SettingsPage() {
               {connectionStatus.message}
             </p>
           ) : null}
-        </Card.Body>
-      </Card>
+      </section>
 
-      <Card as="section" className="shadow-sm border-0" aria-label={t('settings.assetSourceSection')}>
-        <Card.Body>
-          <h2 className="h6 mb-2">{t('settings.assetSourceSection')}</h2>
-          <Form.Check
-            id="settings-asset-source-mock"
-            type="radio"
-            name="asset-source"
-            label={t('settings.assetSourceMock')}
-            checked={assetSourceInput === 'mock'}
-            disabled={isAssetSourceLockedByEnv}
-            onChange={() => setAssetSourceInput('mock')}
-          />
-          <Form.Check
-            id="settings-asset-source-api"
-            type="radio"
-            name="asset-source"
-            className="mt-1"
-            label={t('settings.assetSourceApi')}
-            checked={assetSourceInput === 'api'}
-            disabled={isAssetSourceLockedByEnv}
-            onChange={() => setAssetSourceInput('api')}
-          />
+      <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm" aria-label={t('settings.assetSourceSection')}>
+          <h2 className="mb-2 text-base font-semibold text-gray-900">{t('settings.assetSourceSection')}</h2>
+          <label className="inline-flex items-center gap-2 text-sm text-gray-700" htmlFor="settings-asset-source-mock">
+            <input
+              id="settings-asset-source-mock"
+              type="radio"
+              name="asset-source"
+              checked={assetSourceInput === 'mock'}
+              disabled={isAssetSourceLockedByEnv}
+              onChange={() => setAssetSourceInput('mock')}
+              className="h-4 w-4 accent-[var(--color-brand-500)]"
+            />
+            <span>{t('settings.assetSourceMock')}</span>
+          </label>
+          <label className="mt-1 inline-flex items-center gap-2 text-sm text-gray-700" htmlFor="settings-asset-source-api">
+            <input
+              id="settings-asset-source-api"
+              type="radio"
+              name="asset-source"
+              checked={assetSourceInput === 'api'}
+              disabled={isAssetSourceLockedByEnv}
+              onChange={() => setAssetSourceInput('api')}
+              className="h-4 w-4 accent-[var(--color-brand-500)]"
+            />
+            <span>{t('settings.assetSourceApi')}</span>
+          </label>
 
           <div className="flex flex-wrap gap-2 mt-3">
-            <Button type="button" size="sm" variant="primary" onClick={saveAssetSource} disabled={isAssetSourceLockedByEnv}>
-              {t('settings.assetSourceSave')}
-            </Button>
-            <Button
+            <button
               type="button"
-              size="sm"
-              variant="outline-secondary"
+              className="inline-flex items-center justify-center rounded-lg border border-brand-500 bg-brand-500 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors hover:border-brand-600 hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
+              onClick={saveAssetSource}
+              disabled={isAssetSourceLockedByEnv}
+            >
+              {t('settings.assetSourceSave')}
+            </button>
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
               onClick={clearAssetSourceSetting}
               disabled={isAssetSourceLockedByEnv}
             >
               {t('settings.assetSourceClear')}
-            </Button>
+            </button>
           </div>
 
           {assetSourceStatus ? (
             <p
-              className={`small mt-2 mb-0 ${assetSourceStatus.kind === 'success' ? 'text-success' : 'text-danger'}`}
+              className={`mt-2 mb-0 text-xs ${assetSourceStatus.kind === 'success' ? 'text-success-700' : 'text-error-700'}`}
               data-testid="settings-asset-source-status"
               role="status"
               aria-live="polite"
@@ -267,8 +292,7 @@ export function SettingsPage() {
               {assetSourceStatus.message}
             </p>
           ) : null}
-        </Card.Body>
-      </Card>
-    </Container>
+      </section>
+    </main>
   )
 }

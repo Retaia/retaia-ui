@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Breadcrumb, Button } from '@tailadmin'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AppHeader } from '../components/app/AppHeader'
 import { AssetDetailPanel } from '../components/app/AssetDetailPanel'
@@ -64,10 +63,9 @@ export function StandaloneAssetDetailPage({ context }: Props) {
       }}
       onChangeLanguage={controller.onChangeLanguage}
     >
-      <Button
+      <button
         type="button"
-        variant="outline-secondary"
-        size="sm"
+        className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
         onClick={() => {
           if (confirmLeaveIfDirty()) {
             navigate(backPath)
@@ -75,51 +73,63 @@ export function StandaloneAssetDetailPage({ context }: Props) {
         }}
       >
         {backButtonLabel}
-      </Button>
+      </button>
 
-      <Breadcrumb className="mt-3 mb-0" data-testid="standalone-detail-breadcrumb">
+      <ol className="mt-3 mb-0 flex flex-wrap items-center gap-2 p-0 text-sm" data-testid="standalone-detail-breadcrumb">
         {context === 'review' ? (
-          <Breadcrumb.Item
-            onClick={() => {
-              if (confirmLeaveIfDirty()) {
-                navigate(reviewRootPath)
-              }
-            }}
-          >
-            {reviewRootLabel}
-          </Breadcrumb.Item>
+          <li className="inline-flex items-center gap-2 text-gray-600">
+            <button
+              type="button"
+              className="text-gray-600 hover:text-gray-900"
+              onClick={() => {
+                if (confirmLeaveIfDirty()) {
+                  navigate(reviewRootPath)
+                }
+              }}
+            >
+              {reviewRootLabel}
+            </button>
+          </li>
         ) : (
           <>
-            <Breadcrumb.Item
-              onClick={() => {
-                if (confirmLeaveIfDirty()) {
-                  navigate('/library')
-                }
-              }}
-            >
-              {controller.t('app.nav.library')}
-            </Breadcrumb.Item>
-            <Breadcrumb.Item
-              onClick={() => {
-                if (confirmLeaveIfDirty()) {
-                  navigate('/library')
-                }
-              }}
-            >
-              {controller.t('detail.breadcrumbArchived')}
-            </Breadcrumb.Item>
+            <li className="inline-flex items-center gap-2 text-gray-600">
+              <button
+                type="button"
+                className="text-gray-600 hover:text-gray-900"
+                onClick={() => {
+                  if (confirmLeaveIfDirty()) {
+                    navigate('/library')
+                  }
+                }}
+              >
+                {controller.t('app.nav.library')}
+              </button>
+            </li>
+            <li className="inline-flex items-center gap-2 text-gray-600 before:mr-2 before:text-gray-400 before:content-['/']">
+              <button
+                type="button"
+                className="text-gray-600 hover:text-gray-900"
+                onClick={() => {
+                  if (confirmLeaveIfDirty()) {
+                    navigate('/library')
+                  }
+                }}
+              >
+                {controller.t('detail.breadcrumbArchived')}
+              </button>
+            </li>
           </>
         )}
-        <Breadcrumb.Item active>
+        <li className="inline-flex items-center gap-2 font-semibold text-gray-900 before:mr-2 before:text-gray-400 before:content-['/']">
           {controller.selectedAsset?.id ?? controller.t('detail.title')}
-        </Breadcrumb.Item>
-      </Breadcrumb>
+        </li>
+      </ol>
 
       {controller.loadingState === 'loading' ? (
-        <p className="small text-gray-500 mt-3">{controller.t('detail.loading')}</p>
+        <p className="text-xs text-gray-500 mt-3">{controller.t('detail.loading')}</p>
       ) : null}
       {controller.showNotFound ? (
-        <p className="small text-danger mt-3">{controller.t('detail.notFound')}</p>
+        <p className="text-xs text-error-700 mt-3">{controller.t('detail.notFound')}</p>
       ) : null}
 
       <section className="flex flex-wrap gap-4 mt-1 justify-center">

@@ -11,9 +11,6 @@
     /* Bundler mode */
     "moduleResolution": "bundler",
     "baseUrl": ".",
-    "paths": {
-      "@tailadmin": ["src/ui/tailadmin.tsx"]
-    },
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",

@@ -1,6 +1,5 @@
 import type { ErrorInfo, ReactNode } from 'react'
 import { Component } from 'react'
-import { Alert, Button, Container } from '@tailadmin'
 import { BsExclamationOctagon, BsArrowClockwise } from 'react-icons/bs'
 import { i18next } from '../../i18n'
 import { reportUiIssue } from '../../ui/telemetry'
@@ -39,19 +38,23 @@ export class AppErrorBoundary extends Component<Props, State> {
     }
 
     return (
-      <Container as="main" className="py-4">
-        <Alert variant="danger" data-testid="app-fatal-error">
-          <h1 className="h4 flex items-center">
-            <BsExclamationOctagon className="me-2" aria-hidden="true" />
+      <main className="mx-auto w-full max-w-6xl px-3 py-4">
+        <section className="rounded-lg border border-error-300 bg-error-50 p-3 text-sm text-error-800" data-testid="app-fatal-error">
+          <h1 className="flex items-center text-xl font-semibold">
+            <BsExclamationOctagon className="mr-2" aria-hidden="true" />
             {i18next.t('app.fatalErrorTitle')}
           </h1>
           <p className="mb-3">{i18next.t('app.fatalErrorBody')}</p>
-          <Button type="button" variant="outline-danger" onClick={this.handleReload}>
-            <BsArrowClockwise className="me-1" aria-hidden="true" />
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded-lg border border-error-300 bg-white px-3 py-2 text-sm font-semibold text-error-700 transition-colors hover:bg-error-50"
+            onClick={this.handleReload}
+          >
+            <BsArrowClockwise className="mr-1" aria-hidden="true" />
             {i18next.t('app.fatalErrorRetry')}
-          </Button>
-        </Alert>
-      </Container>
+          </button>
+        </section>
+      </main>
     )
   }
 }

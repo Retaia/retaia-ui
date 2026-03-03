@@ -1,4 +1,3 @@
-import { Button, Card, Container } from '@tailadmin'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -32,17 +31,16 @@ export function AuthPage() {
   }, [controller.hasUnsavedAuthInputs])
 
   return (
-    <Container as="main" className="py-4">
+    <main className="mx-auto w-full max-w-6xl px-3 py-4">
       <div className="flex justify-between items-start gap-2 mb-3">
         <div>
           <h1 className="text-4xl font-bold mb-1">{t('app.authTitle')}</h1>
           <p className="text-gray-500 mb-0">{t('app.apiConnectionSubtitle')}</p>
         </div>
         <div className="flex gap-2">
-          <Button
+          <button
             type="button"
-            size="sm"
-            variant="outline-secondary"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
             onClick={() => {
               if (confirmLeaveIfDirty()) {
                 navigate('/settings')
@@ -50,11 +48,10 @@ export function AuthPage() {
             }}
           >
             {t('settings.openSettings')}
-          </Button>
-          <Button
+          </button>
+          <button
             type="button"
-            size="sm"
-            variant="outline-secondary"
+            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
             onClick={() => {
               if (confirmLeaveIfDirty()) {
                 navigate('/review')
@@ -62,16 +59,14 @@ export function AuthPage() {
             }}
           >
             {t('app.backToContext', { context: t('app.nav.review') })}
-          </Button>
+          </button>
         </div>
       </div>
-      <Card as="section" className="shadow-sm border-0 mt-3" aria-label={t('app.apiConnectionTitle')}>
-        <Card.Body>
-          <h2 className="h6 mb-3">{t('app.apiConnectionTitle')}</h2>
-          <AuthAccountSection t={t} controller={controller} />
-          <ApiConnectionSettingsSection t={t} controller={controller} />
-        </Card.Body>
-      </Card>
-    </Container>
+      <section className="mt-3 rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm" aria-label={t('app.apiConnectionTitle')}>
+        <h2 className="mb-3 text-base font-semibold text-gray-900">{t('app.apiConnectionTitle')}</h2>
+        <AuthAccountSection t={t} controller={controller} />
+        <ApiConnectionSettingsSection t={t} controller={controller} />
+      </section>
+    </main>
   )
 }
