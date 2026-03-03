@@ -75,8 +75,13 @@ export function TailadminThemeProvider({ children }: { children: ReactNode }) {
       setMode: setModeState,
       toggleMode: () => {
         setModeState((current) => {
-          const base = current === 'system' ? resolvedTheme : current
-          return base === 'dark' ? 'light' : 'dark'
+          if (current === 'system') {
+            return 'light'
+          }
+          if (current === 'light') {
+            return 'dark'
+          }
+          return 'system'
         })
       },
     }),

@@ -42,7 +42,7 @@ export function AppHeader({
     reportUiNavigationAction({ origin, pathname })
     run()
   }
-  const { resolvedTheme, toggleMode } = useTailadminTheme()
+  const { mode, resolvedTheme, toggleMode } = useTailadminTheme()
 
   const navButtonClass = (active: boolean) =>
     [
@@ -143,7 +143,7 @@ export function AppHeader({
               className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
               onClick={toggleMode}
               aria-label={t('app.themeToggle')}
-              title={t('app.themeToggle')}
+              title={`${t('app.themeToggle')} (${mode})`}
             >
               {resolvedTheme === 'dark' ? <BsSunFill aria-hidden="true" /> : <BsMoonStarsFill aria-hidden="true" />}
             </button>

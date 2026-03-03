@@ -79,8 +79,13 @@ describe('tailadmin theme system', () => {
     act(() => {
       screen.getByRole('button', { name: 'toggle' }).click()
     })
-    expect(screen.getByTestId('theme-mode')).toHaveTextContent('light')
+    expect(screen.getByTestId('theme-mode')).toHaveTextContent('system')
     expect(screen.getByTestId('theme-resolved')).toHaveTextContent('light')
+
+    act(() => {
+      screen.getByRole('button', { name: 'toggle' }).click()
+    })
+    expect(screen.getByTestId('theme-mode')).toHaveTextContent('light')
   })
 
   it('follows system preference in system mode', () => {
