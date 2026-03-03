@@ -4,6 +4,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getAssetsPanel, getDetailPanel, setupApp } from '../test-utils/appTestUtils'
 
+const ensureQuickActionsMenuOpen = async (user: ReturnType<typeof userEvent.setup>) => {
+  if (screen.queryByTestId('quick-actions-menu')) {
+    return
+  }
+  await user.click(screen.getByTestId('quick-actions-toggle'))
+}
+
 describe('App', () => {
   beforeEach(() => {
     window.localStorage.clear()
@@ -24,6 +31,7 @@ describe('App', () => {
     const { user } = setupApp()
 
     await user.click(screen.getByRole('button', { name: 'Anglais' }))
+    await ensureQuickActionsMenuOpen(user)
 
     expect(screen.getByText('Simple review UI for keep or reject decisions')).toBeInTheDocument()
     expect(screen.getByLabelText('Search')).toBeInTheDocument()
@@ -360,6 +368,7 @@ describe('App', () => {
       setupApp('/review?source=api')
 
       expect(await screen.findByTestId('policy-bulk-disabled-status')).toBeVisible()
+      await ensureQuickActionsMenuOpen(userEvent.setup())
       expect(screen.getByRole('button', { name: 'Conserver visibles' })).toBeDisabled()
       expect(screen.getByRole('button', { name: 'Rejeter visibles' })).toBeDisabled()
       expect(screen.queryByRole('button', { name: 'Conserver batch' })).not.toBeInTheDocument()
@@ -409,6 +418,7 @@ describe('App', () => {
       setupApp('/review?source=api')
 
       expect(await screen.findByTestId('policy-error-status')).toBeVisible()
+      await ensureQuickActionsMenuOpen(userEvent.setup())
       expect(screen.getByRole('button', { name: 'Conserver visibles' })).toBeDisabled()
       expect(screen.getByRole('button', { name: 'Rejeter visibles' })).toBeDisabled()
     } finally {
@@ -667,6 +677,7 @@ describe('App', () => {
   it('focuses pending assets using quick action', async () => {
     const { user } = setupApp()
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Voir à traiter' }))
 
     expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
@@ -676,6 +687,7 @@ describe('App', () => {
   it('applies saved pending view', async () => {
     const { user } = setupApp()
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'À traiter' }))
 
     expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
@@ -688,6 +700,7 @@ describe('App', () => {
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
     await user.keyboard('{/Shift}')
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Vue batch' }))
 
     expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
@@ -697,6 +710,7 @@ describe('App', () => {
   it('applies quick filter preset with status type and date', async () => {
     const { user } = setupApp()
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'À traiter (7j)' }))
 
     expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECISION_PENDING')
@@ -710,6 +724,7 @@ describe('App', () => {
     const user = userEvent.setup()
     const firstRender = setupApp()
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Images rejetées' }))
     firstRender.unmount()
 
@@ -742,7 +757,7 @@ describe('App', () => {
   it('renders only general actions panel when batch is empty', () => {
     setupApp()
 
-    expect(screen.getByRole('heading', { name: 'Actions générales' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Actions générales' })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Opérations batch' })).not.toBeInTheDocument()
   })
 
@@ -1099,6 +1114,7 @@ describe('App', () => {
   it('applies KEEP to all visible assets', async () => {
     const { user } = setupApp()
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
 
     expect(screen.getByText('A-001 - Conservé')).toBeInTheDocument()
@@ -1143,6 +1159,7 @@ describe('App', () => {
   it('logs actions and allows undo with the dedicated button', async () => {
     const { user } = setupApp()
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
 
     const activityPanel = screen.getByLabelText("Journal d'actions")
@@ -1158,6 +1175,7 @@ describe('App', () => {
   it('clears activity log with dedicated action', async () => {
     const { user } = setupApp()
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
     const activityPanel = screen.getByLabelText("Journal d'actions")
     expect(within(activityPanel).getByText('Conserver visibles (3)')).toBeInTheDocument()
@@ -1170,6 +1188,7 @@ describe('App', () => {
   it('clears activity log with l shortcut', async () => {
     const { user } = setupApp()
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
     const activityPanel = screen.getByLabelText("Journal d'actions")
     expect(within(activityPanel).getByText('Conserver visibles (3)')).toBeInTheDocument()
@@ -1252,6 +1271,7 @@ describe('App', () => {
     const { user } = setupApp()
     const activityPanel = screen.getByLabelText("Journal d'actions")
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Réinitialiser filtres' }))
 
     expect(within(activityPanel).getByText('Aucune action pour le moment.')).toBeInTheDocument()
@@ -1351,6 +1371,7 @@ describe('App', () => {
       throw new Error('expected default row not found')
     }
     expect(defaultRow).toHaveClass('text-sm')
+    await ensureQuickActionsMenuOpen(user)
     expect(screen.getByRole('button', { name: 'Densité: confortable' })).toBeInTheDocument()
 
     await user.keyboard('d')
@@ -1360,10 +1381,11 @@ describe('App', () => {
       throw new Error('expected compact row not found')
     }
     expect(compactRow).toHaveClass('text-xs')
+    await ensureQuickActionsMenuOpen(user)
     expect(screen.getByRole('button', { name: 'Densité: compacte' })).toBeInTheDocument()
   })
 
-  it('loads persisted density mode on startup', () => {
+  it('loads persisted density mode on startup', async () => {
     window.localStorage.setItem('retaia_ui_density_mode', 'COMPACT')
     setupApp()
 
@@ -1372,6 +1394,7 @@ describe('App', () => {
       throw new Error('expected compact row not found')
     }
     expect(compactRow).toHaveClass('text-xs')
+    await ensureQuickActionsMenuOpen(userEvent.setup())
     expect(screen.getByRole('button', { name: 'Densité: compacte' })).toBeInTheDocument()
   })
 
@@ -1856,6 +1879,7 @@ describe('App', () => {
       const { user } = setupApp('/review?source=api')
 
       expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
+      await ensureQuickActionsMenuOpen(user)
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Conserver visibles' })).toBeEnabled()
       })
@@ -2042,6 +2066,7 @@ describe('App', () => {
       const { user } = setupApp('/review?source=api')
 
       expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
+      await ensureQuickActionsMenuOpen(user)
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Conserver visibles' })).toBeEnabled()
       })

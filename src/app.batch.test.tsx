@@ -1,6 +1,14 @@
 import { screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { getAssetsPanel, setupApp } from './test-utils/appTestUtils'
+
+const ensureQuickActionsMenuOpen = async (user: ReturnType<typeof userEvent.setup>) => {
+  if (screen.queryByTestId('quick-actions-menu')) {
+    return
+  }
+  await user.click(screen.getByTestId('quick-actions-toggle'))
+}
 
 describe('App batch flows', () => {
   it('adds assets to batch with shift+click and applies batch action', async () => {
@@ -27,6 +35,7 @@ describe('App batch flows', () => {
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
     await user.click(within(getAssetsPanel()).getByText('behind-the-scenes.jpg'))
     await user.keyboard('{/Shift}')
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Vue batch: désactivée' }))
 
     expect(screen.getByRole('heading', { name: 'Assets (2)' })).toBeInTheDocument()
