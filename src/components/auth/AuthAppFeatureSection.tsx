@@ -1,4 +1,3 @@
-import { Button } from 'react-bootstrap'
 import type { TFunction } from 'i18next'
 
 type AuthAppFeatureSectionProps = {
@@ -17,24 +16,28 @@ export function AuthAppFeatureSection({
   onToggle,
 }: AuthAppFeatureSectionProps) {
   return (
-    <section className="border border-2 border-secondary-subtle rounded p-3 mt-3" aria-label={t('app.authAppFeatureTitle')}>
-      <h4 className="h6 mb-2">{t('app.authAppFeatureTitle')}</h4>
-      <p className="small text-secondary mb-2" data-testid="auth-app-feature-state">
+    <section className="border border-2 border-gray-200 rounded p-3 mt-3" aria-label={t('app.authAppFeatureTitle')}>
+      <h4 className="mb-2 text-sm font-semibold text-gray-900">{t('app.authAppFeatureTitle')}</h4>
+      <p className="text-xs text-gray-500 mb-2" data-testid="auth-app-feature-state">
         {appMfaFeatureEnabled ? t('app.authAppFeatureStateOn') : t('app.authAppFeatureStateOff')}
       </p>
-      <Button
+      <button
         type="button"
-        size="sm"
-        variant={appMfaFeatureEnabled ? 'outline-danger' : 'outline-primary'}
+        className={[
+          'inline-flex items-center justify-center rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50',
+          appMfaFeatureEnabled
+            ? 'border-error-300 bg-white text-error-700 hover:bg-error-50'
+            : 'border-brand-500 bg-white text-brand-600 hover:bg-brand-50',
+        ].join(' ')}
         data-testid="auth-app-feature-toggle"
         disabled={appFeatureBusy}
         onClick={() => void onToggle()}
       >
         {appMfaFeatureEnabled ? t('app.authAppFeatureDisable') : t('app.authAppFeatureEnable')}
-      </Button>
+      </button>
       {appFeatureStatus ? (
         <p
-          className={`small mt-2 mb-0 ${appFeatureStatus.kind === 'success' ? 'text-success' : 'text-danger'}`}
+          className={`text-xs mt-2 mb-0 ${appFeatureStatus.kind === 'success' ? 'text-success-700' : 'text-error-700'}`}
           data-testid="auth-app-feature-status"
           role="status"
           aria-live="polite"

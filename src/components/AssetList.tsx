@@ -1,6 +1,6 @@
 import type { Asset, DecisionAction } from '../domain/assets'
-import { Badge, Button, ListGroup, Stack } from 'react-bootstrap'
 import { BsCheck2Circle, BsEraser, BsInbox, BsXCircle } from 'react-icons/bs'
+import { AppButton } from './ui/AppButton'
 
 type AssetListProps = {
   assets: Asset[]
@@ -17,6 +17,8 @@ type AssetListProps = {
   }
   onDecision: (id: string, action: DecisionAction) => void
   onAssetClick: (id: string, shiftKey: boolean) => void
+  onBatchSelectionChange?: (id: string, selected: boolean) => void
+  onOpenBatchEditor?: () => void
   showDecisionActions?: boolean
 }
 
@@ -28,12 +30,14 @@ export function AssetList({
   labels,
   onDecision,
   onAssetClick,
+  onBatchSelectionChange,
+  onOpenBatchEditor,
   showDecisionActions = true,
 }: AssetListProps) {
   if (assets.length === 0) {
     return (
-      <p className="text-secondary mb-0">
-        <BsInbox className="me-1" aria-hidden="true" />
+      <p className="text-gray-500 mb-0">
+        <BsInbox className="mr-1 inline-block" aria-hidden="true" />
         {labels.empty}
       </p>
     )
@@ -42,21 +46,20 @@ export function AssetList({
   const compact = density === 'COMPACT'
 
   return (
-    <ListGroup as="ul" variant="flush" role="list" aria-label="asset-list">
+    <ul className="m-0 list-none overflow-hidden rounded-xl" role="list" aria-label="asset-list">
       {assets.map((asset) => (
-        <ListGroup.Item
-          as="li"
+        <li
           key={asset.id}
           data-asset-id={asset.id}
-          action
           className={[
-            'd-flex',
-            'justify-content-between',
-            'align-items-center',
+            'flex',
+            'justify-between',
+            'items-center',
             'gap-3',
+            'border border-gray-200 bg-white p-3 first:rounded-t-xl last:rounded-b-xl',
             compact ? 'py-2' : 'py-3',
-            selectedAssetId === asset.id ? 'active border-primary' : '',
-            batchIds.includes(asset.id) ? 'list-group-item-warning' : '',
+            selectedAssetId === asset.id ? 'border-brand-500 bg-brand-50' : '',
+            batchIds.includes(asset.id) ? 'bg-warning-50' : '',
           ]
             .join(' ')
             .trim()}
@@ -64,18 +67,36 @@ export function AssetList({
           role="listitem"
           aria-current={selectedAssetId === asset.id ? 'true' : undefined}
         >
-          <div className="flex-grow-1">
-            <Button
+          <div className="grow">
+            {showDecisionActions && onBatchSelectionChange ? (
+              <label className="mb-1 inline-flex items-center gap-2 text-xs text-gray-600">
+                <input
+                  type="checkbox"
+                  checked={batchIds.includes(asset.id)}
+                  aria-label={`${labels.batch} ${asset.name}`}
+                  className="h-4 w-4 accent-[var(--color-brand-500)]"
+                  onChange={(event) => {
+                    event.stopPropagation()
+                    const selected = event.currentTarget.checked
+                    onBatchSelectionChange(asset.id, selected)
+                    if (selected) {
+                      onOpenBatchEditor?.()
+                    }
+                  }}
+                  onClick={(event) => event.stopPropagation()}
+                />
+                <span>{labels.batch}</span>
+              </label>
+            ) : null}
+            <button
               type="button"
               data-asset-open="true"
-              variant="link"
               className={[
                 'p-0',
                 'text-start',
-                'fw-semibold',
-                'text-decoration-none',
-                selectedAssetId === asset.id ? 'text-white' : 'text-body',
-                compact ? 'small' : '',
+                'font-semibold',
+                selectedAssetId === asset.id ? 'text-brand-700' : 'text-gray-900',
+                compact ? 'text-xs' : 'text-sm',
               ]
                 .join(' ')
                 .trim()}
@@ -85,20 +106,19 @@ export function AssetList({
               }}
             >
               {asset.name}
-            </Button>
-            <p className={selectedAssetId === asset.id ? 'mb-0 text-white-50' : 'mb-0 text-secondary'}>
+            </button>
+            <p className={selectedAssetId === asset.id ? 'mb-0 text-brand-700/80' : 'mb-0 text-gray-500'}>
               {asset.id} - {labels.state(asset.state)}
             </p>
             {batchIds.includes(asset.id) ? (
-              <Badge bg="warning" className="mt-2">
+              <span className="mt-2 inline-flex items-center rounded-full bg-warning-100 px-2 py-0.5 text-xs font-semibold text-warning-800">
                 {labels.batch}
-              </Badge>
+              </span>
             ) : null}
           </div>
           {showDecisionActions ? (
-            <Stack direction="horizontal" gap={2} className="flex-wrap">
-              <Button
-                type="button"
+            <div className="flex flex-wrap gap-2">
+              <AppButton
                 size="sm"
                 variant="outline-success"
                 onClick={(event) => {
@@ -107,11 +127,10 @@ export function AssetList({
                 }}
                 disabled={asset.state === 'DECIDED_KEEP' || asset.state === 'ARCHIVED'}
               >
-                <BsCheck2Circle className="me-1" aria-hidden="true" />
+                <BsCheck2Circle className="mr-1" aria-hidden="true" />
                 {labels.keep}
-              </Button>
-              <Button
-                type="button"
+              </AppButton>
+              <AppButton
                 size="sm"
                 variant="outline-danger"
                 onClick={(event) => {
@@ -120,11 +139,10 @@ export function AssetList({
                 }}
                 disabled={asset.state === 'DECIDED_REJECT'}
               >
-                <BsXCircle className="me-1" aria-hidden="true" />
+                <BsXCircle className="mr-1" aria-hidden="true" />
                 {labels.reject}
-              </Button>
-              <Button
-                type="button"
+              </AppButton>
+              <AppButton
                 size="sm"
                 variant="outline-secondary"
                 onClick={(event) => {
@@ -133,13 +151,13 @@ export function AssetList({
                 }}
                 disabled={asset.state === 'DECISION_PENDING'}
               >
-                <BsEraser className="me-1" aria-hidden="true" />
+                <BsEraser className="mr-1" aria-hidden="true" />
                 {labels.clear}
-              </Button>
-            </Stack>
+              </AppButton>
+            </div>
           ) : null}
-        </ListGroup.Item>
+        </li>
       ))}
-    </ListGroup>
+    </ul>
   )
 }

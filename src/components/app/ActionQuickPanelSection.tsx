@@ -1,4 +1,3 @@
-import { Button, Stack } from 'react-bootstrap'
 import {
   BsArrowsCollapse,
   BsCameraVideo,
@@ -48,96 +47,104 @@ export function ActionQuickPanelSection({
   onClearFilters,
   onToggleDensityMode,
 }: Props) {
+  const secondaryButtonClass =
+    'inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50'
+  const outlinePrimaryButtonClass =
+    'inline-flex items-center justify-center rounded-lg border border-brand-500 bg-white px-3 py-2 text-sm font-semibold text-brand-600 transition-colors hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-50'
+  const primaryButtonClass =
+    'inline-flex items-center justify-center rounded-lg border border-brand-500 bg-brand-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:border-brand-600 hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50'
+  const outlineSuccessButtonClass =
+    'inline-flex items-center justify-center rounded-lg border border-success-300 bg-white px-3 py-2 text-sm font-semibold text-success-700 transition-colors hover:bg-success-50 disabled:cursor-not-allowed disabled:opacity-50'
+  const outlineDangerButtonClass =
+    'inline-flex items-center justify-center rounded-lg border border-error-300 bg-white px-3 py-2 text-sm font-semibold text-error-700 transition-colors hover:bg-error-50 disabled:cursor-not-allowed disabled:opacity-50'
+
   return (
-    <section className="border border-2 border-secondary-subtle rounded p-3 mt-2">
-      <h3 className="h6 mb-2">
-        <BsLightningCharge className="me-1" aria-hidden="true" />
+    <section className="border border-2 border-gray-200 rounded p-3 mt-2">
+      <h3 className="mb-2 text-base font-semibold text-gray-900">
+        <BsLightningCharge className="mr-1 inline-block" aria-hidden="true" />
         {t('actions.quickPanel')}
       </h3>
-      <Stack direction="horizontal" className="flex-wrap gap-2 mb-2" aria-label={t('actions.savedViews')}>
-        <Button
+      <div className="mb-2 flex flex-wrap gap-2" aria-label={t('actions.savedViews')}>
+        <button
           type="button"
-          size="sm"
-          variant="outline-secondary"
+          className={secondaryButtonClass}
           onClick={() => onApplySavedView('DEFAULT')}
           data-testid="quick-view-default"
         >
-          <BsColumnsGap className="me-1" aria-hidden="true" />
+          <BsColumnsGap className="mr-1" aria-hidden="true" />
           {t('actions.viewDefault')}
-        </Button>
-        <Button
+        </button>
+        <button
           type="button"
-          size="sm"
-          variant="outline-secondary"
+          className={secondaryButtonClass}
           onClick={() => onApplySavedView('PENDING')}
           data-testid="quick-view-pending"
         >
-          <BsClockHistory className="me-1" aria-hidden="true" />
+          <BsClockHistory className="mr-1" aria-hidden="true" />
           {t('actions.viewPending')}
-        </Button>
-        <Button
+        </button>
+        <button
           type="button"
-          size="sm"
-          variant="outline-secondary"
+          className={secondaryButtonClass}
           onClick={() => onApplySavedView('BATCH')}
           data-testid="quick-view-batch"
         >
-          <BsFolderCheck className="me-1" aria-hidden="true" />
+          <BsFolderCheck className="mr-1" aria-hidden="true" />
           {t('actions.viewBatch')}
-        </Button>
-      </Stack>
-      <Stack direction="horizontal" className="flex-wrap gap-2 mb-2" aria-label={t('actions.filterPresets')}>
-        <Button type="button" size="sm" variant="outline-secondary" onClick={onApplyPresetPendingRecent}>
-          <BsFilter className="me-1" aria-hidden="true" />
+        </button>
+      </div>
+      <div className="mb-2 flex flex-wrap gap-2" aria-label={t('actions.filterPresets')}>
+        <button type="button" className={secondaryButtonClass} onClick={onApplyPresetPendingRecent}>
+          <BsFilter className="mr-1" aria-hidden="true" />
           {t('actions.filterPresetPendingRecent')}
-        </Button>
-        <Button type="button" size="sm" variant="outline-secondary" onClick={onApplyPresetImagesRejected}>
-          <BsImages className="me-1" aria-hidden="true" />
+        </button>
+        <button type="button" className={secondaryButtonClass} onClick={onApplyPresetImagesRejected}>
+          <BsImages className="mr-1" aria-hidden="true" />
           {t('actions.filterPresetRejectedImages')}
-        </Button>
-        <Button type="button" size="sm" variant="outline-secondary" onClick={onApplyPresetMediaReview}>
-          <BsCameraVideo className="me-1" aria-hidden="true" />
+        </button>
+        <button type="button" className={secondaryButtonClass} onClick={onApplyPresetMediaReview}>
+          <BsCameraVideo className="mr-1" aria-hidden="true" />
           {t('actions.filterPresetMediaReview')}
-        </Button>
-      </Stack>
-      <Stack direction="horizontal" className="flex-wrap gap-2">
-        <Button type="button" variant="outline-primary" onClick={onFocusPending}>
-          <BsClockHistory className="me-1" aria-hidden="true" />
+        </button>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <button type="button" className={outlinePrimaryButtonClass} onClick={onFocusPending}>
+          <BsClockHistory className="mr-1" aria-hidden="true" />
           {t('actions.focusPending')}
-        </Button>
-        <Button type="button" variant={batchOnly ? 'primary' : 'outline-primary'} onClick={onToggleBatchOnly}>
-          <BsPinAngle className="me-1" aria-hidden="true" />
+        </button>
+        <button type="button" className={batchOnly ? primaryButtonClass : outlinePrimaryButtonClass} onClick={onToggleBatchOnly}>
+          <BsPinAngle className="mr-1" aria-hidden="true" />
           {batchOnly ? t('actions.batchOnlyOn') : t('actions.batchOnlyOff')}
-        </Button>
-        <Button
+        </button>
+        <button
           type="button"
-          variant="outline-success"
+          className={outlineSuccessButtonClass}
           onClick={() => onApplyDecisionToVisible('KEEP')}
           disabled={availability.keepVisibleDisabled}
         >
-          <BsCheck2Circle className="me-1" aria-hidden="true" />
+          <BsCheck2Circle className="mr-1" aria-hidden="true" />
           {t('actions.keepVisible')}
-        </Button>
-        <Button
+        </button>
+        <button
           type="button"
-          variant="outline-danger"
+          className={outlineDangerButtonClass}
           onClick={() => onApplyDecisionToVisible('REJECT')}
           disabled={availability.rejectVisibleDisabled}
         >
-          <BsXCircle className="me-1" aria-hidden="true" />
+          <BsXCircle className="mr-1" aria-hidden="true" />
           {t('actions.rejectVisible')}
-        </Button>
-        <Button type="button" variant="outline-secondary" onClick={onClearFilters}>
-          <BsEraser className="me-1" aria-hidden="true" />
+        </button>
+        <button type="button" className={secondaryButtonClass} onClick={onClearFilters}>
+          <BsEraser className="mr-1" aria-hidden="true" />
           {t('actions.clearFilters')}
-        </Button>
-        <Button type="button" variant="outline-secondary" onClick={onToggleDensityMode}>
-          <BsArrowsCollapse className="me-1" aria-hidden="true" />
+        </button>
+        <button type="button" className={secondaryButtonClass} onClick={onToggleDensityMode}>
+          <BsArrowsCollapse className="mr-1" aria-hidden="true" />
           {densityMode === 'COMPACT'
             ? t('actions.densityCompact')
             : t('actions.densityComfortable')}
-        </Button>
-      </Stack>
+        </button>
+      </div>
     </section>
   )
 }

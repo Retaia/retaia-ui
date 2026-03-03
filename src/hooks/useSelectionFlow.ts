@@ -45,6 +45,24 @@ export function useSelectionFlow({
     [recordAction, setBatchIds, t],
   )
 
+  const setBatchAssetSelected = useCallback(
+    (id: string, selected: boolean) => {
+      setBatchIds((current) => {
+        const alreadySelected = current.includes(id)
+        if (selected === alreadySelected) {
+          return current
+        }
+        recordAction(
+          selected
+            ? t('activity.batchAdd', { id })
+            : t('activity.batchRemove', { id }),
+        )
+        return selected ? [...current, id] : current.filter((value) => value !== id)
+      })
+    },
+    [recordAction, setBatchIds, t],
+  )
+
   const handleAssetClick = useCallback((id: string, shiftKey: boolean) => {
     if (shiftKey) {
       toggleBatchAsset(id)
@@ -134,5 +152,6 @@ export function useSelectionFlow({
     selectFirstVisibleAsset,
     selectLastVisibleAsset,
     toggleBatchAsset,
+    setBatchAssetSelected,
   } as const
 }

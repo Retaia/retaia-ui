@@ -1,5 +1,4 @@
 import type { TFunction } from 'i18next'
-import { Button, Card, Col, Form } from 'react-bootstrap'
 import { BsArchive, BsSearch, BsSortDown } from 'react-icons/bs'
 import { AssetList } from '../AssetList'
 import type { Asset } from '../../domain/assets'
@@ -37,36 +36,35 @@ export function LibraryListSection({
   onLoadMoreAssets,
 }: Props) {
   return (
-    <Col as="section" xs={12} xl={8} aria-label={t('library.region')}>
-      <Card className="shadow-sm border-0 h-100">
-        <Card.Body>
-          <h2 className="h5">
-            <BsArchive className="me-2" aria-hidden="true" />
+    <section className="w-full xl:w-8/12" aria-label={t('library.region')}>
+      <div className="h-full rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm">
+          <h2 className="text-lg font-semibold text-gray-900">
+            <BsArchive className="mr-2 inline-block" aria-hidden="true" />
             {t('library.title', { count: visibleAssets.length })}
           </h2>
-          <p className="small text-secondary mb-3">{t('library.subtitle')}</p>
-          <Form.Label htmlFor="library-search" className="fw-semibold">
-            <BsSearch className="me-1" aria-hidden="true" />
+          <p className="text-xs text-gray-500 mb-3">{t('library.subtitle')}</p>
+          <label htmlFor="library-search" className="font-semibold text-sm text-gray-700">
+            <BsSearch className="mr-1 inline-block" aria-hidden="true" />
             {t('library.search')}
-          </Form.Label>
-          <Form.Control
+          </label>
+          <input
             id="library-search"
             data-testid="library-search-input"
             value={search}
             onChange={(event) => onSearchChange(event.currentTarget.value)}
             placeholder={t('library.searchPlaceholder')}
-            className="mb-3"
+            className="mb-3 mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
           />
-          <Form.Label htmlFor="library-sort-key" className="fw-semibold">
-            <BsSortDown className="me-1" aria-hidden="true" />
+          <label htmlFor="library-sort-key" className="font-semibold text-sm text-gray-700">
+            <BsSortDown className="mr-1 inline-block" aria-hidden="true" />
             {t('library.sortBy')}
-          </Form.Label>
-          <Form.Select
+          </label>
+          <select
             id="library-sort-key"
             data-testid="library-sort-key"
             value={sort}
             onChange={(event) => onSortChange(event.currentTarget.value as AssetSort)}
-            className="mb-2"
+            className="mb-2 mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
           >
             <option value="-created_at">{t('library.sortCreatedAtDesc')}</option>
             <option value="created_at">{t('library.sortCreatedAtAsc')}</option>
@@ -74,7 +72,7 @@ export function LibraryListSection({
             <option value="updated_at">{t('library.sortUpdatedAtAsc')}</option>
             <option value="name">{t('library.sortNameAsc')}</option>
             <option value="-name">{t('library.sortNameDesc')}</option>
-          </Form.Select>
+          </select>
           <AssetList
             assets={visibleAssets}
             selectedAssetId={selectedAssetId}
@@ -93,20 +91,19 @@ export function LibraryListSection({
             showDecisionActions={false}
           />
           {hasMoreAssets && onLoadMoreAssets ? (
-            <div className="d-flex justify-content-center mt-3">
-              <Button
+            <div className="flex justify-center mt-3">
+              <button
                 type="button"
-                variant="outline-secondary"
+                className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
                 data-testid="library-load-more"
                 onClick={() => void onLoadMoreAssets()}
                 disabled={loadingMoreAssets}
               >
                 {loadingMoreAssets ? t('library.loadingMore') : t('library.loadMore')}
-              </Button>
+              </button>
             </div>
           ) : null}
-        </Card.Body>
-      </Card>
-    </Col>
+      </div>
+    </section>
   )
 }

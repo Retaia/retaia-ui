@@ -1,4 +1,3 @@
-import { Card } from 'react-bootstrap'
 import { BsBarChart } from 'react-icons/bs'
 import { ActionReportSection } from '../app/ActionReportSection'
 
@@ -28,10 +27,9 @@ export function BatchReportsSection({
   onExportBatchReport,
 }: Props) {
   return (
-    <Card as="section" className="shadow-sm border-0 mt-3">
-      <Card.Body>
-        <h2 className="h5 mb-3">
-          <BsBarChart className="me-2" aria-hidden="true" />
+    <section className="mt-3 rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm">
+        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+          <BsBarChart className="mr-2 inline-block" aria-hidden="true" />
           {t('app.nav.reports')}
         </h2>
         <ActionReportSection
@@ -46,7 +44,6 @@ export function BatchReportsSection({
           onRefreshBatchReport={onRefreshBatchReport}
           onExportBatchReport={onExportBatchReport}
         />
-      </Card.Body>
-    </Card>
+    </section>
   )
 }

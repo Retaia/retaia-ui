@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Button, Card, Stack } from 'react-bootstrap'
 import {
   BsArrowClockwise,
   BsChevronDown,
@@ -135,10 +134,9 @@ export function ActionPanels({
   const isAdvancedActionsOpen = showShortcutsHelp || showAdvancedActions
 
   return (
-    <Card as="section" className="shadow-sm border-0 mt-3">
-      <Card.Body>
-        <h2 className="h5 mb-3">
-          <BsTools className="me-2" aria-hidden="true" />
+    <section className="mt-3 rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm">
+        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+          <BsTools className="mr-2 inline-block" aria-hidden="true" />
           {t('actions.title')}
         </h2>
         <ActionQuickPanelSection
@@ -189,40 +187,39 @@ export function ActionPanels({
           onRefreshBatchReport={onRefreshBatchReport}
           onExportBatchReport={onExportBatchReport}
         />
-        <Stack direction="horizontal" className="flex-wrap align-items-center gap-2 mt-3">
-          <Button
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <button
             type="button"
-            variant="warning"
+            className="inline-flex items-center justify-center rounded-lg border border-warning-400 bg-warning-400 px-3 py-2 text-sm font-semibold text-gray-900 transition-colors hover:border-warning-500 hover:bg-warning-500 disabled:cursor-not-allowed disabled:opacity-50"
             onClick={onUndoLastAction}
             disabled={availability.undoDisabled}
           >
-            <BsArrowClockwise className="me-1" aria-hidden="true" />
+            <BsArrowClockwise className="mr-1" aria-hidden="true" />
             {t('actions.undo')}
-          </Button>
-          <p className="mb-0 fw-semibold text-secondary">
+          </button>
+          <p className="mb-0 font-semibold text-gray-500">
             {t('actions.history', { count: undoStackLength })}
           </p>
-        </Stack>
+        </div>
         <ActionJournalSection t={t} activityLog={activityLog} onClearActivityLog={onClearActivityLog} />
         <section className="border rounded p-3 mt-3">
-          <Stack direction="horizontal" className="justify-content-between align-items-center gap-2">
-            <h3 className="h6 mb-0">{t('actions.advancedTitle')}</h3>
-            <Button
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="mb-0 text-base font-semibold text-gray-900">{t('actions.advancedTitle')}</h3>
+            <button
               type="button"
-              size="sm"
-              variant="outline-secondary"
+              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
               onClick={() => setShowAdvancedActions((value) => !value)}
               aria-expanded={isAdvancedActionsOpen}
               aria-controls="advanced-actions-panel"
             >
               {isAdvancedActionsOpen ? (
-                <BsChevronUp className="me-1" aria-hidden="true" />
+                <BsChevronUp className="mr-1" aria-hidden="true" />
               ) : (
-                <BsChevronDown className="me-1" aria-hidden="true" />
+                <BsChevronDown className="mr-1" aria-hidden="true" />
               )}
               {isAdvancedActionsOpen ? t('actions.advancedHide') : t('actions.advancedShow')}
-            </Button>
-          </Stack>
+            </button>
+          </div>
           {isAdvancedActionsOpen ? (
             <div id="advanced-actions-panel" data-testid="actions-advanced-panel" className="mt-3">
               <ActionShortcutsSection
@@ -236,7 +233,6 @@ export function ActionPanels({
             </div>
           ) : null}
         </section>
-      </Card.Body>
-    </Card>
+    </section>
   )
 }

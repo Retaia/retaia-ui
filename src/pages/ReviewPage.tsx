@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Container } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AppHeader } from '../components/app/AppHeader'
 import { ActivitySection } from '../components/review/ActivitySection'
@@ -60,41 +59,47 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
         : `${window.location.pathname}${window.location.search}`
     return `/review/detail/${assetId}?from=${encodeURIComponent(from)}`
   }
+  const openBatchEditor = () => {
+    if (typeof document === 'undefined') {
+      return
+    }
+    window.requestAnimationFrame(() => {
+      document.getElementById('batch-edit-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
 
   return (
-    <Container as="main" className="py-4">
-      <AppHeader
-        locale={controller.locale}
-        t={controller.t}
-        currentView={view === 'activity' ? 'activity' : 'workspace'}
-        onOpenSettings={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/settings')
-          }
-        }}
-        onOpenAuth={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/auth')
-          }
-        }}
-        onOpenReview={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/review')
-          }
-        }}
-        onOpenActivity={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/activity')
-          }
-        }}
-        onOpenLibrary={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/library')
-          }
-        }}
-        onChangeLanguage={controller.onChangeLanguage}
-      />
-
+    <AppHeader
+      locale={controller.locale}
+      t={controller.t}
+      currentView={view === 'activity' ? 'activity' : 'workspace'}
+      onOpenSettings={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/settings')
+        }
+      }}
+      onOpenAuth={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/auth')
+        }
+      }}
+      onOpenReview={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/review')
+        }
+      }}
+      onOpenActivity={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/activity')
+        }
+      }}
+      onOpenLibrary={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/library')
+        }
+      }}
+      onChangeLanguage={controller.onChangeLanguage}
+    >
       {(controller.isWorkspaceView || controller.isBatchView) ? (
         <ReviewOverviewSection
           t={controller.t}
@@ -239,6 +244,8 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           assetListRegionRef={controller.assetListRegionRef}
           onDecision={controller.handleDecision}
           onAssetClick={controller.handleAssetClick}
+          onBatchSelectionChange={controller.setBatchAssetSelected}
+          onOpenBatchEditor={openBatchEditor}
           onSaveMetadata={controller.saveSelectedAssetMetadata}
           onPreviewPurge={controller.previewSelectedAssetPurge}
           onExecutePurge={controller.executeSelectedAssetPurge}
@@ -255,7 +262,7 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           onMetadataDirtyChange={setHasUnsavedMetadata}
         />
       ) : null}
-    </Container>
+    </AppHeader>
   )
 }
 

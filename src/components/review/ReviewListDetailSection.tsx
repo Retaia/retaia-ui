@@ -1,4 +1,3 @@
-import { Row } from 'react-bootstrap'
 import type { TFunction } from 'i18next'
 import { AssetListSection } from '../app/AssetListSection'
 import { AssetDetailPanel } from '../app/AssetDetailPanel'
@@ -29,6 +28,8 @@ type Props = {
   assetListRegionRef: React.RefObject<HTMLElement | null>
   onDecision: (id: string, action: DecisionAction) => void
   onAssetClick: (assetId: string, shiftKey: boolean) => void
+  onBatchSelectionChange?: (assetId: string, selected: boolean) => void
+  onOpenBatchEditor?: () => void
   onSaveMetadata: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
   onPreviewPurge: () => Promise<void>
   onExecutePurge: () => Promise<void>
@@ -63,6 +64,8 @@ export function ReviewListDetailSection({
   assetListRegionRef,
   onDecision,
   onAssetClick,
+  onBatchSelectionChange,
+  onOpenBatchEditor,
   onSaveMetadata,
   onPreviewPurge,
   onExecutePurge,
@@ -74,7 +77,7 @@ export function ReviewListDetailSection({
   onMetadataDirtyChange,
 }: Props) {
   return (
-    <Row as="section" className="g-3 mt-1">
+    <section className="mt-1 flex flex-wrap gap-4">
       <AssetListSection
         t={t}
         visibleAssets={visibleAssets}
@@ -87,6 +90,8 @@ export function ReviewListDetailSection({
         loadingMoreAssets={loadingMoreAssets}
         onDecision={onDecision}
         onAssetClick={onAssetClick}
+        onBatchSelectionChange={onBatchSelectionChange}
+        onOpenBatchEditor={onOpenBatchEditor}
         assetListRegionRef={assetListRegionRef}
         onLoadMoreAssets={onLoadMoreAssets}
       />
@@ -113,6 +118,6 @@ export function ReviewListDetailSection({
         onKeywordClick={onKeywordClick}
         onMetadataDirtyChange={onMetadataDirtyChange}
       />
-    </Row>
+    </section>
   )
 }

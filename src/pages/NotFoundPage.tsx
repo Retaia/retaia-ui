@@ -1,4 +1,3 @@
-import { Button, Container } from 'react-bootstrap'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -7,18 +6,25 @@ export function NotFoundPage() {
   const { t } = useTranslation()
 
   return (
-    <Container as="main" className="py-4">
-      <h1 className="display-6 fw-bold mb-2">{t('errors.notFoundTitle')}</h1>
-      <p className="text-secondary mb-3">{t('errors.notFoundBody')}</p>
-      <div className="d-flex gap-2">
-        <Button type="button" variant="primary" onClick={() => navigate('/review')}>
+    <main className="mx-auto w-full max-w-6xl px-3 py-4">
+      <h1 className="text-4xl font-bold mb-2">{t('errors.notFoundTitle')}</h1>
+      <p className="text-gray-500 mb-3">{t('errors.notFoundBody')}</p>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          className="inline-flex items-center justify-center rounded-lg border border-brand-500 bg-brand-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:border-brand-600 hover:bg-brand-600"
+          onClick={() => navigate('/review')}
+        >
           {t('app.nav.review')}
-        </Button>
-        <Button type="button" variant="outline-secondary" onClick={() => navigate('/auth')}>
+        </button>
+        <button
+          type="button"
+          className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100"
+          onClick={() => navigate('/auth')}
+        >
           {t('settings.openAuth')}
-        </Button>
+        </button>
       </div>
-    </Container>
+    </main>
   )
 }
-

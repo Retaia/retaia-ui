@@ -1,4 +1,3 @@
-import { Button, Stack } from 'react-bootstrap'
 import {
   BsCheck2Circle,
   BsFilterCircle,
@@ -8,6 +7,7 @@ import {
   BsXCircle,
 } from 'react-icons/bs'
 import type { getActionAvailability } from '../../domain/actionAvailability'
+import { AppButton } from '../ui/AppButton'
 
 type BatchScope = {
   pending: number
@@ -38,6 +38,7 @@ type Props = {
   onPreviewBatchMove: () => Promise<void>
   onExecuteBatchMove: () => Promise<void>
   onCancelPendingBatchExecution: () => void
+  panelId?: string
 }
 
 export function ActionBatchSection({
@@ -55,68 +56,64 @@ export function ActionBatchSection({
   onPreviewBatchMove,
   onExecuteBatchMove,
   onCancelPendingBatchExecution,
+  panelId = 'batch-edit-panel',
 }: Props) {
   return (
-    <section className="border border-2 border-secondary-subtle rounded p-3 mt-3">
-      <h3 className="h6 mb-2">
-        <BsLayers className="me-1" aria-hidden="true" />
+    <section id={panelId} tabIndex={-1} className="border border-2 border-gray-200 rounded p-3 mt-3">
+      <h3 className="mb-2 text-base font-semibold text-gray-900">
+        <BsLayers className="mr-1 inline-block" aria-hidden="true" />
         {t('actions.batchPanel')}
       </h3>
-      <Stack direction="horizontal" className="flex-wrap align-items-center gap-2">
-        <p className="mb-0 fw-semibold text-secondary">{t('actions.batchSelected', { count: batchIdsLength })}</p>
-        <Button
-          type="button"
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="mb-0 font-semibold text-gray-500">{t('actions.batchSelected', { count: batchIdsLength })}</p>
+        <AppButton
           variant="outline-success"
           onClick={() => onApplyDecisionToBatch('KEEP')}
           disabled={availability.keepBatchDisabled}
         >
-          <BsCheck2Circle className="me-1" aria-hidden="true" />
+          <BsCheck2Circle className="mr-1" aria-hidden="true" />
           {t('actions.keepBatch')}
-        </Button>
-        <Button
-          type="button"
+        </AppButton>
+        <AppButton
           variant="outline-danger"
           onClick={() => onApplyDecisionToBatch('REJECT')}
           disabled={availability.rejectBatchDisabled}
         >
-          <BsXCircle className="me-1" aria-hidden="true" />
+          <BsXCircle className="mr-1" aria-hidden="true" />
           {t('actions.rejectBatch')}
-        </Button>
-        <Button
-          type="button"
+        </AppButton>
+        <AppButton
           variant="outline-secondary"
           onClick={onClearBatch}
           disabled={availability.clearBatchDisabled}
         >
-          <BsTrash3 className="me-1" aria-hidden="true" />
+          <BsTrash3 className="mr-1" aria-hidden="true" />
           {t('actions.clearBatch')}
-        </Button>
-        <Button
-          type="button"
+        </AppButton>
+        <AppButton
           variant="outline-info"
           onClick={() => void onPreviewBatchMove()}
           disabled={availability.previewBatchDisabled}
         >
-          <BsFilterCircle className="me-1" aria-hidden="true" />
+          <BsFilterCircle className="mr-1" aria-hidden="true" />
           {previewingBatch ? t('actions.previewing') : t('actions.previewBatch')}
-        </Button>
-        <Button
-          type="button"
-          variant="info"
+        </AppButton>
+        <AppButton
+          variant="primary"
           onClick={() => void onExecuteBatchMove()}
           disabled={availability.executeBatchDisabled}
         >
-          <BsCheck2Circle className="me-1" aria-hidden="true" />
+          <BsCheck2Circle className="mr-1" aria-hidden="true" />
           {executingBatch
             ? t('actions.executing')
             : pendingBatchExecution
               ? t('actions.executeConfirmNow')
               : t('actions.executeBatch')}
-        </Button>
-      </Stack>
+        </AppButton>
+      </div>
       <section className="mt-2" aria-label={t('actions.batchScope')}>
-        <p className="mb-1 small text-secondary">{t('actions.batchScopeCount', { count: batchIdsLength })}</p>
-        <p className="mb-0 small text-secondary">
+        <p className="mb-1 text-xs text-gray-500">{t('actions.batchScopeCount', { count: batchIdsLength })}</p>
+        <p className="mb-0 text-xs text-gray-500">
           {[
             t('actions.batchScopePending', { count: batchScope.pending }),
             t('actions.batchScopeKeep', { count: batchScope.keep }),
@@ -125,15 +122,15 @@ export function ActionBatchSection({
         </p>
       </section>
       <section className="mt-2" aria-label={t('actions.timelineTitle')}>
-        <p className="mb-1 small text-secondary">{t('actions.timelineTitle')}</p>
-        <div data-testid="batch-timeline" className="d-flex flex-wrap gap-2">
+        <p className="mb-1 small text-gray-500">{t('actions.timelineTitle')}</p>
+        <div data-testid="batch-timeline" className="flex flex-wrap gap-2">
           {batchTimeline.map((step) => (
             <span
               key={step.key}
               className={[
-                'badge',
-                step.active ? 'text-bg-info' : step.done ? 'text-bg-success' : 'text-bg-secondary',
-                step.error ? 'text-bg-danger' : '',
+                'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+                step.active ? 'bg-blue-light-100 text-blue-light-800' : step.done ? 'bg-success-100 text-success-800' : 'bg-gray-100 text-gray-700',
+                step.error ? 'bg-error-100 text-error-800' : '',
               ].join(' ')}
             >
               {step.label}
@@ -142,22 +139,26 @@ export function ActionBatchSection({
         </div>
       </section>
       {previewingBatch || executingBatch ? (
-        <p data-testid="batch-busy-status" className="small text-secondary mt-2 mb-0">
+        <p data-testid="batch-busy-status" className="text-xs text-gray-500 mt-2 mb-0">
           {t('actions.batchBusy')}
         </p>
       ) : null}
       {pendingBatchExecution ? (
-        <Stack direction="horizontal" className="flex-wrap gap-2 mt-2">
-          <p data-testid="batch-execute-undo-status" className="small text-warning mb-0">
+        <div className="mt-2 flex flex-wrap gap-2">
+          <p data-testid="batch-execute-undo-status" className="text-xs text-warning-700 mb-0">
             {t('actions.executeUndoWindow', {
               seconds: pendingBatchUndoSeconds,
             })}
           </p>
-          <Button type="button" size="sm" variant="outline-warning" onClick={onCancelPendingBatchExecution}>
-            <BsSlashCircle className="me-1" aria-hidden="true" />
+          <AppButton
+            size="sm"
+            variant="warning"
+            onClick={onCancelPendingBatchExecution}
+          >
+            <BsSlashCircle className="mr-1" aria-hidden="true" />
             {t('actions.executeCancel')}
-          </Button>
-        </Stack>
+          </AppButton>
+        </div>
       ) : null}
     </section>
   )

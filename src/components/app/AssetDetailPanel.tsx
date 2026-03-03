@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Badge, Button, Card, Col, Form, Stack } from 'react-bootstrap'
 import {
   BsCardChecklist,
   BsCheck2Circle,
@@ -106,51 +105,47 @@ function MetadataEditor({
 
   return (
     <section className="border rounded p-3 mt-3" aria-label={t('detail.taggingTitle')}>
-      <h3 className="h6 mb-2">
-        <BsTag className="me-1" aria-hidden="true" />
+      <h3 className="mb-2 text-sm font-semibold text-gray-900">
+        <BsTag className="mr-1 inline-block" aria-hidden="true" />
         {t('detail.taggingTitle')}
       </h3>
-      <div className="d-flex flex-wrap gap-2 mb-2" data-testid="asset-tag-list">
+      <div className="flex flex-wrap gap-2 mb-2" data-testid="asset-tag-list">
         {tagsDraft.length > 0 ? (
           tagsDraft.map((tag) => (
-            <Badge key={tag} bg="secondary" className="d-inline-flex align-items-center">
+            <span key={tag} className="inline-flex items-center rounded-full bg-gray-200 px-2 py-0.5 text-xs font-semibold text-gray-700">
               {onKeywordClick ? (
-                <Button
+                <button
                   type="button"
-                  variant="link"
-                  size="sm"
                   data-testid="asset-tag-filter"
-                  className="text-white text-decoration-none p-0"
+                  className="p-0 text-xs text-gray-700 underline"
                   onClick={() => onKeywordClick(tag)}
                 >
                   {tag}
-                </Button>
+                </button>
               ) : (
                 tag
               )}
-              <Button
+              <button
                 type="button"
-                variant="link"
-                size="sm"
-                className="text-white text-decoration-none ms-1 p-0"
+                className="ml-1 p-0 text-xs text-gray-700"
                 onClick={() => {
                   setTagsDraft((current) => current.filter((value) => value !== tag))
                 }}
                 aria-label={t('detail.removeTag', { tag })}
               >
                 ×
-              </Button>
-            </Badge>
+              </button>
+            </span>
           ))
         ) : (
-          <span className="small text-secondary">{t('detail.noTags')}</span>
+          <span className="text-xs text-gray-500">{t('detail.noTags')}</span>
         )}
       </div>
-      <Form.Label htmlFor="asset-tag-input" className="small mb-1">
+      <label htmlFor="asset-tag-input" className="mb-1 inline-block text-xs font-medium text-gray-700">
         {t('detail.tagInputLabel')}
-      </Form.Label>
-      <Stack direction="horizontal" className="gap-2 mb-2">
-        <Form.Control
+      </label>
+      <div className="mb-2 flex gap-2">
+        <input
           id="asset-tag-input"
           data-testid="asset-tag-input"
           value={tagInput}
@@ -170,10 +165,11 @@ function MetadataEditor({
             setTagInput('')
           }}
           placeholder={t('detail.tagInputPlaceholder')}
+          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
         />
-        <Button
+        <button
           type="button"
-          variant="outline-secondary"
+          className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
           data-testid="asset-tag-add"
           onClick={() => {
             const normalized = tagInput.trim()
@@ -186,25 +182,25 @@ function MetadataEditor({
           disabled={tagInput.trim().length === 0}
         >
           {t('detail.addTag')}
-        </Button>
-      </Stack>
-      <Form.Label htmlFor="asset-notes-input" className="small mb-1">
+        </button>
+      </div>
+      <label htmlFor="asset-notes-input" className="mb-1 inline-block text-xs font-medium text-gray-700">
         {t('detail.notesLabel')}
-      </Form.Label>
-      <Form.Control
+      </label>
+      <textarea
         id="asset-notes-input"
-        as="textarea"
         rows={3}
         data-testid="asset-notes-input"
         value={notesDraft}
         onChange={(event) => {
           setNotesDraft(event.currentTarget.value)
         }}
+        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
       />
       <div className="mt-2">
-        <Button
+        <button
           type="button"
-          variant="primary"
+          className="inline-flex items-center justify-center rounded-lg border border-brand-500 bg-brand-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:border-brand-600 hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
           data-testid="asset-tag-save"
           onClick={() => void onSaveMetadata(selectedAsset.id, {
             tags: tagsDraft,
@@ -213,7 +209,7 @@ function MetadataEditor({
           disabled={savingMetadata}
         >
           {savingMetadata ? t('detail.taggingSaving') : t('detail.taggingSave')}
-        </Button>
+        </button>
       </div>
     </section>
   )
@@ -265,96 +261,92 @@ export function AssetDetailPanel({
   }, [onMetadataDirtyChange, selectedAsset])
 
   return (
-    <Col as="section" xs={12} xl={4} aria-label={t('detail.region')}>
-      <Card className="shadow-sm border-0 h-100 sticky-xl-top">
-        <Card.Body>
-          <h2 className="h5">
-            <BsCardChecklist className="me-2" aria-hidden="true" />
+    <section className="w-full xl:w-4/12" aria-label={t('detail.region')}>
+      <div className="h-full rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm xl:sticky xl:top-4">
+          <h2 className="text-lg font-semibold text-gray-900">
+            <BsCardChecklist className="mr-2 inline-block" aria-hidden="true" />
             {t('detail.title')}
           </h2>
           {selectedAsset ? (
             <div>
-              <strong className="d-block">{selectedAsset.name}</strong>
-              <p className="text-secondary mb-1">{t('detail.id', { id: selectedAsset.id })}</p>
-              <p className="text-secondary mb-3">
+              <strong className="block">{selectedAsset.name}</strong>
+              <p className="text-gray-500 mb-1">{t('detail.id', { id: selectedAsset.id })}</p>
+              <p className="text-gray-500 mb-3">
                 {t('detail.state', { state: t(ASSET_STATE_LABEL_KEYS[selectedAsset.state]) })}
               </p>
               <section className="mb-3" aria-label={t('detail.previewTitle')}>
-                <h3 className="h6 mb-2">{t('detail.previewTitle')}</h3>
+                <h3 className="mb-2 text-sm font-semibold text-gray-900">{t('detail.previewTitle')}</h3>
                 <AssetMediaPreview selectedAsset={selectedAsset} t={t} />
               </section>
               {selectedAsset.transcriptPreview ? (
                 <section className="mb-3" aria-label={t('detail.transcriptTitle')}>
-                  <h3 className="h6 mb-1">{t('detail.transcriptTitle')}</h3>
+                  <h3 className="mb-1 text-sm font-semibold text-gray-900">{t('detail.transcriptTitle')}</h3>
                   {selectedAsset.transcriptStatus ? (
-                    <p className="small text-secondary mb-1">
+                    <p className="text-xs text-gray-500 mb-1">
                       {t('detail.transcriptStatus', {
                         status: getTranscriptStatusLabel(t, selectedAsset.transcriptStatus),
                       })}
                     </p>
                   ) : null}
-                  <p className="small mb-0" data-testid="asset-transcript-preview">
+                  <p className="text-xs mb-0" data-testid="asset-transcript-preview">
                     {selectedAsset.transcriptPreview}
                   </p>
                 </section>
               ) : null}
               {onOpenStandaloneDetail || standaloneHref ? (
                 <div className="mb-3">
-                  <Stack direction="horizontal" className="gap-2 flex-wrap">
+                  <div className="flex flex-wrap gap-2">
                     {onOpenStandaloneDetail ? (
-                      <Button
+                      <button
                         type="button"
-                        variant="outline-secondary"
-                        size="sm"
+                        className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
                         data-testid="asset-open-standalone"
                         onClick={() => onOpenStandaloneDetail(selectedAsset.id)}
                       >
                         {t('detail.openStandalone')}
-                      </Button>
+                      </button>
                     ) : null}
                     {standaloneHref ? (
-                      <Button
-                        as="a"
+                      <a
                         href={standaloneHref}
                         target="_blank"
                         rel="noopener noreferrer"
-                        variant="outline-secondary"
-                        size="sm"
+                        className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
                         data-testid="asset-open-standalone-new-tab"
                       >
                         {t('detail.openStandaloneNewTab')}
-                      </Button>
+                      </a>
                     ) : null}
-                  </Stack>
+                  </div>
                 </div>
               ) : null}
               {showDecisionActions && onDecision ? (
-                <Stack direction="horizontal" className="flex-wrap gap-2">
-                  <Button
+                <div className="flex flex-wrap gap-2">
+                  <button
                     type="button"
-                    variant="outline-success"
+                    className="inline-flex items-center justify-center rounded-lg border border-success-300 bg-white px-3 py-2 text-sm font-semibold text-success-700 transition-colors hover:bg-success-50"
                     onClick={() => onDecision(selectedAsset.id, 'KEEP')}
                   >
-                    <BsCheck2Circle className="me-1" aria-hidden="true" />
+                    <BsCheck2Circle className="mr-1" aria-hidden="true" />
                     {t('actions.decisionKeep')}
-                  </Button>
-                  <Button
+                  </button>
+                  <button
                     type="button"
-                    variant="outline-danger"
+                    className="inline-flex items-center justify-center rounded-lg border border-error-300 bg-white px-3 py-2 text-sm font-semibold text-error-700 transition-colors hover:bg-error-50"
                     onClick={() => onDecision(selectedAsset.id, 'REJECT')}
                   >
-                    <BsXCircle className="me-1" aria-hidden="true" />
+                    <BsXCircle className="mr-1" aria-hidden="true" />
                     {t('actions.decisionReject')}
-                  </Button>
-                  <Button
+                  </button>
+                  <button
                     type="button"
-                    variant="outline-secondary"
+                    className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100"
                     onClick={() => onDecision(selectedAsset.id, 'CLEAR')}
                   >
-                    <BsTrash3 className="me-1" aria-hidden="true" />
+                    <BsTrash3 className="mr-1" aria-hidden="true" />
                     {t('actions.decisionClear')}
-                  </Button>
-                </Stack>
+                  </button>
+                </div>
               ) : null}
               <MetadataEditor
                 key={selectedAsset.id}
@@ -366,35 +358,35 @@ export function AssetDetailPanel({
                 onMetadataDirtyChange={onMetadataDirtyChange}
               />
               {showPurgeActions && onPreviewPurge && onExecutePurge ? (
-                <section className="border border-2 border-danger-subtle rounded p-3 mt-3">
-                  <h3 className="h6 mb-2">{t('actions.purgeTitle')}</h3>
-                  <p className="small text-secondary mb-2">{t('actions.purgeHelp')}</p>
-                  <Stack direction="horizontal" className="flex-wrap gap-2">
-                    <Button
+                <section className="border border-2 border-error-200 rounded p-3 mt-3">
+                  <h3 className="mb-2 text-sm font-semibold text-gray-900">{t('actions.purgeTitle')}</h3>
+                  <p className="text-xs text-gray-500 mb-2">{t('actions.purgeHelp')}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button
                       type="button"
-                      variant="outline-danger"
+                      className="inline-flex items-center justify-center rounded-lg border border-error-300 bg-white px-3 py-2 text-sm font-semibold text-error-700 transition-colors hover:bg-error-50 disabled:cursor-not-allowed disabled:opacity-50"
                       onClick={() => void onPreviewPurge()}
                       disabled={effectiveAvailability.previewPurgeDisabled}
                     >
-                      <BsFilterCircle className="me-1" aria-hidden="true" />
+                      <BsFilterCircle className="mr-1" aria-hidden="true" />
                       {previewingPurge ? t('actions.purgePreviewing') : t('actions.purgePreview')}
-                    </Button>
-                    <Button
+                    </button>
+                    <button
                       type="button"
-                      variant="danger"
+                      className="inline-flex items-center justify-center rounded-lg border border-error-500 bg-error-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-error-600 disabled:cursor-not-allowed disabled:opacity-50"
                       onClick={() => void onExecutePurge()}
                       disabled={effectiveAvailability.executePurgeDisabled}
                     >
-                      <BsTrash3 className="me-1" aria-hidden="true" />
+                      <BsTrash3 className="mr-1" aria-hidden="true" />
                       {executingPurge ? t('actions.purging') : t('actions.purgeConfirm')}
-                    </Button>
-                  </Stack>
+                    </button>
+                  </div>
                 </section>
               ) : null}
             </div>
           ) : (
-            <p className="text-secondary mb-0">
-              <BsInbox className="me-1" aria-hidden="true" />
+            <p className="text-gray-500 mb-0">
+              <BsInbox className="mr-1 inline-block" aria-hidden="true" />
               {t('detail.empty')}
             </p>
           )}
@@ -404,10 +396,10 @@ export function AssetDetailPanel({
               role="status"
               aria-live="polite"
               className={[
-                'small',
+                'text-xs',
                 'mt-3',
                 'mb-0',
-                purgeStatus.kind === 'success' ? 'text-success' : 'text-danger',
+                purgeStatus.kind === 'success' ? 'text-success-700' : 'text-error-700',
               ].join(' ')}
             >
               {purgeStatus.message}
@@ -419,10 +411,10 @@ export function AssetDetailPanel({
               role="status"
               aria-live="polite"
               className={[
-                'small',
+                'text-xs',
                 'mt-2',
                 'mb-0',
-                decisionStatus.kind === 'success' ? 'text-success' : 'text-danger',
+                decisionStatus.kind === 'success' ? 'text-success-700' : 'text-error-700',
               ].join(' ')}
             >
               {decisionStatus.message}
@@ -434,10 +426,10 @@ export function AssetDetailPanel({
               role="status"
               aria-live="polite"
               className={[
-                'small',
+                'text-xs',
                 'mt-2',
                 'mb-0',
-                metadataStatus.kind === 'success' ? 'text-success' : 'text-danger',
+                metadataStatus.kind === 'success' ? 'text-success-700' : 'text-error-700',
               ].join(' ')}
             >
               {metadataStatus.message}
@@ -445,20 +437,18 @@ export function AssetDetailPanel({
           ) : null}
           {selectedAsset && showRefreshAction && onRefreshAsset ? (
             <div className="mt-2">
-              <Button
+              <button
                 type="button"
-                size="sm"
-                variant="outline-secondary"
+                className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
                 data-testid="asset-refresh-action"
                 onClick={() => void onRefreshAsset()}
                 disabled={refreshingAsset}
               >
                 {refreshingAsset ? t('detail.refreshing') : t('detail.refreshAction')}
-              </Button>
+              </button>
             </div>
           ) : null}
-        </Card.Body>
-      </Card>
-    </Col>
+      </div>
+    </section>
   )
 }

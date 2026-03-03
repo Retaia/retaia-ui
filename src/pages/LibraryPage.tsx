@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Container, Row } from 'react-bootstrap'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AppHeader } from '../components/app/AppHeader'
 import { AssetDetailPanel } from '../components/app/AssetDetailPanel'
@@ -53,40 +52,38 @@ export function LibraryPage() {
   }, [])
 
   return (
-    <Container as="main" className="py-4">
-      <AppHeader
-        locale={controller.locale}
-        t={controller.t}
-        currentView="library"
-        onOpenSettings={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/settings')
-          }
-        }}
-        onOpenAuth={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/auth')
-          }
-        }}
-        onOpenReview={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/review')
-          }
-        }}
-        onOpenActivity={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/activity')
-          }
-        }}
-        onOpenLibrary={() => {
-          if (confirmLeaveIfDirty()) {
-            navigate('/library')
-          }
-        }}
-        onChangeLanguage={controller.onChangeLanguage}
-      />
-
-      <Row className="g-3 mt-1">
+    <AppHeader
+      locale={controller.locale}
+      t={controller.t}
+      currentView="library"
+      onOpenSettings={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/settings')
+        }
+      }}
+      onOpenAuth={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/auth')
+        }
+      }}
+      onOpenReview={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/review')
+        }
+      }}
+      onOpenActivity={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/activity')
+        }
+      }}
+      onOpenLibrary={() => {
+        if (confirmLeaveIfDirty()) {
+          navigate('/library')
+        }
+      }}
+      onChangeLanguage={controller.onChangeLanguage}
+    >
+      <div className="flex flex-wrap gap-4 mt-1">
         <LibraryListSection
           t={controller.t}
           visibleAssets={controller.visibleAssets}
@@ -120,7 +117,7 @@ export function LibraryPage() {
           standaloneHref={controller.selectedAsset ? getStandaloneLibraryDetailHref(controller.selectedAsset.id) : undefined}
           onMetadataDirtyChange={setHasUnsavedMetadata}
         />
-      </Row>
-    </Container>
+      </div>
+    </AppHeader>
   )
 }

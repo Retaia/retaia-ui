@@ -1,4 +1,3 @@
-import { Button, Card, Stack } from 'react-bootstrap'
 import { BsArrowRightCircle, BsCardChecklist, BsCheck2Circle, BsInbox, BsXCircle } from 'react-icons/bs'
 import type { Asset, DecisionAction } from '../../domain/assets'
 
@@ -16,55 +15,53 @@ export function NextPendingCard({
   onDecision,
 }: Props) {
   return (
-    <Card as="section" className="shadow-sm border-0 mt-3" aria-label={t('next.region')}>
-      <Card.Body>
-        <h2 className="h5 mb-3">
-          <BsCardChecklist className="me-2" aria-hidden="true" />
+    <section className="mt-3 rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm" aria-label={t('next.region')}>
+        <h2 className="mb-3 text-lg font-semibold text-gray-900">
+          <BsCardChecklist className="mr-2 inline-block" aria-hidden="true" />
           {t('next.title')}
         </h2>
         {nextPendingAsset ? (
-          <Stack direction="horizontal" className="flex-wrap justify-content-between align-items-center gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <strong className="d-block">{nextPendingAsset.name}</strong>
-              <p className="text-secondary mb-0">{nextPendingAsset.id}</p>
+              <strong className="block">{nextPendingAsset.name}</strong>
+              <p className="text-gray-500 mb-0">{nextPendingAsset.id}</p>
             </div>
-            <Stack direction="horizontal" gap={2}>
-              <Button
+            <div className="flex gap-2">
+              <button
                 type="button"
-                variant="outline-primary"
+                className="inline-flex items-center justify-center rounded-lg border border-brand-500 bg-white px-3 py-2 text-sm font-semibold text-brand-600 transition-colors hover:bg-brand-50"
                 onClick={onOpenNextPending}
                 data-testid="next-open"
               >
-                <BsArrowRightCircle className="me-1" aria-hidden="true" />
+                <BsArrowRightCircle className="mr-1" aria-hidden="true" />
                 {t('next.open')}
-              </Button>
-              <Button
+              </button>
+              <button
                 type="button"
-                variant="outline-success"
+                className="inline-flex items-center justify-center rounded-lg border border-success-300 bg-white px-3 py-2 text-sm font-semibold text-success-700 transition-colors hover:bg-success-50"
                 onClick={() => onDecision(nextPendingAsset.id, 'KEEP')}
                 data-testid="next-keep"
               >
-                <BsCheck2Circle className="me-1" aria-hidden="true" />
+                <BsCheck2Circle className="mr-1" aria-hidden="true" />
                 {t('actions.decisionKeep')}
-              </Button>
-              <Button
+              </button>
+              <button
                 type="button"
-                variant="outline-danger"
+                className="inline-flex items-center justify-center rounded-lg border border-error-300 bg-white px-3 py-2 text-sm font-semibold text-error-700 transition-colors hover:bg-error-50"
                 onClick={() => onDecision(nextPendingAsset.id, 'REJECT')}
                 data-testid="next-reject"
               >
-                <BsXCircle className="me-1" aria-hidden="true" />
+                <BsXCircle className="mr-1" aria-hidden="true" />
                 {t('actions.decisionReject')}
-              </Button>
-            </Stack>
-          </Stack>
+              </button>
+            </div>
+          </div>
         ) : (
-          <p className="text-secondary mb-0">
-            <BsInbox className="me-1" aria-hidden="true" />
+          <p className="text-gray-500 mb-0">
+            <BsInbox className="mr-1 inline-block" aria-hidden="true" />
             {t('next.empty')}
           </p>
         )}
-      </Card.Body>
-    </Card>
+    </section>
   )
 }

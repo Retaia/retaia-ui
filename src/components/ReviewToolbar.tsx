@@ -4,7 +4,6 @@ import type {
   AssetMediaTypeFilter,
   AssetSort,
 } from '../domain/assets'
-import { Card, Col, Form, Row } from 'react-bootstrap'
 import { BsCalendar3, BsFunnel, BsSearch, BsSliders2, BsSortDown } from 'react-icons/bs'
 
 type ReviewToolbarProps = {
@@ -59,70 +58,73 @@ export function ReviewToolbar({
   onSearchChange,
 }: ReviewToolbarProps) {
   return (
-    <Card as="section" className="shadow-sm border-0 mt-3">
-      <Card.Body>
-        <Row className="g-3">
-          <Col xs={12} md={4}>
-            <Form.Label className="fw-semibold" htmlFor="state-filter">
-              <BsFunnel className="me-1" aria-hidden="true" />
+    <section className="mt-3 rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
+          <div className="md:col-span-4">
+            <label className="font-semibold text-sm text-gray-700" htmlFor="state-filter">
+              <BsFunnel className="mr-1 inline-block" aria-hidden="true" />
               {labels.filter}
-            </Form.Label>
-            <Form.Select
+            </label>
+            <select
               id="state-filter"
               value={filter}
               onChange={(event) => onFilterChange(event.target.value as AssetFilter)}
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
             >
               <option value="ALL">{labels.all}</option>
               <option value="DECISION_PENDING">{labels.statePending}</option>
               <option value="DECIDED_KEEP">{labels.stateKept}</option>
               <option value="DECIDED_REJECT">{labels.stateRejected}</option>
               <option value="ARCHIVED">{labels.stateArchived}</option>
-            </Form.Select>
-          </Col>
+            </select>
+          </div>
 
-          <Col xs={12} md={4}>
-            <Form.Label className="fw-semibold" htmlFor="media-type-filter">
-              <BsSliders2 className="me-1" aria-hidden="true" />
+          <div className="md:col-span-4">
+            <label className="font-semibold text-sm text-gray-700" htmlFor="media-type-filter">
+              <BsSliders2 className="mr-1 inline-block" aria-hidden="true" />
               {labels.mediaType}
-            </Form.Label>
-            <Form.Select
+            </label>
+            <select
               id="media-type-filter"
               value={mediaTypeFilter}
               onChange={(event) => onMediaTypeFilterChange(event.target.value as AssetMediaTypeFilter)}
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
             >
               <option value="ALL">{labels.all}</option>
               <option value="VIDEO">{labels.mediaTypeVideo}</option>
               <option value="AUDIO">{labels.mediaTypeAudio}</option>
               <option value="IMAGE">{labels.mediaTypeImage}</option>
               <option value="OTHER">{labels.mediaTypeOther}</option>
-            </Form.Select>
-          </Col>
+            </select>
+          </div>
 
-          <Col xs={12} md={4}>
-            <Form.Label className="fw-semibold" htmlFor="captured-date-filter">
-              <BsCalendar3 className="me-1" aria-hidden="true" />
+          <div className="md:col-span-4">
+            <label className="font-semibold text-sm text-gray-700" htmlFor="captured-date-filter">
+              <BsCalendar3 className="mr-1 inline-block" aria-hidden="true" />
               {labels.date}
-            </Form.Label>
-            <Form.Select
+            </label>
+            <select
               id="captured-date-filter"
               value={dateFilter}
               onChange={(event) => onDateFilterChange(event.target.value as AssetDateFilter)}
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
             >
               <option value="ALL">{labels.all}</option>
               <option value="LAST_7_DAYS">{labels.date7d}</option>
               <option value="LAST_30_DAYS">{labels.date30d}</option>
-            </Form.Select>
-          </Col>
+            </select>
+          </div>
 
-          <Col xs={12} md={12}>
-            <Form.Label className="fw-semibold" htmlFor="sort-key-filter">
-              <BsSortDown className="me-1" aria-hidden="true" />
+          <div className="md:col-span-12">
+            <label className="font-semibold text-sm text-gray-700" htmlFor="sort-key-filter">
+              <BsSortDown className="mr-1 inline-block" aria-hidden="true" />
               {labels.sortBy}
-            </Form.Label>
-            <Form.Select
+            </label>
+            <select
               id="sort-key-filter"
               value={sort}
               onChange={(event) => onSortChange(event.target.value as AssetSort)}
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
             >
               <option value="-created_at">{labels.sortCreatedAtDesc}</option>
               <option value="created_at">{labels.sortCreatedAtAsc}</option>
@@ -130,23 +132,23 @@ export function ReviewToolbar({
               <option value="updated_at">{labels.sortUpdatedAtAsc}</option>
               <option value="name">{labels.sortNameAsc}</option>
               <option value="-name">{labels.sortNameDesc}</option>
-            </Form.Select>
-          </Col>
+            </select>
+          </div>
 
-          <Col xs={12}>
-            <Form.Label className="fw-semibold" htmlFor="asset-search">
-              <BsSearch className="me-1" aria-hidden="true" />
+          <div className="md:col-span-12">
+            <label className="font-semibold text-sm text-gray-700" htmlFor="asset-search">
+              <BsSearch className="mr-1 inline-block" aria-hidden="true" />
               {labels.search}
-            </Form.Label>
-            <Form.Control
+            </label>
+            <input
               id="asset-search"
               value={search}
               onChange={(event) => onSearchChange(event.target.value)}
               placeholder={labels.searchPlaceholder}
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100"
             />
-          </Col>
-        </Row>
-      </Card.Body>
-    </Card>
+          </div>
+        </div>
+    </section>
   )
 }
