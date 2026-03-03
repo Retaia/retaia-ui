@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import { Button, Card, Col, Form } from 'react-bootstrap'
+import { Button, Card, Col, Form } from '@ui-kit'
 import { BsArchive, BsSearch, BsSortDown } from 'react-icons/bs'
 import { AssetList } from '../AssetList'
 import type { Asset } from '../../domain/assets'

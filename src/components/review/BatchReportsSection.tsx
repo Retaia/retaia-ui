@@ -1,4 +1,4 @@
-import { Card } from 'react-bootstrap'
+import { Card } from '@ui-kit'
 import { BsBarChart } from 'react-icons/bs'
 import { ActionReportSection } from '../app/ActionReportSection'
 

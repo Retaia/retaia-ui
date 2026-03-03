@@ -1,4 +1,4 @@
-import { Button, Card, Stack } from 'react-bootstrap'
+import { Button, Card, Stack } from '@ui-kit'
 import { BsArrowClockwise, BsListUl } from 'react-icons/bs'
 import { ActionJournalSection } from '../app/ActionJournalSection'
 

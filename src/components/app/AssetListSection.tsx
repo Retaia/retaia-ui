@@ -1,4 +1,4 @@
-import { Button, Card, Col } from 'react-bootstrap'
+import { Button, Card, Col } from '@ui-kit'
 import { BsCollection, BsCrosshair, BsGrid3X3Gap, BsQuestionCircle } from 'react-icons/bs'
 import type { TFunction } from 'i18next'
 import { AssetList } from '../AssetList'

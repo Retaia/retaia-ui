@@ -1,4 +1,4 @@
-import { Button, Stack } from 'react-bootstrap'
+import { Button, Stack } from '@ui-kit'
 import { BsInbox, BsListUl, BsTrash3Fill } from 'react-icons/bs'
 
 type ActivityEntry = {

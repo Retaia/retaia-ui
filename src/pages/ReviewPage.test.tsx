@@ -176,7 +176,7 @@ describe('App', () => {
   it('keeps detail panel sticky on desktop viewport', () => {
     setupApp()
 
-    const detailCard = within(getDetailPanel()).getByText('Détail').closest('.card')
+    const detailCard = within(getDetailPanel()).getByText('Détail').closest('.sticky-xl-top')
     expect(detailCard).toHaveClass('sticky-xl-top')
   })
 

@@ -1,4 +1,4 @@
-import { Button, Stack } from 'react-bootstrap'
+import { Button, Stack } from '@ui-kit'
 import {
   BsArrowsCollapse,
   BsCameraVideo,

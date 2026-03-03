@@ -1,4 +1,4 @@
-import { Row } from 'react-bootstrap'
+import { Row } from '@ui-kit'
 import type { TFunction } from 'i18next'
 import { AssetListSection } from '../app/AssetListSection'
 import { AssetDetailPanel } from '../app/AssetDetailPanel'

@@ -1,4 +1,4 @@
-import { Button, Col, Form, Row } from 'react-bootstrap'
+import { Button, Col, Form, Row } from '@ui-kit'
 import type { TFunction } from 'i18next'
 
 type AuthLoginSectionProps = {

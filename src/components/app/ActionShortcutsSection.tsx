@@ -1,4 +1,4 @@
-import { Button, Col, Row, Stack } from 'react-bootstrap'
+import { Button, Col, Row, Stack } from '@ui-kit'
 import {
   BsArrowRightCircle,
   BsClockHistory,

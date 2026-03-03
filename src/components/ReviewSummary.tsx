@@ -1,5 +1,5 @@
 import type { AssetState } from '../domain/assets'
-import { Card, Col, Row } from 'react-bootstrap'
+import { Card, Col, Row } from '@ui-kit'
 import { BsCheckCircleFill, BsClock, BsCollection, BsXCircle } from 'react-icons/bs'
 
 type ReviewSummaryProps = {

@@ -1,4 +1,4 @@
-import { Card } from 'react-bootstrap'
+import { Card } from '@ui-kit'
 import { BsLayers } from 'react-icons/bs'
 import { ActionBatchSection } from '../app/ActionBatchSection'
 import { BatchExecutionStatusAlerts } from './BatchExecutionStatusAlerts'

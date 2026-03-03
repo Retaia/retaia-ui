@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Card, Stack } from 'react-bootstrap'
+import { Button, Card, Stack } from '@ui-kit'
 import {
   BsArrowClockwise,
   BsChevronDown,

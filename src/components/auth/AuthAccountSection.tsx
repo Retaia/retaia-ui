@@ -1,4 +1,4 @@
-import { Button } from 'react-bootstrap'
+import { Button } from '@ui-kit'
 import type { TFunction } from 'i18next'
 import type { useAuthPageController } from '../../hooks/useAuthPageController'
 import { AuthAppFeatureSection } from './AuthAppFeatureSection'

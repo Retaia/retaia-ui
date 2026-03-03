@@ -1,4 +1,4 @@
-import { Button, Form } from 'react-bootstrap'
+import { Button, Form } from '@ui-kit'
 import type { TFunction } from 'i18next'
 
 type AuthVerifyEmailSectionProps = {

@@ -1,9 +1,15 @@
 import react from '@vitejs/plugin-react'
+import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      '@ui-kit': fileURLToPath(new URL('./src/ui/kit.tsx', import.meta.url)),
+    },
+  },
   build: {
     rollupOptions: {
       output: {
@@ -27,13 +33,6 @@ export default defineConfig({
             id.includes('/node_modules/scheduler/')
           ) {
             return 'react-vendor'
-          }
-
-          if (
-            id.includes('/node_modules/react-bootstrap/') ||
-            id.includes('/node_modules/@restart/')
-          ) {
-            return 'ui-vendor'
           }
 
           if (
