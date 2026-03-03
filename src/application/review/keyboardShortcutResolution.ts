@@ -20,7 +20,6 @@ export type ShortcutCommand =
   | { type: 'apply_decision_keep' }
   | { type: 'apply_decision_reject' }
   | { type: 'apply_decision_clear' }
-  | { type: 'toggle_shortcuts_help' }
   | { type: 'move_selection'; offset: -1 | 1; extendRange: boolean }
 
 type ResolveShortcutCommandArgs = {
@@ -114,9 +113,6 @@ export function resolveShortcutCommand(args: ResolveShortcutCommandArgs): Shortc
     }
   }
 
-  if (args.key === '?') {
-    return { type: 'toggle_shortcuts_help' }
-  }
   if (args.key === 'j') {
     return { type: 'move_selection', offset: 1, extendRange: false }
   }

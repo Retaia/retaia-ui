@@ -70,14 +70,6 @@ describe('keyboardShortcutResolution', () => {
         key: '/',
       }),
     ).toEqual({ type: 'focus_search' })
-
-    expect(
-      resolveShortcutCommand({
-        ...baseArgs(),
-        key: '?',
-        shiftKey: true,
-      }),
-    ).toEqual({ type: 'toggle_shortcuts_help' })
   })
 
   it('resolves navigation commands', () => {

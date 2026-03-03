@@ -27,7 +27,6 @@ type UseReviewKeyboardShortcutsParams = {
   onApplyDecisionKeep: () => void
   onApplyDecisionReject: () => void
   onApplyDecisionClear: () => void
-  onToggleShortcutsHelp: () => void
   onSelectVisibleByOffset: (offset: -1 | 1, extendRange?: boolean) => void
 }
 
@@ -55,7 +54,6 @@ export function useReviewKeyboardShortcuts({
   onApplyDecisionKeep,
   onApplyDecisionReject,
   onApplyDecisionClear,
-  onToggleShortcutsHelp,
   onSelectVisibleByOffset,
 }: UseReviewKeyboardShortcutsParams) {
   useEffect(() => {
@@ -148,9 +146,6 @@ export function useReviewKeyboardShortcuts({
         case 'apply_decision_clear':
           onApplyDecisionClear()
           return
-        case 'toggle_shortcuts_help':
-          onToggleShortcutsHelp()
-          return
         case 'move_selection':
           onSelectVisibleByOffset(command.offset, command.extendRange)
           return
@@ -183,7 +178,6 @@ export function useReviewKeyboardShortcuts({
     onApplyDecisionKeep,
     onApplyDecisionReject,
     onApplyDecisionClear,
-    onToggleShortcutsHelp,
     onSelectVisibleByOffset,
   ])
 }

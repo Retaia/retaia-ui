@@ -35,7 +35,6 @@ import {
   refreshReviewAsset,
   saveReviewAssetMetadata,
 } from '../application/review/reviewAssetMaintenance'
-import { useShortcutsHelpState } from '../hooks/useShortcutsHelpState'
 import { useAssetListFocus } from '../hooks/useAssetListFocus'
 import { useDisplayType } from '../hooks/useDisplayType'
 import {
@@ -125,7 +124,6 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     setSelectedAssetId(nextAssetId)
     setSelectionAnchorId(nextAssetId)
   }, [])
-  const { showShortcutsHelp, toggleShortcutsHelp } = useShortcutsHelpState()
   const { densityMode, toggleDensityMode } = useDensityMode()
   const { displayType, setDisplayType } = useDisplayType('retaia_ui_review_asset_display_type')
   const [savingMetadata, setSavingMetadata] = useState(false)
@@ -903,7 +901,6 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     onApplyDecisionKeep: applyDecisionKeepToSelected,
     onApplyDecisionReject: applyDecisionRejectToSelected,
     onApplyDecisionClear: applyDecisionClearToSelected,
-    onToggleShortcutsHelp: toggleShortcutsHelp,
     onSelectVisibleByOffset: selectVisibleByOffset,
   })
 
@@ -979,7 +976,6 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     reportExportStatus,
     undoStack,
     activityLog,
-    showShortcutsHelp,
     todoAssets,
     doneAssets,
     applySavedView: applySavedViewWithBatchGuard,
@@ -1001,7 +997,6 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     exportBatchReport,
     undoLastAction,
     clearActivityLog,
-    toggleShortcutsHelp,
     openNextPending,
     openAsset,
     handleDecision,
