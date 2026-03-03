@@ -29,8 +29,11 @@ Retaia UI implements the v1 review experience and follows a spec-first workflow:
 ## Key Features
 
 - Desktop-like review UX (`/review`, `/review/:assetId`)
+- TailAdmin-style shell (left sidebar navigation, admin actions at bottom)
+- System-first theme kit (default follows OS light/dark, manual override available)
 - Asset decisions: `KEEP`, `REJECT`, `CLEAR`
 - Batch execution and reporting
+- Batch checkbox flow in asset list (check -> opens batch edit panel)
 - Purge preview + confirmation flow
 - Auth UI (`/auth`): login/logout, recovery, verify email, MFA
 - Runtime settings UI (`/settings`): API base URL/token + asset source
@@ -42,7 +45,7 @@ Retaia UI implements the v1 review experience and follows a spec-first workflow:
 - React 19
 - TypeScript (strict)
 - Vite
-- Bootstrap 5 + Sass
+- Tailwind CSS (TailAdmin-aligned patterns)
 - Vitest + Testing Library
 - Cucumber + Playwright
 

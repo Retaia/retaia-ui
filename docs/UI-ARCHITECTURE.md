@@ -7,7 +7,7 @@ modulaire et testable (TDD + BDD).
 
 ## Entrée principale
 
-- `src/main.tsx` (bootstrap React + BrowserRouter)
+- `src/main.tsx` (bootstrap React + BrowserRouter + `TailadminThemeProvider`)
 - `src/App.tsx` (point d'entrée UI qui délègue aux routes + providers Redux/React Query)
 - `src/routes/AppRoutes.tsx` (composition des pages par route)
 
@@ -40,7 +40,7 @@ La logique métier est portée par les couches `domain` et `application`, puis i
 ## Composants UI
 
 - `src/components/app/AppHeader.tsx`
-  Header, langue, titre.
+  Shell TailAdmin (sidebar gauche), navigation, admin, langue, toggle thème.
 - `src/components/app/AppErrorBoundary.tsx`
   Filet de sécurité global avec fallback utilisateur.
 - `src/components/app/ActionPanels.tsx`
@@ -60,7 +60,9 @@ La logique métier est portée par les couches `domain` et `application`, puis i
 - `src/components/app/AssetMediaPreview.tsx`
   Sous-composant de preview média (image/video/audio + fallback waveform local).
 - `src/components/AssetList.tsx`
-  Liste des assets (roving tabindex + interactions desktop-like).
+  Liste des assets (roving tabindex + interactions desktop-like + checkbox batch).
+- `src/components/ui/AppButton.tsx`
+  Bouton partagé Tailwind/TailAdmin (variants/tailles) pour limiter la duplication.
 - `src/components/ReviewToolbar.tsx`
   Filtres/recherche.
 - `src/components/ReviewSummary.tsx`
@@ -101,7 +103,7 @@ La logique métier est portée par les couches `domain` et `application`, puis i
 - `src/hooks/useDensityMode.ts`
   Densité d'affichage + persistance localStorage.
 - `src/hooks/useSelectionFlow.ts`
-  Sélection clavier/souris, plage, batch sur sélection active.
+  Sélection clavier/souris, plage, batch sur sélection active, sélection explicite via checkbox batch.
 - `src/hooks/useBatchExecution.ts`
   Preview/exécution batch, timeline, fenêtre d'annulation, rapport/export.
 - `src/hooks/usePurgeFlow.ts`
@@ -165,6 +167,13 @@ La logique métier est portée par les couches `domain` et `application`, puis i
 - `infrastructure`: adapters techniques qui relient les détails API/runtime aux use-cases.
 - `pages/components/hooks`: composition UI, état de vue, interactions utilisateur.
 - Règle d'évolution: toute nouvelle logique métier reste en `domain`/`application` avec tests dédiés.
+- Front UI: remplaçable tant que les contrats `domain`/`application` restent stables.
+
+## Conventions UI
+
+- Rendu UI en Tailwind/TailAdmin.
+- Pas d'héritage Bootstrap/React-Bootstrap.
+- Seule dérivation transversale autorisée: kit thème Light/Dark (`src/ui/tailadmin-theme.tsx`).
 
 ## Garde-fous de couche
 

@@ -6,7 +6,8 @@
 ## Contenu
 
 - `docs/DEVELOPMENT-BEST-PRACTICES.md`
-- `docs/BOOTSTRAP-TECHNIQUE.md`
+- `docs/TAILADMIN-TECHNIQUE.md`
+- `docs/BOOTSTRAP-TECHNIQUE.md` (historique/deprecated)
 - `docs/UI-DESIGN-SYSTEM.md`
 - `docs/UI-ARCHITECTURE.md`
 - `docs/PAGE-CONTROLLER-SECTIONS-STANDARD.md`
@@ -34,6 +35,7 @@
 ## Architecture UI/DDD
 
 - Source détaillée (structure UI, couches DDD, garde-fous d'import, tests): `docs/UI-ARCHITECTURE.md`
+- Conventions UI TailAdmin/Tailwind (pas d'héritage Bootstrap): `docs/TAILADMIN-TECHNIQUE.md`
 - Bonnes pratiques de développement/PR: `docs/DEVELOPMENT-BEST-PRACTICES.md`
 
 ## Commandes BDD/E2E locales

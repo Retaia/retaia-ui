@@ -36,7 +36,7 @@ Pour `FeatureName=ModerationQueue`:
 
 ## Ce que le scaffold couvre
 
-- `Page` de composition React-Bootstrap (`Container`) branchee au controller.
+- `Page` de composition Tailwind/TailAdmin (wrapper `main` + classes utilitaires) branchee au controller.
 - `Controller` minimal avec statuts explicites (`isLoading`, `errorMessage`).
 - `Section` principale de rendu avec fallback loading/error.
 - Test unitaire de base du controller.
