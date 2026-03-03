@@ -332,7 +332,6 @@ export const enTranslation = {
   'assets.emptyFiltered': 'No result for current search/filter.',
   'assets.emptyBatch': 'Batch filter is active but no selected asset is visible.',
   'assets.emptyBatchNone': 'Batch filter is active. Add assets to batch with Shift+click.',
-  'assets.batchBadge': 'Batch',
   'assets.loadMore': 'Load more',
   'assets.loadingMore': 'Loading...',
   'detail.region': 'Asset detail',

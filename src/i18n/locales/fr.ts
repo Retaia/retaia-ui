@@ -332,7 +332,6 @@ export const frTranslation = {
   'assets.emptyFiltered': 'Aucun résultat pour la recherche ou le filtre actif.',
   'assets.emptyBatch': "Filtre batch actif, mais aucun asset sélectionné n'est visible.",
   'assets.emptyBatchNone': 'Filtre batch actif. Ajoute des assets au batch via Shift+clic.',
-  'assets.batchBadge': 'Batch',
   'assets.loadMore': 'Charger plus',
   'assets.loadingMore': 'Chargement...',
   'detail.region': "Détail de l'asset",
