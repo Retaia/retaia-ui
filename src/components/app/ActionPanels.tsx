@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   BsArrowClockwise,
   BsChevronDown,
@@ -133,9 +133,15 @@ export function ActionPanels({
   const [showAdvancedActions, setShowAdvancedActions] = useState(false)
   const isAdvancedActionsOpen = showShortcutsHelp || showAdvancedActions
   const hasBatchSelection = batchIdsLength > 0
+  const [isBatchSidebarOpen, setIsBatchSidebarOpen] = useState(false)
+
+  useEffect(() => {
+    setIsBatchSidebarOpen(hasBatchSelection)
+  }, [hasBatchSelection])
 
   return (
-    <section className="mt-3 rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm">
+    <>
+      <section className="mt-3 rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm">
         <h2 className="mb-3 text-lg font-semibold text-gray-900">
           <BsTools className="mr-2 inline-block" aria-hidden="true" />
           {t('actions.title')}
@@ -156,43 +162,6 @@ export function ActionPanels({
           onClearFilters={onClearFilters}
           onToggleDensityMode={onToggleDensityMode}
         />
-        {hasBatchSelection ? (
-          <>
-            <ActionBatchSection
-              t={t}
-              availability={availability}
-              batchIdsLength={batchIdsLength}
-              batchScope={batchScope}
-              batchTimeline={batchTimeline}
-              pendingBatchExecution={pendingBatchExecution}
-              pendingBatchUndoSeconds={pendingBatchUndoSeconds}
-              previewingBatch={previewingBatch}
-              executingBatch={executingBatch}
-              onApplyDecisionToBatch={onApplyDecisionToBatch}
-              onClearBatch={onClearBatch}
-              onPreviewBatchMove={onPreviewBatchMove}
-              onExecuteBatchMove={onExecuteBatchMove}
-              onCancelPendingBatchExecution={onCancelPendingBatchExecution}
-            />
-            <BatchExecutionStatusAlerts
-              previewStatus={previewStatus}
-              executeStatus={executeStatus}
-              retryStatus={retryStatus}
-            />
-            <ActionReportSection
-              t={t}
-              refreshReportDisabled={availability.refreshReportDisabled}
-              reportBatchId={reportBatchId}
-              reportStatus={reportStatus}
-              reportData={reportData}
-              lastSuccessfulReportBatchId={lastSuccessfulReportBatchId}
-              lastSuccessfulReportData={lastSuccessfulReportData}
-              reportExportStatus={reportExportStatus}
-              onRefreshBatchReport={onRefreshBatchReport}
-              onExportBatchReport={onExportBatchReport}
-            />
-          </>
-        ) : null}
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -239,6 +208,67 @@ export function ActionPanels({
             </div>
           ) : null}
         </section>
-    </section>
+      </section>
+
+      <div
+        className={[
+          'fixed inset-0 z-40 bg-black/20 transition-opacity duration-300',
+          isBatchSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
+        ].join(' ')}
+        aria-hidden={!isBatchSidebarOpen}
+      />
+      <aside
+        id="batch-edit-panel"
+        data-testid="batch-right-sidebar"
+        className={[
+          'fixed right-0 top-0 z-50 h-screen w-full max-w-xl border-l border-gray-200 bg-white shadow-2xl transition-transform duration-300 dark:border-gray-700 dark:bg-gray-900',
+          isBatchSidebarOpen ? 'translate-x-0' : 'translate-x-full',
+        ].join(' ')}
+        aria-label={t('app.nav.batch')}
+      >
+        <div className="flex h-full flex-col overflow-y-auto p-4">
+          {hasBatchSelection ? (
+            <>
+              <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {t('app.nav.batch')}
+              </h2>
+              <ActionBatchSection
+                t={t}
+                availability={availability}
+                batchIdsLength={batchIdsLength}
+                batchScope={batchScope}
+                batchTimeline={batchTimeline}
+                pendingBatchExecution={pendingBatchExecution}
+                pendingBatchUndoSeconds={pendingBatchUndoSeconds}
+                previewingBatch={previewingBatch}
+                executingBatch={executingBatch}
+                onApplyDecisionToBatch={onApplyDecisionToBatch}
+                onClearBatch={onClearBatch}
+                onPreviewBatchMove={onPreviewBatchMove}
+                onExecuteBatchMove={onExecuteBatchMove}
+                onCancelPendingBatchExecution={onCancelPendingBatchExecution}
+              />
+              <BatchExecutionStatusAlerts
+                previewStatus={previewStatus}
+                executeStatus={executeStatus}
+                retryStatus={retryStatus}
+              />
+              <ActionReportSection
+                t={t}
+                refreshReportDisabled={availability.refreshReportDisabled}
+                reportBatchId={reportBatchId}
+                reportStatus={reportStatus}
+                reportData={reportData}
+                lastSuccessfulReportBatchId={lastSuccessfulReportBatchId}
+                lastSuccessfulReportData={lastSuccessfulReportData}
+                reportExportStatus={reportExportStatus}
+                onRefreshBatchReport={onRefreshBatchReport}
+                onExportBatchReport={onExportBatchReport}
+              />
+            </>
+          ) : null}
+        </div>
+      </aside>
+    </>
   )
 }
