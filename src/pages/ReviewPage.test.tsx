@@ -1102,20 +1102,17 @@ describe('App', () => {
     expect(screen.getByText('A-003 - Conservé')).toBeInTheDocument()
   })
 
-  it('handles next pending asset actions', async () => {
+  it('shows todo and done lists and opens asset from todo', async () => {
     const { user } = setupApp()
 
-    expect(screen.getByRole('heading', { name: 'Prochain asset à traiter' })).toBeInTheDocument()
-    const firstPendingName = screen.getAllByText('interview-camera-a.mov')[0]
-    const rejectButton = screen.getAllByRole('button', { name: 'Rejeter' })[0]
-    if (!firstPendingName || !rejectButton) {
-      throw new Error('expected pending asset controls were not found')
-    }
-    expect(firstPendingName).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Listes review' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Todo (1)' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Done (2)' })).toBeInTheDocument()
 
-    await user.click(rejectButton)
+    const todoPanel = screen.getByLabelText('Suivi review')
+    await user.click(within(todoPanel).getByRole('button', { name: /interview-camera-a\.mov/i }))
 
-    expect(screen.getByText('Plus aucun asset en attente.')).toBeInTheDocument()
+    expect(within(getDetailPanel()).getByText('Identifiant: A-001')).toBeInTheDocument()
   })
 
 

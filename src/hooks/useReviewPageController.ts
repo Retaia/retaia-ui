@@ -256,8 +256,12 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   }, [assetDetailLoadState, isApiAssetSource, selectedAssetId])
 
   const batchScope = useMemo(() => summarizeBatchScope(assets, batchIds), [assets, batchIds])
-  const nextPendingAsset = useMemo(
-    () => assets.find((asset) => asset.state === 'DECISION_PENDING') ?? null,
+  const todoAssets = useMemo(
+    () => assets.filter((asset) => asset.state === 'DECISION_PENDING'),
+    [assets],
+  )
+  const doneAssets = useMemo(
+    () => assets.filter((asset) => asset.state !== 'DECISION_PENDING'),
     [assets],
   )
   const selectedAssetState = selectedAsset?.state ?? null
@@ -575,6 +579,12 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     }
     applySelectedAssetId(target.id)
   }, [applySelectedAssetId, assets, batchOnly, dateFilter, filter, mediaTypeFilter, recordAction, search, setBatchOnly, setDateFilter, setFilter, setMediaTypeFilter, setSearch, t])
+  const openAsset = useCallback((assetId: string) => {
+    if (batchOnly) {
+      setBatchOnly(false)
+    }
+    applySelectedAssetId(assetId)
+  }, [applySelectedAssetId, batchOnly, setBatchOnly])
 
   const {
     clearFilters,
@@ -970,7 +980,8 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     undoStack,
     activityLog,
     showShortcutsHelp,
-    nextPendingAsset,
+    todoAssets,
+    doneAssets,
     applySavedView: applySavedViewWithBatchGuard,
     applyPresetPendingRecent,
     applyPresetImagesRejected,
@@ -992,6 +1003,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     clearActivityLog,
     toggleShortcutsHelp,
     openNextPending,
+    openAsset,
     handleDecision,
     visibleAssets,
     selectedAssetId,

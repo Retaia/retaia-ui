@@ -139,7 +139,8 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           undoStackLength={controller.undoStack.length}
           activityLog={controller.activityLog}
           showShortcutsHelp={controller.showShortcutsHelp}
-          nextPendingAsset={controller.nextPendingAsset}
+          todoAssets={controller.todoAssets}
+          doneAssets={controller.doneAssets}
           onApplySavedView={controller.applySavedView}
           onApplyPresetPendingRecent={controller.applyPresetPendingRecent}
           onApplyPresetImagesRejected={controller.applyPresetImagesRejected}
@@ -160,7 +161,7 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           onClearActivityLog={controller.clearActivityLog}
           onToggleShortcutsHelp={controller.toggleShortcutsHelp}
           onOpenNextPending={controller.openNextPending}
-          onDecision={controller.handleDecision}
+          onOpenAsset={controller.openAsset}
         />
       ) : null}
 
