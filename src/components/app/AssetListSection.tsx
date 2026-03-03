@@ -17,6 +17,8 @@ type AssetListSectionProps = {
   loadingMoreAssets?: boolean
   onDecision: (id: string, action: DecisionAction) => void
   onAssetClick: (assetId: string, shiftKey: boolean) => void
+  onBatchSelectionChange?: (assetId: string, selected: boolean) => void
+  onOpenBatchEditor?: () => void
   assetListRegionRef: React.RefObject<HTMLElement | null>
   onLoadMoreAssets?: () => Promise<void>
 }
@@ -33,6 +35,8 @@ export function AssetListSection({
   loadingMoreAssets = false,
   onDecision,
   onAssetClick,
+  onBatchSelectionChange,
+  onOpenBatchEditor,
   assetListRegionRef,
   onLoadMoreAssets,
 }: AssetListSectionProps) {
@@ -70,6 +74,8 @@ export function AssetListSection({
             }}
             onDecision={onDecision}
             onAssetClick={onAssetClick}
+            onBatchSelectionChange={onBatchSelectionChange}
+            onOpenBatchEditor={onOpenBatchEditor}
           />
           {hasMoreAssets && onLoadMoreAssets ? (
             <div className="flex justify-center mt-3">

@@ -16,6 +16,8 @@ type AssetListProps = {
   }
   onDecision: (id: string, action: DecisionAction) => void
   onAssetClick: (id: string, shiftKey: boolean) => void
+  onBatchSelectionChange?: (id: string, selected: boolean) => void
+  onOpenBatchEditor?: () => void
   showDecisionActions?: boolean
 }
 
@@ -27,6 +29,8 @@ export function AssetList({
   labels,
   onDecision,
   onAssetClick,
+  onBatchSelectionChange,
+  onOpenBatchEditor,
   showDecisionActions = true,
 }: AssetListProps) {
   if (assets.length === 0) {
@@ -63,6 +67,26 @@ export function AssetList({
           aria-current={selectedAssetId === asset.id ? 'true' : undefined}
         >
           <div className="grow">
+            {showDecisionActions && onBatchSelectionChange ? (
+              <label className="mb-1 inline-flex items-center gap-2 text-xs text-gray-600">
+                <input
+                  type="checkbox"
+                  checked={batchIds.includes(asset.id)}
+                  aria-label={`${labels.batch} ${asset.name}`}
+                  className="h-4 w-4 accent-[var(--color-brand-500)]"
+                  onChange={(event) => {
+                    event.stopPropagation()
+                    const selected = event.currentTarget.checked
+                    onBatchSelectionChange(asset.id, selected)
+                    if (selected) {
+                      onOpenBatchEditor?.()
+                    }
+                  }}
+                  onClick={(event) => event.stopPropagation()}
+                />
+                <span>{labels.batch}</span>
+              </label>
+            ) : null}
             <button
               type="button"
               data-asset-open="true"

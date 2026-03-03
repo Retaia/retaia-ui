@@ -28,6 +28,8 @@ type Props = {
   assetListRegionRef: React.RefObject<HTMLElement | null>
   onDecision: (id: string, action: DecisionAction) => void
   onAssetClick: (assetId: string, shiftKey: boolean) => void
+  onBatchSelectionChange?: (assetId: string, selected: boolean) => void
+  onOpenBatchEditor?: () => void
   onSaveMetadata: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
   onPreviewPurge: () => Promise<void>
   onExecutePurge: () => Promise<void>
@@ -62,6 +64,8 @@ export function ReviewListDetailSection({
   assetListRegionRef,
   onDecision,
   onAssetClick,
+  onBatchSelectionChange,
+  onOpenBatchEditor,
   onSaveMetadata,
   onPreviewPurge,
   onExecutePurge,
@@ -86,6 +90,8 @@ export function ReviewListDetailSection({
         loadingMoreAssets={loadingMoreAssets}
         onDecision={onDecision}
         onAssetClick={onAssetClick}
+        onBatchSelectionChange={onBatchSelectionChange}
+        onOpenBatchEditor={onOpenBatchEditor}
         assetListRegionRef={assetListRegionRef}
         onLoadMoreAssets={onLoadMoreAssets}
       />

@@ -101,6 +101,31 @@ describe('AssetList', () => {
     expect(onDecision).toHaveBeenCalledWith('A-002', 'CLEAR')
   })
 
+  it('toggles batch selection from checkbox and opens batch editor on add', async () => {
+    const user = userEvent.setup()
+    const onBatchSelectionChange = vi.fn()
+    const onOpenBatchEditor = vi.fn()
+
+    render(
+      <AssetList
+        assets={assets}
+        selectedAssetId={'A-001'}
+        batchIds={[]}
+        density="COMFORTABLE"
+        labels={labels}
+        onDecision={vi.fn()}
+        onAssetClick={vi.fn()}
+        onBatchSelectionChange={onBatchSelectionChange}
+        onOpenBatchEditor={onOpenBatchEditor}
+      />,
+    )
+
+    const checkbox = screen.getByRole('checkbox', { name: 'Batch interview-camera-a.mov' })
+    await user.click(checkbox)
+    expect(onBatchSelectionChange).toHaveBeenCalledWith('A-001', true)
+    expect(onOpenBatchEditor).toHaveBeenCalledTimes(1)
+  })
+
   it('exposes list semantics and selected row state', () => {
     render(
       <AssetList

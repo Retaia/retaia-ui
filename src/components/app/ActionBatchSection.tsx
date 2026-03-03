@@ -37,6 +37,7 @@ type Props = {
   onPreviewBatchMove: () => Promise<void>
   onExecuteBatchMove: () => Promise<void>
   onCancelPendingBatchExecution: () => void
+  panelId?: string
 }
 
 export function ActionBatchSection({
@@ -54,9 +55,10 @@ export function ActionBatchSection({
   onPreviewBatchMove,
   onExecuteBatchMove,
   onCancelPendingBatchExecution,
+  panelId = 'batch-edit-panel',
 }: Props) {
   return (
-    <section className="border border-2 border-gray-200 rounded p-3 mt-3">
+    <section id={panelId} tabIndex={-1} className="border border-2 border-gray-200 rounded p-3 mt-3">
       <h3 className="mb-2 text-base font-semibold text-gray-900">
         <BsLayers className="mr-1 inline-block" aria-hidden="true" />
         {t('actions.batchPanel')}
