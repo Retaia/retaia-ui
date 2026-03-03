@@ -48,19 +48,19 @@ export function AppHeader({
     [
       'inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition-colors',
       active
-        ? 'border-brand-500 bg-brand-50 text-brand-600'
-        : 'border-gray-200 bg-white text-gray-700 hover:border-brand-300 hover:text-brand-600',
+        ? 'border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/20 dark:text-brand-300'
+        : 'border-gray-200 bg-white text-gray-700 hover:border-brand-300 hover:text-brand-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-brand-400 dark:hover:text-brand-300',
     ].join(' ')
 
   const adminButtonClass =
-    'inline-flex w-full items-center justify-start gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100'
+    'inline-flex w-full items-center justify-start gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800'
 
   const langButtonClass = (active: boolean) =>
     [
       'inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors',
       active
         ? 'border-brand-500 bg-brand-500 text-white'
-        : 'border-brand-500 bg-white text-brand-600 hover:bg-brand-50',
+        : 'border-brand-500 bg-white text-brand-600 hover:bg-brand-50 dark:bg-gray-900 dark:text-brand-300 dark:hover:bg-brand-500/20',
     ].join(' ')
 
   const navItems = [
@@ -85,9 +85,9 @@ export function AppHeader({
   ] as const
 
   return (
-    <div className="grid min-h-screen grid-cols-1 bg-gray-50 lg:grid-cols-[272px_minmax(0,1fr)]">
+    <div className="grid min-h-screen grid-cols-1 bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 lg:grid-cols-[272px_minmax(0,1fr)]">
       <aside
-        className="flex flex-col gap-4 border-b border-gray-200 bg-white/90 p-4 backdrop-blur-sm lg:sticky lg:top-0 lg:min-h-screen lg:border-b-0 lg:border-r"
+        className="flex flex-col gap-4 border-b border-gray-200 bg-white/90 p-4 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/95 lg:sticky lg:top-0 lg:min-h-screen lg:border-b-0 lg:border-r"
         aria-label={t('app.navigation')}
       >
         <div className="flex items-center gap-3">
@@ -100,8 +100,8 @@ export function AppHeader({
             aria-hidden="true"
           />
           <div>
-            <h1 className="text-lg font-bold leading-tight text-gray-900">{t('app.title')}</h1>
-            <p className="mt-0.5 text-xs text-gray-500">{t('app.subtitle')}</p>
+            <h1 className="text-lg font-bold leading-tight text-gray-900 dark:text-gray-100">{t('app.title')}</h1>
+            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{t('app.subtitle')}</p>
           </div>
         </div>
 
@@ -121,7 +121,7 @@ export function AppHeader({
         </nav>
 
         <div className="flex flex-wrap gap-2 lg:mt-auto lg:flex-col">
-          <div className="w-full text-xs font-bold uppercase tracking-wide text-gray-500">{t('app.adminMenu')}</div>
+          <div className="w-full text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('app.adminMenu')}</div>
           <button
             type="button"
             className={adminButtonClass}
@@ -141,7 +141,7 @@ export function AppHeader({
           <div className="inline-flex gap-2" aria-label={t('app.language')}>
             <button
               type="button"
-              className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
+              className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
               onClick={toggleMode}
               aria-label={t('app.themeToggle')}
               title={`${t('app.themeToggle')} (${mode})`}
@@ -170,7 +170,7 @@ export function AppHeader({
         </div>
       </aside>
 
-      <main className="min-w-0">
+      <main className="min-w-0 dark:bg-gray-950">
         <div className="mx-auto max-w-[1440px] p-4 lg:px-6 lg:py-5">{children}</div>
       </main>
     </div>

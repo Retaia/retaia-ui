@@ -25,19 +25,19 @@ function resolveVariantClass(variant: Variant): string {
     return 'border border-brand-500 bg-brand-500 text-white hover:border-brand-600 hover:bg-brand-600'
   }
   if (variant === 'secondary') {
-    return 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
+    return 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800'
   }
   if (variant === 'outline-primary') {
-    return 'border border-brand-500 bg-white text-brand-600 hover:bg-brand-50'
+    return 'border border-brand-500 bg-white text-brand-600 hover:bg-brand-50 dark:bg-gray-900 dark:text-brand-300 dark:hover:bg-brand-500/20'
   }
   if (variant === 'outline-success') {
-    return 'border border-success-300 bg-white text-success-700 hover:bg-success-50'
+    return 'border border-success-300 bg-white text-success-700 hover:bg-success-50 dark:bg-gray-900 dark:text-success-300 dark:hover:bg-success-500/20'
   }
   if (variant === 'outline-danger') {
-    return 'border border-error-300 bg-white text-error-700 hover:bg-error-50'
+    return 'border border-error-300 bg-white text-error-700 hover:bg-error-50 dark:bg-gray-900 dark:text-error-300 dark:hover:bg-error-500/20'
   }
   if (variant === 'outline-info') {
-    return 'border border-blue-light-300 bg-white text-blue-light-700 hover:bg-blue-light-50'
+    return 'border border-blue-light-300 bg-white text-blue-light-700 hover:bg-blue-light-50 dark:bg-gray-900 dark:text-blue-light-300 dark:hover:bg-blue-light-500/20'
   }
   if (variant === 'warning') {
     return 'border border-warning-400 bg-warning-400 text-gray-900 hover:border-warning-500 hover:bg-warning-500'
@@ -46,9 +46,9 @@ function resolveVariantClass(variant: Variant): string {
     return 'border border-error-500 bg-error-500 text-white hover:bg-error-600'
   }
   if (variant === 'ghost-brand') {
-    return 'border border-transparent bg-transparent text-brand-600 hover:text-brand-700'
+    return 'border border-transparent bg-transparent text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200'
   }
-  return 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
+  return 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800'
 }
 
 function resolveSizeClass(size: Size): string {
@@ -81,4 +81,3 @@ export function AppButton({
     </button>
   )
 }
-
