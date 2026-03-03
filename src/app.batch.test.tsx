@@ -15,7 +15,7 @@ describe('App batch flows', () => {
 
     await user.click(screen.getByRole('button', { name: 'Conserver batch' }))
 
-    expect(screen.getByText('Batch sélectionné: 0')).toBeInTheDocument()
+    expect(screen.getByTestId('batch-status')).toHaveTextContent('Taille batch active: 0')
     expect(within(getAssetsPanel()).getByText('A-001 - Conservé')).toBeInTheDocument()
     expect(within(getAssetsPanel()).getByText('A-003 - Conservé')).toBeInTheDocument()
   })

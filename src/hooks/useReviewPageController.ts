@@ -201,13 +201,16 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   )
 
   useEffect(() => {
-    writeReviewFilterParams({
-      filter,
-      mediaTypeFilter,
-      dateFilter,
-      sort,
-      search,
-    })
+    writeReviewFilterParams(
+      {
+        filter,
+        mediaTypeFilter,
+        dateFilter,
+        sort,
+        search,
+      },
+      'replace',
+    )
   }, [dateFilter, filter, mediaTypeFilter, search, sort])
 
   useEffect(() => {
@@ -592,6 +595,16 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     setBatchOnly,
   })
 
+  const applySavedViewWithBatchGuard = useCallback(
+    (targetView: 'DEFAULT' | 'PENDING' | 'BATCH') => {
+      if (targetView === 'BATCH' && batchIds.length === 0) {
+        return
+      }
+      applySavedView(targetView)
+    },
+    [applySavedView, batchIds.length],
+  )
+
   const mapStateConflictAwareErrorToMessage = useCallback(
     (error: unknown) => {
       const result = resolveReviewApiError(error, {
@@ -770,11 +783,20 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   })
 
   const toggleBatchOnly = useCallback(() => {
+    if (batchIds.length === 0) {
+      return
+    }
     recordAction(
       batchOnly ? t('activity.batchOnlyOff') : t('activity.batchOnlyOn'),
     )
     setBatchOnly(!batchOnly)
-  }, [batchOnly, recordAction, setBatchOnly, t])
+  }, [batchIds.length, batchOnly, recordAction, setBatchOnly, t])
+
+  useEffect(() => {
+    if (batchOnly && batchIds.length === 0) {
+      setBatchOnly(false)
+    }
+  }, [batchIds.length, batchOnly, setBatchOnly])
 
   const selectAllVisibleInBatch = useCallback(() => {
     const missingCount = visibleAssets.filter((asset) => !batchIds.includes(asset.id)).length
@@ -946,7 +968,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     activityLog,
     showShortcutsHelp,
     nextPendingAsset,
-    applySavedView,
+    applySavedView: applySavedViewWithBatchGuard,
     applyPresetPendingRecent,
     applyPresetImagesRejected,
     applyPresetMediaReview,

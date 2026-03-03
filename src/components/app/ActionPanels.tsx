@@ -132,6 +132,7 @@ export function ActionPanels({
 }: Props) {
   const [showAdvancedActions, setShowAdvancedActions] = useState(false)
   const isAdvancedActionsOpen = showShortcutsHelp || showAdvancedActions
+  const hasBatchSelection = batchIdsLength > 0
 
   return (
     <section className="mt-3 rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm">
@@ -141,6 +142,7 @@ export function ActionPanels({
         </h2>
         <ActionQuickPanelSection
           t={t}
+          batchIdsLength={batchIdsLength}
           batchOnly={batchOnly}
           densityMode={densityMode}
           availability={availability}
@@ -154,39 +156,43 @@ export function ActionPanels({
           onClearFilters={onClearFilters}
           onToggleDensityMode={onToggleDensityMode}
         />
-        <ActionBatchSection
-          t={t}
-          availability={availability}
-          batchIdsLength={batchIdsLength}
-          batchScope={batchScope}
-          batchTimeline={batchTimeline}
-          pendingBatchExecution={pendingBatchExecution}
-          pendingBatchUndoSeconds={pendingBatchUndoSeconds}
-          previewingBatch={previewingBatch}
-          executingBatch={executingBatch}
-          onApplyDecisionToBatch={onApplyDecisionToBatch}
-          onClearBatch={onClearBatch}
-          onPreviewBatchMove={onPreviewBatchMove}
-          onExecuteBatchMove={onExecuteBatchMove}
-          onCancelPendingBatchExecution={onCancelPendingBatchExecution}
-        />
-        <BatchExecutionStatusAlerts
-          previewStatus={previewStatus}
-          executeStatus={executeStatus}
-          retryStatus={retryStatus}
-        />
-        <ActionReportSection
-          t={t}
-          refreshReportDisabled={availability.refreshReportDisabled}
-          reportBatchId={reportBatchId}
-          reportStatus={reportStatus}
-          reportData={reportData}
-          lastSuccessfulReportBatchId={lastSuccessfulReportBatchId}
-          lastSuccessfulReportData={lastSuccessfulReportData}
-          reportExportStatus={reportExportStatus}
-          onRefreshBatchReport={onRefreshBatchReport}
-          onExportBatchReport={onExportBatchReport}
-        />
+        {hasBatchSelection ? (
+          <>
+            <ActionBatchSection
+              t={t}
+              availability={availability}
+              batchIdsLength={batchIdsLength}
+              batchScope={batchScope}
+              batchTimeline={batchTimeline}
+              pendingBatchExecution={pendingBatchExecution}
+              pendingBatchUndoSeconds={pendingBatchUndoSeconds}
+              previewingBatch={previewingBatch}
+              executingBatch={executingBatch}
+              onApplyDecisionToBatch={onApplyDecisionToBatch}
+              onClearBatch={onClearBatch}
+              onPreviewBatchMove={onPreviewBatchMove}
+              onExecuteBatchMove={onExecuteBatchMove}
+              onCancelPendingBatchExecution={onCancelPendingBatchExecution}
+            />
+            <BatchExecutionStatusAlerts
+              previewStatus={previewStatus}
+              executeStatus={executeStatus}
+              retryStatus={retryStatus}
+            />
+            <ActionReportSection
+              t={t}
+              refreshReportDisabled={availability.refreshReportDisabled}
+              reportBatchId={reportBatchId}
+              reportStatus={reportStatus}
+              reportData={reportData}
+              lastSuccessfulReportBatchId={lastSuccessfulReportBatchId}
+              lastSuccessfulReportData={lastSuccessfulReportData}
+              reportExportStatus={reportExportStatus}
+              onRefreshBatchReport={onRefreshBatchReport}
+              onExportBatchReport={onExportBatchReport}
+            />
+          </>
+        ) : null}
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button
             type="button"

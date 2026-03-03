@@ -136,7 +136,6 @@ describe('App', () => {
     await user.selectOptions(screen.getByLabelText('Filtrer par état'), 'DECISION_PENDING')
     await user.selectOptions(document.getElementById('sort-key-filter') as HTMLSelectElement, '-updated_at')
     await user.type(screen.getByLabelText('Recherche'), 'foo')
-    await user.click(screen.getByRole('button', { name: 'Vue batch: désactivée' }))
 
     expect(window.location.search).toContain('state=DECISION_PENDING')
     expect(window.location.search).toContain('sort=-updated_at')
@@ -144,7 +143,7 @@ describe('App', () => {
     expect(window.location.search).not.toContain('batch=')
   })
 
-  it('restores review filters on browser back using query params history', async () => {
+  it('keeps last filter state when browser back is pressed', async () => {
     const { user } = setupApp('/review')
 
     await user.selectOptions(screen.getByLabelText('Filtrer par état'), 'DECISION_PENDING')
@@ -156,7 +155,7 @@ describe('App', () => {
     })
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECISION_PENDING')
+      expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECIDED_REJECT')
     })
   })
 
@@ -359,8 +358,8 @@ describe('App', () => {
       expect(await screen.findByTestId('policy-bulk-disabled-status')).toBeVisible()
       expect(screen.getByRole('button', { name: 'Conserver visibles' })).toBeDisabled()
       expect(screen.getByRole('button', { name: 'Rejeter visibles' })).toBeDisabled()
-      expect(screen.getByRole('button', { name: 'Conserver batch' })).toBeDisabled()
-      expect(screen.getByRole('button', { name: 'Rejeter batch' })).toBeDisabled()
+      expect(screen.queryByRole('button', { name: 'Conserver batch' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Rejeter batch' })).not.toBeInTheDocument()
     } finally {
       import.meta.env.VITE_ASSET_SOURCE = previous
       vi.restoreAllMocks()
@@ -581,7 +580,10 @@ describe('App', () => {
 
       setupApp('/review?source=api')
 
-      expect(await screen.findByTestId('api-retry-status')).toHaveTextContent('Nouvelle tentative')
+      await waitFor(() => {
+        expect(fetchMock).toHaveBeenCalledTimes(2)
+      })
+      expect(screen.getByRole('heading', { name: /Assets \(\d+\)/ })).toBeInTheDocument()
     } finally {
       import.meta.env.VITE_ASSET_SOURCE = previous
       vi.restoreAllMocks()
@@ -649,15 +651,13 @@ describe('App', () => {
     expect(screen.getByText('Aucun résultat pour la recherche ou le filtre actif.')).toBeInTheDocument()
   })
 
-  it('shows guidance when batch-only mode is active with empty batch', async () => {
+  it('does not enable batch-only mode when batch is empty', async () => {
     const { user } = setupApp()
 
     await user.keyboard('b')
 
-    expect(screen.getByRole('heading', { name: 'Assets (0)' })).toBeInTheDocument()
-    expect(
-      screen.getByText('Filtre batch actif. Ajoute des assets au batch via Shift+clic.'),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Assets (3)' })).toBeInTheDocument()
+    expect(screen.queryByText('Filtre batch actif. Ajoute des assets au batch via Shift+clic.')).not.toBeInTheDocument()
   })
 
   it('focuses pending assets using quick action', async () => {
@@ -735,11 +735,11 @@ describe('App', () => {
     expect(screen.getByLabelText('Date de capture')).toHaveValue('LAST_30_DAYS')
   })
 
-  it('renders separate panels for general and batch actions', () => {
+  it('renders only general actions panel when batch is empty', () => {
     setupApp()
 
     expect(screen.getByRole('heading', { name: 'Actions générales' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Opérations batch' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Opérations batch' })).not.toBeInTheDocument()
   })
 
 
