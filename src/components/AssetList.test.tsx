@@ -11,7 +11,6 @@ const assets = [
 
 const labels = {
   empty: 'Aucun asset ne correspond aux filtres.',
-  batch: 'Batch',
   keep: 'Conserver',
   reject: 'Rejeter',
   clear: 'Réinitialiser',
@@ -101,10 +100,9 @@ describe('AssetList', () => {
     expect(onDecision).toHaveBeenCalledWith('A-002', 'CLEAR')
   })
 
-  it('toggles batch selection from checkbox and opens batch editor on add', async () => {
+  it('toggles batch selection from checkbox', async () => {
     const user = userEvent.setup()
     const onBatchSelectionChange = vi.fn()
-    const onOpenBatchEditor = vi.fn()
 
     render(
       <AssetList
@@ -116,14 +114,12 @@ describe('AssetList', () => {
         onDecision={vi.fn()}
         onAssetClick={vi.fn()}
         onBatchSelectionChange={onBatchSelectionChange}
-        onOpenBatchEditor={onOpenBatchEditor}
       />,
     )
 
-    const checkbox = screen.getByRole('checkbox', { name: 'Batch interview-camera-a.mov' })
+    const checkbox = screen.getByRole('checkbox', { name: 'interview-camera-a.mov' })
     await user.click(checkbox)
     expect(onBatchSelectionChange).toHaveBeenCalledWith('A-001', true)
-    expect(onOpenBatchEditor).toHaveBeenCalledTimes(1)
   })
 
   it('exposes list semantics and selected row state', () => {

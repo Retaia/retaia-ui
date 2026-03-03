@@ -29,7 +29,6 @@ type Props = {
   onDecision: (id: string, action: DecisionAction) => void
   onAssetClick: (assetId: string, shiftKey: boolean) => void
   onBatchSelectionChange?: (assetId: string, selected: boolean) => void
-  onOpenBatchEditor?: () => void
   onSaveMetadata: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
   onPreviewPurge: () => Promise<void>
   onExecutePurge: () => Promise<void>
@@ -65,7 +64,6 @@ export function ReviewListDetailSection({
   onDecision,
   onAssetClick,
   onBatchSelectionChange,
-  onOpenBatchEditor,
   onSaveMetadata,
   onPreviewPurge,
   onExecutePurge,
@@ -91,7 +89,6 @@ export function ReviewListDetailSection({
         onDecision={onDecision}
         onAssetClick={onAssetClick}
         onBatchSelectionChange={onBatchSelectionChange}
-        onOpenBatchEditor={onOpenBatchEditor}
         assetListRegionRef={assetListRegionRef}
         onLoadMoreAssets={onLoadMoreAssets}
       />

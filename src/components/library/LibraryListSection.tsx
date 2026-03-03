@@ -80,7 +80,6 @@ export function LibraryListSection({
             density={densityMode}
             labels={{
               empty: t('library.empty'),
-              batch: '',
               keep: t('actions.decisionKeep'),
               reject: t('actions.decisionReject'),
               clear: t('actions.decisionClear'),

@@ -59,14 +59,6 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
         : `${window.location.pathname}${window.location.search}`
     return `/review/detail/${assetId}?from=${encodeURIComponent(from)}`
   }
-  const openBatchEditor = () => {
-    if (typeof document === 'undefined') {
-      return
-    }
-    window.requestAnimationFrame(() => {
-      document.getElementById('batch-edit-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    })
-  }
 
   return (
     <AppHeader
@@ -245,7 +237,6 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           onDecision={controller.handleDecision}
           onAssetClick={controller.handleAssetClick}
           onBatchSelectionChange={controller.setBatchAssetSelected}
-          onOpenBatchEditor={openBatchEditor}
           onSaveMetadata={controller.saveSelectedAssetMetadata}
           onPreviewPurge={controller.previewSelectedAssetPurge}
           onExecutePurge={controller.executeSelectedAssetPurge}

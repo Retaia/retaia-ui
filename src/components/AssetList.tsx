@@ -9,7 +9,6 @@ type AssetListProps = {
   density: 'COMFORTABLE' | 'COMPACT'
   labels: {
     empty: string
-    batch: string
     keep: string
     reject: string
     clear: string
@@ -18,7 +17,6 @@ type AssetListProps = {
   onDecision: (id: string, action: DecisionAction) => void
   onAssetClick: (id: string, shiftKey: boolean) => void
   onBatchSelectionChange?: (id: string, selected: boolean) => void
-  onOpenBatchEditor?: () => void
   showDecisionActions?: boolean
 }
 
@@ -31,7 +29,6 @@ export function AssetList({
   onDecision,
   onAssetClick,
   onBatchSelectionChange,
-  onOpenBatchEditor,
   showDecisionActions = true,
 }: AssetListProps) {
   if (assets.length === 0) {
@@ -73,19 +70,15 @@ export function AssetList({
                 <input
                   type="checkbox"
                   checked={batchIds.includes(asset.id)}
-                  aria-label={`${labels.batch} ${asset.name}`}
+                  aria-label={asset.name}
                   className="h-4 w-4 accent-[var(--color-brand-500)]"
                   onChange={(event) => {
                     event.stopPropagation()
                     const selected = event.currentTarget.checked
                     onBatchSelectionChange(asset.id, selected)
-                    if (selected) {
-                      onOpenBatchEditor?.()
-                    }
                   }}
                   onClick={(event) => event.stopPropagation()}
                 />
-                <span>{labels.batch}</span>
               </label>
             ) : null}
             <button
@@ -110,11 +103,6 @@ export function AssetList({
             <p className={selectedAssetId === asset.id ? 'mb-0 text-brand-700/80' : 'mb-0 text-gray-500'}>
               {asset.id} - {labels.state(asset.state)}
             </p>
-            {batchIds.includes(asset.id) ? (
-              <span className="mt-2 inline-flex items-center rounded-full bg-warning-100 px-2 py-0.5 text-xs font-semibold text-warning-800">
-                {labels.batch}
-              </span>
-            ) : null}
           </div>
           {showDecisionActions ? (
             <div className="flex flex-wrap gap-2">
