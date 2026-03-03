@@ -1,5 +1,6 @@
 import type { Asset, DecisionAction } from '../domain/assets'
 import { BsCheck2Circle, BsEraser, BsInbox, BsXCircle } from 'react-icons/bs'
+import { AppButton } from './ui/AppButton'
 
 type AssetListProps = {
   assets: Asset[]
@@ -117,9 +118,9 @@ export function AssetList({
           </div>
           {showDecisionActions ? (
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                className="inline-flex items-center justify-center rounded-lg border border-success-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-success-700 transition-colors hover:bg-success-50 disabled:cursor-not-allowed disabled:opacity-50"
+              <AppButton
+                size="sm"
+                variant="outline-success"
                 onClick={(event) => {
                   event.stopPropagation()
                   onDecision(asset.id, 'KEEP')
@@ -128,10 +129,10 @@ export function AssetList({
               >
                 <BsCheck2Circle className="mr-1" aria-hidden="true" />
                 {labels.keep}
-              </button>
-              <button
-                type="button"
-                className="inline-flex items-center justify-center rounded-lg border border-error-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-error-700 transition-colors hover:bg-error-50 disabled:cursor-not-allowed disabled:opacity-50"
+              </AppButton>
+              <AppButton
+                size="sm"
+                variant="outline-danger"
                 onClick={(event) => {
                   event.stopPropagation()
                   onDecision(asset.id, 'REJECT')
@@ -140,10 +141,10 @@ export function AssetList({
               >
                 <BsXCircle className="mr-1" aria-hidden="true" />
                 {labels.reject}
-              </button>
-              <button
-                type="button"
-                className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+              </AppButton>
+              <AppButton
+                size="sm"
+                variant="outline-secondary"
                 onClick={(event) => {
                   event.stopPropagation()
                   onDecision(asset.id, 'CLEAR')
@@ -152,7 +153,7 @@ export function AssetList({
               >
                 <BsEraser className="mr-1" aria-hidden="true" />
                 {labels.clear}
-              </button>
+              </AppButton>
             </div>
           ) : null}
         </li>

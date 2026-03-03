@@ -7,6 +7,7 @@ import {
   BsXCircle,
 } from 'react-icons/bs'
 import type { getActionAvailability } from '../../domain/actionAvailability'
+import { AppButton } from '../ui/AppButton'
 
 type BatchScope = {
   pending: number
@@ -65,45 +66,40 @@ export function ActionBatchSection({
       </h3>
       <div className="flex flex-wrap items-center gap-2">
         <p className="mb-0 font-semibold text-gray-500">{t('actions.batchSelected', { count: batchIdsLength })}</p>
-        <button
-          type="button"
-          className="inline-flex items-center justify-center rounded-lg border border-success-300 bg-white px-3 py-2 text-sm font-semibold text-success-700 transition-colors hover:bg-success-50 disabled:cursor-not-allowed disabled:opacity-50"
+        <AppButton
+          variant="outline-success"
           onClick={() => onApplyDecisionToBatch('KEEP')}
           disabled={availability.keepBatchDisabled}
         >
           <BsCheck2Circle className="mr-1" aria-hidden="true" />
           {t('actions.keepBatch')}
-        </button>
-        <button
-          type="button"
-          className="inline-flex items-center justify-center rounded-lg border border-error-300 bg-white px-3 py-2 text-sm font-semibold text-error-700 transition-colors hover:bg-error-50 disabled:cursor-not-allowed disabled:opacity-50"
+        </AppButton>
+        <AppButton
+          variant="outline-danger"
           onClick={() => onApplyDecisionToBatch('REJECT')}
           disabled={availability.rejectBatchDisabled}
         >
           <BsXCircle className="mr-1" aria-hidden="true" />
           {t('actions.rejectBatch')}
-        </button>
-        <button
-          type="button"
-          className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+        </AppButton>
+        <AppButton
+          variant="outline-secondary"
           onClick={onClearBatch}
           disabled={availability.clearBatchDisabled}
         >
           <BsTrash3 className="mr-1" aria-hidden="true" />
           {t('actions.clearBatch')}
-        </button>
-        <button
-          type="button"
-          className="inline-flex items-center justify-center rounded-lg border border-blue-light-300 bg-white px-3 py-2 text-sm font-semibold text-blue-light-700 transition-colors hover:bg-blue-light-50 disabled:cursor-not-allowed disabled:opacity-50"
+        </AppButton>
+        <AppButton
+          variant="outline-info"
           onClick={() => void onPreviewBatchMove()}
           disabled={availability.previewBatchDisabled}
         >
           <BsFilterCircle className="mr-1" aria-hidden="true" />
           {previewingBatch ? t('actions.previewing') : t('actions.previewBatch')}
-        </button>
-        <button
-          type="button"
-          className="inline-flex items-center justify-center rounded-lg border border-blue-light-500 bg-blue-light-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-light-600 disabled:cursor-not-allowed disabled:opacity-50"
+        </AppButton>
+        <AppButton
+          variant="primary"
           onClick={() => void onExecuteBatchMove()}
           disabled={availability.executeBatchDisabled}
         >
@@ -113,7 +109,7 @@ export function ActionBatchSection({
             : pendingBatchExecution
               ? t('actions.executeConfirmNow')
               : t('actions.executeBatch')}
-        </button>
+        </AppButton>
       </div>
       <section className="mt-2" aria-label={t('actions.batchScope')}>
         <p className="mb-1 text-xs text-gray-500">{t('actions.batchScopeCount', { count: batchIdsLength })}</p>
@@ -154,14 +150,14 @@ export function ActionBatchSection({
               seconds: pendingBatchUndoSeconds,
             })}
           </p>
-          <button
-            type="button"
-            className="inline-flex items-center justify-center rounded-lg border border-warning-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-warning-700 transition-colors hover:bg-warning-50"
+          <AppButton
+            size="sm"
+            variant="warning"
             onClick={onCancelPendingBatchExecution}
           >
             <BsSlashCircle className="mr-1" aria-hidden="true" />
             {t('actions.executeCancel')}
-          </button>
+          </AppButton>
         </div>
       ) : null}
     </section>
