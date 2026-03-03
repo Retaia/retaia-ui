@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AppHeader } from '../components/app/AppHeader'
 import { AssetDetailPanel } from '../components/app/AssetDetailPanel'
+import { AppButton } from '../components/ui/AppButton'
 import { useStandaloneAssetDetailController } from '../hooks/useStandaloneAssetDetailController'
 import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard'
 
@@ -63,9 +64,9 @@ export function StandaloneAssetDetailPage({ context }: Props) {
       }}
       onChangeLanguage={controller.onChangeLanguage}
     >
-      <button
-        type="button"
-        className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
+      <AppButton
+        variant="secondary"
+        size="sm"
         onClick={() => {
           if (confirmLeaveIfDirty()) {
             navigate(backPath)
@@ -73,14 +74,14 @@ export function StandaloneAssetDetailPage({ context }: Props) {
         }}
       >
         {backButtonLabel}
-      </button>
+      </AppButton>
 
       <ol className="mt-3 mb-0 flex flex-wrap items-center gap-2 p-0 text-sm" data-testid="standalone-detail-breadcrumb">
         {context === 'review' ? (
-          <li className="inline-flex items-center gap-2 text-gray-600">
+          <li className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300">
             <button
               type="button"
-              className="text-gray-600 hover:text-gray-900"
+              className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
               onClick={() => {
                 if (confirmLeaveIfDirty()) {
                   navigate(reviewRootPath)
@@ -92,10 +93,10 @@ export function StandaloneAssetDetailPage({ context }: Props) {
           </li>
         ) : (
           <>
-            <li className="inline-flex items-center gap-2 text-gray-600">
+            <li className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300">
               <button
                 type="button"
-                className="text-gray-600 hover:text-gray-900"
+                className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
                 onClick={() => {
                   if (confirmLeaveIfDirty()) {
                     navigate('/library')
@@ -105,10 +106,10 @@ export function StandaloneAssetDetailPage({ context }: Props) {
                 {controller.t('app.nav.library')}
               </button>
             </li>
-            <li className="inline-flex items-center gap-2 text-gray-600 before:mr-2 before:text-gray-400 before:content-['/']">
+            <li className="inline-flex items-center gap-2 text-gray-600 before:mr-2 before:text-gray-400 before:content-['/'] dark:text-gray-300 dark:before:text-gray-500">
               <button
                 type="button"
-                className="text-gray-600 hover:text-gray-900"
+                className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
                 onClick={() => {
                   if (confirmLeaveIfDirty()) {
                     navigate('/library')
@@ -120,13 +121,13 @@ export function StandaloneAssetDetailPage({ context }: Props) {
             </li>
           </>
         )}
-        <li className="inline-flex items-center gap-2 font-semibold text-gray-900 before:mr-2 before:text-gray-400 before:content-['/']">
+        <li className="inline-flex items-center gap-2 font-semibold text-gray-900 before:mr-2 before:text-gray-400 before:content-['/'] dark:text-gray-100 dark:before:text-gray-500">
           {controller.selectedAsset?.id ?? controller.t('detail.title')}
         </li>
       </ol>
 
       {controller.loadingState === 'loading' ? (
-        <p className="text-xs text-gray-500 mt-3">{controller.t('detail.loading')}</p>
+        <p className="text-xs text-gray-500 mt-3 dark:text-gray-400">{controller.t('detail.loading')}</p>
       ) : null}
       {controller.showNotFound ? (
         <p className="text-xs text-error-700 mt-3">{controller.t('detail.notFound')}</p>
