@@ -110,6 +110,7 @@ export function AppHeader({
             <button
               key={item.id}
               type="button"
+              data-testid={`nav-${item.id === 'workspace' ? 'review' : item.id}`}
               className={navButtonClass(currentView === item.id)}
               onClick={item.onClick}
             >

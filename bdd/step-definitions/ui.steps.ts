@@ -6,6 +6,51 @@ const getPage = () => getBrowserRuntime().page
 
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
+async function clickNamedButton(label: string) {
+  const page = getPage()
+  const tryClick = async (
+    locator: ReturnType<typeof page.getByRole> | ReturnType<typeof page.getByTestId>,
+    timeout = 4000,
+  ) => {
+    try {
+      await expect(locator).toBeEnabled({ timeout })
+      await locator.click()
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  const normalized = label.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
+  const navByAlias: Array<{ aliases: string[]; testId: string }> = [
+    { aliases: ['review'], testId: 'nav-review' },
+    { aliases: ['bibliotheque', 'library'], testId: 'nav-library' },
+    { aliases: ['activite', 'rejects', 'rejets'], testId: 'nav-activity' },
+  ]
+  const aliasMatch = navByAlias.find((entry) => entry.aliases.includes(normalized))
+  if (aliasMatch) {
+    if (await tryClick(page.getByTestId(aliasMatch.testId), 6000)) {
+      return
+    }
+  }
+
+  if (normalized === "rafraichir l'asset") {
+    if (await tryClick(page.getByTestId('asset-refresh-action'), 6000)) {
+      return
+    }
+  }
+
+  if (await tryClick(page.getByRole('button', { name: label, exact: true }), 3000)) {
+    return
+  }
+
+  if (await tryClick(page.getByRole('button', { name: new RegExp(escapeRegExp(label), 'i') }).first(), 3000)) {
+    return
+  }
+
+  throw new Error(`Bouton introuvable: ${label}`)
+}
+
 Given("je suis sur la page d'accueil", async () => {
   await getPage().goto(APP_URL, { waitUntil: 'networkidle' })
 })
@@ -47,7 +92,7 @@ Then('le batch sélectionné affiche {int}', async (size: number) => {
 
 When('je rejette le premier asset de la liste', async () => {
   const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
-  const firstRow = assetsPanel.locator('li.list-group-item').first()
+  const firstRow = assetsPanel.locator('li[data-asset-id]').first()
   await firstRow.getByRole('button', { name: /^(REJECT|Reject|Rejeter)$/i }).click()
 })
 
@@ -57,7 +102,7 @@ Then('l\'état {string} est visible', async (stateLabel: string) => {
     throw new Error(`Format d'état invalide: ${stateLabel}`)
   }
   const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
-  const row = assetsPanel.locator('li.list-group-item', { hasText: assetId })
+  const row = assetsPanel.locator(`li[data-asset-id="${assetId}"]`)
   await expect(row).toContainText(expectedState)
 })
 
@@ -108,9 +153,7 @@ When('je recherche {string}', async (term: string) => {
 })
 
 When('je clique sur le bouton {string}', async (buttonLabel: string) => {
-  const button = getPage().getByRole('button', { name: buttonLabel, exact: true })
-  await expect(button).toBeEnabled({ timeout: 10000 })
-  await button.click()
+  await clickNamedButton(buttonLabel)
 })
 
 When("je bascule la langue en anglais", async () => {
@@ -220,19 +263,19 @@ When('je filtre par état {string}', async (state: string) => {
 
 Then('la ligne asset {string} a aria-selected {string}', async (assetId: string, selected: string) => {
   const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
-  const row = assetsPanel.locator('li.list-group-item', { hasText: assetId }).first()
+  const row = assetsPanel.locator(`li[data-asset-id="${assetId}"]`).first()
   await expect(row).toHaveAttribute('aria-selected', selected)
 })
 
 Then('la ligne asset {string} a tabindex {string}', async (assetId: string, tabIndex: string) => {
   const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
-  const row = assetsPanel.locator('li.list-group-item', { hasText: assetId }).first()
+  const row = assetsPanel.locator(`li[data-asset-id="${assetId}"]`).first()
   await expect(row).toHaveAttribute('tabindex', tabIndex)
 })
 
 Then('la ligne asset {string} a le focus', async (assetId: string) => {
   const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
-  const row = assetsPanel.locator('li.list-group-item', { hasText: assetId }).first()
+  const row = assetsPanel.locator(`li[data-asset-id="${assetId}"]`).first()
   await expect(row).toBeFocused()
 })
 

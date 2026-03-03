@@ -188,6 +188,34 @@ layer(base);
   body {
     @apply relative font-normal font-outfit z-1 bg-gray-50;
   }
+
+  .dark body {
+    @apply bg-gray-950 text-gray-100;
+  }
+
+  .dark .bg-gray-50 {
+    background-color: var(--color-gray-950);
+  }
+
+  .dark .bg-white,
+  .dark .bg-white\/90 {
+    background-color: var(--color-gray-900);
+  }
+
+  .dark .text-gray-900 {
+    color: var(--color-gray-100);
+  }
+
+  .dark .text-gray-700,
+  .dark .text-gray-600,
+  .dark .text-gray-500 {
+    color: var(--color-gray-300);
+  }
+
+  .dark .border-gray-200,
+  .dark .border-gray-300 {
+    border-color: var(--color-gray-700);
+  }
 }
 
 @utility menu-item {
@@ -811,4 +839,3 @@ span.flatpickr-weekday,
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(70, 95, 255, 0.95), rgba(70, 95, 255, 0.4));
 }
-
