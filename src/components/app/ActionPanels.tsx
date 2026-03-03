@@ -1,15 +1,11 @@
 import { useEffect, useState } from 'react'
 import {
   BsArrowClockwise,
-  BsChevronDown,
-  BsChevronUp,
   BsTools,
 } from 'react-icons/bs'
 import { ActionBatchSection } from './ActionBatchSection'
-import { ActionJournalSection } from './ActionJournalSection'
 import { ActionQuickPanelSection } from './ActionQuickPanelSection'
 import { ActionReportSection } from './ActionReportSection'
-import { ActionShortcutsSection } from './ActionShortcutsSection'
 import { BatchExecutionStatusAlerts } from '../review/BatchExecutionStatusAlerts'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import { useQuickFilters } from '../../hooks/useQuickFilters'
@@ -34,11 +30,6 @@ type StatusMessage = {
   message: string
 }
 
-type ActivityEntry = {
-  id: number
-  label: string
-}
-
 type Props = {
   t: (key: string, values?: Record<string, string | number>) => string
   batchOnly: boolean
@@ -61,8 +52,6 @@ type Props = {
   lastSuccessfulReportData: unknown
   reportExportStatus: string | null
   undoStackLength: number
-  activityLog: ActivityEntry[]
-  showShortcutsHelp: boolean
   onApplySavedView: ReturnType<typeof useQuickFilters>['applySavedView']
   onApplyPresetPendingRecent: ReturnType<typeof useQuickFilters>['applyPresetPendingRecent']
   onApplyPresetImagesRejected: ReturnType<typeof useQuickFilters>['applyPresetImagesRejected']
@@ -80,9 +69,6 @@ type Props = {
   onRefreshBatchReport: () => Promise<void>
   onExportBatchReport: (format: 'json' | 'csv') => void
   onUndoLastAction: () => void
-  onClearActivityLog: () => void
-  onToggleShortcutsHelp: () => void
-  onOpenNextPending: () => void
 }
 
 export function ActionPanels({
@@ -107,8 +93,6 @@ export function ActionPanels({
   lastSuccessfulReportData,
   reportExportStatus,
   undoStackLength,
-  activityLog,
-  showShortcutsHelp,
   onApplySavedView,
   onApplyPresetPendingRecent,
   onApplyPresetImagesRejected,
@@ -126,12 +110,7 @@ export function ActionPanels({
   onRefreshBatchReport,
   onExportBatchReport,
   onUndoLastAction,
-  onClearActivityLog,
-  onToggleShortcutsHelp,
-  onOpenNextPending,
 }: Props) {
-  const [showAdvancedActions, setShowAdvancedActions] = useState(false)
-  const isAdvancedActionsOpen = showShortcutsHelp || showAdvancedActions
   const hasBatchSelection = batchIdsLength > 0
   const [isBatchSidebarOpen, setIsBatchSidebarOpen] = useState(false)
 
@@ -176,38 +155,6 @@ export function ActionPanels({
             {t('actions.history', { count: undoStackLength })}
           </p>
         </div>
-        <ActionJournalSection t={t} activityLog={activityLog} onClearActivityLog={onClearActivityLog} />
-        <section className="border rounded p-3 mt-3">
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="mb-0 text-base font-semibold text-gray-900">{t('actions.advancedTitle')}</h3>
-            <button
-              type="button"
-              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
-              onClick={() => setShowAdvancedActions((value) => !value)}
-              aria-expanded={isAdvancedActionsOpen}
-              aria-controls="advanced-actions-panel"
-            >
-              {isAdvancedActionsOpen ? (
-                <BsChevronUp className="mr-1" aria-hidden="true" />
-              ) : (
-                <BsChevronDown className="mr-1" aria-hidden="true" />
-              )}
-              {isAdvancedActionsOpen ? t('actions.advancedHide') : t('actions.advancedShow')}
-            </button>
-          </div>
-          {isAdvancedActionsOpen ? (
-            <div id="advanced-actions-panel" data-testid="actions-advanced-panel" className="mt-3">
-              <ActionShortcutsSection
-                t={t}
-                showShortcutsHelp={showShortcutsHelp}
-                onToggleShortcutsHelp={onToggleShortcutsHelp}
-                onFocusPending={onFocusPending}
-                onToggleBatchOnly={onToggleBatchOnly}
-                onOpenNextPending={onOpenNextPending}
-              />
-            </div>
-          ) : null}
-        </section>
       </section>
 
       <div

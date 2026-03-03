@@ -1162,40 +1162,12 @@ describe('App', () => {
     await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
 
-    const activityPanel = screen.getByLabelText("Journal d'actions")
-    expect(within(activityPanel).getByText('Conserver visibles (3)')).toBeInTheDocument()
+    expect(screen.getByText('Historique disponible: 1')).toBeInTheDocument()
     expect(screen.getByText('A-001 - Conservé')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Annuler dernière action' }))
 
-    expect(within(activityPanel).getByText('Annulation')).toBeInTheDocument()
     expect(screen.getByText('A-001 - En attente')).toBeInTheDocument()
-  })
-
-  it('clears activity log with dedicated action', async () => {
-    const { user } = setupApp()
-
-    await ensureQuickActionsMenuOpen(user)
-    await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
-    const activityPanel = screen.getByLabelText("Journal d'actions")
-    expect(within(activityPanel).getByText('Conserver visibles (3)')).toBeInTheDocument()
-
-    await user.click(screen.getByRole('button', { name: 'Vider journal' }))
-
-    expect(within(activityPanel).getByText('Aucune action pour le moment.')).toBeInTheDocument()
-  })
-
-  it('clears activity log with l shortcut', async () => {
-    const { user } = setupApp()
-
-    await ensureQuickActionsMenuOpen(user)
-    await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
-    const activityPanel = screen.getByLabelText("Journal d'actions")
-    expect(within(activityPanel).getByText('Conserver visibles (3)')).toBeInTheDocument()
-
-    await user.keyboard('l')
-
-    expect(within(activityPanel).getByText('Aucune action pour le moment.')).toBeInTheDocument()
   })
 
   it('supports undo with Ctrl+Z shortcut', async () => {
@@ -1269,12 +1241,10 @@ describe('App', () => {
 
   it('does not log when reset filters is a no-op', async () => {
     const { user } = setupApp()
-    const activityPanel = screen.getByLabelText("Journal d'actions")
 
     await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Réinitialiser filtres' }))
 
-    expect(within(activityPanel).getByText('Aucune action pour le moment.')).toBeInTheDocument()
     expect(screen.getByText('Historique disponible: 0')).toBeInTheDocument()
   })
 
@@ -1312,8 +1282,6 @@ describe('App', () => {
     await user.keyboard('{Shift>}{ArrowDown}{ArrowDown}{/Shift}')
 
     expect(screen.getByText('Batch sélectionné: 3')).toBeInTheDocument()
-    const activityPanel = screen.getByLabelText("Journal d'actions")
-    expect(within(activityPanel).getByText('Sélection plage (1)')).toBeInTheDocument()
   })
 
   it('applies keep reject and clear to selected asset with g v x shortcuts', async () => {
@@ -1398,60 +1366,10 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: 'Densité: compacte' })).toBeInTheDocument()
   })
 
-  it('toggles shortcuts help panel with dedicated button', async () => {
-    const user = userEvent.setup()
-
-    window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
+  it('does not render advanced actions or journal in review workspace', () => {
     setupApp()
-
-    expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Voir actions avancées' }))
-    await user.click(screen.getByRole('button', { name: 'Voir raccourcis' }))
-    expect(screen.getByText(/Raccourcis desktop:/)).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Masquer raccourcis' }))
-    expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
-  })
-
-  it('toggles shortcuts help panel with question mark shortcut', async () => {
-    const user = userEvent.setup()
-
-    window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
-    setupApp()
-
-    await user.keyboard('?')
-    expect(screen.getByText(/Raccourcis desktop:/)).toBeInTheDocument()
-    await user.keyboard('?')
-    expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
-  })
-
-  it('opens shortcuts help automatically on first launch', () => {
-    window.localStorage.removeItem('retaia_ui_shortcuts_help_seen')
-    setupApp()
-
-    expect(screen.getByText(/Raccourcis desktop:/)).toBeInTheDocument()
-  })
-
-  it('keeps shortcuts help closed by default once seen', () => {
-    window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
-    setupApp()
-
-    expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
-  })
-
-  it('shows actionable shortcuts overlay and runs quick actions', async () => {
-    const user = userEvent.setup()
-    window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
-    setupApp()
-
-    await user.click(screen.getByRole('button', { name: 'Voir actions avancées' }))
-    await user.click(screen.getByRole('button', { name: 'Voir raccourcis' }))
-    expect(screen.getByTestId('shortcuts-overlay')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Navigation' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Batch' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Flux' })).toBeInTheDocument()
-
-    await user.click(screen.getByRole('button', { name: 'Aller à traiter' }))
-    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+    expect(screen.queryByLabelText("Journal d'actions")).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Voir actions avancées' })).not.toBeInTheDocument()
   })
 
   it('saves tags and notes locally in mock mode', async () => {
@@ -1467,7 +1385,6 @@ describe('App', () => {
 
     expect(screen.getByTestId('asset-metadata-status')).toHaveTextContent('Tagging enregistré')
     expect(screen.getByTestId('asset-tag-list')).toHaveTextContent('urgent')
-    expect(screen.getByText('Tagging A-001')).toBeInTheDocument()
   })
 
   it('calls PATCH /assets/{uuid} when saving tags in API source mode', async () => {

@@ -137,8 +137,6 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           lastSuccessfulReportData={controller.lastSuccessfulReportData}
           reportExportStatus={controller.reportExportStatus}
           undoStackLength={controller.undoStack.length}
-          activityLog={controller.activityLog}
-          showShortcutsHelp={controller.showShortcutsHelp}
           todoAssets={controller.todoAssets}
           doneAssets={controller.doneAssets}
           onApplySavedView={controller.applySavedView}
@@ -158,9 +156,6 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           onRefreshBatchReport={controller.refreshBatchReport}
           onExportBatchReport={controller.exportBatchReport}
           onUndoLastAction={controller.undoLastAction}
-          onClearActivityLog={controller.clearActivityLog}
-          onToggleShortcutsHelp={controller.toggleShortcutsHelp}
-          onOpenNextPending={controller.openNextPending}
           onOpenAsset={controller.openAsset}
         />
       ) : null}

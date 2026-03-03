@@ -26,8 +26,6 @@ type Props = {
   lastSuccessfulReportData: unknown
   reportExportStatus: string | null
   undoStackLength: number
-  activityLog: Array<{ id: number; label: string }>
-  showShortcutsHelp: boolean
   todoAssets: Asset[]
   doneAssets: Asset[]
   onApplySavedView: (view: 'DEFAULT' | 'PENDING' | 'BATCH') => void
@@ -47,9 +45,6 @@ type Props = {
   onRefreshBatchReport: () => Promise<void>
   onExportBatchReport: (format: 'json' | 'csv') => void
   onUndoLastAction: () => void
-  onClearActivityLog: () => void
-  onToggleShortcutsHelp: () => void
-  onOpenNextPending: () => void
   onOpenAsset: (assetId: string) => void
 }
 
@@ -76,8 +71,6 @@ export function ReviewWorkspaceSection(props: Props) {
     lastSuccessfulReportData,
     reportExportStatus,
     undoStackLength,
-    activityLog,
-    showShortcutsHelp,
     todoAssets,
     doneAssets,
     onApplySavedView,
@@ -97,9 +90,6 @@ export function ReviewWorkspaceSection(props: Props) {
     onRefreshBatchReport,
     onExportBatchReport,
     onUndoLastAction,
-    onClearActivityLog,
-    onToggleShortcutsHelp,
-    onOpenNextPending,
     onOpenAsset,
   } = props
 
@@ -127,8 +117,6 @@ export function ReviewWorkspaceSection(props: Props) {
         lastSuccessfulReportData={lastSuccessfulReportData}
         reportExportStatus={reportExportStatus}
         undoStackLength={undoStackLength}
-        activityLog={activityLog}
-        showShortcutsHelp={showShortcutsHelp}
         onApplySavedView={onApplySavedView}
         onApplyPresetPendingRecent={onApplyPresetPendingRecent}
         onApplyPresetImagesRejected={onApplyPresetImagesRejected}
@@ -146,9 +134,6 @@ export function ReviewWorkspaceSection(props: Props) {
         onRefreshBatchReport={onRefreshBatchReport}
         onExportBatchReport={onExportBatchReport}
         onUndoLastAction={onUndoLastAction}
-        onClearActivityLog={onClearActivityLog}
-        onToggleShortcutsHelp={onToggleShortcutsHelp}
-        onOpenNextPending={onOpenNextPending}
       />
       <ReviewTodoDonePanel
         t={t}
