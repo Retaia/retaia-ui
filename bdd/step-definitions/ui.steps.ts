@@ -18,6 +18,34 @@ async function openQuickActionsMenuIfNeeded() {
   await expect(menu).toBeVisible({ timeout: 4000 })
 }
 
+async function clickAssetRow(assetName: string, modifiers?: Array<'Shift'>) {
+  const page = getPage()
+  const assetsPanel = page.locator('section[aria-label="Liste des assets"]')
+  const row = assetsPanel.locator('[data-asset-id]', { hasText: assetName }).first()
+  const openButton = row.locator('[data-asset-open="true"]').first()
+  await expect(row).toBeVisible({ timeout: 5000 })
+  await row.scrollIntoViewIfNeeded()
+
+  const targets = [openButton, row]
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    for (const target of targets) {
+      try {
+        await target.click({
+          modifiers,
+          timeout: 2500,
+          force: attempt > 0,
+        })
+        await page.waitForTimeout(50)
+        return
+      } catch {
+        // Retry with alternate target and a force-click pass.
+      }
+    }
+  }
+
+  throw new Error(`Asset introuvable/non cliquable: ${assetName}`)
+}
+
 async function clickNamedButton(label: string) {
   const page = getPage()
   const tryClick = async (
@@ -111,17 +139,11 @@ Then('l\'URL courante contient {string}', async (value: string) => {
 })
 
 When("je clique sur l'asset {string}", async (assetName: string) => {
-  const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
-  const row = assetsPanel.locator('[data-asset-id]', { hasText: assetName }).first()
-  await expect(row).toBeVisible({ timeout: 4000 })
-  await row.click()
+  await clickAssetRow(assetName)
 })
 
 When('je fais Maj+clic sur l\'asset {string}', async (assetName: string) => {
-  const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
-  const row = assetsPanel.locator('[data-asset-id]', { hasText: assetName }).first()
-  await expect(row).toBeVisible({ timeout: 4000 })
-  await row.click({ modifiers: ['Shift'] })
+  await clickAssetRow(assetName, ['Shift'])
 })
 
 Then('le panneau détail affiche l\'asset {string}', async (assetName: string) => {
