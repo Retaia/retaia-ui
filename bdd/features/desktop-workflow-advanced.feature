@@ -36,7 +36,7 @@ Feature: Workflow desktop avancé
     When j'appuie sur la touche "Escape"
     Then le titre principal "Assets (3)" est visible
 
-  Scenario: Action rapide depuis l'aide raccourcis pour ouvrir le pending
+  Scenario: Action générale pour ouvrir le pending
     Given je suis sur la page d'accueil
-    When je clique sur le bouton "Aller à traiter"
+    When je clique sur le bouton "Voir à traiter"
     Then l'état "A-001 - En attente" est visible

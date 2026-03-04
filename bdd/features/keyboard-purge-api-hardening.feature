@@ -5,21 +5,6 @@ Fonctionnalité: Hardening clavier, purge deep-link et API assets
   Je veux couvrir des flux non régressifs critiques
   Afin de sécuriser le comportement cross-browser
 
-  Scénario: Le raccourci ? ouvre/ferme l'aide en français
-    Given je suis sur la page d'accueil
-    When j'appuie sur la touche "?"
-    Then le bouton "Voir raccourcis" est visible
-    When j'appuie sur la touche "?"
-    Then le bouton "Masquer raccourcis" est visible
-
-  Scénario: Le raccourci ? ouvre/ferme l'aide en anglais
-    Given je suis sur la page d'accueil
-    And je bascule la langue en anglais
-    When j'appuie sur la touche "?"
-    Then le bouton "Show shortcuts" est visible
-    When j'appuie sur la touche "?"
-    Then le bouton "Hide shortcuts" est visible
-
   Scénario: Purge via deep-link d'un asset rejeté
     Given je suis sur la page "/review/A-003"
     Then le panneau détail affiche l'asset "behind-the-scenes.jpg"

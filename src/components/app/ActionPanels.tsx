@@ -159,8 +159,8 @@ export function ActionPanels({
 
       <div
         className={[
-          'fixed inset-0 z-40 bg-black/20 transition-opacity duration-300',
-          isBatchSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
+          'pointer-events-none fixed inset-0 z-40 bg-black/20 transition-opacity duration-300',
+          isBatchSidebarOpen ? 'opacity-100' : 'opacity-0',
         ].join(' ')}
         aria-hidden={!isBatchSidebarOpen}
       />

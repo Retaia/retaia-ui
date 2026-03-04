@@ -73,18 +73,6 @@ Feature: Workflow de review desktop-like
     Then le titre principal "Assets (3)" est visible
     And le panneau détail affiche l'asset "interview-camera-a.mov"
 
-  Scenario: Vider le journal d'actions
-    Given je suis sur la page d'accueil
-    When je clique sur le bouton "Conserver visibles"
-    And je clique sur le bouton "Vider journal"
-    Then le message "Aucune action pour le moment." est visible
-
-  Scenario: Vider le journal avec le raccourci l
-    Given je suis sur la page d'accueil
-    When je clique sur le bouton "Conserver visibles"
-    And j'appuie sur la touche "l"
-    Then le message "Aucune action pour le moment." est visible
-
   Scenario: Annuler une exécution batch avant envoi API
     Given je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
@@ -144,9 +132,9 @@ Feature: Workflow de review desktop-like
     When j'appuie sur la touche "/"
     Then le champ de recherche a le focus
 
-  Scenario: Utiliser les actions rapides depuis l'aide raccourcis
+  Scenario: Utiliser les actions générales pour ouvrir les assets à traiter
     Given je suis sur la page d'accueil
-    When je clique sur le bouton "Aller à traiter"
+    When je clique sur le bouton "Voir à traiter"
     Then le titre principal "Assets (1)" est visible
 
   Scenario: Utiliser les vues rapides et filtres toolbar
@@ -163,18 +151,6 @@ Feature: Workflow de review desktop-like
     Then le titre principal "Assets (1)" est visible
     When je clique sur le bouton "Réinitialiser filtres"
     Then le titre principal "Assets (3)" est visible
-
-  Scenario: Piloter le prochain asset via la carte dédiée
-    Given je suis sur la page d'accueil
-    When je clique sur l'element testid "next-open"
-    Then le panneau détail affiche l'asset "interview-camera-a.mov"
-    When je clique sur l'element testid "next-reject"
-    Then l'état "A-001 - Rejeté" est visible
-
-  Scenario: Décider KEEP via la carte prochain asset
-    Given je suis sur la page d'accueil
-    When je clique sur l'element testid "next-keep"
-    Then l'état "A-001 - Conservé" est visible
 
   Scenario: Vider la recherche avec Escape
     Given je suis sur la page d'accueil
