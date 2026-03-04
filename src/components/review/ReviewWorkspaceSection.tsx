@@ -1,5 +1,5 @@
 import { ActionPanels } from '../app/ActionPanels'
-import { NextPendingCard } from '../app/NextPendingCard'
+import { ReviewTodoDonePanel } from '../app/ReviewTodoDonePanel'
 import type { Asset } from '../../domain/assets'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import type { DensityMode } from '../../hooks/useDensityMode'
@@ -26,9 +26,8 @@ type Props = {
   lastSuccessfulReportData: unknown
   reportExportStatus: string | null
   undoStackLength: number
-  activityLog: Array<{ id: number; label: string }>
-  showShortcutsHelp: boolean
-  nextPendingAsset: Asset | null
+  todoAssets: Asset[]
+  doneAssets: Asset[]
   onApplySavedView: (view: 'DEFAULT' | 'PENDING' | 'BATCH') => void
   onApplyPresetPendingRecent: () => void
   onApplyPresetImagesRejected: () => void
@@ -46,10 +45,7 @@ type Props = {
   onRefreshBatchReport: () => Promise<void>
   onExportBatchReport: (format: 'json' | 'csv') => void
   onUndoLastAction: () => void
-  onClearActivityLog: () => void
-  onToggleShortcutsHelp: () => void
-  onOpenNextPending: () => void
-  onDecision: (assetId: string, action: 'KEEP' | 'REJECT' | 'CLEAR') => void
+  onOpenAsset: (assetId: string) => void
 }
 
 export function ReviewWorkspaceSection(props: Props) {
@@ -75,9 +71,8 @@ export function ReviewWorkspaceSection(props: Props) {
     lastSuccessfulReportData,
     reportExportStatus,
     undoStackLength,
-    activityLog,
-    showShortcutsHelp,
-    nextPendingAsset,
+    todoAssets,
+    doneAssets,
     onApplySavedView,
     onApplyPresetPendingRecent,
     onApplyPresetImagesRejected,
@@ -95,10 +90,7 @@ export function ReviewWorkspaceSection(props: Props) {
     onRefreshBatchReport,
     onExportBatchReport,
     onUndoLastAction,
-    onClearActivityLog,
-    onToggleShortcutsHelp,
-    onOpenNextPending,
-    onDecision,
+    onOpenAsset,
   } = props
 
   return (
@@ -125,8 +117,6 @@ export function ReviewWorkspaceSection(props: Props) {
         lastSuccessfulReportData={lastSuccessfulReportData}
         reportExportStatus={reportExportStatus}
         undoStackLength={undoStackLength}
-        activityLog={activityLog}
-        showShortcutsHelp={showShortcutsHelp}
         onApplySavedView={onApplySavedView}
         onApplyPresetPendingRecent={onApplyPresetPendingRecent}
         onApplyPresetImagesRejected={onApplyPresetImagesRejected}
@@ -144,15 +134,12 @@ export function ReviewWorkspaceSection(props: Props) {
         onRefreshBatchReport={onRefreshBatchReport}
         onExportBatchReport={onExportBatchReport}
         onUndoLastAction={onUndoLastAction}
-        onClearActivityLog={onClearActivityLog}
-        onToggleShortcutsHelp={onToggleShortcutsHelp}
-        onOpenNextPending={onOpenNextPending}
       />
-      <NextPendingCard
-        nextPendingAsset={nextPendingAsset}
-        t={(key) => t(key)}
-        onOpenNextPending={onOpenNextPending}
-        onDecision={onDecision}
+      <ReviewTodoDonePanel
+        t={t}
+        todoAssets={todoAssets}
+        doneAssets={doneAssets}
+        onOpenAsset={onOpenAsset}
       />
     </>
   )

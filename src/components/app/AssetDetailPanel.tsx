@@ -67,6 +67,8 @@ type Props = {
   standaloneHref?: string
   onKeywordClick?: (keyword: string) => void
   onMetadataDirtyChange?: (dirty: boolean) => void
+  layoutMode?: 'inline' | 'sidebar'
+  onClose?: () => void
 }
 
 type MetadataEditorProps = {
@@ -238,6 +240,8 @@ export function AssetDetailPanel({
   standaloneHref,
   onKeywordClick,
   onMetadataDirtyChange,
+  layoutMode = 'inline',
+  onClose,
 }: Props) {
   const effectiveAvailability = availability ?? getActionAvailability({
     visibleCount: 0,
@@ -261,8 +265,25 @@ export function AssetDetailPanel({
   }, [onMetadataDirtyChange, selectedAsset])
 
   return (
-    <section className="w-full xl:w-4/12" aria-label={t('detail.region')}>
-      <div className="h-full rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm xl:sticky xl:top-4">
+    <section className={layoutMode === 'sidebar' ? 'w-full' : 'w-full xl:w-4/12'} aria-label={t('detail.region')}>
+      <div
+        className={[
+          'h-full rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm',
+          layoutMode === 'inline' ? 'xl:sticky xl:top-4' : '',
+        ].join(' ').trim()}
+      >
+          {layoutMode === 'sidebar' ? (
+            <div className="mb-2 flex justify-end">
+              <button
+                type="button"
+                className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
+                onClick={onClose}
+                data-testid="review-detail-close"
+              >
+                {t('actions.close')}
+              </button>
+            </div>
+          ) : null}
           <h2 className="text-lg font-semibold text-gray-900">
             <BsCardChecklist className="mr-2 inline-block" aria-hidden="true" />
             {t('detail.title')}

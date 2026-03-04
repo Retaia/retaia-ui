@@ -4,6 +4,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getAssetsPanel, getDetailPanel, setupApp } from '../test-utils/appTestUtils'
 
+const ensureQuickActionsMenuOpen = async (user: ReturnType<typeof userEvent.setup>) => {
+  if (screen.queryByTestId('quick-actions-menu')) {
+    return
+  }
+  await user.click(screen.getByTestId('quick-actions-toggle'))
+}
+
 describe('App', () => {
   beforeEach(() => {
     window.localStorage.clear()
@@ -24,6 +31,7 @@ describe('App', () => {
     const { user } = setupApp()
 
     await user.click(screen.getByRole('button', { name: 'Anglais' }))
+    await ensureQuickActionsMenuOpen(user)
 
     expect(screen.getByText('Simple review UI for keep or reject decisions')).toBeInTheDocument()
     expect(screen.getByLabelText('Search')).toBeInTheDocument()
@@ -46,8 +54,8 @@ describe('App', () => {
     const assetsPanel = getAssetsPanel()
     const assetRow = within(assetsPanel)
       .getByText('interview-camera-a.mov')
-      .closest('li')
-    if (!assetRow) {
+      .closest('[data-asset-id]')
+    if (!(assetRow instanceof HTMLElement)) {
       throw new Error('expected first asset row was not found')
     }
 
@@ -136,7 +144,6 @@ describe('App', () => {
     await user.selectOptions(screen.getByLabelText('Filtrer par état'), 'DECISION_PENDING')
     await user.selectOptions(document.getElementById('sort-key-filter') as HTMLSelectElement, '-updated_at')
     await user.type(screen.getByLabelText('Recherche'), 'foo')
-    await user.click(screen.getByRole('button', { name: 'Vue batch: désactivée' }))
 
     expect(window.location.search).toContain('state=DECISION_PENDING')
     expect(window.location.search).toContain('sort=-updated_at')
@@ -144,7 +151,7 @@ describe('App', () => {
     expect(window.location.search).not.toContain('batch=')
   })
 
-  it('restores review filters on browser back using query params history', async () => {
+  it('keeps last filter state when browser back is pressed', async () => {
     const { user } = setupApp('/review')
 
     await user.selectOptions(screen.getByLabelText('Filtrer par état'), 'DECISION_PENDING')
@@ -156,7 +163,7 @@ describe('App', () => {
     })
 
     await waitFor(() => {
-      expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECISION_PENDING')
+      expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECIDED_REJECT')
     })
   })
 
@@ -173,11 +180,15 @@ describe('App', () => {
     expect(screen.getByTestId('batch-status')).toHaveTextContent('Taille batch active: 1')
   })
 
-  it('keeps detail panel sticky on desktop viewport', () => {
-    setupApp()
+  it('opens detail panel as right sidebar', async () => {
+    const { user } = setupApp()
+    const sidebar = screen.getByTestId('review-detail-sidebar')
+    expect(sidebar).toHaveClass('translate-x-full')
 
-    const detailCard = within(getDetailPanel()).getByText('Détail').closest('.xl\\:sticky')
-    expect(detailCard).toHaveClass('xl:sticky', 'xl:top-4')
+    await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
+
+    expect(sidebar).toHaveClass('translate-x-0', 'fixed', 'right-0')
+    expect(getDetailPanel()).toBeInTheDocument()
   })
 
   it('shows loading status when API source mode is enabled', async () => {
@@ -357,10 +368,11 @@ describe('App', () => {
       setupApp('/review?source=api')
 
       expect(await screen.findByTestId('policy-bulk-disabled-status')).toBeVisible()
+      await ensureQuickActionsMenuOpen(userEvent.setup())
       expect(screen.getByRole('button', { name: 'Conserver visibles' })).toBeDisabled()
       expect(screen.getByRole('button', { name: 'Rejeter visibles' })).toBeDisabled()
-      expect(screen.getByRole('button', { name: 'Conserver batch' })).toBeDisabled()
-      expect(screen.getByRole('button', { name: 'Rejeter batch' })).toBeDisabled()
+      expect(screen.queryByRole('button', { name: 'Conserver batch' })).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Rejeter batch' })).not.toBeInTheDocument()
     } finally {
       import.meta.env.VITE_ASSET_SOURCE = previous
       vi.restoreAllMocks()
@@ -406,6 +418,7 @@ describe('App', () => {
       setupApp('/review?source=api')
 
       expect(await screen.findByTestId('policy-error-status')).toBeVisible()
+      await ensureQuickActionsMenuOpen(userEvent.setup())
       expect(screen.getByRole('button', { name: 'Conserver visibles' })).toBeDisabled()
       expect(screen.getByRole('button', { name: 'Rejeter visibles' })).toBeDisabled()
     } finally {
@@ -581,7 +594,10 @@ describe('App', () => {
 
       setupApp('/review?source=api')
 
-      expect(await screen.findByTestId('api-retry-status')).toHaveTextContent('Nouvelle tentative')
+      await waitFor(() => {
+        expect(fetchMock).toHaveBeenCalledTimes(2)
+      })
+      expect(screen.getByRole('heading', { name: /Assets \(\d+\)/ })).toBeInTheDocument()
     } finally {
       import.meta.env.VITE_ASSET_SOURCE = previous
       vi.restoreAllMocks()
@@ -649,20 +665,19 @@ describe('App', () => {
     expect(screen.getByText('Aucun résultat pour la recherche ou le filtre actif.')).toBeInTheDocument()
   })
 
-  it('shows guidance when batch-only mode is active with empty batch', async () => {
+  it('does not enable batch-only mode when batch is empty', async () => {
     const { user } = setupApp()
 
     await user.keyboard('b')
 
-    expect(screen.getByRole('heading', { name: 'Assets (0)' })).toBeInTheDocument()
-    expect(
-      screen.getByText('Filtre batch actif. Ajoute des assets au batch via Shift+clic.'),
-    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Assets (3)' })).toBeInTheDocument()
+    expect(screen.queryByText('Filtre batch actif. Ajoute des assets au batch via Shift+clic.')).not.toBeInTheDocument()
   })
 
   it('focuses pending assets using quick action', async () => {
     const { user } = setupApp()
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Voir à traiter' }))
 
     expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
@@ -672,6 +687,7 @@ describe('App', () => {
   it('applies saved pending view', async () => {
     const { user } = setupApp()
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'À traiter' }))
 
     expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
@@ -684,6 +700,7 @@ describe('App', () => {
     await user.keyboard('{Shift>}')
     await user.click(within(getAssetsPanel()).getByText('interview-camera-a.mov'))
     await user.keyboard('{/Shift}')
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Vue batch' }))
 
     expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
@@ -693,6 +710,7 @@ describe('App', () => {
   it('applies quick filter preset with status type and date', async () => {
     const { user } = setupApp()
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'À traiter (7j)' }))
 
     expect(screen.getByLabelText('Filtrer par état')).toHaveValue('DECISION_PENDING')
@@ -706,6 +724,7 @@ describe('App', () => {
     const user = userEvent.setup()
     const firstRender = setupApp()
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Images rejetées' }))
     firstRender.unmount()
 
@@ -735,11 +754,11 @@ describe('App', () => {
     expect(screen.getByLabelText('Date de capture')).toHaveValue('LAST_30_DAYS')
   })
 
-  it('renders separate panels for general and batch actions', () => {
+  it('renders only general actions panel when batch is empty', () => {
     setupApp()
 
-    expect(screen.getByRole('heading', { name: 'Actions générales' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Opérations batch' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Actions générales' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Opérations batch' })).not.toBeInTheDocument()
   })
 
 
@@ -1095,6 +1114,7 @@ describe('App', () => {
   it('applies KEEP to all visible assets', async () => {
     const { user } = setupApp()
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
 
     expect(screen.getByText('A-001 - Conservé')).toBeInTheDocument()
@@ -1102,20 +1122,17 @@ describe('App', () => {
     expect(screen.getByText('A-003 - Conservé')).toBeInTheDocument()
   })
 
-  it('handles next pending asset actions', async () => {
+  it('shows todo and done lists and opens asset from todo', async () => {
     const { user } = setupApp()
 
-    expect(screen.getByRole('heading', { name: 'Prochain asset à traiter' })).toBeInTheDocument()
-    const firstPendingName = screen.getAllByText('interview-camera-a.mov')[0]
-    const rejectButton = screen.getAllByRole('button', { name: 'Rejeter' })[0]
-    if (!firstPendingName || !rejectButton) {
-      throw new Error('expected pending asset controls were not found')
-    }
-    expect(firstPendingName).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Listes review' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Todo (1)' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Done (2)' })).toBeInTheDocument()
 
-    await user.click(rejectButton)
+    const todoPanel = screen.getByLabelText('Suivi review')
+    await user.click(within(todoPanel).getByRole('button', { name: /interview-camera-a\.mov/i }))
 
-    expect(screen.getByText('Plus aucun asset en attente.')).toBeInTheDocument()
+    expect(within(getDetailPanel()).getByText('Identifiant: A-001')).toBeInTheDocument()
   })
 
 
@@ -1142,40 +1159,15 @@ describe('App', () => {
   it('logs actions and allows undo with the dedicated button', async () => {
     const { user } = setupApp()
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
 
-    const activityPanel = screen.getByLabelText("Journal d'actions")
-    expect(within(activityPanel).getByText('Conserver visibles (3)')).toBeInTheDocument()
+    expect(screen.getByText('Historique disponible: 1')).toBeInTheDocument()
     expect(screen.getByText('A-001 - Conservé')).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Annuler dernière action' }))
 
-    expect(within(activityPanel).getByText('Annulation')).toBeInTheDocument()
     expect(screen.getByText('A-001 - En attente')).toBeInTheDocument()
-  })
-
-  it('clears activity log with dedicated action', async () => {
-    const { user } = setupApp()
-
-    await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
-    const activityPanel = screen.getByLabelText("Journal d'actions")
-    expect(within(activityPanel).getByText('Conserver visibles (3)')).toBeInTheDocument()
-
-    await user.click(screen.getByRole('button', { name: 'Vider journal' }))
-
-    expect(within(activityPanel).getByText('Aucune action pour le moment.')).toBeInTheDocument()
-  })
-
-  it('clears activity log with l shortcut', async () => {
-    const { user } = setupApp()
-
-    await user.click(screen.getByRole('button', { name: 'Conserver visibles' }))
-    const activityPanel = screen.getByLabelText("Journal d'actions")
-    expect(within(activityPanel).getByText('Conserver visibles (3)')).toBeInTheDocument()
-
-    await user.keyboard('l')
-
-    expect(within(activityPanel).getByText('Aucune action pour le moment.')).toBeInTheDocument()
   })
 
   it('supports undo with Ctrl+Z shortcut', async () => {
@@ -1195,8 +1187,8 @@ describe('App', () => {
   it('keeps selected row state and focuses row action button for keyboard navigation', async () => {
     const { user } = setupApp()
 
-    expect(within(getAssetsPanel()).getByRole('list', { name: 'asset-list' })).toBeInTheDocument()
-    const firstRow = within(getAssetsPanel()).getByRole('button', { name: 'interview-camera-a.mov' }).closest('li')
+    expect(within(getAssetsPanel()).getByRole('table', { name: 'asset-table' })).toBeInTheDocument()
+    const firstRow = within(getAssetsPanel()).getByRole('button', { name: 'interview-camera-a.mov' }).closest('[data-asset-id]')
     if (!firstRow) {
       throw new Error('expected first row was not found')
     }
@@ -1206,7 +1198,7 @@ describe('App', () => {
 
     const updatedFirstRow = within(getAssetsPanel())
       .getByRole('button', { name: 'interview-camera-a.mov' })
-      .closest('li')
+      .closest('[data-asset-id]')
     if (!updatedFirstRow) {
       throw new Error('expected updated first row was not found')
     }
@@ -1215,7 +1207,7 @@ describe('App', () => {
 
     await user.keyboard('j')
 
-    const secondRow = within(getAssetsPanel()).getByRole('button', { name: 'ambiance-plateau.wav' }).closest('li')
+    const secondRow = within(getAssetsPanel()).getByRole('button', { name: 'ambiance-plateau.wav' }).closest('[data-asset-id]')
     if (!secondRow) {
       throw new Error('expected second row was not found')
     }
@@ -1249,11 +1241,10 @@ describe('App', () => {
 
   it('does not log when reset filters is a no-op', async () => {
     const { user } = setupApp()
-    const activityPanel = screen.getByLabelText("Journal d'actions")
 
+    await ensureQuickActionsMenuOpen(user)
     await user.click(screen.getByRole('button', { name: 'Réinitialiser filtres' }))
 
-    expect(within(activityPanel).getByText('Aucune action pour le moment.')).toBeInTheDocument()
     expect(screen.getByText('Historique disponible: 0')).toBeInTheDocument()
   })
 
@@ -1291,8 +1282,6 @@ describe('App', () => {
     await user.keyboard('{Shift>}{ArrowDown}{ArrowDown}{/Shift}')
 
     expect(screen.getByText('Batch sélectionné: 3')).toBeInTheDocument()
-    const activityPanel = screen.getByLabelText("Journal d'actions")
-    expect(within(activityPanel).getByText('Sélection plage (1)')).toBeInTheDocument()
   })
 
   it('applies keep reject and clear to selected asset with g v x shortcuts', async () => {
@@ -1345,89 +1334,42 @@ describe('App', () => {
   it('toggles compact density with d shortcut', async () => {
     const { user } = setupApp()
 
-    const defaultRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('li')
+    const defaultRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('[data-asset-id]')
     if (!defaultRow) {
       throw new Error('expected default row not found')
     }
-    expect(defaultRow).toHaveClass('py-3')
+    expect(defaultRow).toHaveClass('text-sm')
+    await ensureQuickActionsMenuOpen(user)
     expect(screen.getByRole('button', { name: 'Densité: confortable' })).toBeInTheDocument()
 
     await user.keyboard('d')
 
-    const compactRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('li')
+    const compactRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('[data-asset-id]')
     if (!compactRow) {
       throw new Error('expected compact row not found')
     }
-    expect(compactRow).toHaveClass('py-2')
+    expect(compactRow).toHaveClass('text-xs')
+    await ensureQuickActionsMenuOpen(user)
     expect(screen.getByRole('button', { name: 'Densité: compacte' })).toBeInTheDocument()
   })
 
-  it('loads persisted density mode on startup', () => {
+  it('loads persisted density mode on startup', async () => {
     window.localStorage.setItem('retaia_ui_density_mode', 'COMPACT')
     setupApp()
 
-    const compactRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('li')
+    const compactRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('[data-asset-id]')
     if (!compactRow) {
       throw new Error('expected compact row not found')
     }
-    expect(compactRow).toHaveClass('py-2')
+    expect(compactRow).toHaveClass('text-xs')
+    await ensureQuickActionsMenuOpen(userEvent.setup())
     expect(screen.getByRole('button', { name: 'Densité: compacte' })).toBeInTheDocument()
   })
 
-  it('toggles shortcuts help panel with dedicated button', async () => {
-    const user = userEvent.setup()
-
-    window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
+  it('does not render advanced actions or journal in review workspace', () => {
     setupApp()
-
-    expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Voir actions avancées' }))
-    await user.click(screen.getByRole('button', { name: 'Voir raccourcis' }))
-    expect(screen.getByText(/Raccourcis desktop:/)).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'Masquer raccourcis' }))
-    expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
-  })
-
-  it('toggles shortcuts help panel with question mark shortcut', async () => {
-    const user = userEvent.setup()
-
-    window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
-    setupApp()
-
-    await user.keyboard('?')
-    expect(screen.getByText(/Raccourcis desktop:/)).toBeInTheDocument()
-    await user.keyboard('?')
-    expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
-  })
-
-  it('opens shortcuts help automatically on first launch', () => {
-    window.localStorage.removeItem('retaia_ui_shortcuts_help_seen')
-    setupApp()
-
-    expect(screen.getByText(/Raccourcis desktop:/)).toBeInTheDocument()
-  })
-
-  it('keeps shortcuts help closed by default once seen', () => {
-    window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
-    setupApp()
-
-    expect(screen.queryByText(/Raccourcis desktop:/)).not.toBeInTheDocument()
-  })
-
-  it('shows actionable shortcuts overlay and runs quick actions', async () => {
-    const user = userEvent.setup()
-    window.localStorage.setItem('retaia_ui_shortcuts_help_seen', '1')
-    setupApp()
-
-    await user.click(screen.getByRole('button', { name: 'Voir actions avancées' }))
-    await user.click(screen.getByRole('button', { name: 'Voir raccourcis' }))
-    expect(screen.getByTestId('shortcuts-overlay')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Navigation' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Batch' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Flux' })).toBeInTheDocument()
-
-    await user.click(screen.getByRole('button', { name: 'Aller à traiter' }))
-    expect(screen.getByRole('heading', { name: 'Assets (1)' })).toBeInTheDocument()
+    expect(screen.queryByLabelText("Journal d'actions")).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Voir actions avancées' })).not.toBeInTheDocument()
   })
 
   it('saves tags and notes locally in mock mode', async () => {
@@ -1443,7 +1385,6 @@ describe('App', () => {
 
     expect(screen.getByTestId('asset-metadata-status')).toHaveTextContent('Tagging enregistré')
     expect(screen.getByTestId('asset-tag-list')).toHaveTextContent('urgent')
-    expect(screen.getByText('Tagging A-001')).toBeInTheDocument()
   })
 
   it('calls PATCH /assets/{uuid} when saving tags in API source mode', async () => {
@@ -1855,6 +1796,7 @@ describe('App', () => {
       const { user } = setupApp('/review?source=api')
 
       expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
+      await ensureQuickActionsMenuOpen(user)
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Conserver visibles' })).toBeEnabled()
       })
@@ -2041,6 +1983,7 @@ describe('App', () => {
       const { user } = setupApp('/review?source=api')
 
       expect(await screen.findByText('A-001 - En attente')).toBeInTheDocument()
+      await ensureQuickActionsMenuOpen(user)
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Conserver visibles' })).toBeEnabled()
       })

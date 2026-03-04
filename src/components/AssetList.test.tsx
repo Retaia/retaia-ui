@@ -11,7 +11,10 @@ const assets = [
 
 const labels = {
   empty: 'Aucun asset ne correspond aux filtres.',
-  batch: 'Batch',
+  select: 'Sélection',
+  asset: 'Asset',
+  stateLabel: 'État',
+  actions: 'Actions',
   keep: 'Conserver',
   reject: 'Rejeter',
   clear: 'Réinitialiser',
@@ -101,10 +104,9 @@ describe('AssetList', () => {
     expect(onDecision).toHaveBeenCalledWith('A-002', 'CLEAR')
   })
 
-  it('toggles batch selection from checkbox and opens batch editor on add', async () => {
+  it('toggles batch selection from checkbox', async () => {
     const user = userEvent.setup()
     const onBatchSelectionChange = vi.fn()
-    const onOpenBatchEditor = vi.fn()
 
     render(
       <AssetList
@@ -116,17 +118,15 @@ describe('AssetList', () => {
         onDecision={vi.fn()}
         onAssetClick={vi.fn()}
         onBatchSelectionChange={onBatchSelectionChange}
-        onOpenBatchEditor={onOpenBatchEditor}
       />,
     )
 
-    const checkbox = screen.getByRole('checkbox', { name: 'Batch interview-camera-a.mov' })
+    const checkbox = screen.getByRole('checkbox', { name: 'interview-camera-a.mov' })
     await user.click(checkbox)
     expect(onBatchSelectionChange).toHaveBeenCalledWith('A-001', true)
-    expect(onOpenBatchEditor).toHaveBeenCalledTimes(1)
   })
 
-  it('exposes list semantics and selected row state', () => {
+  it('exposes table semantics and selected row state', () => {
     render(
       <AssetList
         assets={assets}
@@ -139,11 +139,11 @@ describe('AssetList', () => {
       />,
     )
 
-    const list = screen.getByRole('list', { name: 'asset-list' })
-    expect(list).toBeInTheDocument()
+    const table = screen.getByRole('table', { name: 'asset-table' })
+    expect(table).toBeInTheDocument()
 
-    const selectedRow = screen.getByRole('button', { name: 'ambiance-plateau.wav' }).closest('li')
-    const unselectedRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('li')
+    const selectedRow = screen.getByRole('button', { name: 'ambiance-plateau.wav' }).closest('[data-asset-id]')
+    const unselectedRow = screen.getByRole('button', { name: 'interview-camera-a.mov' }).closest('[data-asset-id]')
     if (!selectedRow || !unselectedRow) {
       throw new Error('expected rows were not found')
     }
@@ -151,12 +151,13 @@ describe('AssetList', () => {
     expect(unselectedRow).not.toHaveAttribute('aria-current')
   })
 
-  it('renders compact density classes when mode is compact', () => {
+  it('renders compact density classes when mode is compact in cards display', () => {
     render(
       <AssetList
         assets={assets}
         selectedAssetId={'A-001'}
         batchIds={[]}
+        displayType="CARDS"
         density="COMPACT"
         labels={labels}
         onDecision={vi.fn()}

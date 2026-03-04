@@ -17,7 +17,7 @@ describe('a11y smoke', () => {
     expect(result.violations).toEqual([])
   })
 
-  it('has no critical accessibility violations when shortcuts panel is open', async () => {
+  it('has no critical accessibility violations when quick actions menu is open', async () => {
     window.history.replaceState({}, '', '/review')
     const { container } = render(
       <BrowserRouter>
@@ -25,7 +25,7 @@ describe('a11y smoke', () => {
       </BrowserRouter>,
     )
 
-    const toggle = screen.getByRole('button', { name: /(Voir|Masquer) raccourcis/i })
+    const toggle = screen.getByRole('button', { name: 'Actions générales' })
     await toggle.click()
 
     const result = await axe(container)

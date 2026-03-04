@@ -7,6 +7,7 @@ import { mergeAssetWithDetail } from '../domain/review/assetDetailMerge'
 import { type Locale } from '../i18n/resources'
 import { mapReviewApiErrorToMessage } from '../infrastructure/review/apiReviewErrorAdapter'
 import { useDensityMode } from './useDensityMode'
+import { useDisplayType } from './useDisplayType'
 import { useReviewApiRuntime } from './useReviewApiRuntime'
 import { readLibraryFilterParams, writeLibraryFilterParams } from '../services/workspaceQueryParams'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
@@ -46,6 +47,7 @@ export function useLibraryPageController() {
     message: string
   } | null>(null)
   const { densityMode } = useDensityMode()
+  const { displayType, setDisplayType } = useDisplayType('retaia_ui_library_asset_display_type')
   const { apiClient, isApiAssetSource } = useReviewApiRuntime()
 
   useEffect(() => {
@@ -255,6 +257,8 @@ export function useLibraryPageController() {
     sort,
     setSort,
     densityMode,
+    displayType,
+    setDisplayType,
     assetsLoadState,
     hasMoreAssets: isApiAssetSource && Boolean(nextCursor),
     loadingMoreAssets,

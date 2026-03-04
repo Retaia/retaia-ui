@@ -89,12 +89,14 @@ export function LibraryPage() {
           visibleAssets={controller.visibleAssets}
           selectedAssetId={controller.selectedAssetId}
           densityMode={controller.densityMode}
+          displayType={controller.displayType}
           search={controller.search}
           sort={controller.sort}
           hasMoreAssets={controller.hasMoreAssets}
           loadingMoreAssets={controller.loadingMoreAssets}
           onSearchChange={controller.setSearch}
           onSortChange={controller.setSort}
+          onDisplayTypeChange={controller.setDisplayType}
           onAssetClick={controller.onAssetClick}
           onLoadMoreAssets={controller.loadMoreAssets}
         />

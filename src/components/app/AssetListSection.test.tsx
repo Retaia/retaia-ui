@@ -34,7 +34,7 @@ describe('AssetListSection', () => {
 
     expect(screen.getByTestId('selection-status')).toHaveTextContent('selection')
     expect(screen.getByTestId('batch-status')).toBeInTheDocument()
-    expect(screen.getByRole('list', { name: 'asset-list' })).toBeInTheDocument()
+    expect(screen.getByRole('table', { name: 'asset-table' })).toBeInTheDocument()
   })
 
   it('forwards decision and click interactions to callbacks', async () => {

@@ -59,14 +59,6 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
         : `${window.location.pathname}${window.location.search}`
     return `/review/detail/${assetId}?from=${encodeURIComponent(from)}`
   }
-  const openBatchEditor = () => {
-    if (typeof document === 'undefined') {
-      return
-    }
-    window.requestAnimationFrame(() => {
-      document.getElementById('batch-edit-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    })
-  }
 
   return (
     <AppHeader
@@ -145,9 +137,8 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           lastSuccessfulReportData={controller.lastSuccessfulReportData}
           reportExportStatus={controller.reportExportStatus}
           undoStackLength={controller.undoStack.length}
-          activityLog={controller.activityLog}
-          showShortcutsHelp={controller.showShortcutsHelp}
-          nextPendingAsset={controller.nextPendingAsset}
+          todoAssets={controller.todoAssets}
+          doneAssets={controller.doneAssets}
           onApplySavedView={controller.applySavedView}
           onApplyPresetPendingRecent={controller.applyPresetPendingRecent}
           onApplyPresetImagesRejected={controller.applyPresetImagesRejected}
@@ -165,10 +156,7 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           onRefreshBatchReport={controller.refreshBatchReport}
           onExportBatchReport={controller.exportBatchReport}
           onUndoLastAction={controller.undoLastAction}
-          onClearActivityLog={controller.clearActivityLog}
-          onToggleShortcutsHelp={controller.toggleShortcutsHelp}
-          onOpenNextPending={controller.openNextPending}
-          onDecision={controller.handleDecision}
+          onOpenAsset={controller.openAsset}
         />
       ) : null}
 
@@ -228,6 +216,7 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           batchIds={controller.batchIds}
           selectionStatusLabel={controller.selectionStatusLabel}
           densityMode={controller.densityMode}
+          displayType={controller.displayType}
           emptyAssetsMessage={controller.emptyAssetsMessage}
           hasMoreAssets={controller.hasMoreAssets}
           loadingMoreAssets={controller.loadingMoreAssets}
@@ -245,7 +234,7 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           onDecision={controller.handleDecision}
           onAssetClick={controller.handleAssetClick}
           onBatchSelectionChange={controller.setBatchAssetSelected}
-          onOpenBatchEditor={openBatchEditor}
+          onDisplayTypeChange={controller.setDisplayType}
           onSaveMetadata={controller.saveSelectedAssetMetadata}
           onPreviewPurge={controller.previewSelectedAssetPurge}
           onExecutePurge={controller.executeSelectedAssetPurge}
@@ -260,6 +249,7 @@ function ReviewPage({ view = 'workspace' }: ReviewPageProps) {
           onKeywordClick={controller.onKeywordClick}
           onLoadMoreAssets={controller.loadMoreAssets}
           onMetadataDirtyChange={setHasUnsavedMetadata}
+          onCloseDetail={controller.clearSelection}
         />
       ) : null}
     </AppHeader>

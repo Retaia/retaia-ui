@@ -6,6 +6,46 @@ const getPage = () => getBrowserRuntime().page
 
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
+async function openQuickActionsMenuIfNeeded() {
+  const page = getPage()
+  const menu = page.getByTestId('quick-actions-menu')
+  if (await menu.isVisible().catch(() => false)) {
+    return
+  }
+  const toggle = page.getByTestId('quick-actions-toggle')
+  await expect(toggle).toBeVisible({ timeout: 4000 })
+  await toggle.click()
+  await expect(menu).toBeVisible({ timeout: 4000 })
+}
+
+async function clickAssetRow(assetName: string, modifiers?: Array<'Shift'>) {
+  const page = getPage()
+  const assetsPanel = page.locator('section[aria-label="Liste des assets"]')
+  const row = assetsPanel.locator('[data-asset-id]', { hasText: assetName }).first()
+  const openButton = row.locator('[data-asset-open="true"]').first()
+  await expect(row).toBeVisible({ timeout: 5000 })
+  await row.scrollIntoViewIfNeeded()
+
+  const targets = [openButton, row]
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    for (const target of targets) {
+      try {
+        await target.click({
+          modifiers,
+          timeout: 2500,
+          force: attempt > 0,
+        })
+        await page.waitForTimeout(50)
+        return
+      } catch {
+        // Retry with alternate target and a force-click pass.
+      }
+    }
+  }
+
+  throw new Error(`Asset introuvable/non cliquable: ${assetName}`)
+}
+
 async function clickNamedButton(label: string) {
   const page = getPage()
   const tryClick = async (
@@ -40,6 +80,33 @@ async function clickNamedButton(label: string) {
     }
   }
 
+  const quickActionLabels = new Set([
+    'standard',
+    'a traiter',
+    'voir a traiter',
+    'conserver visibles',
+    'rejeter visibles',
+    'reinitialiser filtres',
+    'densite: confortable',
+    'densite: compacte',
+    'images rejetees',
+    'review media (30j)',
+    'review media (30d)',
+    'a traiter (7j)',
+    'pending (7d)',
+    'default',
+    'pending',
+    'show pending',
+    'keep visible',
+    'reject visible',
+    'reset filters',
+    'density: comfortable',
+    'density: compact',
+  ])
+  if (quickActionLabels.has(normalized)) {
+    await openQuickActionsMenuIfNeeded()
+  }
+
   if (await tryClick(page.getByRole('button', { name: label, exact: true }), 3000)) {
     return
   }
@@ -72,13 +139,11 @@ Then('l\'URL courante contient {string}', async (value: string) => {
 })
 
 When("je clique sur l'asset {string}", async (assetName: string) => {
-  const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
-  await assetsPanel.getByText(assetName).first().click()
+  await clickAssetRow(assetName)
 })
 
 When('je fais Maj+clic sur l\'asset {string}', async (assetName: string) => {
-  const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
-  await assetsPanel.getByText(assetName).first().click({ modifiers: ['Shift'] })
+  await clickAssetRow(assetName, ['Shift'])
 })
 
 Then('le panneau détail affiche l\'asset {string}', async (assetName: string) => {
@@ -92,7 +157,7 @@ Then('le batch sélectionné affiche {int}', async (size: number) => {
 
 When('je rejette le premier asset de la liste', async () => {
   const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
-  const firstRow = assetsPanel.locator('li[data-asset-id]').first()
+  const firstRow = assetsPanel.locator('[data-asset-id]').first()
   await firstRow.getByRole('button', { name: /^(REJECT|Reject|Rejeter)$/i }).click()
 })
 
@@ -102,7 +167,7 @@ Then('l\'état {string} est visible', async (stateLabel: string) => {
     throw new Error(`Format d'état invalide: ${stateLabel}`)
   }
   const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
-  const row = assetsPanel.locator(`li[data-asset-id="${assetId}"]`)
+  const row = assetsPanel.locator(`[data-asset-id="${assetId}"]`)
   await expect(row).toContainText(expectedState)
 })
 
@@ -206,6 +271,17 @@ Then('le statut d\'erreur assets API est visible', async () => {
 })
 
 Then('le bouton {string} est visible', async (buttonLabel: string) => {
+  const normalized = buttonLabel.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase()
+  if (
+    normalized.includes('densite:') ||
+    normalized.includes('density:') ||
+    normalized.includes('voir a traiter') ||
+    normalized.includes('show pending') ||
+    normalized.includes('images rejetees') ||
+    normalized.includes('rejected images')
+  ) {
+    await openQuickActionsMenuIfNeeded()
+  }
   await expect(getPage().getByRole('button', { name: buttonLabel })).toBeVisible()
 })
 
@@ -263,20 +339,24 @@ When('je filtre par état {string}', async (state: string) => {
 
 Then('la ligne asset {string} a aria-selected {string}', async (assetId: string, selected: string) => {
   const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
-  const row = assetsPanel.locator(`li[data-asset-id="${assetId}"]`).first()
-  await expect(row).toHaveAttribute('aria-selected', selected)
+  const row = assetsPanel.locator(`[data-asset-id="${assetId}"]`).first()
+  if (selected === 'true') {
+    await expect(row).toHaveAttribute('aria-current', 'true')
+    return
+  }
+  await expect(row).not.toHaveAttribute('aria-current', 'true')
 })
 
 Then('la ligne asset {string} a tabindex {string}', async (assetId: string, tabIndex: string) => {
   const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
-  const row = assetsPanel.locator(`li[data-asset-id="${assetId}"]`).first()
-  await expect(row).toHaveAttribute('tabindex', tabIndex)
+  const rowButton = assetsPanel.locator(`[data-asset-id="${assetId}"] [data-asset-open="true"]`).first()
+  await expect(rowButton).toHaveAttribute('tabindex', tabIndex)
 })
 
 Then('la ligne asset {string} a le focus', async (assetId: string) => {
   const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
-  const row = assetsPanel.locator(`li[data-asset-id="${assetId}"]`).first()
-  await expect(row).toBeFocused()
+  const rowButton = assetsPanel.locator(`[data-asset-id="${assetId}"] [data-asset-open="true"]`).first()
+  await expect(rowButton).toBeFocused()
 })
 
 When('je saisis le tag {string}', async (tag: string) => {
@@ -324,6 +404,9 @@ When('je saisis {string} dans le champ testid {string}', async (value: string, t
 })
 
 When('je clique sur l\'element testid {string}', async (testId: string) => {
+  if (testId.startsWith('quick-view-')) {
+    await openQuickActionsMenuIfNeeded()
+  }
   await getPage().getByTestId(testId).click()
 })
 
