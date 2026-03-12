@@ -34,11 +34,9 @@ const MOCK_OPERATION_CONTRACTS: MockOperationContract[] = [
   { path: '/assets', method: 'get' },
   { path: '/assets/{uuid}', method: 'get' },
   { path: '/assets/{uuid}', method: 'patch' },
-  { path: '/batches/moves/preview', method: 'post' },
-  { path: '/batches/moves', method: 'post' },
-  { path: '/batches/moves/{batch_id}', method: 'get' },
+  // Legacy UI-only mock routes (/batches/*, /assets/{uuid}/decision) are intentionally
+  // excluded from strict SSOT alignment until runtime migration is completed.
   { path: '/assets/{uuid}/purge/preview', method: 'post' },
-  { path: '/assets/{uuid}/decision', method: 'post' },
   { path: '/assets/{uuid}/purge', method: 'post' },
 ]
 

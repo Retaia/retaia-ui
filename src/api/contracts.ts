@@ -1,13 +1,42 @@
-import type { components, paths } from './generated/openapi'
-
-export type ListAssetsQuery = NonNullable<paths['/assets']['get']['parameters']['query']>
-export type ListAssetsResponse =
-  paths['/assets']['get']['responses'][200]['content']['application/json']
-export type HealthResponse =
-  paths['/ops/readiness']['get']['responses'][200]['content']['application/json']
-export type AssetSummary = components['schemas']['AssetSummary']
-export type AssetDetail =
-  paths['/assets/{uuid}']['get']['responses'][200]['content']['application/json']
+export type ListAssetsQuery = {
+  state?: string
+  media_type?: string
+  q?: string
+  sort?: string
+  captured_at_from?: string
+  captured_at_to?: string
+  limit?: number
+  cursor?: string
+}
+export type AssetSummary = {
+  uuid?: string
+  state?: string
+  media_type?: string
+  captured_at?: string
+  created_at?: string
+  tags?: string[]
+  [key: string]: unknown
+}
+export type ListAssetsResponse = {
+  items?: AssetSummary[] | null
+  next_cursor?: string | null
+  [key: string]: unknown
+}
+export type HealthResponse = {
+  status: 'ok' | 'degraded' | 'down'
+  self_healing: {
+    active: boolean
+    deadline_at: string | null
+    max_self_healing_seconds: number
+    [key: string]: unknown
+  }
+  checks?: unknown[]
+  [key: string]: unknown
+}
+export type AssetDetail = {
+  summary: AssetSummary
+  [key: string]: unknown
+}
 
 // NOTE: Specs v1 no longer exposes legacy /batches/* endpoints used by current UI flow.
 // Keep explicit UI payload types until batch flow is migrated to the new contract.
@@ -24,33 +53,69 @@ export type MoveExecutePayload = {
 }
 export type MoveExecuteResponse = Record<string, unknown> | void
 export type MoveStatusResponse = Record<string, unknown>
-export type PurgeExecutePayload =
-  paths['/assets/{uuid}/purge']['post']['requestBody']['content']['application/json']
-export type AssetMetadataPatchPayload =
-  paths['/assets/{uuid}']['patch']['requestBody']['content']['application/json']
+export type PurgeExecutePayload = { confirm: true }
+export type AssetMetadataPatchPayload = {
+  tags?: string[]
+  notes?: string
+  fields?: Record<string, unknown>
+}
 export type AssetDecisionPayload = {
   action: 'KEEP' | 'REJECT' | 'CLEAR'
 }
-export type AppPolicyResponse =
-  paths['/app/policy']['get']['responses'][200]['content']['application/json']
-export type AppFeaturesResponse =
-  paths['/app/features']['get']['responses'][200]['content']['application/json']
-export type AppFeaturesUpdatePayload =
-  paths['/app/features']['patch']['requestBody']['content']['application/json']
-export type AuthLoginPayload = components['schemas']['AuthLoginRequest']
-export type AuthLoginResponse = components['schemas']['AuthLoginSuccess']
-export type AuthCurrentUserResponse = components['schemas']['AuthCurrentUser']
-export type UserFeaturesResponse =
-  paths['/auth/me/features']['get']['responses'][200]['content']['application/json']
-export type UserFeaturesUpdatePayload =
-  paths['/auth/me/features']['patch']['requestBody']['content']['application/json']
-export type Auth2faSetupResponse =
-  paths['/auth/2fa/setup']['post']['responses'][200]['content']['application/json']
-export type Auth2faOtpPayload =
-  paths['/auth/2fa/enable']['post']['requestBody']['content']['application/json']
-export type AuthEmailPayload =
-  paths['/auth/lost-password/request']['post']['requestBody']['content']['application/json']
-export type AuthLostPasswordResetPayload =
-  paths['/auth/lost-password/reset']['post']['requestBody']['content']['application/json']
-export type AuthTokenPayload =
-  paths['/auth/verify-email/confirm']['post']['requestBody']['content']['application/json']
+export type AppPolicyResponse = {
+  server_policy: {
+    feature_flags: Record<string, boolean | unknown>
+    [key: string]: unknown
+  }
+  [key: string]: unknown
+}
+export type AppFeaturesResponse = {
+  app_feature_enabled: Record<string, unknown>
+  feature_governance: Array<{ key?: string; user_can_disable?: boolean }>
+  core_v1_global_features: unknown[]
+  [key: string]: unknown
+}
+export type AppFeaturesUpdatePayload = {
+  app_feature_enabled?: Record<string, boolean>
+}
+export type AuthLoginPayload = {
+  email: string
+  password: string
+  otp_code?: string
+}
+export type AuthLoginResponse = {
+  access_token: string
+  token_type?: string
+  [key: string]: unknown
+}
+export type AuthCurrentUserResponse = {
+  email: string
+  [key: string]: unknown
+}
+export type UserFeaturesResponse = {
+  user_feature_enabled: Record<string, unknown>
+  effective_feature_enabled: Record<string, unknown>
+  feature_governance: Array<{ key?: string; user_can_disable?: boolean }>
+  [key: string]: unknown
+}
+export type UserFeaturesUpdatePayload = {
+  user_feature_enabled?: Record<string, boolean>
+}
+export type Auth2faSetupResponse = {
+  secret: string
+  otpauth_uri: string
+  [key: string]: unknown
+}
+export type Auth2faOtpPayload = {
+  otp_code: string
+}
+export type AuthEmailPayload = {
+  email: string
+}
+export type AuthLostPasswordResetPayload = {
+  token: string
+  new_password: string
+}
+export type AuthTokenPayload = {
+  token: string
+}

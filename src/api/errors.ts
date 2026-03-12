@@ -1,6 +1,10 @@
-import type { components } from './generated/openapi'
-
-export type ApiErrorPayload = components['schemas']['ErrorResponse']
+export type ApiErrorPayload = {
+  code?: string
+  message: string
+  details?: Record<string, unknown>
+  retryable?: boolean
+  correlation_id?: string
+}
 
 export class ApiError extends Error {
   status: number
