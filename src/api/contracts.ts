@@ -9,19 +9,28 @@ export type AssetSummary = components['schemas']['AssetSummary']
 export type AssetDetail =
   paths['/assets/{uuid}']['get']['responses'][200]['content']['application/json']
 
-export type MovePreviewPayload =
-  paths['/batches/moves/preview']['post']['requestBody']['content']['application/json']
-export type MoveExecutePayload =
-  paths['/batches/moves']['post']['requestBody']['content']['application/json']
+// NOTE: Specs v1 no longer exposes legacy /batches/* endpoints used by current UI flow.
+// Keep explicit UI payload types until batch flow is migrated to the new contract.
+export type MovePreviewPayload = {
+  include?: 'KEEP' | 'REJECT' | 'BOTH'
+  limit?: number
+}
+export type MoveExecutePayload = {
+  mode: 'EXECUTE' | 'DRY_RUN'
+  selection: {
+    asset_ids?: string[]
+    include?: 'KEEP' | 'REJECT' | 'BOTH'
+  }
+}
 export type MoveExecuteResponse = Record<string, unknown> | void
-export type MoveStatusResponse =
-  paths['/batches/moves/{batch_id}']['get']['responses'][200]['content']['application/json']
+export type MoveStatusResponse = Record<string, unknown>
 export type PurgeExecutePayload =
   paths['/assets/{uuid}/purge']['post']['requestBody']['content']['application/json']
 export type AssetMetadataPatchPayload =
   paths['/assets/{uuid}']['patch']['requestBody']['content']['application/json']
-export type AssetDecisionPayload =
-  paths['/assets/{uuid}/decision']['post']['requestBody']['content']['application/json']
+export type AssetDecisionPayload = {
+  action: 'KEEP' | 'REJECT' | 'CLEAR'
+}
 export type AppPolicyResponse =
   paths['/app/policy']['get']['responses'][200]['content']['application/json']
 export type AppFeaturesResponse =

@@ -7,10 +7,8 @@ type RuntimeConfig = {
   API_TOKEN?: string
 }
 
-declare global {
-  interface Window {
-    __RETAIA_RUNTIME_CONFIG__?: RuntimeConfig
-  }
+type RuntimeWindow = Window & {
+  __RETAIA_RUNTIME_CONFIG__?: RuntimeConfig
 }
 
 type UseApiClientOptions = {
@@ -39,7 +37,7 @@ function readRuntimeConfig(): RuntimeConfig {
   if (typeof window === 'undefined') {
     return {}
   }
-  return window.__RETAIA_RUNTIME_CONFIG__ ?? {}
+  return (window as RuntimeWindow).__RETAIA_RUNTIME_CONFIG__ ?? {}
 }
 
 export function useApiClient({
