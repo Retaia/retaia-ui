@@ -20,7 +20,7 @@ React + TypeScript web application for media review workflows (asset list/detail
 
 ## Overview
 
-Retaia UI implements the v1 review experience and follows a spec-first workflow:
+Retaia UI implements the review experience against API v1 contracts and follows a spec-first workflow (UI rollout is in global v1.1):
 
 - `specs/` is normative (source of truth)
 - `docs/` is local and non-normative
