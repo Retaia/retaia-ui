@@ -1,5 +1,7 @@
 # language: fr
 
+@legacy-ui
+
 Fonctionnalité: Edge cases fonctionnels review desktop-like
   En tant qu'utilisateur desktop
   Je veux des comportements robustes sur les cas limites

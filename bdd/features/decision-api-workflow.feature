@@ -1,3 +1,4 @@
+@legacy-ui
 Feature: Workflow décision API
   En tant qu'utilisateur en mode API réel
   Je veux envoyer les décisions KEEP/REJECT au serveur

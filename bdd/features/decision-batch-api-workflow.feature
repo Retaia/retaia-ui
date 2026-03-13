@@ -1,3 +1,4 @@
+@legacy-ui
 Feature: Workflow décisions batch API
   En tant qu'utilisateur en mode API réel
   Je veux que les actions batch envoient des décisions au serveur

@@ -1,3 +1,4 @@
+@legacy-ui
 Feature: Workflow purge asset
   En tant qu'utilisateur de review
   Je veux prévisualiser puis confirmer une purge
