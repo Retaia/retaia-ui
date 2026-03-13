@@ -251,11 +251,11 @@ Comportements UX :
 
 - ouverture auto du premier asset pertinent si aucun n'est selectionne
 - navigation clavier entre items sans perdre le detail
-- actions `Conserver`, `Ecarter`, `Annuler` tres visibles et toujours au meme endroit
+- actions unitaires `Conserver`, `Ecarter`, `Annuler` tres visibles et toujours au meme endroit
 - edition tags/notes inline dans le detail
 - la selection multiple s'active via checkboxes, sans casser la navigation detail
 - les actions groupees restent purement UI et s'appliquent aux elements coches
-- actions groupees prioritaires : ajouter des tags, retirer des tags, `Conserver`, `Ecarter`, `Annuler`
+- actions groupees prioritaires : ajouter des tags, retirer des tags, `Conserver`, `Ecarter`, `Voir les changements`, `Appliquer`, `Annuler`
 - le mode d'affichage se change en un clic, sans navigation ni rechargement
 - le controle doit se comporter comme un selecteur de vue rapide, proche d'un explorateur de fichiers desktop
 - la vue par defaut est `Table`
@@ -548,6 +548,78 @@ Regle :
 - ils ne doivent pas former un sous-systeme autonome
 - le rail droit reste un panneau contextuel unique avec 3 etats : aucune selection, changements en attente, resultat apres application
 
+### 6.3.b Regles du panneau droit
+
+Le rail droit doit rester simple. Il ne pilote pas la page; il accompagne la page courante.
+
+Repartition des responsabilites :
+
+- les actions unitaires vivent dans le detail de l'asset courant
+- les actions groupees vivent dans le rail droit quand une selection multiple est active
+- la liste sert a selectionner et comparer, pas a porter les actions principales
+
+Etat 1 : aucune selection multiple
+
+- afficher un resume court de l'asset courant
+- afficher des raccourcis d'aide ou conseils de navigation
+- ne pas afficher d'actions groupees inactives
+
+Etat 2 : changements en attente
+
+- afficher le nombre d'elements selectionnes
+- afficher la liste compacte des changements prepares : decisions, tags ajoutes, tags retires, note commune
+- afficher les actions dans cet ordre :
+- `Voir les changements`
+- `Appliquer`
+- `Annuler`
+- `Voir les changements` ouvre un apercu detaille dans le meme rail, pas une nouvelle page
+- `Appliquer` devient l'action primaire du rail
+- `Annuler` vide les changements en attente et ferme l'etat de travail groupe
+
+Etat 3 : resultat apres application
+
+- afficher un resume court : `12 elements modifies`
+- afficher les succes, erreurs et conflits elementaires si necessaire
+- proposer `Fermer` ou retour a l'etat neutre
+- ne pas conserver un journal complexe dans le rail; le detail historique complet appartient a `Activite`
+
+Regles d'ergonomie :
+
+- le rail ne doit jamais ressembler a un assistant pas a pas
+- pas de timeline, pas d'export, pas de rapport technique dans ce panneau
+- si aucun changement n'est prepare, `Voir les changements` et `Appliquer` ne doivent pas etre visibles
+- les actions du rail doivent rester identiques dans `A traiter` et `Bibliotheque`
+- `A supprimer` reutilise le meme rail, mais avec un jeu d'actions plus limite
+
+### 6.3.c Hierarchie des actions contextuelles
+
+Pour eviter toute ambiguite, il faut distinguer 2 niveaux d'action.
+
+Actions unitaires, dans le detail :
+
+- `Conserver`
+- `Ecarter`
+- `Annuler`
+- edition des tags
+- edition des notes
+
+Actions groupees, dans le rail droit :
+
+- `Conserver`
+- `Ecarter`
+- `Ajouter un tag`
+- `Retirer un tag`
+- `Voir les changements`
+- `Appliquer`
+- `Annuler`
+
+Specificite de `A supprimer` :
+
+- action unitaire : `Remettre a traiter`
+- action groupee : `Remettre a traiter`
+- action globale separee : `Supprimer definitivement`
+- `A supprimer` ne doit jamais exposer `Conserver` ou `Ecarter`
+
 ### 6.4 Composants recherche et filtres
 
 - `SearchInput`
@@ -661,18 +733,32 @@ Regles :
 
 ### 8.2 Hierarchie des actions
 
-Actions primaires :
+Actions primaires unitaires :
 
 - `Conserver`
 - `Ecarter`
+
+Actions primaires groupees :
+
 - `Voir les changements`
 - `Appliquer`
 
-Actions secondaires :
+Actions secondaires unitaires :
 
 - `Annuler`
 - `Modifier les tags`
 - `Modifier les notes`
+
+Actions secondaires groupees :
+
+- `Conserver`
+- `Ecarter`
+- `Ajouter un tag`
+- `Retirer un tag`
+- `Annuler`
+
+Actions secondaires globales :
+
 - `Actualiser`
 - `Exporter`
 

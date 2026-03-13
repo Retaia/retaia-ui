@@ -133,16 +133,20 @@ Notes UX :
 | Connexion       |                                                   |                                     | [Ecar-|
 | Parametres      |                                                   |                                     | ter ]|
 | Compte          |                                                   |                                     |------|
-|                 |                                                   |                                     | Aper-|
-|                 |                                                   |                                     | cu   |
-|                 |                                                   |                                     | Tags |
-|                 |                                                   |                                     | [+  ]|
-|                 |                                                   |                                     | [-  ]|
+|                 |                                                   |                                     | Chang|
+|                 |                                                   |                                     | ements
+|                 |                                                   |                                     | en   |
+|                 |                                                   |                                     | atten|
+|                 |                                                   |                                     | te   |
 |                 |                                                   |                                     |------|
-|                 |                                                   |                                     | Notes|
-|                 |                                                   |                                     | opt. |
+|                 |                                                   |                                     | + Tag|
+|                 |                                                   |                                     | - Tag|
+|                 |                                                   |                                     | Note |
+|                 |                                                   |                                     | comm.|
 |                 |                                                   |                                     |------|
-|                 |                                                   |                                     |(Annul.)|
+|                 |                                                   |                                     | Voir |
+|                 |                                                   |                                     | Appl.|
+|                 |                                                   |                                     | Annul|
 +--------------------------------------------------------------------------------------------------------------+
 ```
 
@@ -150,12 +154,14 @@ Notes UX :
 
 - le rail de selection multiple doit etre la seule source d'action de masse
 - l'utilisateur doit toujours voir le detail de l'element courant
-- les actions groupees prioritaires sont : tags, `Conserver`, `Ecarter`, `Voir les changements`, `Appliquer`, `Annuler`
+- les actions groupees se preparent d'abord dans le rail : tags, note commune, `Conserver`, `Ecarter`
 - `Voir les changements` montre les changements a appliquer
 - `Appliquer` applique les changements en attente
 - `Annuler` annule les changements en attente
 - aucune navigation vers une page dediee n'est necessaire
 - le rail droit est un panneau contextuel unique, pas un sous-systeme
+- les actions unitaires restent dans le detail, les actions groupees restent dans le rail
+- le rail a 3 etats : neutre, changements en attente, resultat apres application
 
 ## 5. Wireframe - Bibliotheque
 
@@ -190,6 +196,7 @@ Notes UX :
 - la recherche est l'action principale
 - le layout doit rester tres proche de `A traiter`
 - le rail droit peut afficher aide filtres, vues enregistrees, activite recente
+- les actions groupees suivent la meme logique de rail droit que `A traiter`
 - les differences principales portent sur les actions et le niveau d'urgence
 - `Table` est la vue par defaut
 - le choix `Table|Grille` doit etre persiste
@@ -247,6 +254,8 @@ Notes UX :
 - la page doit reutiliser au maximum le meme layout que `Bibliotheque`
 - les differences portent surtout sur les actions autorisees
 - en selection multiple, l'action principale est `Remettre a traiter`
+- le rail droit suit la meme logique contextuelle, mais avec moins d'actions
+- l'apercu des changements ne doit montrer que `Remettre a traiter`
 - `Supprimer definitivement` reste une action globale distincte et fortement confirmee
 - `Table` est la vue par defaut
 - le choix `Table|Grille` doit etre persiste
@@ -324,7 +333,7 @@ Usage :
 
 Regle :
 
-- hors connexion, cet ecran est l'unique ecran visible
+- hors connexion, seuls les ecrans auth publics sont visibles : `Connexion`, `Reinitialiser le mot de passe`, `Verification e-mail`
 - aucun menu lateral, aucune page metier, aucun contenu applicatif ne doit apparaitre
 - apres connexion reussie, l'utilisateur arrive dans le shell principal
 - si l'utilisateur est deja connecte, cet ecran ne doit jamais apparaitre
@@ -487,6 +496,35 @@ Regle :
 | (Annuler)                                  (Supprimer definitivement)   |
 +-------------------------------------------------------------------------+
 ```
+
+### 14.5 Rail droit - resultat apres application
+
+```text
++--------------------------------------------------------------------------------------------------------------+
+| SIDEBAR         | BIBLIOTHEQUE | 212 resultats | 12 selectionnes                                             |
+|-----------------+--------------------------------------------------------------------------------------------|
+|   A traiter     | LISTE                                             | DETAIL                              | SEL. |
+| > Bibliotheque  |---------------------------------------------------+-------------------------------------+------|
+|   A supprimer   | [x] item 1                                        | [Preview media]                     | 12   |
+|   Activite      | [x] item 2                                        |-------------------------------------| elem |
+|                 | [ ] item 3                                        | Nom / etat / tags / notes           |------|
+|-----------------| [x] item 4                                        |                                     | Res. |
+| Langue          |                                                   |                                     | 10   |
+| Theme           |                                                   |                                     | modi.|
+| Connexion       |                                                   |                                     | 2 err|
+| Parametres      |                                                   |                                     |------|
+| Compte          |                                                   |                                     | Voir |
+|                 |                                                   |                                     | activ|
+|                 |                                                   |                                     | ite  |
+|                 |                                                   |                                     | Ferm.|
++--------------------------------------------------------------------------------------------------------------+
+```
+
+Notes UX :
+
+- cet etat remplace temporairement le rail de preparation
+- le detail complet des erreurs ou de l'historique appartient a `Activite`
+- `Fermer` ramene le rail a l'etat neutre
 
 ## 15. Ordre de priorite pour le maquettage
 
