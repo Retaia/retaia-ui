@@ -33,7 +33,7 @@ Regle de routing :
 
 - les labels visibles dans l'interface sont traduits
 - les URLs restent en anglais, stables et non localisees
-- le menu affiche `A traiter`, `Bibliotheque`, `Activite`, `A supprimer`, `Compte`, mais les routes restent techniques
+- le menu affiche `A traiter`, `Bibliotheque`, `Activite`, `A supprimer`, tandis que `Compte` reste dans la zone basse de la sidebar; les routes restent techniques
 
 ## 2. Direction visuelle
 
@@ -134,7 +134,6 @@ Ordre recommande :
 - `Bibliotheque`
 - `Activite`
 - `A supprimer`
-- `Compte`
 
 Zone basse :
 
@@ -142,7 +141,7 @@ Zone basse :
 - switch theme
 - etat connexion/source
 - `Parametres`
-- compte/session
+- `Compte`
 
 ### 3.3 Header de contexte
 

@@ -33,7 +33,6 @@ Conventions :
 |   Bibliotheque                     |                                                             |
 |   Activite                         |                 ZONE PRINCIPALE                             |
 |   A supprimer                      |                                                             |
-|   Compte                           |                                                             |
 |                                    |                                                             |
 |------------------------------------|                                                             |
 | Langue                             |                                                             |
@@ -50,7 +49,7 @@ Notes :
 - la barre de contexte change selon la page
 - le theme switch doit etre toujours accessible
 - `A supprimer` est une entree de navigation a part entiere
-- `Compte` est une entree authentifiee a part entiere
+- `Compte` reste dans la zone basse de la sidebar
 - si l'utilisateur n'est pas connecte, ce shell n'apparait pas
 
 ## 3. Wireframe - A traiter
