@@ -51,6 +51,7 @@ Notes :
 - `A supprimer` est une entree de navigation a part entiere
 - `Compte` reste dans la zone basse de la sidebar
 - si l'utilisateur n'est pas connecte, ce shell n'apparait pas
+- hors connexion, seuls les ecrans publics auth sont visibles : connexion, reinitialisation du mot de passe, verification e-mail
 
 ## 3. Wireframe - A traiter
 
@@ -91,6 +92,8 @@ Notes UX :
 - `Suivant` doit etre visible sans monopoliser l'ecran
 - le rail droit peut etre replie si aucune selection multiple n'est active
 - le switch `Table|Grille` doit etre visible comme un controle de vue rapide
+- `Table` est la vue par defaut
+- le choix `Table|Grille` doit etre persiste
 
 ### Variante grille - A traiter
 
@@ -152,6 +155,7 @@ Notes UX :
 - `Appliquer` applique les changements en attente
 - `Annuler` annule les changements en attente
 - aucune navigation vers une page dediee n'est necessaire
+- le rail droit est un panneau contextuel unique, pas un sous-systeme
 
 ## 5. Wireframe - Bibliotheque
 
@@ -187,6 +191,8 @@ Notes UX :
 - le layout doit rester tres proche de `A traiter`
 - le rail droit peut afficher aide filtres, vues enregistrees, activite recente
 - les differences principales portent sur les actions et le niveau d'urgence
+- `Table` est la vue par defaut
+- le choix `Table|Grille` doit etre persiste
 
 ### Variante grille - Bibliotheque
 
@@ -218,7 +224,7 @@ Objectif :
 
 ```text
 +--------------------------------------------------------------------------------------------------------------+
-| SIDEBAR         | A SUPPRIMER | [Recherche...] [Date] [Anciennete] [Tri]                                   |
+| SIDEBAR         | A SUPPRIMER | [Recherche...] [Date] [Anciennete] [Tri] [Table|Grille]                   |
 |-----------------+--------------------------------------------------------------------------------------------|
 |   A traiter     | RESULTATS                                         | DETAIL                              | RAIL |
 |   Bibliotheque  |---------------------------------------------------+-------------------------------------+------|
@@ -242,6 +248,28 @@ Notes UX :
 - les differences portent surtout sur les actions autorisees
 - en selection multiple, l'action principale est `Remettre a traiter`
 - `Supprimer definitivement` reste une action globale distincte et fortement confirmee
+- `Table` est la vue par defaut
+- le choix `Table|Grille` doit etre persiste
+
+### Variante grille - A supprimer
+
+```text
++--------------------------------------------------------------------------------------------------------------+
+| SIDEBAR         | A SUPPRIMER | [Recherche...] [Date] [Anciennete] [Tri] [Table|Grille]                   |
+|-----------------+--------------------------------------------------------------------------------------------|
+|   A traiter     | GRILLE                                            | DETAIL                              | RAIL |
+|   Bibliotheque  |---------------------------------------------------+-------------------------------------+------|
+| > A supprimer   | [ ] [thumb] Nom fichier                           | [Preview]                           | Sel. |
+|   Activite      |     type | date | anciennete                       |-------------------------------------| mult.|
+|                 | [ ] [thumb] Nom fichier                           | Nom                                 |------|
+|-----------------|     type | date | etat visible                    | A supprimer / anciennete            | Act. |
+| Langue          | [ ] [thumb] Nom fichier                           |-------------------------------------| [Rem.|
+| Theme           |     type | date | anciennete                       | Tags / Notes                        | a tr.]|
+| Connexion       |                                                   |-------------------------------------|------|
+| Parametres      |                                                   | Historique / metadata detaillees    | Global
+| Compte          |                                                   |                                     | purge|
++--------------------------------------------------------------------------------------------------------------+
+```
 
 ## 7. Wireframe - Activite
 

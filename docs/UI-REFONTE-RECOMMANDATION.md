@@ -121,7 +121,8 @@ Structure cible sur desktop :
 Condition d'affichage :
 
 - ce shell ne doit etre visible que pour un utilisateur connecte
-- si l'utilisateur n'est pas connecte, l'application affiche uniquement l'ecran de connexion
+- si l'utilisateur n'est pas connecte, l'application affiche uniquement les ecrans publics auth
+- ecrans publics auth : connexion, reinitialisation du mot de passe, verification e-mail
 - aucun menu, aucune sidebar, aucun contenu de page metier ne doit etre visible hors connexion
 
 ### 3.2 Sidebar
@@ -196,6 +197,7 @@ Les workspaces gardent leur etat via query params et/ou persistance locale :
 - filtres
 - tri
 - densite
+- mode de vue `Table` / `Grille`
 - rail droit ouvert/ferme
 - mode de selection multiple si necessaire
 
@@ -224,7 +226,7 @@ Matrice recommandee :
 Comportement recommande :
 
 - si un utilisateur non connecte tente d'acceder a une route `authenticated only`, il est redirige vers `/auth`
-- si un utilisateur deja connecte tente d'acceder a `/auth`, il est redirige vers la page de travail par defaut, recommande : `/review`
+- si un utilisateur deja connecte tente d'acceder a une route `public only`, il est redirige vers la page de travail par defaut, recommande : `/review`
 
 ## 5. Pages recommandees
 
@@ -256,6 +258,8 @@ Comportements UX :
 - actions groupees prioritaires : ajouter des tags, retirer des tags, `Conserver`, `Ecarter`, `Annuler`
 - le mode d'affichage se change en un clic, sans navigation ni rechargement
 - le controle doit se comporter comme un selecteur de vue rapide, proche d'un explorateur de fichiers desktop
+- la vue par defaut est `Table`
+- le choix entre `Table` et `Grille` doit etre persiste
 
 Ordre de priorite visuelle dans le detail :
 
@@ -300,6 +304,7 @@ Regle de vue :
 - `Table` est la vue par defaut
 - `Grille` doit rester une vue efficace de travail, pas une galerie decorative
 - chaque carte de grille affiche au minimum : miniature, nom, type, date et etat visible
+- le choix entre `Table` et `Grille` doit etre persiste
 
 ### 5.3 Activite
 
@@ -329,6 +334,7 @@ Cette vue doit mettre en avant :
 - action `Remettre a traiter` en unitaire
 - action `Remettre a traiter` en selection multiple
 - action globale `Supprimer definitivement`
+- selecteur de vue `Table` / `Grille`
 
 Differences avec `Bibliotheque` :
 
@@ -344,6 +350,8 @@ Regle fonctionnelle stricte :
 - en selection multiple, plusieurs elements peuvent seulement etre remis a `A decider`
 - `Supprimer definitivement` est une action globale distincte, avec confirmation forte
 - aucune autre action de decision ne doit etre exposee dans cette vue
+- `Table` est la vue par defaut
+- le choix entre `Table` et `Grille` doit etre persiste
 
 ### 5.5 Detail standalone
 
@@ -522,12 +530,8 @@ Regle de partage avec `Bibliotheque` :
 
 - `SelectionPanel`
 - `SelectionSummary`
-- `SelectionActionsForm`
-- `SelectionPreviewTable`
-- `SelectionExecutionTimeline`
-- `SelectionStatusCard`
-- `SelectionResultTable`
-- `SelectionExportActions`
+- `SelectionPendingChanges`
+- `SelectionResultSummary`
 
 Ces composants doivent etre montables dans :
 
@@ -541,6 +545,8 @@ Regle :
 - ils apparaissent dans le contexte de la page courante quand une selection multiple est active
 - leurs labels UI ne doivent pas contenir le mot `batch`
 - ils doivent parler de changements en attente, d'apercu, d'application et d'annulation
+- ils ne doivent pas former un sous-systeme autonome
+- le rail droit reste un panneau contextuel unique avec 3 etats : aucune selection, changements en attente, resultat apres application
 
 ### 6.4 Composants recherche et filtres
 
@@ -651,7 +657,7 @@ Regles :
 - le comportement attendu est proche d'un explorateur de fichiers desktop
 - `Table` optimise le scan rapide et la comparaison
 - `Grille` optimise la lecture visuelle tout en gardant les informations essentielles
-- la preference de vue peut etre memorisee par page
+- la preference de vue doit etre memorisee par page
 
 ### 8.2 Hierarchie des actions
 
@@ -860,7 +866,16 @@ Recommendation de confort :
 /activity
   layout: Journal + inspecteur
 
+/account
+  layout: Form shell
+
 /auth
+  layout: Form shell
+
+/auth/reset-password
+  layout: Form shell
+
+/auth/verify-email
   layout: Form shell
 
 /settings
