@@ -343,7 +343,6 @@ Notes UX :
 - `→` passe a l'asset suivant quand le contexte le permet
 - le transcript n'apparait que si le media contient de l'audio
 - si le proxy est indisponible, afficher un fallback lisible plutot qu'un lecteur vide
-- le survol de timeline avec vignette correspondante est reserve a une version suivante de Retaia, avec support media dedie
 
 ## 9. Wireframe - Connexion
 
