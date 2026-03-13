@@ -95,7 +95,7 @@ Notes UX :
 
 ```text
 +--------------------------------------------------------------------------------------------------------------+
-| SIDEBAR         | A TRAITER | 128 elements | 12 selectionnes | (+ Tag) (- Tag) (Conserver) (Ecarter)      |
+| SIDEBAR         | A TRAITER | 128 elements | 12 selectionnes | (Voir les changements) (Appliquer)         |
 |-----------------+--------------------------------------------------------------------------------------------|
 | > A traiter     | LISTE                                             | DETAIL                              | SEL. |
 |   Bibliotheque  |---------------------------------------------------+-------------------------------------+------|
@@ -108,6 +108,8 @@ Notes UX :
 | Connexion       |                                                   |                                     | [Ecar-|
 | Parametres      |                                                   |                                     | ter ]|
 | Compte          |                                                   |                                     |------|
+|                 |                                                   |                                     | Aper-|
+|                 |                                                   |                                     | cu   |
 |                 |                                                   |                                     | Tags |
 |                 |                                                   |                                     | [+  ]|
 |                 |                                                   |                                     | [-  ]|
@@ -115,7 +117,7 @@ Notes UX :
 |                 |                                                   |                                     | Notes|
 |                 |                                                   |                                     | opt. |
 |                 |                                                   |                                     |------|
-|                 |                                                   |                                     |(Vider)|
+|                 |                                                   |                                     |(Annul.)|
 +--------------------------------------------------------------------------------------------------------------+
 ```
 
@@ -123,7 +125,10 @@ Notes UX :
 
 - le rail de selection multiple doit etre la seule source d'action de masse
 - l'utilisateur doit toujours voir le detail de l'element courant
-- les actions groupees prioritaires sont : tags, `Conserver`, `Ecarter`, `Annuler`
+- les actions groupees prioritaires sont : tags, `Conserver`, `Ecarter`, `Voir les changements`, `Appliquer`, `Annuler`
+- `Voir les changements` montre les changements a appliquer
+- `Appliquer` applique les changements en attente
+- `Annuler` annule les changements en attente
 - aucune navigation vers une page dediee n'est necessaire
 
 ## 5. Wireframe - Bibliotheque

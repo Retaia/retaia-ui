@@ -524,6 +524,8 @@ Regle :
 
 - aucun de ces composants ne justifie une route dediee
 - ils apparaissent dans le contexte de la page courante quand une selection multiple est active
+- leurs labels UI ne doivent pas contenir le mot `batch`
+- ils doivent parler de changements en attente, d'apercu, d'application et d'annulation
 
 ### 6.4 Composants recherche et filtres
 
@@ -626,8 +628,8 @@ Actions primaires :
 
 - `Conserver`
 - `Ecarter`
-- `Previsualiser`
-- `Executer`
+- `Voir les changements`
+- `Appliquer`
 
 Actions secondaires :
 
@@ -647,6 +649,13 @@ Recommandation visuelle :
 - `Conserver` et `Ecarter` doivent etre differencies par couleur et libelle
 - `Annuler` doit rester neutre
 - les actions destructives doivent exiger une confirmation forte
+
+Regle pour le traitement par lot :
+
+- `Voir les changements` : permet de voir les changements a appliquer
+- `Appliquer` : applique les changements en attente
+- `Annuler` : annule les changements en attente
+- eviter tout libelle UI contenant `batch`
 
 ### 8.3 Badges et etats
 
@@ -705,8 +714,9 @@ Actions :
 - `CLEAR` -> `Annuler`
 - `Next asset` -> `Suivant`
 - `Undo last action` -> `Annuler la derniere action`
-- `Selection preview` -> `Previsualiser`
-- `Execute` -> `Executer`
+- `Selection preview` -> `Voir les changements`
+- `Execute` -> `Appliquer`
+- `Cancel pending changes` -> `Annuler`
 - `Selection report` -> `Resultat de la selection`
 - `Purge` -> `Supprimer definitivement`
 
