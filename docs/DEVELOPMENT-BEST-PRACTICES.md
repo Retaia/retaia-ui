@@ -35,8 +35,9 @@ Pour le workflow quotidien branch/PR/checks, voir aussi `docs/UI-QUALITY-RUNBOOK
 - Fichier généré: `src/api/generated/openapi.ts`
 - Client HTTP typé local: `src/api/client.ts`
 - Auth API côté UI:
-  - session cookie envoyée par défaut (`credentials: include`)
-  - token Bearer optionnel via `VITE_API_TOKEN` (dev/CI) ou `localStorage["retaia_api_token"]`
+  - Bearer-only (`UserBearerAuth`) via `POST /auth/login` pour les usages interactifs
+  - token Bearer de dev/CI possible via `VITE_API_TOKEN` ou `localStorage["retaia_api_token"]`
+  - aucune dépendance `SessionCookieAuth`/cookie session côté runtime
   - hook central `onAuthError(401|403)` dans le client pour gérer les redirects/login
 
 ## UI Desktop-like (référence locale)

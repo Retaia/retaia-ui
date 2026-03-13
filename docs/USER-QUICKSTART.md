@@ -47,7 +47,7 @@
 
 ## Purge d'un asset rejeté
 
-- ouvrir le détail d'un asset en `DECIDED_REJECT`
+- ouvrir le détail d'un asset en `REJECTED`
 - cliquer `Prévisualiser purge`
 - vérifier le message de preview
 - cliquer `Confirmer purge`
@@ -77,10 +77,10 @@
 
 ## Erreurs fréquentes
 
-- scope manquant: vérifier les droits API (`batches:execute`).
+- scope manquant: vérifier les droits API selon l'action (`decisions:write`, `purge:execute`).
 - conflit d'état: rafraîchir et relancer.
 - indisponibilité temporaire: le client relance automatiquement avec backoff (jusqu'à 2 retries), puis affiche l'erreur finale.
-- purge désactivée: vérifier que l'asset est bien en état `DECIDED_REJECT`.
+- purge désactivée: vérifier que l'asset est bien en état `REJECTED`.
 
 ## États vides
 
