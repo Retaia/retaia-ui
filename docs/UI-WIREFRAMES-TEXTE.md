@@ -69,10 +69,10 @@ Objectif :
 |   Bibliotheque  |---------------------------------------------------+-------------------------------------+------|
 |   A supprimer   | [ ] vignette  Nom fichier        A traiter   >    | [Preview media large]               | Sel. |
 |   Activite      | [ ] vignette  Nom fichier        Pret a examiner  |-------------------------------------|------|
-|                 | [ ] vignette  Nom fichier        A decider        | Nom du fichier                      | 12   |
+|                 | [ ] vignette  Nom fichier        A decider        | [Play proxy] [00:12 / 01:42]        | 12   |
 |                 | [ ] vignette  Nom fichier        A traiter        | Etat visible                        | sel. |
 |-----------------| [ ] vignette  Nom fichier        A traiter        | Date / type / duree / poids         |------|
-| Langue          |                                                   |-------------------------------------|      |
+| Langue          |                                                   | Raccourcis : Space / K / R / ->     |      |
 | Theme           |                                                   | (Conserver) (Ecarter) (Annuler)     | [Sel.|
 | Connexion       |                                                   |-------------------------------------| mult.|
 | Parametres      |                                                   | Tags                                | cours|
@@ -94,6 +94,8 @@ Notes UX :
 - le switch `Table|Grille` doit etre visible comme un controle de vue rapide
 - `Table` est la vue par defaut
 - le choix `Table|Grille` doit etre persiste
+- le preview doit changer selon le type d'asset : image, video, audio, document, fallback
+- `Space` lit ou met en pause le proxy, `K` conserve, `R` ecarte, `→` passe a l'asset suivant
 
 ### Variante grille - A traiter
 
@@ -105,7 +107,7 @@ Notes UX :
 |   Bibliotheque  |---------------------------------------------------+-------------------------------------+------|
 |   A supprimer   | [ ] [thumb] Nom fichier                           | [Preview media large]               | Sel. |
 |   Activite      |     type | date | etat visible                    |-------------------------------------| mult.|
-|                 | [ ] [thumb] Nom fichier                           | Nom / etat / tags / notes           |------|
+|                 | [ ] [thumb] Nom fichier                           | [Play proxy] [00:12 / 01:42]        |------|
 |                 |     type | date | etat visible                    |                                     |      |
 |-----------------| [ ] [thumb] Nom fichier                           |                                     |      |
 | Langue          |     type | date | etat visible                    |                                     |      |
@@ -320,6 +322,7 @@ Usage :
 | (Retour)  Nom du fichier                                              [Etat]   (Suivant)        |
 |--------------------------------------------------------------------------------------------------|
 |                                              PREVIEW                                             |
+|                           [Play proxy] [00:12 / 01:42] [Volume]                                 |
 |                                                                                                  |
 |--------------------------------------------------------------------------------------------------|
 | (Conserver) (Ecarter) (Annuler)    Tags [tag] [tag] [+]    Notes [............................] |
@@ -328,6 +331,15 @@ Usage :
 | date, type, duree, poids           | chemin logique, source, etc.    | texte ou etat indisponible |
 +--------------------------------------------------------------------------------------------------+
 ```
+
+Notes UX :
+
+- le preview doit etre adapte au type d'asset, avec un rendu distinct pour image, video, audio, document
+- `Space` pilote la lecture du proxy
+- `K` declenche `Conserver`
+- `R` declenche `Ecarter`
+- `→` passe a l'asset suivant quand le contexte le permet
+- si le proxy est indisponible, afficher un fallback lisible plutot qu'un lecteur vide
 
 ## 9. Wireframe - Connexion
 

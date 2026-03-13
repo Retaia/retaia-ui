@@ -270,6 +270,13 @@ Ordre de priorite visuelle dans le detail :
 5. metadata techniques
 6. transcript / infos secondaires
 
+Regle de preview :
+
+- le preview de l'asset est la surface centrale du detail, pas un simple encart
+- il doit changer selon le type d'asset
+- il doit toujours permettre une lecture rapide avant decision
+- les raccourcis clavier principaux doivent fonctionner sans quitter ce panneau
+
 ### 5.2 Workspace "Bibliotheque"
 
 La `Bibliotheque` reprend le meme patron d'ecran que `A traiter`.
@@ -364,6 +371,49 @@ Composition recommandee :
 - panneau metadata et decisions
 - transcript en second niveau
 - navigation asset precedent/suivant si le contexte d'origine est connu
+
+### 5.5.b Preview d'asset
+
+Le preview doit etre traite comme un composant majeur de l'UI.
+
+Principes :
+
+- le preview s'adapte au type d'asset, sans changer radicalement le layout global
+- les controles visibles restent minimaux et apparaissent au bon moment
+- le preview reste utile a la decision, pas seulement a la consultation
+- l'utilisateur peut agir rapidement au clavier apres une verification visuelle
+
+Variantes recommandees par type :
+
+- image : grand affichage centre, fond neutre, zoom simple, respect de l'orientation et du ratio
+- video : lecteur proxy avec poster, lecture/pause, progression, timecode, volume si utile
+- audio : vignette si disponible, forme d'onde ou barre de progression, lecture/pause, timecode
+- document : preview de premiere page ou rendu simplifie, avec acces rapide au nom, type et poids
+- asset non previsualisable : etat vide utile avec icone de type, nom, format, taille, date et fallback lisible
+
+Regles de controle :
+
+- l'action principale du preview video ou audio est `Lire le proxy`
+- `Space` lance ou met en pause le proxy quand le preview est actif
+- la lecture ne doit pas ouvrir un plein ecran par defaut
+- les controles de lecture restent secondaires par rapport aux actions de decision
+- le preview ne doit pas voler le focus clavier aux raccourcis de travail plus longtemps que necessaire
+
+Informations visibles autour du preview :
+
+- nom du fichier
+- type d'asset
+- etat visible
+- duree si media temporel
+- dimensions ou resolution si pertinent
+- timecode courant si lecture en cours
+
+Overlay et comportement :
+
+- afficher une aide clavier discrete dans ou sous le preview
+- sur desktop, montrer les controles au survol et au focus
+- sur clavier seul, les controles deviennent visibles au focus sans dependre du hover
+- si le proxy est indisponible, afficher clairement `Preview indisponible` avec un fallback propre
 
 ### 5.6 Auth
 
@@ -503,6 +553,7 @@ La refonte doit produire un petit ensemble de composants transverses clairs, reu
 - `AssetSelectionBar`
 - `AssetDetail`
 - `AssetPreview`
+- `AssetPreviewControls`
 - `AssetMetadataPanel`
 - `AssetTagsEditor`
 - `AssetNotesEditor`
@@ -780,6 +831,24 @@ Regle pour le traitement par lot :
 - `Annuler` : annule les changements en attente
 - eviter tout libelle UI contenant `batch`
 
+### 8.2.b Raccourcis clavier recommandes
+
+Les raccourcis doivent accelerer la decision, pas seulement la navigation.
+
+Raccourcis coeur :
+
+- `Space` : lire / pause du proxy
+- `K` : `Conserver`
+- `R` : `Ecarter`
+- `ArrowRight` : asset suivant
+
+Regles :
+
+- ils doivent fonctionner au minimum dans `A traiter` et dans le detail standalone
+- si un champ texte est focalise, les raccourcis globaux de decision doivent etre suspendus
+- une aide clavier compacte doit etre visible dans le rail droit ou sous le preview
+- les raccourcis doivent etre coherents entre theme clair et sombre, sans dependre d'icones seules
+
 ### 8.3 Badges et etats
 
 Le lifecycle doit etre visible partout avec un vocabulaire stable, mais sans afficher les codes ou noms d'etats metier bruts.
@@ -912,6 +981,7 @@ Points non negociables :
 
 - focus visible sur liste, filtres, rail droit et dialogues
 - raccourcis exposes dans une aide contextuelle
+- le preview media doit etre exploitable integralement au clavier
 - regions ARIA pour sidebar, liste, detail, selection multiple, activite
 - `aria-live` pour succes, erreur, progression d'action groupee
 - contraste AA dans les deux themes
