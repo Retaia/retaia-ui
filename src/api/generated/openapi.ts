@@ -15,7 +15,7 @@ export interface paths {
         put?: never;
         /**
          * User login with email and password
-         * @description Interactive login endpoint for supported human-operated clients (`UI_WEB`, `UI_MOBILE`, and `AGENT`). Supports optional TOTP 2FA code when enabled.
+         * @description Interactive login endpoint for supported human-operated clients (`UI_WEB` and `AGENT`). Supports optional TOTP 2FA code when enabled.
          */
         post: {
             parameters: {
@@ -665,7 +665,7 @@ export interface paths {
         /**
          * Get runtime app policy
          * @description Returns runtime `server_policy` including `feature_flags`.
-         *     This endpoint is the canonical runtime policy transport for UI_WEB, UI_MOBILE, AGENT, and MCP clients.
+         *     This endpoint is the canonical runtime policy transport for UI_WEB, AGENT, and MCP clients.
          *     Clients may optionally send their supported feature-flags contract version for compatibility negotiation.
          */
         get: {
@@ -710,7 +710,73 @@ export interface paths {
             };
         };
         put?: never;
-        post?: never;
+        /**
+         * Update runtime app policy
+         * @description Updates runtime `feature_flags` when they are persisted in a mutable backend controlled by Core.
+         *     Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         *     Flags still in `code-backed` introduction/validation phase are visible in `GET /app/policy`
+         *     but MUST be rejected by this endpoint with `409 STATE_CONFLICT`.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AppPolicyUpdateRequest"];
+                };
+            };
+            responses: {
+                /** @description Updated runtime app policy */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AppPolicyResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden actor or scope (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Flag is not runtime-mutable yet (`STATE_CONFLICT`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -1099,9 +1165,8 @@ export interface paths {
         /**
          * Mint client bearer token from secret key
          * @description Exchanges `(client_id, secret_key)` for a bearer token.
-         *     Normative rule: one active token per technical client_id; minting a new token revokes the previous one.
-         *     This endpoint is for technical non-interactive clients only.
-         *     Runtime gate: when `app_feature_enabled.features.ai=false`, `client_kind=MCP` MUST be rejected.
+         *     Normative rule: one active token per AGENT technical client_id; minting a new token revokes the previous one.
+         *     This endpoint is for `AGENT_TECHNICAL` only.
          */
         post: {
             parameters: {
@@ -1134,7 +1199,7 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
-                /** @description Forbidden client kind or disabled app switch for this flow (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`) */
+                /** @description Forbidden client kind for this flow (`FORBIDDEN_ACTOR`) */
                 403: {
                     headers: {
                         [name: string]: unknown;
@@ -1180,9 +1245,8 @@ export interface paths {
         put?: never;
         /**
          * Start device authorization flow for technical client bootstrap
-         * @description Starts a browser-assisted authorization flow (GitHub-style) for `AGENT`/`MCP`.
+         * @description Starts a browser-assisted authorization flow (GitHub-style) for `AGENT_TECHNICAL`.
          *     User validation (and optional 2FA) happens via `verification_uri`.
-         *     Runtime gate: when `app_feature_enabled.features.ai=false`, `client_kind=MCP` MUST be rejected.
          */
         post: {
             parameters: {
@@ -1206,7 +1270,7 @@ export interface paths {
                         "application/json": components["schemas"]["AuthDeviceStartResponse"];
                     };
                 };
-                /** @description Forbidden actor or disabled app switch (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`) */
+                /** @description Forbidden actor (`FORBIDDEN_ACTOR`) */
                 403: {
                     headers: {
                         [name: string]: unknown;
@@ -1455,7 +1519,7 @@ export interface paths {
                     tags?: string;
                     has_proxy?: boolean;
                     tags_mode?: "AND" | "OR";
-                    /** @description Full-text query over filename, notes and transcript_text (available in v1). */
+                    /** @description Full-text query over filename and notes (v1 baseline). */
                     q?: string;
                     /** @description Country-level location filter (uses secure derived search index). */
                     location_country?: string;
@@ -1623,9 +1687,18 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/json": {
+                        /**
+                         * Format: uuid
+                         * @description Stable per-agent-instance UUIDv4 generated once and persisted locally by the agent.
+                         */
+                        agent_id: string;
                         agent_name: string;
                         agent_version: string;
-                        platform?: string;
+                        /** @enum {string} */
+                        os_name: "linux" | "macos" | "windows";
+                        os_version: string;
+                        /** @enum {string} */
+                        arch: "x86_64" | "arm64" | "armv7" | "other";
                         capabilities: string[];
                         /** @description Optional client-advertised feature-flags contract version (SemVer). */
                         client_feature_flags_contract_version?: string;
@@ -1641,6 +1714,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
+                            /** Format: uuid */
                             agent_id?: string;
                             effective_capabilities?: string[];
                             capability_warnings?: string[];
@@ -2467,7 +2541,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get ingest diagnostics counters and latest unmatched sidecars */
+        /**
+         * Get ingest diagnostics counters and latest unmatched sidecars
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -2532,7 +2609,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get operational readiness checks */
+        /**
+         * Get operational readiness checks
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -2612,7 +2692,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List active operation locks */
+        /**
+         * List active operation locks
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
         get: {
             parameters: {
                 query?: {
@@ -2688,7 +2771,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Recover stale operation locks */
+        /**
+         * Recover stale operation locks
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -2753,7 +2839,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get jobs queue diagnostics */
+        /**
+         * Get jobs queue diagnostics
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -2813,6 +2902,121 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/ops/agents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List known agents with runtime status and debug information
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    status?: "online_idle" | "online_busy" | "stale";
+                    limit?: number;
+                    offset?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Agents runtime snapshot */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                /** Format: uuid */
+                                agent_id: string;
+                                client_id: string;
+                                agent_name: string;
+                                agent_version: string;
+                                /** @enum {string|null} */
+                                os_name?: "linux" | "macos" | "windows" | null;
+                                os_version?: string | null;
+                                arch?: string | null;
+                                /** @enum {string} */
+                                status: "online_idle" | "online_busy" | "stale";
+                                identity_conflict: boolean;
+                                /** Format: date-time */
+                                last_seen_at: string;
+                                /** Format: date-time */
+                                last_register_at: string;
+                                /** Format: date-time */
+                                last_heartbeat_at?: string | null;
+                                effective_capabilities: string[];
+                                capability_warnings: string[];
+                                current_job?: {
+                                    job_id: string;
+                                    job_type: string;
+                                    asset_uuid: string;
+                                    /** Format: date-time */
+                                    claimed_at: string;
+                                    /** Format: date-time */
+                                    locked_until: string;
+                                } | null;
+                                last_successful_job?: {
+                                    job_id: string;
+                                    job_type: string;
+                                    asset_uuid: string;
+                                    /** Format: date-time */
+                                    completed_at: string;
+                                } | null;
+                                last_failed_job?: {
+                                    job_id: string;
+                                    job_type: string;
+                                    asset_uuid: string;
+                                    /** Format: date-time */
+                                    failed_at: string;
+                                    error_code: string;
+                                } | null;
+                                debug: {
+                                    max_parallel_jobs: number;
+                                    feature_flags_contract_version?: string | null;
+                                    effective_feature_flags_contract_version?: string | null;
+                                    server_time_skew_seconds?: number | null;
+                                };
+                            }[];
+                            total: number;
+                        };
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden (`FORBIDDEN_SCOPE` or `FORBIDDEN_ACTOR`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/ops/ingest/unmatched": {
         parameters: {
             query?: never;
@@ -2820,7 +3024,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List unmatched ingest sidecars */
+        /**
+         * List unmatched ingest sidecars
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
         get: {
             parameters: {
                 query?: {
@@ -2899,7 +3106,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Requeue ingest processing for a specific target */
+        /**
+         * Requeue ingest processing for a specific target
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -3074,12 +3284,12 @@ export interface components {
          * @description Form factor identifier for interactive login flows.
          * @enum {string}
          */
-        ClientKind: "UI_WEB" | "UI_MOBILE" | "AGENT";
+        ClientKind: "UI_WEB" | "AGENT";
         /**
-         * @description Allowed client kinds for technical secret-key token minting.
+         * @description Allowed client kinds for AGENT technical secret-key token minting.
          * @enum {string}
          */
-        NonUiClientKind: "AGENT" | "MCP";
+        NonUiClientKind: "AGENT";
         AuthRotateClientSecretResponse: {
             client_id: string;
             /** @description Returned once at rotation time. */
@@ -3223,6 +3433,9 @@ export interface components {
         AppPolicyResponse: {
             server_policy: components["schemas"]["ServerPolicy"];
         };
+        AppPolicyUpdateRequest: {
+            feature_flags: components["schemas"]["FeatureFlags"];
+        };
         /** @enum {string} */
         AssetState: "DISCOVERED" | "READY" | "PROCESSING_REVIEW" | "PROCESSED" | "DECISION_PENDING" | "DECIDED_KEEP" | "DECIDED_REJECT" | "ARCHIVED" | "REJECTED" | "PURGED";
         AssetSummary: {
@@ -3319,6 +3532,7 @@ export interface components {
             /** @description Source locator (relative paths + storage id) for local media access. */
             source: components["schemas"]["AssetPaths"];
             required_capabilities: string[];
+            /** Format: uuid */
             claimed_by?: string | null;
             lock_token?: string | null;
             /** Format: date-time */
