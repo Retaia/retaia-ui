@@ -1,0 +1,441 @@
+# Wireframes texte - refonte UI
+
+> Statut : recommandation design/UX non normative.
+> Source de cadrage : [docs/UI-REFONTE-RECOMMANDATION.md](/Users/fullfrontend/Jobs/A%20-%20Full%20Front-End/retaia-workspace/retaia-ui/docs/UI-REFONTE-RECOMMANDATION.md)
+> Objectif : decrire les ecrans cibles en filaire texte, sans imposer le design final.
+
+## 1. Principes de lecture
+
+Ces wireframes sont :
+
+- desktop-first
+- centres sur l'usage
+- alignes avec un shell Tailadmin
+- rediges avec des labels UI simples
+
+Conventions :
+
+- colonne gauche : navigation ou liste
+- centre : zone principale
+- colonne droite : rail contextuel
+- `[ ... ]` : bloc ou composant
+- `( )` : action ou controle
+
+## 2. Shell global
+
+```text
++--------------------------------------------------------------------------------------------------+
+| SIDEBAR                            | BARRE DE CONTEXTE                                           |
+|------------------------------------+-------------------------------------------------------------|
+| Logo / nom app                     | Titre page        Sous-titre        Compteurs      Actions |
+|                                    |-------------------------------------------------------------|
+| > A traiter                        |                                                             |
+|   Bibliotheque                     |                                                             |
+|   Activite                         |                 ZONE PRINCIPALE                             |
+|   A supprimer                      |                                                             |
+|   Profil                           |                                                             |
+|                                    |                                                             |
+|------------------------------------|                                                             |
+| Langue                             |                                                             |
+| Theme : Systeme / Clair / Sombre   |                                                             |
+| Connexion / source                 |                                                             |
+| Parametres                         |                                                             |
+| Compte                             |                                                             |
++--------------------------------------------------------------------------------------------------+
+```
+
+Notes :
+
+- la sidebar reste stable sur toutes les pages de travail
+- la barre de contexte change selon la page
+- le theme switch doit etre toujours accessible
+- `A supprimer` est une entree de navigation a part entiere
+- `Profil` est une entree authentifiee a part entiere
+- si l'utilisateur n'est pas connecte, ce shell n'apparait pas
+
+## 3. Wireframe - A traiter
+
+Objectif :
+
+- trier rapidement les nouveaux elements
+- garder liste et detail visibles ensemble
+- faire apparaitre les actions groupees sans casser le tri unitaire
+
+```text
++--------------------------------------------------------------------------------------------------------------+
+| SIDEBAR         | A TRAITER | 128 elements | [Recherche...] [Type] [Etat] [Date] [Densite] (Suivant)       |
+|-----------------+--------------------------------------------------------------------------------------------|
+| > A traiter     | LISTE                                             | DETAIL                              | RAIL |
+|   Bibliotheque  |---------------------------------------------------+-------------------------------------+------|
+|   Activite      | [ ] vignette  Nom fichier        A traiter   >    | [Preview media large]               | Sel. |
+|   A supprimer   | [ ] vignette  Nom fichier        Pret a examiner  |-------------------------------------|------|
+|                 | [ ] vignette  Nom fichier        A decider        | Nom du fichier                      | 12   |
+|                 | [ ] vignette  Nom fichier        A traiter        | Etat visible                        | sel. |
+|-----------------| [ ] vignette  Nom fichier        A traiter        | Date / type / duree / poids         |------|
+| Langue          |                                                   |-------------------------------------|      |
+| Theme           |                                                   | (Conserver) (Ecarter) (Annuler)     | [Sel.|
+| Connexion       |                                                   |-------------------------------------| mult.|
+| Parametres      |                                                   | Tags                                | cours|
+| Compte          |                                                   | [tag] [tag] [+ Ajouter]             | ou   |
+|                 |                                                   |-------------------------------------| vide]|
+|                 |                                                   | Notes                               |      |
+|                 |                                                   | [zone de texte]                     | [Aide|
+|                 |                                                   |-------------------------------------| racc]|
+|                 |                                                   | Infos techniques / transcript       |      |
++--------------------------------------------------------------------------------------------------------------+
+```
+
+Notes UX :
+
+- la liste doit accepter souris + clavier
+- un clic ligne selectionne, la case coche ajoute a la selection multiple
+- `Suivant` doit etre visible sans monopoliser l'ecran
+- le rail droit peut etre replie si aucune selection multiple n'est active
+
+## 4. Wireframe - A traiter avec selection multiple active
+
+```text
++--------------------------------------------------------------------------------------------------------------+
+| SIDEBAR         | A TRAITER | 128 elements | 12 selectionnes | (+ Tag) (- Tag) (Conserver) (Ecarter)      |
+|-----------------+--------------------------------------------------------------------------------------------|
+| > A traiter     | LISTE                                             | DETAIL                              | SEL. |
+|   Bibliotheque  |---------------------------------------------------+-------------------------------------+------|
+|   Activite      | [x] item 1                                        | [Preview media]                     | 12   |
+|   A supprimer   | [x] item 2                                        |-------------------------------------| elem |
+|                 | [ ] item 3                                        | Nom / etat / tags / notes           |------|
+|-----------------| [x] item 4                                        |                                     | Act. |
+| Langue          |                                                   |                                     | [Con-|
+| Theme           |                                                   |                                     | server]
+| Connexion       |                                                   |                                     | [Ecar-|
+| Parametres      |                                                   |                                     | ter ]|
+| Compte          |                                                   |                                     |------|
+|                 |                                                   |                                     | Tags |
+|                 |                                                   |                                     | [+  ]|
+|                 |                                                   |                                     | [-  ]|
+|                 |                                                   |                                     |------|
+|                 |                                                   |                                     | Notes|
+|                 |                                                   |                                     | opt. |
+|                 |                                                   |                                     |------|
+|                 |                                                   |                                     |(Vider)|
++--------------------------------------------------------------------------------------------------------------+
+```
+
+Notes UX :
+
+- le rail de selection multiple doit etre la seule source d'action de masse
+- l'utilisateur doit toujours voir le detail de l'element courant
+- les actions groupees prioritaires sont : tags, `Conserver`, `Ecarter`, `Annuler`
+- aucune navigation vers une page dediee n'est necessaire
+
+## 5. Wireframe - Bibliotheque
+
+Objectif :
+
+- retrouver vite
+- lire confortablement
+- permettre une requalification ponctuelle
+- reprendre le meme patron d'ecran que `A traiter`
+
+```text
++--------------------------------------------------------------------------------------------------------------+
+| SIDEBAR         | BIBLIOTHEQUE | [Recherche dominante.........................................] (Exporter) |
+|-----------------+--------------------------------------------------------------------------------------------|
+|   A traiter     | [Recherche...] [Etat] [Type] [Date] [Tri] [Densite]                                     |
+| > Bibliotheque  |--------------------------------------------------------------------------------------------|
+|   Activite      | LISTE                                             | DETAIL                              | RAIL |
+|   A supprimer   |---------------------------------------------------+-------------------------------------+------|
+|                 | [ ] vignette  Nom / tags / date / type            | [Preview]                           | Sel. |
+|                 | [ ] vignette  Nom / tags / date / type            |-------------------------------------| mult.|
+|-----------------| [ ] vignette  Nom / tags / date / type            | Nom                                 |------|
+| Langue          | [ ] vignette  Nom / tags / date / type            | Classe / Ecarte / A decider         | Infos|
+| Theme           |                                                   |-------------------------------------|------|
+| Connexion       |                                                   | Tags / Notes                        |      |
+| Parametres      |                                                   |-------------------------------------|      |
+| Compte          |                                                   | Transcript / metadata detaillees    |      |
++--------------------------------------------------------------------------------------------------------------+
+```
+
+Notes UX :
+
+- la recherche est l'action principale
+- le layout doit rester tres proche de `A traiter`
+- le rail droit peut afficher aide filtres, vues enregistrees, activite recente
+- les differences principales portent sur les actions et le niveau d'urgence
+
+## 6. Wireframe - Vue "A supprimer"
+
+Objectif :
+
+- rendre lisibles les elements ecartes
+- reprendre la structure de `Bibliotheque` avec des actions plus limitees
+
+```text
++--------------------------------------------------------------------------------------------------------------+
+| SIDEBAR         | A SUPPRIMER | [Recherche...] [Date] [Anciennete] [Tri]                                   |
+|-----------------+--------------------------------------------------------------------------------------------|
+|   A traiter     | RESULTATS                                         | DETAIL                              | RAIL |
+|   Bibliotheque  |---------------------------------------------------+-------------------------------------+------|
+|   Activite      | [ ] vignette Nom / tags / date / type            | [Preview]                           | Sel. |
+| > A supprimer   | [ ] vignette Nom / tags / date / type            |-------------------------------------| mult.|
+|                 | [ ] vignette Nom / tags / date / type            | Nom                                 |------|
+|-----------------|                                                   | Ecarte / A supprimer                | Act. |
+| Langue          |                                                   | Anciennete / date d'ecartement      | [Rem.|
+| Theme           |                                                   |-------------------------------------| a tr.]|
+| Connexion       |                                                   | Tags / Notes                        |------|
+| Parametres      |                                                   |-------------------------------------| Global
+| Compte          |                                                   | (Remettre a traiter)                | purge|
+|                 |                                                   |-------------------------------------| (Sup.|
+|                 |                                                   | Historique / metadata detaillees    | defin.)|
++--------------------------------------------------------------------------------------------------------------+
+```
+
+Notes UX :
+
+- la page doit reutiliser au maximum le meme layout que `Bibliotheque`
+- les differences portent surtout sur les actions autorisees
+- en selection multiple, l'action principale est `Remettre a traiter`
+- `Supprimer definitivement` reste une action globale distincte et fortement confirmee
+
+## 7. Wireframe - Activite
+
+Objectif :
+
+- voir ce qui a ete fait
+- comprendre une action ou une action groupee
+- annuler rapidement quand c'est possible
+
+```text
++--------------------------------------------------------------------------------------------------------------+
+| SIDEBAR         | ACTIVITE | [Type action] [Utilisateur] [Date] [Statut] (Annuler la derniere action)  |
+|-----------------+--------------------------------------------------------------------------------------------|
+|   A traiter     | JOURNAL                                           | DETAIL                              |
+|   Bibliotheque  |---------------------------------------------------+-------------------------------------|
+| > Activite      | 10:42  Action groupee    12 elements    succes    | Titre action                        |
+|   A supprimer   | 10:31  Element conserve  1 element      succes    |-------------------------------------|
+|                 | 10:27  Notes modifiees   1 element      succes    | Resume                              |
+|-----------------| 10:08  Action groupee    8 elements     partiel   |-------------------------------------|
+| Langue          | 09:52  Element ecarte    1 element      succes    | Elements concernes                  |
+| Theme           |                                                   | [table ou liste]                    |
+| Connexion       |                                                   |-------------------------------------|
+| Parametres      |                                                   | Erreurs / details / export          |
+| Compte          |                                                   |-------------------------------------|
+|                 |                                                   | (Voir les details) (Exporter)       |
++--------------------------------------------------------------------------------------------------------------+
+```
+
+## 8. Wireframe - Detail plein ecran
+
+Usage :
+
+- lien direct
+- verification concentree
+- travail sur grand media
+
+```text
++--------------------------------------------------------------------------------------------------+
+| (Retour)  Nom du fichier                                              [Etat]   (Suivant)        |
+|--------------------------------------------------------------------------------------------------|
+|                                              PREVIEW                                             |
+|                                                                                                  |
+|--------------------------------------------------------------------------------------------------|
+| (Conserver) (Ecarter) (Annuler)    Tags [tag] [tag] [+]    Notes [............................] |
+|--------------------------------------------------------------------------------------------------|
+| Infos essentielles                 | Infos detaillees                 | Transcript / historique    |
+| date, type, duree, poids           | chemin logique, source, etc.    | texte ou etat indisponible |
++--------------------------------------------------------------------------------------------------+
+```
+
+## 9. Wireframe - Connexion
+
+Regle :
+
+- hors connexion, cet ecran est l'unique ecran visible
+- aucun menu lateral, aucune page metier, aucun contenu applicatif ne doit apparaitre
+- apres connexion reussie, l'utilisateur arrive dans le shell principal
+- si l'utilisateur est deja connecte, cet ecran ne doit jamais apparaitre
+- dans ce cas, `/auth` redirige vers `/review`
+
+```text
++--------------------------------------------------------------------------------------+
+| Logo / nom app                                                                       |
+|--------------------------------------------------------------------------------------|
+|                         BIENVENUE                                                    |
+|               Connectez-vous pour acceder a l'outil                                  |
+|--------------------------------------------------------------------------------------|
+| [E-mail..............................................]                               |
+| [Mot de passe........................................]                               |
+| (Se connecter)                                                                       |
+|--------------------------------------------------------------------------------------|
+| Mot de passe oublie | Verification e-mail | Double authentification                  |
+|--------------------------------------------------------------------------------------|
+| Etat de connexion API / message de session                                           |
++--------------------------------------------------------------------------------------+
+```
+
+## 10. Wireframe - Reinitialiser le mot de passe
+
+Regle :
+
+- ecran `public only`
+- accessible depuis un lien avec token
+- si l'utilisateur est deja connecte, redirection vers `/review`
+
+```text
++--------------------------------------------------------------------------------------+
+| Logo / nom app                                                                       |
+|--------------------------------------------------------------------------------------|
+|                    DEFINIR UN NOUVEAU MOT DE PASSE                                   |
+|--------------------------------------------------------------------------------------|
+| [Nouveau mot de passe..............................]                                 |
+| [Confirmer le mot de passe.........................]                                 |
+| (Enregistrer le nouveau mot de passe)                                                |
+|--------------------------------------------------------------------------------------|
+| Etat : lien valide | lien invalide | lien expire                                     |
+|--------------------------------------------------------------------------------------|
+| Apres succes : (Aller a la connexion)                                                |
++--------------------------------------------------------------------------------------+
+```
+
+## 11. Wireframe - Verification e-mail
+
+Regle :
+
+- ecran `public only`
+- accessible depuis un lien avec token
+- si l'utilisateur est deja connecte, redirection vers `/review`
+
+```text
++--------------------------------------------------------------------------------------+
+| Logo / nom app                                                                       |
+|--------------------------------------------------------------------------------------|
+|                        VERIFICATION DE L'E-MAIL                                      |
+|--------------------------------------------------------------------------------------|
+| Verification en cours...                                                             |
+|--------------------------------------------------------------------------------------|
+| Etat succes : votre e-mail est verifie                                               |
+| Etat erreur : lien invalide ou expire                                                |
+|--------------------------------------------------------------------------------------|
+| (Renvoyer l'e-mail de verification)   (Aller a la connexion)                         |
++--------------------------------------------------------------------------------------+
+```
+
+## 12. Wireframe - Parametres
+
+```text
++--------------------------------------------------------------------------------------------------+
+| SIDEBAR         | PARAMETRES                                                                     |
+|-----------------+--------------------------------------------------------------------------------|
+|   A traiter     | [Connexion API]                                                                |
+|   Bibliotheque  | URL de base [............................]                                      |
+|   Activite      | Jeton       [............................]    (Tester) (Enregistrer)           |
+|   A supprimer   |--------------------------------------------------------------------------------|
+|-----------------| [Source de donnees]                                                            |
+| Langue          | (Mock) (API)                                                                   |
+| Theme           |--------------------------------------------------------------------------------|
+| Connexion       | [Preferences d'interface]                                                      |
+| > Parametres    | Langue [FR/EN]   Theme [Systeme/Clair/Sombre]   Densite [..]                 |
+| Compte          |--------------------------------------------------------------------------------|
+|                 | [Valeurs verrouillees par l'environnement]                                     |
+|                 | message informatif / lecture seule                                              |
++--------------------------------------------------------------------------------------------------+
+```
+
+## 13. Wireframe - Profil
+
+```text
++--------------------------------------------------------------------------------------------------+
+| SIDEBAR         | PROFIL                                                                         |
+|-----------------+--------------------------------------------------------------------------------|
+|   A traiter     | [Carte utilisateur]                                                            |
+|   Bibliotheque  | Nom                                                                             |
+|   Activite      | E-mail                                                                          |
+|   A supprimer   | Role / type de compte                                                           |
+| > Profil        |--------------------------------------------------------------------------------|
+|-----------------| [Securite]                                                                      |
+| Langue          | E-mail verifie : Oui / Non                                                     |
+| Theme           | Double authentification : Active / Inactive                                    |
+| Connexion       | Codes de recuperation : disponibles / non disponibles                           |
+| Parametres      |--------------------------------------------------------------------------------|
+| Compte          | [Actions]                                                                       |
+|                 | (Se deconnecter)                                                                |
+|                 | autres actions uniquement si l'API les supporte                                 |
++--------------------------------------------------------------------------------------------------+
+```
+
+## 14. Etats critiques a maquetter
+
+### 14.1 Aucun element a traiter
+
+```text
++------------------------------------------------------------------+
+| A TRAITER                                                        |
+|------------------------------------------------------------------|
+|                     Aucun element a traiter                      |
+|        Tout est a jour. Revenez plus tard ou changez vos filtres |
+|                     (Actualiser)                                 |
++------------------------------------------------------------------+
+```
+
+### 14.2 Aucun resultat en bibliotheque
+
+```text
++------------------------------------------------------------------+
+| BIBLIOTHEQUE                                                     |
+|------------------------------------------------------------------|
+|                     Aucun resultat                               |
+|        Essayez une autre recherche ou retirez un filtre          |
+|            (Effacer les filtres)   (Retour a la vue par defaut)  |
++------------------------------------------------------------------+
+```
+
+### 14.3 Erreur reseau
+
+```text
++--------------------------------------------------------------------------------------+
+| Message                                                                               |
+|--------------------------------------------------------------------------------------|
+| Impossible de charger les donnees pour le moment.                                     |
+| Verifiez la connexion ou reessayez.                                                   |
+| (Reessayer)    (Voir les details)                                                     |
++--------------------------------------------------------------------------------------+
+```
+
+### 14.4 Confirmation action sensible
+
+```text
++-------------------------------------------------------------------------+
+| Confirmation                                                            |
+|-------------------------------------------------------------------------|
+| Vous allez supprimer definitivement 12 elements.                        |
+| Cette action ne pourra pas etre annulee.                                |
+|                                                                         |
+| (Annuler)                                  (Supprimer definitivement)   |
++-------------------------------------------------------------------------+
+```
+
+## 15. Ordre de priorite pour le maquettage
+
+1. Shell global
+2. `A traiter`
+3. `A traiter` avec selection multiple active
+4. `Bibliotheque`
+5. `Activite`
+6. `A supprimer`
+7. detail plein ecran
+8. `Connexion`
+9. `Reinitialiser le mot de passe`
+10. `Verification e-mail`
+11. `Parametres`
+12. `Profil`
+13. etats vides, erreurs, confirmations
+
+## 16. Decision de design
+
+Si l'equipe doit partir vite en maquette, il faut d'abord designer :
+
+- un shell stable
+- un pattern principal liste + detail + rail
+- un vocabulaire UI simple
+- des composants reutilisables pour les listes, les actions et les etats
+
+Ces wireframes sont faits pour servir de base avant les maquettes haute fidelite.
