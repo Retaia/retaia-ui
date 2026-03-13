@@ -33,7 +33,7 @@ Conventions :
 |   Bibliotheque                     |                                                             |
 |   Activite                         |                 ZONE PRINCIPALE                             |
 |   A supprimer                      |                                                             |
-|   Profil                           |                                                             |
+|   Compte                           |                                                             |
 |                                    |                                                             |
 |------------------------------------|                                                             |
 | Langue                             |                                                             |
@@ -50,7 +50,7 @@ Notes :
 - la barre de contexte change selon la page
 - le theme switch doit etre toujours accessible
 - `A supprimer` est une entree de navigation a part entiere
-- `Profil` est une entree authentifiee a part entiere
+- `Compte` est une entree authentifiee a part entiere
 - si l'utilisateur n'est pas connecte, ce shell n'apparait pas
 
 ## 3. Wireframe - A traiter
@@ -340,17 +340,17 @@ Regle :
 +--------------------------------------------------------------------------------------------------+
 ```
 
-## 13. Wireframe - Profil
+## 13. Wireframe - Compte
 
 ```text
 +--------------------------------------------------------------------------------------------------+
-| SIDEBAR         | PROFIL                                                                         |
+| SIDEBAR         | COMPTE                                                                         |
 |-----------------+--------------------------------------------------------------------------------|
 |   A traiter     | [Carte utilisateur]                                                            |
 |   Bibliotheque  | Nom                                                                             |
 |   Activite      | E-mail                                                                          |
 |   A supprimer   | Role / type de compte                                                           |
-| > Profil        |--------------------------------------------------------------------------------|
+| > Compte        |--------------------------------------------------------------------------------|
 |-----------------| [Securite]                                                                      |
 | Langue          | E-mail verifie : Oui / Non                                                     |
 | Theme           | Double authentification : Active / Inactive                                    |
@@ -426,7 +426,7 @@ Regle :
 9. `Reinitialiser le mot de passe`
 10. `Verification e-mail`
 11. `Parametres`
-12. `Profil`
+12. `Compte`
 13. etats vides, erreurs, confirmations
 
 ## 16. Decision de design

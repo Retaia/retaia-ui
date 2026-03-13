@@ -33,7 +33,7 @@ Regle de routing :
 
 - les labels visibles dans l'interface sont traduits
 - les URLs restent en anglais, stables et non localisees
-- le menu affiche `A traiter`, `Bibliotheque`, `Activite`, `A supprimer`, `Profil`, mais les routes restent techniques
+- le menu affiche `A traiter`, `Bibliotheque`, `Activite`, `A supprimer`, `Compte`, mais les routes restent techniques
 
 ## 2. Direction visuelle
 
@@ -134,7 +134,7 @@ Ordre recommande :
 - `Bibliotheque`
 - `Activite`
 - `A supprimer`
-- `Profil`
+- `Compte`
 
 Zone basse :
 
@@ -166,7 +166,7 @@ L'objectif est de separer les "workspaces" des "vues de focus". Le mode de selec
 - `/library`
 - `/activity`
 - `/rejects`
-- `/profile`
+- `/account`
 - `/auth`
 - `/auth/reset-password`
 - `/auth/verify-email`
@@ -216,7 +216,7 @@ Matrice recommandee :
 - `/activity` -> `authenticated only`
 - `/rejects` -> `authenticated only`
 - `/rejects/asset/:assetId` -> `authenticated only`
-- `/profile` -> `authenticated only`
+- `/account` -> `authenticated only`
 - `/settings` -> `authenticated only`
 - `/auth` -> `public only`
 - `/auth/reset-password` -> `public only`
@@ -398,9 +398,9 @@ Sections recommandees :
 - langue et theme
 - informations runtime / environment lock
 
-### 5.8 Profil
+### 5.8 Compte
 
-`Profil` est une page `authenticated only`.
+`Compte` est une page `authenticated only`.
 
 Elle doit permettre de consulter les informations de compte disponibles via l'API, sans melanger cette vue avec `Parametres`.
 
@@ -415,7 +415,7 @@ Contenu recommande :
 
 Regle UX :
 
-- `Profil` est visible uniquement avec session active
+- `Compte` est visible uniquement avec session active
 - si l'API ne permet pas une modification sensible, la page reste consultative sur ce point
 
 ### 5.9 Reinitialisation du mot de passe
