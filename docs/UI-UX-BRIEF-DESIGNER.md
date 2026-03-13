@@ -9,7 +9,7 @@ Le but est de décrire les fonctionnalités métier et les parcours utilisateur,
 ### 2.1 Ingest / review de nouveaux fichiers
 Permettre à l'opérateur de traiter rapidement les nouveaux assets entrants:
 - ouvrir un asset (image/audio/video)
-- décider `KEEP` ou `REJECT` (et `CLEAR` pour annuler une décision)
+- décider `KEEP` ou `REJECT` (et `CLEAR` pour annuler une décision et revenir à l'état `DECISION_PENDING`)
 - ajouter/éditer des mots-clés et des notes (single et batch)
 - enchaîner les assets en file de review
 - exécuter des actions batch avec preview, confirmation et rapport
@@ -56,7 +56,7 @@ Fonction: traiter le flux entrant.
 Fonctions clés:
 - vue liste des assets à traiter
 - panneau détail asset (preview média + metadata)
-- décisions single: `KEEP` / `REJECT` / `CLEAR`
+- décisions single: `KEEP` / `REJECT` / `CLEAR` (`CLEAR` = retour à `DECISION_PENDING`)
 - édition mots-clés et notes
 - filtres (état, type, date) + recherche
 - filtres et recherche pilotés par query params API (`state`, `media_type`, `q`, `sort`, `captured_at_from`, `captured_at_to`)
@@ -74,6 +74,10 @@ Fonctions clés:
 - preview avant exécution
 - confirmation/annulation avant exécution finale
 - statuts d'exécution + gestion des erreurs
+
+Contrainte métier (alignement specs):
+- le batch reste un concept UI de sélection multiple
+- l'application des décisions est traitée asset par asset côté Core (appels unitaires)
 
 Note implémentation actuelle:
 - surface intégrée au workspace `/review` (pas de route dédiée)
