@@ -304,7 +304,8 @@ Differences avec `A traiter` :
 - pas de logique de file prioritaire comme `Suivant`
 - les actions autorisees changent selon le contexte
 - la consultation et la recherche prennent le dessus sur le tri rapide
-- metadata, tags et transcript prennent plus de place visuelle
+- metadata et tags prennent plus de place visuelle
+- le transcript n'apparait que pour les assets avec audio disponible
 
 Regle de vue :
 
@@ -369,7 +370,7 @@ Composition recommandee :
 - header avec retour contextuel
 - preview large
 - panneau metadata et decisions
-- transcript en second niveau
+- transcript en second niveau seulement si l'asset contient de l'audio
 - navigation asset precedent/suivant si le contexte d'origine est connu
 
 ### 5.5.b Preview d'asset
@@ -388,7 +389,6 @@ Variantes recommandees par type :
 - image : grand affichage centre, fond neutre, zoom simple, respect de l'orientation et du ratio
 - video : lecteur proxy avec poster, lecture/pause, progression, timecode, volume si utile
 - audio : vignette si disponible, forme d'onde ou barre de progression, lecture/pause, timecode
-- document : preview de premiere page ou rendu simplifie, avec acces rapide au nom, type et poids
 - asset non previsualisable : etat vide utile avec icone de type, nom, format, taille, date et fallback lisible
 
 Regles de controle :
@@ -407,6 +407,7 @@ Informations visibles autour du preview :
 - duree si media temporel
 - dimensions ou resolution si pertinent
 - timecode courant si lecture en cours
+- transcript disponible seulement pour `video avec piste audio` et `audio only`
 
 Overlay et comportement :
 
@@ -840,6 +841,7 @@ Raccourcis coeur :
 - `Space` : lire / pause du proxy
 - `K` : `Conserver`
 - `R` : `Ecarter`
+- `ArrowLeft` : asset precedent
 - `ArrowRight` : asset suivant
 
 Regles :

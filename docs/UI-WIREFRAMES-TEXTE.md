@@ -81,7 +81,7 @@ Objectif :
 |                 |                                                   | Notes                               |      |
 |                 |                                                   | [zone de texte]                     | [Aide|
 |                 |                                                   |-------------------------------------| racc]|
-|                 |                                                   | Infos techniques / transcript       |      |
+|                 |                                                   | Infos techniques / transcript audio |      |
 +--------------------------------------------------------------------------------------------------------------+
 ```
 
@@ -94,8 +94,9 @@ Notes UX :
 - le switch `Table|Grille` doit etre visible comme un controle de vue rapide
 - `Table` est la vue par defaut
 - le choix `Table|Grille` doit etre persiste
-- le preview doit changer selon le type d'asset : image, video, audio, document, fallback
-- `Space` lit ou met en pause le proxy, `K` conserve, `R` ecarte, `→` passe a l'asset suivant
+- le preview doit changer selon le type d'asset : image, video, audio, fallback
+- le transcript ne doit apparaitre que pour une video avec piste audio ou un asset audio only
+- `Space` lit ou met en pause le proxy, `K` conserve, `R` ecarte, `←` passe a l'asset precedent, `→` passe a l'asset suivant
 
 ### Variante grille - A traiter
 
@@ -334,11 +335,13 @@ Usage :
 
 Notes UX :
 
-- le preview doit etre adapte au type d'asset, avec un rendu distinct pour image, video, audio, document
+- le preview doit etre adapte au type d'asset, avec un rendu distinct pour image, video, audio
 - `Space` pilote la lecture du proxy
 - `K` declenche `Conserver`
 - `R` declenche `Ecarter`
+- `←` passe a l'asset precedent quand le contexte le permet
 - `→` passe a l'asset suivant quand le contexte le permet
+- le transcript n'apparait que si le media contient de l'audio
 - si le proxy est indisponible, afficher un fallback lisible plutot qu'un lecteur vide
 
 ## 9. Wireframe - Connexion
