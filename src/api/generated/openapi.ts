@@ -1552,7 +1552,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update human metadata on one asset */
+        /** Update one asset (metadata and lifecycle transitions) */
         patch: {
             parameters: {
                 query?: never;
@@ -1570,6 +1570,8 @@ export interface paths {
                         fields?: {
                             [key: string]: unknown;
                         };
+                        /** @enum {string} */
+                        state?: "DECISION_PENDING" | "DECIDED_KEEP" | "DECIDED_REJECT" | "ARCHIVED" | "REJECTED";
                     };
                 };
             };
@@ -1696,69 +1698,6 @@ export interface paths {
             requestBody?: never;
             responses: {
                 /** @description Reprocess accepted */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unauthorized (`UNAUTHORIZED`) */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description State conflict or idempotency conflict */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/assets/{uuid}/decision": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Set or update a human decision */
-        post: {
-            parameters: {
-                query?: never;
-                header: {
-                    "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-                };
-                path: {
-                    uuid: components["parameters"]["UuidPath"];
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        action: "KEEP" | "REJECT" | "CLEAR";
-                    };
-                };
-            };
-            responses: {
-                /** @description Decision applied */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -2407,274 +2346,6 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/batches/moves/preview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Preview move batch */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        include: "KEEP" | "REJECT" | "BOTH";
-                        limit?: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description Move preview */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unauthorized (`UNAUTHORIZED`) */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/batches/moves": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Execute or dry-run move batch */
-        post: {
-            parameters: {
-                query?: never;
-                header: {
-                    "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        selection: {
-                            [key: string]: unknown;
-                        };
-                        /** @enum {string} */
-                        mode: "DRY_RUN" | "EXECUTE";
-                    };
-                };
-            };
-            responses: {
-                /** @description Batch accepted */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unauthorized (`UNAUTHORIZED`) */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/batches/moves/{batch_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get move batch status and report */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    batch_id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Batch status */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            [key: string]: unknown;
-                        };
-                    };
-                };
-                /** @description Unauthorized (`UNAUTHORIZED`) */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/decisions/preview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Preview bulk decisions
-         * @description Available in v1.1+ when `features.decisions.bulk=true`.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        action: "KEEP" | "REJECT";
-                        filter: {
-                            [key: string]: unknown;
-                        };
-                        max_items: number;
-                    };
-                };
-            };
-            responses: {
-                /** @description Decision preview */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unauthorized (`UNAUTHORIZED`) */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/decisions/apply": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Apply bulk decisions from preview token
-         * @description Available in v1.1+ when `features.decisions.bulk=true`.
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header: {
-                    "Idempotency-Key": components["parameters"]["IdempotencyKey"];
-                };
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        approval_token: string;
-                        /** @enum {boolean} */
-                        confirm: true;
-                    };
-                };
-            };
-            responses: {
-                /** @description Decisions applied */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Unauthorized (`UNAUTHORIZED`) */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
         delete?: never;
         options?: never;
         head?: never;
@@ -3493,9 +3164,6 @@ export interface components {
          *     Client semantics: missing flag = false, unknown flags are ignored, safe-by-default.
          */
         FeatureFlags: {
-            /** @default false */
-            "features.decisions.bulk": boolean;
-        } & {
             [key: string]: boolean;
         };
         /**
@@ -3556,7 +3224,7 @@ export interface components {
             server_policy: components["schemas"]["ServerPolicy"];
         };
         /** @enum {string} */
-        AssetState: "DISCOVERED" | "READY" | "PROCESSING_REVIEW" | "PROCESSED" | "DECISION_PENDING" | "DECIDED_KEEP" | "DECIDED_REJECT" | "MOVE_QUEUED" | "ARCHIVED" | "REJECTED" | "PURGED";
+        AssetState: "DISCOVERED" | "READY" | "PROCESSING_REVIEW" | "PROCESSED" | "DECISION_PENDING" | "DECIDED_KEEP" | "DECIDED_REJECT" | "ARCHIVED" | "REJECTED" | "PURGED";
         AssetSummary: {
             uuid: string;
             name?: string;
@@ -3631,6 +3299,14 @@ export interface components {
         };
         AssetAudit: {
             path_history?: string[];
+            revision_history?: {
+                revision: number;
+                is_current: boolean;
+                /** Format: date-time */
+                published_at?: string | null;
+                /** @enum {string} */
+                validation_status: "VALIDATED" | "PENDING_VALIDATION" | "REJECTED";
+            }[];
         };
         /** @description Processing job */
         Job: {

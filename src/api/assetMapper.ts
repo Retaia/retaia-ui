@@ -1,7 +1,7 @@
-import type { components } from './generated/openapi'
 import type { Asset, AssetMediaType, AssetState } from '../domain/assets'
+import type { AssetSummary } from './contracts'
 
-type ApiAssetSummary = components['schemas']['AssetSummary']
+type ApiAssetSummary = AssetSummary
 
 function mapMediaType(mediaType: ApiAssetSummary['media_type'] | undefined): AssetMediaType {
   if (mediaType === 'VIDEO') {
