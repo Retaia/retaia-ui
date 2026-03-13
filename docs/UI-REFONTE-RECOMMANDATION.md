@@ -416,6 +416,36 @@ Overlay et comportement :
 - sur clavier seul, les controles deviennent visibles au focus sans dependre du hover
 - si le proxy est indisponible, afficher clairement `Preview indisponible` avec un fallback propre
 
+### 5.5.c Evolution pour une version suivante de Retaia
+
+Le survol de timeline avec vignette d'image correspondante, type YouTube, ne doit pas etre traite comme une astuce frontend.
+
+Position recommandee :
+
+- ne pas l'implementer dans la version actuelle sans support produit et technique dedie
+- le planifier pour une version suivante de Retaia
+- le traiter comme une fonctionnalite media a part entiere
+
+Pourquoi :
+
+- une implementation purement basee sur le proxy courant risquerait d'etre inconstante selon codecs, GOP, taille des fichiers et performances client
+- une UX de scrubbing media doit etre stable, rapide et coherente sur l'ensemble du parc d'assets
+- cette fonctionnalite doit etre solide en hover, au clavier, en seek direct et en lecture interrompue
+
+Impacts a prevoir dans une version suivante :
+
+- support backend ou media pipeline pour des thumbnails de timeline fiables
+- contrat API ou metadata dediees pour recuperer ces apercus proprement
+- composant `AssetPreviewTimeline` capable d'afficher vignette, timecode et etat de chargement
+- comportement aligne dans `A traiter`, `Bibliotheque` et `Detail standalone`
+- fallback explicite si les apercus de timeline ne sont pas disponibles
+- couverture accessibilite pour souris, clavier et lecteurs d'ecran
+
+Conclusion :
+
+- a ajouter dans une version suivante de Retaia
+- hors scope de la refonte UI actuelle tant que le support produit et technique n'est pas pose proprement
+
 ### 5.6 Auth
 
 L'ecran Auth doit etre simple, rassurant et distinct du shell operateur.
