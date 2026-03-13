@@ -31,8 +31,8 @@ Conventions :
 |                                    |-------------------------------------------------------------|
 | > A traiter                        |                                                             |
 |   Bibliotheque                     |                                                             |
-|   Activite                         |                 ZONE PRINCIPALE                             |
 |   A supprimer                      |                                                             |
+|   Activite                         |                 ZONE PRINCIPALE                             |
 |                                    |                                                             |
 |------------------------------------|                                                             |
 | Langue                             |                                                             |
@@ -66,8 +66,8 @@ Objectif :
 |-----------------+--------------------------------------------------------------------------------------------|
 | > A traiter     | LISTE                                             | DETAIL                              | RAIL |
 |   Bibliotheque  |---------------------------------------------------+-------------------------------------+------|
-|   Activite      | [ ] vignette  Nom fichier        A traiter   >    | [Preview media large]               | Sel. |
-|   A supprimer   | [ ] vignette  Nom fichier        Pret a examiner  |-------------------------------------|------|
+|   A supprimer   | [ ] vignette  Nom fichier        A traiter   >    | [Preview media large]               | Sel. |
+|   Activite      | [ ] vignette  Nom fichier        Pret a examiner  |-------------------------------------|------|
 |                 | [ ] vignette  Nom fichier        A decider        | Nom du fichier                      | 12   |
 |                 | [ ] vignette  Nom fichier        A traiter        | Etat visible                        | sel. |
 |-----------------| [ ] vignette  Nom fichier        A traiter        | Date / type / duree / poids         |------|
@@ -99,8 +99,8 @@ Notes UX :
 |-----------------+--------------------------------------------------------------------------------------------|
 | > A traiter     | LISTE                                             | DETAIL                              | SEL. |
 |   Bibliotheque  |---------------------------------------------------+-------------------------------------+------|
-|   Activite      | [x] item 1                                        | [Preview media]                     | 12   |
-|   A supprimer   | [x] item 2                                        |-------------------------------------| elem |
+|   A supprimer   | [x] item 1                                        | [Preview media]                     | 12   |
+|   Activite      | [x] item 2                                        |-------------------------------------| elem |
 |                 | [ ] item 3                                        | Nom / etat / tags / notes           |------|
 |-----------------| [x] item 4                                        |                                     | Act. |
 | Langue          |                                                   |                                     | [Con-|
@@ -141,8 +141,8 @@ Objectif :
 |-----------------+--------------------------------------------------------------------------------------------|
 |   A traiter     | [Recherche...] [Etat] [Type] [Date] [Tri] [Densite]                                     |
 | > Bibliotheque  |--------------------------------------------------------------------------------------------|
-|   Activite      | LISTE                                             | DETAIL                              | RAIL |
-|   A supprimer   |---------------------------------------------------+-------------------------------------+------|
+|   A supprimer   | LISTE                                             | DETAIL                              | RAIL |
+|   Activite      |---------------------------------------------------+-------------------------------------+------|
 |                 | [ ] vignette  Nom / tags / date / type            | [Preview]                           | Sel. |
 |                 | [ ] vignette  Nom / tags / date / type            |-------------------------------------| mult.|
 |-----------------| [ ] vignette  Nom / tags / date / type            | Nom                                 |------|
@@ -174,8 +174,8 @@ Objectif :
 |-----------------+--------------------------------------------------------------------------------------------|
 |   A traiter     | RESULTATS                                         | DETAIL                              | RAIL |
 |   Bibliotheque  |---------------------------------------------------+-------------------------------------+------|
-|   Activite      | [ ] vignette Nom / tags / date / type            | [Preview]                           | Sel. |
-| > A supprimer   | [ ] vignette Nom / tags / date / type            |-------------------------------------| mult.|
+| > A supprimer   | [ ] vignette Nom / tags / date / type            | [Preview]                           | Sel. |
+|   Activite      | [ ] vignette Nom / tags / date / type            |-------------------------------------| mult.|
 |                 | [ ] vignette Nom / tags / date / type            | Nom                                 |------|
 |-----------------|                                                   | Ecarte / A supprimer                | Act. |
 | Langue          |                                                   | Anciennete / date d'ecartement      | [Rem.|
@@ -209,8 +209,8 @@ Objectif :
 |-----------------+--------------------------------------------------------------------------------------------|
 |   A traiter     | JOURNAL                                           | DETAIL                              |
 |   Bibliotheque  |---------------------------------------------------+-------------------------------------|
-| > Activite      | 10:42  Action groupee    12 elements    succes    | Titre action                        |
-|   A supprimer   | 10:31  Element conserve  1 element      succes    |-------------------------------------|
+|   A supprimer   | 10:42  Action groupee    12 elements    succes    | Titre action                        |
+| > Activite      | 10:31  Element conserve  1 element      succes    |-------------------------------------|
 |                 | 10:27  Notes modifiees   1 element      succes    | Resume                              |
 |-----------------| 10:08  Action groupee    8 elements     partiel   |-------------------------------------|
 | Langue          | 09:52  Element ecarte    1 element      succes    | Elements concernes                  |
@@ -326,8 +326,8 @@ Regle :
 |-----------------+--------------------------------------------------------------------------------|
 |   A traiter     | [Connexion API]                                                                |
 |   Bibliotheque  | URL de base [............................]                                      |
-|   Activite      | Jeton       [............................]    (Tester) (Enregistrer)           |
-|   A supprimer   |--------------------------------------------------------------------------------|
+|   A supprimer   | Jeton       [............................]    (Tester) (Enregistrer)           |
+|   Activite      |--------------------------------------------------------------------------------|
 |-----------------| [Source de donnees]                                                            |
 | Langue          | (Mock) (API)                                                                   |
 | Theme           |--------------------------------------------------------------------------------|
@@ -347,8 +347,8 @@ Regle :
 |-----------------+--------------------------------------------------------------------------------|
 |   A traiter     | [Carte utilisateur]                                                            |
 |   Bibliotheque  | Nom                                                                             |
-|   Activite      | E-mail                                                                          |
-|   A supprimer   | Role / type de compte                                                           |
+|   A supprimer   | E-mail                                                                          |
+|   Activite      | Role / type de compte                                                           |
 | > Compte        |--------------------------------------------------------------------------------|
 |-----------------| [Securite]                                                                      |
 | Langue          | E-mail verifie : Oui / Non                                                     |
@@ -418,8 +418,8 @@ Regle :
 2. `A traiter`
 3. `A traiter` avec selection multiple active
 4. `Bibliotheque`
-5. `Activite`
-6. `A supprimer`
+5. `A supprimer`
+6. `Activite`
 7. detail plein ecran
 8. `Connexion`
 9. `Reinitialiser le mot de passe`
