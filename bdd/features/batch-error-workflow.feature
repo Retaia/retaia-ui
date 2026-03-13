@@ -1,3 +1,4 @@
+@legacy-ui
 Feature: Workflow batch API en erreur
   En tant qu'utilisateur
   Je veux des messages explicites sur les erreurs API critiques

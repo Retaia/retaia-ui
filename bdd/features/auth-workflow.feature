@@ -1,3 +1,4 @@
+@legacy-ui
 Feature: Workflow authentification API
   En tant qu'utilisateur
   Je veux gérer auth, recovery et MFA via l'écran Auth

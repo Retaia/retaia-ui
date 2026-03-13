@@ -1,3 +1,4 @@
+@legacy-ui
 Feature: Workflow desktop avancé
   En tant qu'utilisateur desktop
   Je veux enchaîner les interactions clés sans friction

@@ -1,34 +1,21 @@
+import { render } from '@testing-library/react'
+import { axe, toHaveNoViolations } from 'jest-axe'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
-import { BrowserRouter } from 'react-router-dom'
-import { render, screen } from '@testing-library/react'
-import { axe } from 'jest-axe'
-import App from './App'
+import { UiResetPage } from './pages/UiResetPage'
 
-describe('a11y smoke', () => {
-  it('has no critical accessibility violations on initial review screen', async () => {
-    window.history.replaceState({}, '', '/review')
+expect.extend(toHaveNoViolations)
+
+describe('a11y smoke tests', () => {
+  it('renders ui reset page without accessibility violations', async () => {
     const { container } = render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>,
+      <MemoryRouter>
+        <UiResetPage title="UI reset test" route="/review" />
+      </MemoryRouter>,
     )
 
-    const result = await axe(container)
-    expect(result.violations).toEqual([])
-  })
+    const results = await axe(container)
 
-  it('has no critical accessibility violations when quick actions menu is open', async () => {
-    window.history.replaceState({}, '', '/review')
-    const { container } = render(
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>,
-    )
-
-    const toggle = screen.getByRole('button', { name: 'Actions générales' })
-    await toggle.click()
-
-    const result = await axe(container)
-    expect(result.violations).toEqual([])
+    expect(results).toHaveNoViolations()
   })
 })

@@ -1,5 +1,7 @@
 # language: fr
 
+@legacy-ui
+
 Fonctionnalité: Hardening clavier, purge deep-link et API assets
   En tant qu'utilisateur review desktop-like
   Je veux couvrir des flux non régressifs critiques

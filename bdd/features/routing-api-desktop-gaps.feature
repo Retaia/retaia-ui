@@ -1,5 +1,7 @@
 # language: fr
 
+@legacy-ui
+
 Fonctionnalité: Couverture fonctionnelle routing, API source et signaux desktop
   En tant qu'utilisateur review desktop-like
   Je veux des flux navigateur/API/UI vérifiés en BDD
