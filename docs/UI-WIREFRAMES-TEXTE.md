@@ -62,7 +62,7 @@ Objectif :
 
 ```text
 +--------------------------------------------------------------------------------------------------------------+
-| SIDEBAR         | A TRAITER | 128 elements | [Recherche...] [Type] [Etat] [Date] [Densite] (Suivant)       |
+| SIDEBAR         | A TRAITER | 128 elements | [Recherche...] [Type] [Etat] [Date] [Table|Grille] (Suivant) |
 |-----------------+--------------------------------------------------------------------------------------------|
 | > A traiter     | LISTE                                             | DETAIL                              | RAIL |
 |   Bibliotheque  |---------------------------------------------------+-------------------------------------+------|
@@ -90,6 +90,28 @@ Notes UX :
 - un clic ligne selectionne, la case coche ajoute a la selection multiple
 - `Suivant` doit etre visible sans monopoliser l'ecran
 - le rail droit peut etre replie si aucune selection multiple n'est active
+- le switch `Table|Grille` doit etre visible comme un controle de vue rapide
+
+### Variante grille - A traiter
+
+```text
++--------------------------------------------------------------------------------------------------------------+
+| SIDEBAR         | A TRAITER | 128 elements | [Recherche...] [Type] [Etat] [Date] [Table|Grille] (Suivant) |
+|-----------------+--------------------------------------------------------------------------------------------|
+| > A traiter     | GRILLE                                            | DETAIL                              | RAIL |
+|   Bibliotheque  |---------------------------------------------------+-------------------------------------+------|
+|   A supprimer   | [ ] [thumb] Nom fichier                           | [Preview media large]               | Sel. |
+|   Activite      |     type | date | etat visible                    |-------------------------------------| mult.|
+|                 | [ ] [thumb] Nom fichier                           | Nom / etat / tags / notes           |------|
+|                 |     type | date | etat visible                    |                                     |      |
+|-----------------| [ ] [thumb] Nom fichier                           |                                     |      |
+| Langue          |     type | date | etat visible                    |                                     |      |
+| Theme           | [ ] [thumb] Nom fichier                           |                                     |      |
+| Connexion       |     type | date | etat visible                    |                                     |      |
+| Parametres      |                                                   |                                     |      |
+| Compte          |                                                   |                                     |      |
++--------------------------------------------------------------------------------------------------------------+
+```
 
 ## 4. Wireframe - A traiter avec selection multiple active
 
@@ -142,7 +164,7 @@ Objectif :
 
 ```text
 +--------------------------------------------------------------------------------------------------------------+
-| SIDEBAR         | BIBLIOTHEQUE | [Recherche dominante.........................................] (Exporter) |
+| SIDEBAR         | BIBLIOTHEQUE | [Recherche dominante..........................] [Table|Grille] (Exporter) |
 |-----------------+--------------------------------------------------------------------------------------------|
 |   A traiter     | [Recherche...] [Etat] [Type] [Date] [Tri] [Densite]                                     |
 | > Bibliotheque  |--------------------------------------------------------------------------------------------|
@@ -165,6 +187,27 @@ Notes UX :
 - le layout doit rester tres proche de `A traiter`
 - le rail droit peut afficher aide filtres, vues enregistrees, activite recente
 - les differences principales portent sur les actions et le niveau d'urgence
+
+### Variante grille - Bibliotheque
+
+```text
++--------------------------------------------------------------------------------------------------------------+
+| SIDEBAR         | BIBLIOTHEQUE | [Recherche dominante..........................] [Table|Grille] (Exporter) |
+|-----------------+--------------------------------------------------------------------------------------------|
+|   A traiter     | [Etat] [Type] [Date] [Tri] [Densite]                                                     |
+| > Bibliotheque  |--------------------------------------------------------------------------------------------|
+|   A supprimer   | GRILLE                                            | DETAIL                              | RAIL |
+|   Activite      |---------------------------------------------------+-------------------------------------+------|
+|                 | [ ] [thumb] Nom fichier                           | [Preview]                           | Sel. |
+|                 |     type | date | etat visible                    |-------------------------------------| mult.|
+|-----------------| [ ] [thumb] Nom fichier                           | Nom                                 |------|
+| Langue          |     tags cles | etat visible                       | Tags / Notes                        | Infos|
+| Theme           | [ ] [thumb] Nom fichier                           |-------------------------------------|------|
+| Connexion       |     type | date | etat visible                    | Transcript / metadata detaillees    |      |
+| Parametres      |                                                   |                                     |      |
+| Compte          |                                                   |                                     |      |
++--------------------------------------------------------------------------------------------------------------+
+```
 
 ## 6. Wireframe - Vue "A supprimer"
 

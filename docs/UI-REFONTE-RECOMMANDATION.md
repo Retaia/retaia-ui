@@ -240,6 +240,7 @@ Regle de base :
 Structure recommandee :
 
 - barre de contexte avec compteur `A traiter`, filtres rapides, recherche, raccourci `Suivant`
+- selecteur de vue `Table` / `Grille`
 - colonne liste gauche
 - panneau detail central
 - rail droit pour actions groupees, historique local et aide clavier
@@ -253,6 +254,8 @@ Comportements UX :
 - la selection multiple s'active via checkboxes, sans casser la navigation detail
 - les actions groupees restent purement UI et s'appliquent aux elements coches
 - actions groupees prioritaires : ajouter des tags, retirer des tags, `Conserver`, `Ecarter`, `Annuler`
+- le mode d'affichage se change en un clic, sans navigation ni rechargement
+- le controle doit se comporter comme un selecteur de vue rapide, proche d'un explorateur de fichiers desktop
 
 Ordre de priorite visuelle dans le detail :
 
@@ -279,6 +282,7 @@ Structure recommandee :
 
 - meme structure liste + detail + rail que `A traiter`
 - header avec recherche dominante
+- selecteur de vue `Table` / `Grille`
 - facettes et filtres dans une barre secondaire
 - liste/resultats en mode table ou cards compactes selon densite
 - detail docke a droite sur desktop
@@ -290,6 +294,12 @@ Differences avec `A traiter` :
 - les actions autorisees changent selon le contexte
 - la consultation et la recherche prennent le dessus sur le tri rapide
 - metadata, tags et transcript prennent plus de place visuelle
+
+Regle de vue :
+
+- `Table` est la vue par defaut
+- `Grille` doit rester une vue efficace de travail, pas une galerie decorative
+- chaque carte de grille affiche au minimum : miniature, nom, type, date et etat visible
 
 ### 5.3 Activite
 
@@ -479,6 +489,9 @@ La refonte doit produire un petit ensemble de composants transverses clairs, reu
 - `AssetList`
 - `AssetListToolbar`
 - `AssetListItem`
+- `AssetViewModeSwitch`
+- `AssetGrid`
+- `AssetGridCard`
 - `AssetSelectionBar`
 - `AssetDetail`
 - `AssetPreview`
@@ -493,6 +506,7 @@ La refonte doit produire un petit ensemble de composants transverses clairs, reu
 Reutilisation recommandee :
 
 - `AssetList` en `A traiter`, `Bibliotheque`, `A supprimer`
+- `AssetGrid` en `A traiter`, `Bibliotheque`, `A supprimer`
 - `AssetDetail` en workspace et en vue standalone
 - `AssetDecisionBar` dans `A traiter`, `Bibliotheque`, `A supprimer`, detail d'`Activite`
 
@@ -500,6 +514,7 @@ Regle de partage avec `Bibliotheque` :
 
 - `A supprimer` doit reutiliser la meme structure de page que `Bibliotheque`
 - la liste, le detail, les filtres, la recherche et les cartes metadata doivent etre partages
+- le selecteur `Table` / `Grille` doit aussi etre partage
 - seules les zones d'actions changent pour respecter les regles de `A supprimer`
 - privilegier des composants parametrables plutot que des duplications de page
 
@@ -538,6 +553,7 @@ Regle :
 - `SortControl`
 - `SavedViewSelector`
 - `DensityToggle`
+- `ViewModeSwitch`
 
 ### 6.5 Composants navigation et feedback
 
@@ -621,6 +637,21 @@ Application :
 - `A traiter` par defaut en `compact`
 - `Bibliotheque` par defaut en `comfortable`
 - tables et listes doivent respecter cette echelle sans changer la logique
+
+### 8.1.b Modes d'affichage
+
+Je recommande 2 vues explicites pour les listes d'assets :
+
+- `Table`
+- `Grille`
+
+Regles :
+
+- le changement de vue se fait en un clic via un controle visible
+- le comportement attendu est proche d'un explorateur de fichiers desktop
+- `Table` optimise le scan rapide et la comparaison
+- `Grille` optimise la lecture visuelle tout en gardant les informations essentielles
+- la preference de vue peut etre memorisee par page
 
 ### 8.2 Hierarchie des actions
 
