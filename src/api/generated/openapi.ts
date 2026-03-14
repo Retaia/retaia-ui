@@ -15,7 +15,7 @@ export interface paths {
         put?: never;
         /**
          * User login with email and password
-         * @description Interactive login endpoint for supported human-operated clients (`UI_WEB` and `AGENT`). Supports optional TOTP 2FA code when enabled.
+         * @description Interactive bootstrap/recovery login endpoint for supported human-operated clients (`UI_WEB` and `AGENT`). Supports optional TOTP 2FA code when enabled.
          */
         post: {
             parameters: {
@@ -50,6 +50,344 @@ export interface paths {
                 };
                 /** @description Email not verified (`EMAIL_NOT_VERIFIED`) */
                 403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Too many attempts (`TOO_MANY_ATTEMPTS`) */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refresh interactive user bearer token */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthRefreshRequest"];
+                };
+            };
+            responses: {
+                /** @description Refresh success */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthLoginSuccess"];
+                    };
+                };
+                /** @description Invalid or revoked refresh token (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Too many attempts (`TOO_MANY_ATTEMPTS`) */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/webauthn/register/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start WebAuthn device registration
+         * @description Returns one-shot WebAuthn registration options for the authenticated user.
+         *     The returned challenge/options must expire within 5 minutes and must be rejected after first successful use or replay.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description WebAuthn registration options */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["WebAuthnPublicKeyOptionsResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Registration conflict (`STATE_CONFLICT`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/webauthn/register/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify WebAuthn device registration
+         * @description Verifies a WebAuthn attestation against a still-valid one-shot registration challenge.
+         *     Successful verification consumes the challenge permanently.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["WebAuthnRegisterVerifyRequest"];
+                };
+            };
+            responses: {
+                /** @description WebAuthn device registered */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["WebAuthnDeviceResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Registration conflict (`STATE_CONFLICT`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/webauthn/authenticate/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start WebAuthn authentication
+         * @description Returns one-shot WebAuthn authentication options for a previously enrolled device/browser.
+         *     The returned challenge/options must expire within 5 minutes and must be rejected after first successful use or replay.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["WebAuthnAuthenticateOptionsRequest"];
+                };
+            };
+            responses: {
+                /** @description WebAuthn authentication options */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["WebAuthnPublicKeyOptionsResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Too many attempts (`TOO_MANY_ATTEMPTS`) */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/webauthn/authenticate/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Verify WebAuthn authentication
+         * @description Verifies a WebAuthn assertion against a still-valid one-shot authentication challenge.
+         *     Successful verification consumes the challenge permanently.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["WebAuthnAuthenticateVerifyRequest"];
+                };
+            };
+            responses: {
+                /** @description WebAuthn authentication success */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthLoginSuccess"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -550,7 +888,7 @@ export interface paths {
          * @description Returns global app switches (`app_feature_enabled`).
          *     Also returns dependency/escalation metadata for deterministic client behavior.
          *     Effective global availability requires Core `feature_flags` AND `app_feature_enabled`.
-         *     Normative gate: when `app_feature_enabled.features.ai=false`, `client_kind=MCP` is disabled at runtime.
+         *     Normative gate: when `app_feature_enabled.features.ai=false`, only MCP functions that depend on AI are disabled at runtime.
          *     Admin-only endpoint.
          *     Runtime payload contract is stable: `app_feature_enabled`, `feature_governance`, `core_v1_global_features`.
          */
@@ -1434,6 +1772,311 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/mcp/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Register MCP technical client public key */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthMcpRegisterRequest"];
+                };
+            };
+            responses: {
+                /** @description MCP client registered */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthMcpRegisterResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Registration conflict (`STATE_CONFLICT`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/mcp/challenge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create MCP technical auth challenge
+         * @description Creates a one-shot challenge for `MCP_TECHNICAL`.
+         *     The challenge must expire within 5 minutes and must be rejected after first successful use or replay.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthMcpChallengeRequest"];
+                };
+            };
+            responses: {
+                /** @description MCP challenge created */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthMcpChallengeResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Too many attempts (`TOO_MANY_ATTEMPTS`) */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/mcp/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mint MCP bearer token from signed challenge
+         * @description Mints a technical bearer token for `MCP_TECHNICAL` from a valid signature over a still-valid one-shot challenge.
+         *     Expired, replayed or already-consumed challenges must be rejected.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthMcpTokenRequest"];
+                };
+            };
+            responses: {
+                /** @description MCP token minted */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthClientTokenSuccess"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Too many attempts (`TOO_MANY_ATTEMPTS`) */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/mcp/{client_id}/rotate-key": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rotate MCP public key */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    client_id: components["parameters"]["ClientIdPath"];
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthMcpRegisterRequest"];
+                };
+            };
+            responses: {
+                /** @description MCP key rotated */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthMcpRegisterResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Rotation conflict (`STATE_CONFLICT`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/clients/{client_id}/rotate-secret": {
         parameters: {
             query?: never;
@@ -1591,15 +2234,6 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Asset detail */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["AssetDetail"];
-                    };
-                };
                 /** @description Unauthorized (`UNAUTHORIZED`) */
                 401: {
                     headers: {
@@ -1620,7 +2254,10 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header: {
+                    /** @description Strong opaque asset revision tag for optimistic concurrency on asset mutations. */
+                    "If-Match": components["parameters"]["IfMatchAssetRevision"];
+                };
                 path: {
                     uuid: components["parameters"]["UuidPath"];
                 };
@@ -1643,6 +2280,8 @@ export interface paths {
                 /** @description Asset updated */
                 200: {
                     headers: {
+                        /** @description Strong asset revision tag after the accepted mutation. */
+                        ETag?: string;
                         [name: string]: unknown;
                     };
                     content?: never;
@@ -1656,12 +2295,48 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
+                /** @description State conflict (invalid transition) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
                 /** @description Asset is purged */
                 410: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description Stale asset revision (`PRECONDITION_FAILED`) */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Missing optimistic concurrency precondition (`PRECONDITION_REQUIRED`) */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1680,7 +2355,13 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header: {
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1694,6 +2375,10 @@ export interface paths {
                         agent_id: string;
                         agent_name: string;
                         agent_version: string;
+                        /** @description Agent OpenPGP public key in ASCII-armored format. */
+                        openpgp_public_key: string;
+                        /** @description Canonical OpenPGP fingerprint of the active agent signing key. */
+                        openpgp_fingerprint: string;
                         /** @enum {string} */
                         os_name: "linux" | "macos" | "windows";
                         os_version: string;
@@ -1762,6 +2447,8 @@ export interface paths {
             parameters: {
                 query?: never;
                 header: {
+                    /** @description Strong opaque asset revision tag for optimistic concurrency on asset mutations. */
+                    "If-Match": components["parameters"]["IfMatchAssetRevision"];
                     "Idempotency-Key": components["parameters"]["IdempotencyKey"];
                 };
                 path: {
@@ -1787,8 +2474,26 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
-                /** @description State conflict or idempotency conflict */
+                /** @description State conflict */
                 409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Stale asset revision (`PRECONDITION_FAILED`) */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Missing optimistic concurrency precondition (`PRECONDITION_REQUIRED`) */
+                428: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1817,7 +2522,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header: {
+                    /** @description Strong opaque asset revision tag for optimistic concurrency on asset mutations. */
+                    "If-Match": components["parameters"]["IfMatchAssetRevision"];
+                };
                 path: {
                     uuid: components["parameters"]["UuidPath"];
                 };
@@ -1828,6 +2536,8 @@ export interface paths {
                 /** @description Asset reopened */
                 200: {
                     headers: {
+                        /** @description Strong asset revision tag after the accepted mutation. */
+                        ETag?: string;
                         [name: string]: unknown;
                     };
                     content?: never;
@@ -1846,7 +2556,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Stale asset revision (`PRECONDITION_FAILED`) */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Missing optimistic concurrency precondition (`PRECONDITION_REQUIRED`) */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1918,7 +2648,13 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header: {
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
+                };
                 path: {
                     job_id: string;
                 };
@@ -1972,7 +2708,13 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header: {
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
+                };
                 path: {
                     job_id: string;
                 };
@@ -2033,6 +2775,11 @@ export interface paths {
                 query?: never;
                 header: {
                     "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
                 };
                 path: {
                     job_id: string;
@@ -2102,6 +2849,11 @@ export interface paths {
                 query?: never;
                 header: {
                     "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
                 };
                 path: {
                     job_id: string;
@@ -2174,7 +2926,13 @@ export interface paths {
             parameters: {
                 query?: never;
                 header: {
+                    "If-Match": components["parameters"]["IfMatch"];
                     "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
                 };
                 path: {
                     uuid: components["parameters"]["UuidPath"];
@@ -2231,7 +2989,14 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header: {
+                    "If-Match": components["parameters"]["IfMatch"];
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
+                };
                 path: {
                     uuid: components["parameters"]["UuidPath"];
                 };
@@ -2284,7 +3049,13 @@ export interface paths {
             parameters: {
                 query?: never;
                 header: {
+                    "If-Match": components["parameters"]["IfMatch"];
                     "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
                 };
                 path: {
                     uuid: components["parameters"]["UuidPath"];
@@ -2440,6 +3211,7 @@ export interface paths {
             parameters: {
                 query?: never;
                 header: {
+                    "If-Match": components["parameters"]["IfMatch"];
                     "Idempotency-Key": components["parameters"]["IdempotencyKey"];
                 };
                 path: {
@@ -3214,6 +3986,44 @@ export interface components {
             client_id?: string;
             client_kind?: components["schemas"]["ClientKind"];
         };
+        AuthRefreshRequest: {
+            refresh_token: string;
+            client_id?: string;
+            client_kind?: components["schemas"]["ClientKind"];
+        };
+        WebAuthnAuthenticateOptionsRequest: {
+            /** Format: email */
+            email?: string;
+            client_id?: string;
+            client_kind?: components["schemas"]["ClientKind"];
+        };
+        WebAuthnRegisterVerifyRequest: {
+            credential: {
+                [key: string]: unknown;
+            };
+            /** Format: uuid */
+            device_id?: string;
+            device_label?: string;
+        };
+        WebAuthnAuthenticateVerifyRequest: {
+            credential: {
+                [key: string]: unknown;
+            };
+            client_id?: string;
+            client_kind?: components["schemas"]["ClientKind"];
+        };
+        WebAuthnPublicKeyOptionsResponse: {
+            request_id?: string;
+            public_key: {
+                [key: string]: unknown;
+            };
+        };
+        WebAuthnDeviceResponse: {
+            /** Format: uuid */
+            device_id: string;
+            device_label?: string;
+            webauthn_fingerprint?: string;
+        };
         AuthEmailRequest: {
             /** Format: email */
             email: string;
@@ -3273,7 +4083,7 @@ export interface components {
         };
         AuthClientTokenSuccess: {
             client_id: string;
-            client_kind: components["schemas"]["NonUiClientKind"];
+            client_kind: components["schemas"]["TechnicalClientKind"];
             access_token: string;
             /** @enum {string} */
             token_type: "Bearer";
@@ -3290,12 +4100,47 @@ export interface components {
          * @enum {string}
          */
         NonUiClientKind: "AGENT";
+        /**
+         * @description Allowed client kinds for technical bearer tokens.
+         * @enum {string}
+         */
+        TechnicalClientKind: "AGENT" | "MCP";
         AuthRotateClientSecretResponse: {
             client_id: string;
             /** @description Returned once at rotation time. */
             secret_key: string;
             /** Format: date-time */
             rotated_at?: string;
+        };
+        AuthMcpRegisterRequest: {
+            client_label?: string;
+            openpgp_public_key: string;
+            openpgp_fingerprint: string;
+        };
+        AuthMcpRegisterResponse: {
+            client_id: string;
+            /** @enum {string} */
+            client_kind: "MCP";
+            openpgp_fingerprint: string;
+            /** Format: date-time */
+            registered_at?: string;
+            /** Format: date-time */
+            rotated_at?: string;
+        };
+        AuthMcpChallengeRequest: {
+            client_id: string;
+            openpgp_fingerprint: string;
+        };
+        AuthMcpChallengeResponse: {
+            challenge_id: string;
+            challenge: string;
+            expires_in: number;
+        };
+        AuthMcpTokenRequest: {
+            client_id: string;
+            openpgp_fingerprint: string;
+            challenge_id: string;
+            signature: string;
         };
         AuthDeviceStartRequest: {
             client_kind: components["schemas"]["NonUiClientKind"];
@@ -3379,7 +4224,7 @@ export interface components {
         /**
          * @description Application-level feature switches.
          *     Effective feature availability requires Core `FeatureFlags` AND `AppFeatureEnabled`.
-         *     `features.ai` controls MCP global availability (false => MCP disabled).
+         *     `features.ai` controls MCP AI-dependent capabilities (false => MCP AI-dependent functions disabled).
          */
         AppFeatureEnabled: {
             [key: string]: boolean;
@@ -3446,8 +4291,13 @@ export interface components {
             state: components["schemas"]["AssetState"];
             /** Format: date-time */
             created_at: string;
-            /** Format: date-time */
-            updated_at?: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp of the last accepted business mutation on this asset. Informational only; not a write precondition.
+             */
+            updated_at: string | null;
+            /** @description Strong opaque asset revision tag to be reused in `If-Match` for the next mutation. Changes on any accepted human-visible business mutation and stays stable for purely technical noise with no review/operator impact. */
+            revision_etag: string | null;
             /** Format: date-time */
             captured_at?: string | null;
             duration?: number | null;
@@ -3486,8 +4336,9 @@ export interface components {
             proxy_audio_url?: string | null;
             proxy_photo_url?: string | null;
             /**
-             * @description Optional server-generated waveform file URL.
-             *     If absent, UI clients must render a simple local waveform from audio (pure JS).
+             * @description Required for any asset with an exploitable audio track once state progresses beyond READY.
+             *     If `media_type=AUDIO` or facts reveal an exploitable audio track, this field MUST be present in all business states beyond READY.
+             *     UI local fallback may exist for degraded playback UX but never replaces the required server/agent-derived waveform.
              */
             waveform_url?: string | null;
             thumbs?: string[];
@@ -3496,8 +4347,13 @@ export interface components {
             /** @enum {string} */
             status?: "NONE" | "RUNNING" | "DONE" | "FAILED";
             text_preview?: string | null;
-            /** Format: date-time */
-            updated_at?: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp of the last accepted business mutation on this asset. Informational only; not a write precondition.
+             */
+            updated_at?: string;
+            /** @description Strong opaque asset revision tag to be reused in `If-Match` for the next mutation. */
+            revision_etag?: string;
         };
         AssetDecisions: {
             /** @enum {string|null} */
@@ -3591,8 +4447,9 @@ export interface components {
         };
         ErrorResponse: {
             /** @enum {string} */
-            code: "UNAUTHORIZED" | "EMAIL_NOT_VERIFIED" | "FORBIDDEN_SCOPE" | "FORBIDDEN_ACTOR" | "USER_NOT_FOUND" | "STATE_CONFLICT" | "IDEMPOTENCY_CONFLICT" | "STALE_LOCK_TOKEN" | "NAME_COLLISION_EXHAUSTED" | "PURGED" | "VALIDATION_FAILED" | "INVALID_TOKEN" | "LOCK_REQUIRED" | "LOCK_INVALID" | "TOO_MANY_ATTEMPTS" | "MFA_REQUIRED" | "INVALID_2FA_CODE" | "MFA_ALREADY_ENABLED" | "MFA_NOT_ENABLED" | "INVALID_DEVICE_CODE" | "EXPIRED_DEVICE_CODE" | "UNSUPPORTED_FEATURE_FLAGS_CONTRACT_VERSION" | "SLOW_DOWN" | "RATE_LIMITED" | "TEMPORARY_UNAVAILABLE";
+            code: "UNAUTHORIZED" | "EMAIL_NOT_VERIFIED" | "FORBIDDEN_SCOPE" | "FORBIDDEN_ACTOR" | "USER_NOT_FOUND" | "STATE_CONFLICT" | "IDEMPOTENCY_CONFLICT" | "STALE_LOCK_TOKEN" | "NAME_COLLISION_EXHAUSTED" | "PURGED" | "VALIDATION_FAILED" | "INVALID_TOKEN" | "LOCK_REQUIRED" | "LOCK_INVALID" | "TOO_MANY_ATTEMPTS" | "MFA_REQUIRED" | "INVALID_2FA_CODE" | "MFA_ALREADY_ENABLED" | "MFA_NOT_ENABLED" | "INVALID_DEVICE_CODE" | "EXPIRED_DEVICE_CODE" | "UNSUPPORTED_FEATURE_FLAGS_CONTRACT_VERSION" | "SLOW_DOWN" | "RATE_LIMITED" | "TEMPORARY_UNAVAILABLE" | "PRECONDITION_REQUIRED" | "PRECONDITION_FAILED";
             message: string;
+            /** @description May include endpoint-specific structured fields such as `current_revision_etag` and `current_state` for asset state conflicts. */
             details?: {
                 [key: string]: unknown;
             };
@@ -3604,7 +4461,15 @@ export interface components {
     parameters: {
         UuidPath: string;
         IdempotencyKey: string;
+        IfMatch: string;
+        /** @description Strong opaque asset revision tag for optimistic concurrency on asset mutations. */
+        IfMatchAssetRevision: string;
         ClientIdPath: string;
+        AgentSignatureAgentId: string;
+        AgentSignatureOpenPgpFingerprint: string;
+        AgentSignatureValue: string;
+        AgentSignatureTimestamp: string;
+        AgentSignatureNonce: string;
     };
     requestBodies: never;
     headers: never;
