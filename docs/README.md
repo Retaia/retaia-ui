@@ -19,8 +19,21 @@
 - `docs/UI-QUALITY-RUNBOOK.md`
 - `docs/UI-ACCESSIBILITY.md`
 - `docs/PR-CHECKLIST-UI-STATEFUL-REFACTOR.md`
-- `docs/KEYBOARD-SHORTCUTS-REGISTRY.md`
 - `bdd/features/`
+
+## Cadrage produit/UI migre vers `retaia-docs`
+
+Les documents de cadrage UI/UX globaux ne vivent plus dans `retaia-ui`. Ils ont ete centralises dans `retaia-docs`:
+
+- `ui/UI-GLOBAL-SPEC.md`
+- `ui/KEYBOARD-SHORTCUTS-REGISTRY.md`
+- `ui/UI-UX-BRIEF-DESIGNER.md`
+- `ui/UI-REFONTE-RECOMMANDATION.md`
+- `ui/UI-WIREFRAMES-TEXTE.md`
+
+Reference GitHub:
+
+- [retaia-docs/ui](https://github.com/Retaia/retaia-docs/tree/master/ui)
 
 ## Lecture minimale avant de coder
 
@@ -37,6 +50,7 @@
 - Source détaillée (structure UI, couches DDD, garde-fous d'import, tests): `docs/UI-ARCHITECTURE.md`
 - Conventions UI TailAdmin/Tailwind (pas d'héritage Bootstrap): `docs/TAILADMIN-TECHNIQUE.md`
 - Bonnes pratiques de développement/PR: `docs/DEVELOPMENT-BEST-PRACTICES.md`
+- Raccourcis et shell UI globaux: `retaia-docs/ui/*` (voir lien ci-dessus)
 
 ## Commandes BDD/E2E locales
 

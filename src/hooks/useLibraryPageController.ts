@@ -189,6 +189,7 @@ export function useLibraryPageController() {
               assetId,
               tags: payload.tags,
               notes: payload.notes,
+              revisionEtag: selectedAsset?.revisionEtag,
             }),
           ).unwrap()
         }
@@ -212,7 +213,7 @@ export function useLibraryPageController() {
         setSavingMetadata(false)
       }
     },
-    [dispatch, isApiAssetSource, t],
+    [dispatch, isApiAssetSource, selectedAsset?.revisionEtag, t],
   )
 
   const locale = (i18n.resolvedLanguage ?? 'fr') as Locale

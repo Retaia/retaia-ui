@@ -6,6 +6,8 @@ type ReviewAssetDetail = {
   summary: {
     tags?: unknown
     state?: string
+    updated_at?: string | null
+    revision_etag?: string | null
   }
   derived?: {
     proxy_video_url?: string | null

@@ -8,7 +8,7 @@ import {
 export const syncAssetMetadataThunk = createAsyncThunk(
   'assetSync/syncMetadata',
   async (
-    args: { assetId: string; tags: string[]; notes: string },
+    args: { assetId: string; tags: string[]; notes: string; revisionEtag?: string | null },
     { dispatch, rejectWithValue },
   ) => {
     const mutationId = crypto.randomUUID()
@@ -19,6 +19,7 @@ export const syncAssetMetadataThunk = createAsyncThunk(
         assetId: args.assetId,
         tags: args.tags,
         notes: args.notes,
+        revisionEtag: args.revisionEtag,
       }),
     )
     try {
@@ -33,7 +34,7 @@ export const syncAssetMetadataThunk = createAsyncThunk(
 export const syncAssetDecisionThunk = createAsyncThunk(
   'assetSync/syncDecision',
   async (
-    args: { assetId: string; action: 'KEEP' | 'REJECT' },
+    args: { assetId: string; action: 'KEEP' | 'REJECT'; revisionEtag?: string | null },
     { dispatch, rejectWithValue },
   ) => {
     const mutationId = crypto.randomUUID()
@@ -43,6 +44,7 @@ export const syncAssetDecisionThunk = createAsyncThunk(
         mutationId,
         assetId: args.assetId,
         action: args.action,
+        revisionEtag: args.revisionEtag,
       }),
     )
     try {
