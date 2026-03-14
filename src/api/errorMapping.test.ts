@@ -39,8 +39,15 @@ describe('mapApiErrorToMessage', () => {
       retryable: false,
       correlation_id: 'c3',
     })
+    const precondition = new ApiError(412, 'stale revision', {
+      code: 'PRECONDITION_FAILED',
+      message: 'stale revision',
+      retryable: false,
+      correlation_id: 'c4',
+    })
     expect(mapApiErrorToMessage(state, t)).toBe('state')
     expect(mapApiErrorToMessage(idem, t)).toBe('idempotency')
+    expect(mapApiErrorToMessage(precondition, t)).toBe('state')
   })
 
   it('maps lock-related conflicts', () => {

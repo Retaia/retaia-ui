@@ -4,6 +4,8 @@ type AssetDetailLike = {
   summary: {
     tags?: unknown
     state?: string
+    updated_at?: string | null
+    revision_etag?: string | null
   }
   derived?: {
     proxy_video_url?: string | null
@@ -44,6 +46,8 @@ export function mergeAssetWithDetail(
     ...asset,
     state: nextState,
     ...(normalizedTags ? { tags: normalizedTags } : {}),
+    updatedAt: detail.summary.updated_at ?? asset.updatedAt,
+    revisionEtag: detail.summary.revision_etag ?? asset.revisionEtag ?? null,
     proxyVideoUrl: detail.derived?.proxy_video_url ?? asset.proxyVideoUrl ?? null,
     proxyAudioUrl: detail.derived?.proxy_audio_url ?? asset.proxyAudioUrl ?? null,
     proxyPhotoUrl: detail.derived?.proxy_photo_url ?? asset.proxyPhotoUrl ?? null,

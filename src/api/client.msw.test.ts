@@ -13,6 +13,10 @@ describe('api client with msw', () => {
               'features.decisions.bulk': true,
               'features.ignored': 'not-a-bool',
             },
+            feature_flags_contract_version: '1.2.0',
+            accepted_feature_flags_contract_versions: ['1.1.0', '1.2.0'],
+            effective_feature_flags_contract_version: '1.2.0',
+            feature_flags_compatibility_mode: 'STRICT',
           },
         }),
       ),
@@ -23,5 +27,7 @@ describe('api client with msw', () => {
 
     expect(policy.server_policy.feature_flags['features.decisions.bulk']).toBe(true)
     expect(policy.server_policy.feature_flags['features.ignored']).toBeUndefined()
+    expect(policy.server_policy.feature_flags_contract_version).toBe('1.2.0')
+    expect(policy.server_policy.effective_feature_flags_contract_version).toBe('1.2.0')
   })
 })

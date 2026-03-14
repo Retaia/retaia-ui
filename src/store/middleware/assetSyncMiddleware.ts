@@ -60,7 +60,7 @@ export const assetSyncMiddleware: Middleware = (store) => (next) => (action) => 
       .updateAssetMetadata(payload.assetId, {
         tags: payload.tags,
         notes: payload.notes,
-      })
+      }, payload.revisionEtag)
       .then(() => {
         store.dispatch(
           assetSyncSucceeded({
@@ -94,7 +94,12 @@ export const assetSyncMiddleware: Middleware = (store) => (next) => (action) => 
       getAccessToken: () => runtime.token,
     })
     void apiClient
-      .submitAssetDecision(payload.assetId, { action: payload.action }, crypto.randomUUID())
+      .submitAssetDecision(
+        payload.assetId,
+        { action: payload.action },
+        crypto.randomUUID(),
+        payload.revisionEtag,
+      )
       .then(() => {
         store.dispatch(
           assetSyncSucceeded({

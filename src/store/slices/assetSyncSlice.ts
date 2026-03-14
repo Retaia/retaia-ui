@@ -14,11 +14,13 @@ type PendingMutation =
       assetId: string
       tags: string[]
       notes: string
+      revisionEtag?: string | null
     }
   | {
       kind: 'decision'
       assetId: string
       action: 'KEEP' | 'REJECT'
+      revisionEtag?: string | null
     }
 
 export type AssetSyncState = {
@@ -39,24 +41,37 @@ const assetSyncSlice = createSlice({
   reducers: {
     assetMetadataSyncRequested: (
       state,
-      action: PayloadAction<{ mutationId: string; assetId: string; tags: string[]; notes: string }>,
+      action: PayloadAction<{
+        mutationId: string
+        assetId: string
+        tags: string[]
+        notes: string
+        revisionEtag?: string | null
+      }>,
     ) => {
       state.pendingByMutationId[action.payload.mutationId] = {
         kind: 'metadata',
         assetId: action.payload.assetId,
         tags: action.payload.tags,
         notes: action.payload.notes,
+        revisionEtag: action.payload.revisionEtag,
       }
       state.lastError = null
     },
     assetDecisionSyncRequested: (
       state,
-      action: PayloadAction<{ mutationId: string; assetId: string; action: 'KEEP' | 'REJECT' }>,
+      action: PayloadAction<{
+        mutationId: string
+        assetId: string
+        action: 'KEEP' | 'REJECT'
+        revisionEtag?: string | null
+      }>,
     ) => {
       state.pendingByMutationId[action.payload.mutationId] = {
         kind: 'decision',
         assetId: action.payload.assetId,
         action: action.payload.action,
+        revisionEtag: action.payload.revisionEtag,
       }
       state.lastError = null
     },

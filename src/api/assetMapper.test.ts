@@ -7,17 +7,22 @@ describe('assetMapper', () => {
       uuid: 'asset-1',
       media_type: 'VIDEO',
       state: 'DECISION_PENDING',
+      name: 'cam-a.mov',
       created_at: '2026-02-12T10:00:00Z',
       captured_at: '2026-02-11T10:00:00Z',
+      updated_at: '2026-02-13T10:00:00Z',
+      revision_etag: 'etag-1',
       tags: ['urgent', 'interview'],
     })
 
     expect(result).toEqual({
       id: 'asset-1',
-      name: 'asset-1',
+      name: 'cam-a.mov',
       state: 'DECISION_PENDING',
       mediaType: 'VIDEO',
       capturedAt: '2026-02-11T10:00:00Z',
+      updatedAt: '2026-02-13T10:00:00Z',
+      revisionEtag: 'etag-1',
       tags: ['urgent', 'interview'],
     })
   })
@@ -48,6 +53,7 @@ describe('assetMapper', () => {
         media_type: undefined,
         state: undefined,
         created_at: undefined,
+        revision_etag: null,
       },
       0,
     )
@@ -58,6 +64,7 @@ describe('assetMapper', () => {
       state: 'DECISION_PENDING',
       mediaType: 'OTHER',
       capturedAt: '1970-01-01T00:00:00.000Z',
+      revisionEtag: null,
     })
   })
 })

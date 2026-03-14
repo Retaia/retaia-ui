@@ -10,11 +10,17 @@ export type ListAssetsQuery = {
 }
 export type AssetSummary = {
   uuid?: string
+  name?: string
   state?: string
   media_type?: string
   captured_at?: string
   created_at?: string
+  updated_at?: string | null
+  revision_etag?: string | null
+  duration?: number | null
   tags?: string[]
+  has_proxy?: boolean
+  thumb_url?: string | null
   [key: string]: unknown
 }
 export type ListAssetsResponse = {
@@ -65,6 +71,10 @@ export type AssetDecisionPayload = {
 export type AppPolicyResponse = {
   server_policy: {
     feature_flags: Record<string, boolean | unknown>
+    feature_flags_contract_version?: string
+    accepted_feature_flags_contract_versions?: string[]
+    effective_feature_flags_contract_version?: string
+    feature_flags_compatibility_mode?: 'STRICT' | 'COMPAT'
     [key: string]: unknown
   }
   [key: string]: unknown
@@ -87,6 +97,9 @@ export type AuthLoginResponse = {
   access_token: string
   token_type?: string
   [key: string]: unknown
+}
+export type AuthRefreshPayload = {
+  refresh_token: string
 }
 export type AuthCurrentUserResponse = {
   email: string
@@ -118,4 +131,23 @@ export type AuthLostPasswordResetPayload = {
 }
 export type AuthTokenPayload = {
   token: string
+}
+export type WebAuthnPublicKeyOptionsResponse = {
+  request_id?: string
+  public_key: Record<string, unknown>
+}
+export type WebAuthnRegisterVerifyPayload = {
+  credential: Record<string, unknown>
+  device_id?: string
+  device_label?: string
+}
+export type WebAuthnAuthenticateVerifyPayload = {
+  credential: Record<string, unknown>
+  client_id?: string
+  client_kind?: 'UI_WEB' | 'AGENT_UI'
+}
+export type WebAuthnDeviceResponse = {
+  device_id: string
+  device_label?: string
+  webauthn_fingerprint?: string
 }

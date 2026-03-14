@@ -5,6 +5,7 @@ type TranslateFn = (key: string, params?: Record<string, string | number>) => st
 const AUTHZ_CODES = new Set(['FORBIDDEN_SCOPE', 'FORBIDDEN_ACTOR'])
 const TEMPORARY_CODES = new Set(['TEMPORARY_UNAVAILABLE', 'RATE_LIMITED'])
 const LOCK_CODES = new Set(['LOCK_REQUIRED', 'LOCK_INVALID', 'STALE_LOCK_TOKEN'])
+const PRECONDITION_CODES = new Set(['PRECONDITION_REQUIRED', 'PRECONDITION_FAILED'])
 
 export function mapApiErrorToMessage(error: unknown, t: TranslateFn) {
   const apiLikeError = error instanceof ApiError
@@ -27,6 +28,9 @@ export function mapApiErrorToMessage(error: unknown, t: TranslateFn) {
     return t('error.scope')
   }
   if (code === 'STATE_CONFLICT') {
+    return t('error.stateConflict')
+  }
+  if (code && PRECONDITION_CODES.has(code)) {
     return t('error.stateConflict')
   }
   if (code === 'IDEMPOTENCY_CONFLICT') {
