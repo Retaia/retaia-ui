@@ -10,7 +10,7 @@ const reactPlayerMock = vi.fn((props?: unknown) => {
   return <div data-testid="react-player" />
 })
 
-vi.mock('react-player/file', () => ({
+vi.mock('react-player', () => ({
   default: (props: unknown) => reactPlayerMock(props),
 }))
 
@@ -85,7 +85,7 @@ describe('AssetDetailPanel media preview', () => {
     expect(screen.getByTestId('react-player')).toBeInTheDocument()
     expect(reactPlayerMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        url: '/mock-media/video.mp4',
+        src: '/mock-media/video.mp4',
       }),
     )
   })
@@ -103,7 +103,7 @@ describe('AssetDetailPanel media preview', () => {
     expect(screen.getByTestId('react-player')).toBeInTheDocument()
     expect(reactPlayerMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        url: '/mock-media/audio.mp3',
+        src: '/mock-media/audio.mp3',
       }),
     )
     expect(screen.getByTestId('asset-waveform-fallback')).toBeInTheDocument()

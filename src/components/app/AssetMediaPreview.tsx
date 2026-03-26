@@ -1,4 +1,4 @@
-import ReactPlayer from 'react-player/file'
+import ReactPlayer from 'react-player'
 import type { Asset } from '../../domain/assets'
 
 type Props = {
@@ -38,17 +38,7 @@ export function AssetMediaPreview({ selectedAsset, t }: Props) {
   if (selectedAsset.mediaType === 'VIDEO' && mediaUrl) {
     return (
       <div className="rounded border overflow-hidden">
-        <ReactPlayer
-          url={mediaUrl}
-          controls
-          width="100%"
-          height="220px"
-          config={{
-            attributes: {
-              controlsList: 'nodownload',
-            },
-          }}
-        />
+        <ReactPlayer src={mediaUrl} controls width="100%" height="220px" />
       </div>
     )
   }
@@ -56,18 +46,7 @@ export function AssetMediaPreview({ selectedAsset, t }: Props) {
   if (selectedAsset.mediaType === 'AUDIO' && mediaUrl) {
     return (
       <div>
-        <ReactPlayer
-          url={mediaUrl}
-          controls
-          width="100%"
-          height="56px"
-          config={{
-            forceAudio: true,
-            attributes: {
-              controlsList: 'nodownload',
-            },
-          }}
-        />
+        <ReactPlayer src={mediaUrl} controls width="100%" height="56px" />
         {selectedAsset.waveformUrl ? (
           <img
             src={selectedAsset.waveformUrl}
