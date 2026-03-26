@@ -79,6 +79,17 @@ npm run dev
 
 Default local URL: [http://localhost:5173](http://localhost:5173)
 
+## Dependency Overrides
+
+This repository currently pins one transitive security fix through `package.json` overrides:
+
+- `flatted` is forced to `^3.4.2` to remediate Dependabot alert `#24`
+
+Maintenance note:
+
+- this override can be removed once the ESLint chain is bumped coherently and the transitive path no longer resolves a vulnerable `flatted` release
+- in practice, that means re-checking the full chain `eslint -> file-entry-cache -> flat-cache -> flatted` during the future ESLint upgrade
+
 ## Environment Variables
 
 See `.env.example`.
