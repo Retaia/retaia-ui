@@ -1,14 +1,15 @@
 version: 2
-rebase-strategy: auto
 updates:
   - package-ecosystem: github-actions
     directory: "/"
+    rebase-strategy: auto
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
 
   - package-ecosystem: npm
     directory: "/"
+    rebase-strategy: auto
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
