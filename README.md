@@ -33,6 +33,12 @@ Current repo state:
 - several pages intentionally render a reset placeholder while the redesign/rebuild has not started
 - local docs may describe the target architecture or target UX, not a shipped runtime
 
+Next expected step before implementation:
+
+- run a code-vs-spec audit from the current `UI reset` baseline
+- use `specs/` as the only normative reference
+- prepare a prioritized implementation plan from that audit
+
 ## Product Target
 
 The final expected product behavior is defined in `specs/`, especially:
