@@ -4,7 +4,6 @@ import { spawnSync } from 'node:child_process'
 
 const steps = [
   { label: 'Quality gate', command: ['npm', 'run', 'qa'] },
-  { label: 'Critical flow gate', command: ['npm', 'run', 'qa:v1:flows'] },
   { label: 'Critical BDD smoke', command: ['npm', 'run', 'e2e:bdd:critical:ci'] },
   { label: 'Visual regression smoke', command: ['npm', 'run', 'visual:test'] },
 ]

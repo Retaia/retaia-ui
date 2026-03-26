@@ -133,7 +133,7 @@ Main variables:
 - `npm run bdd:test`
 - `npm run e2e:bdd`
 - `npm run e2e:bdd:ci`
-- `npm run e2e:bdd:critical:ci`
+- `npm run bdd:coverage`
 - `npm run visual:test`
 
 ### API Contract
@@ -197,10 +197,6 @@ Core rules:
 - keep changes spec-aligned
 
 ## Release
-
-Release process and checklist:
-
-- `docs/RELEASE-CHECKLIST.md`
 
 GitHub Release is tag-driven (workflow: `.github/workflows/release.yml`):
 

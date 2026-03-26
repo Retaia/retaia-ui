@@ -132,7 +132,7 @@ Scénarios BDD minimum à garder verts:
 - `en` et `fr` obligatoires.
 - Toute clé UI doit exister dans les 2 locales.
 - Fallback strict: `locale utilisateur -> en -> clé brute`.
-- Les libellés destructifs (move/purge/reject) doivent être explicites.
+- Les libellés d'actions destructives doivent être explicites.
 
 Base technique locale disponible dans le repo:
 

@@ -48,7 +48,7 @@ Jobs:
 
 ## Gates de conformité specs
 
-- Vérifier que les parcours critiques `review/decision/move/purge` sont couverts côté BDD.
+- Vérifier que les parcours critiques définis par `specs/tests/TEST-PLAN.md` sont couverts côté BDD.
 - Vérifier la conformité i18n `en/fr` (clé manquante = échec CI).
 - Vérifier les codes d'erreur et états affichés sans dépendance à un texte traduit.
 

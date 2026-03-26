@@ -6,13 +6,11 @@
 ## Contenu
 
 - `docs/DEVELOPMENT-BEST-PRACTICES.md`
-- `docs/TAILADMIN-TECHNIQUE.md`
 - `docs/UI-DESIGN-SYSTEM.md`
 - `docs/UI-ARCHITECTURE.md`
 - `docs/PAGE-CONTROLLER-SECTIONS-STANDARD.md`
 - `docs/GITHUB-WORKFLOWS.md`
 - `docs/DOCKER-DEVELOPMENT.md`
-- `docs/RELEASE-CHECKLIST.md`
 - `docs/UI-QUALITY-RUNBOOK.md`
 - `docs/UI-ACCESSIBILITY.md`
 - `docs/PR-CHECKLIST-UI-STATEFUL-REFACTOR.md`
@@ -50,7 +48,7 @@ Le cadrage produit/UI a lire pour cette implementation est dans `specs/ui/`:
 ## Architecture UI/DDD
 
 - Source détaillée (etat courant + cible structurelle, couches DDD, garde-fous d'import, tests): `docs/UI-ARCHITECTURE.md`
-- Conventions UI TailAdmin/Tailwind (pas d'héritage Bootstrap): `docs/TAILADMIN-TECHNIQUE.md`
+- Conventions UI visuelles et Tailwind: `docs/UI-DESIGN-SYSTEM.md`
 - Bonnes pratiques de développement/PR: `docs/DEVELOPMENT-BEST-PRACTICES.md`
 - Les regles produit/UI globales doivent etre lues dans `specs/ui/*`, pas redefinies localement.
 

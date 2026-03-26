@@ -5,7 +5,7 @@
 
 ## Objectif
 
-Maintenir un niveau minimum WCAG AA sur les parcours critiques desktop.
+Maintenir un niveau minimum WCAG AA sur les surfaces critiques.
 
 ## Gates automatiques
 
@@ -14,7 +14,7 @@ Maintenir un niveau minimum WCAG AA sur les parcours critiques desktop.
 
 ## Checklist v1
 
-- Navigation clavier complete sur la liste, actions et raccourcis.
+- Navigation clavier complete sur les surfaces interactives critiques.
 - Focus visible sur elements interactifs.
 - Roles/labels ARIA presents sur regions principales.
 - Messages d'etat via zones live (`role=\"status\"`) sur feedbacks critiques.

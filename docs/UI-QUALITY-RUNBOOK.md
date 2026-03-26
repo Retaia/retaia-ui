@@ -41,7 +41,6 @@ Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de 
   - `npm run qa:v1:go-no-go`
 - Exécute dans l'ordre:
   - `npm run qa`
-  - `npm run qa:v1:flows`
   - `npm run e2e:bdd:critical:ci`
   - `npm run visual:test`
 
@@ -88,6 +87,7 @@ Toute PR qui modifie la source OpenAPI (`specs/api/openapi/v1.yaml` via mise a j
   - `BDD_API_MODE=mock npm run bdd:test:ci`
   - `BDD_API_MODE=real-api npm run bdd:test:real-api:ci` (suite smoke contre API réelle)
   - `npm run bdd:test:critical:ci` (suite smoke `@critical`)
+  - `npm run bdd:coverage` (couverture navigateur sur suite mock)
 - Artifacts produits:
   - `test-results/bdd-report.json`
   - `test-results/bdd-report.html`
