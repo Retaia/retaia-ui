@@ -8,6 +8,12 @@
 Donner un cadre d'implémentation local pour `retaia-ui` avec React + TypeScript, en priorité TDD et BDD.
 Pour le workflow quotidien branch/PR/checks, voir aussi `docs/UI-QUALITY-RUNBOOK.md`.
 
+Contexte actuel:
+
+- le repo est en phase `UI reset`
+- la nouvelle implementation n'a pas encore commence
+- ce document fixe donc surtout des regles pour la prochaine implementation, pas une description du runtime actuel
+
 ## Principes
 
 - Changement petit, lisible, testable.
@@ -40,58 +46,48 @@ Pour le workflow quotidien branch/PR/checks, voir aussi `docs/UI-QUALITY-RUNBOOK
   - aucune dépendance `SessionCookieAuth`/cookie session côté runtime
   - hook central `onAuthError(401|403)` dans le client pour gérer les redirects/login
 
-## UI Desktop-like (référence locale)
+## UI Desktop-like (référence cible locale)
 
 Objectif:
 
-- privilégier une expérience de review rapide type application desktop, sans complexifier la surface UI
+- privilegier une experience de review rapide type application desktop, sans complexifier la surface UI
 
-Layout cible:
+Important:
 
-- split view: liste à gauche, détail à droite
-- barre d'actions rapides visible en permanence
-- panneau batch explicite (taille du batch + actions)
-- journal d'actions visible pour comprendre les opérations récentes
-- annulation explicite de la dernière action
+- cette section decrit la cible locale d'implementation
+- elle ne signifie pas que ces interactions sont deja disponibles dans le repo courant
 
-Interactions souris:
+Le comportement produit cible ne doit pas etre redefini ici.
+Pour les routes, libelles, raccourcis, actions groupees et contraintes de parcours, utiliser directement:
 
-- `clic` sur une ligne asset: ouvre le panneau détail (sans modifier le batch)
-- `Shift+clic` sur une ligne asset: ajoute/retire l'asset du batch
-- actions explicites: `KEEP`, `REJECT`, `CLEAR` par asset
-- purge asset rejeté: `Prévisualiser purge` puis `Confirmer purge` (2 étapes obligatoires)
-- actions batch explicites: `KEEP batch`, `REJECT batch`, `Vider batch`
+- `specs/ui/UI-GLOBAL-SPEC.md`
+- `specs/ui/KEYBOARD-SHORTCUTS-REGISTRY.md`
+- `specs/workflows/WORKFLOWS.md`
+- `specs/state-machine/STATE-MACHINE.md`
+- `specs/api/API-CONTRACTS.md`
 
-Raccourcis clavier desktop:
+La doc locale n'ajoute ici que des details d'implementation.
 
-- `j` / `k`: navigation dans la liste visible
-- `Flèche haut` / `Flèche bas`: navigation dans la liste visible
-- `Shift + Flèche haut/bas`: étend une sélection de plage dans le batch
-- `Entrée`: ouvre le premier asset visible si aucun détail n'est ouvert
-- `Shift+Espace`: ajoute/retire l'asset sélectionné au batch
-- `Ctrl/Cmd+A`: ajoute tous les assets visibles au batch
-- `Ctrl/Cmd+Z`: annule la dernière action (décision/batch/filtre)
-- `n`: ouvre le prochain asset en `DECISION_PENDING` et recentre le contexte
-- `b`: bascule l'affichage "batch seul" sans quitter le contexte courant
+Details d'implementation locaux recommandes:
+
+- shell et composants simples, sans UI-kit lourd
+- etat derive explicite dans les controllers
+- separation nette entre rendu, orchestration et logique pure
+- navigation clavier basee sur un modele accessible (`listbox/option`, `aria-selected`, roving `tabIndex`)
+- feedbacks async exposes via live regions (`role="status"` + `aria-live="polite"`)
 
 Registre de gouvernance:
 
-- source de verite produit/UI: `retaia-docs/ui/KEYBOARD-SHORTCUTS-REGISTRY.md`
+- source de verite produit/UI: `specs/ui/KEYBOARD-SHORTCUTS-REGISTRY.md`
 - l'implementation locale doit s'y aligner (priorites, conflits, regles de blocage en saisie)
 
 Règles UX:
 
-- les boutons d'action d'une ligne (`KEEP/REJECT/CLEAR`) ne doivent pas déclencher l'ouverture du détail par propagation d'événement
-- garder un état visuel clair pour l'item sélectionné (focus détail) et pour l'item présent dans le batch
-- les raccourcis ne doivent pas interférer avec la saisie dans les champs (`input`, `textarea`, `select`)
-- journal d'actions: afficher des libellés compréhensibles côté utilisateur (`KEEP visibles`, `REJECT batch`, etc.)
-- fournir une action explicite pour vider le journal sans impacter les données métier
-- undo borné: limiter l'historique pour éviter la croissance mémoire côté client
-- navigation clavier: préférer un modèle `listbox/option` avec `aria-selected` et roving `tabIndex`
+- les boutons d'action d'une ligne ne doivent pas déclencher l'ouverture du détail par propagation d'événement
+- les raccourcis ne doivent pas interférer avec la saisie dans les champs (`input`, `textarea`, `select`, `contenteditable`)
+- navigation clavier: preferer un modele `listbox/option` avec `aria-selected` et roving `tabIndex`
 - navigation clavier: garder la ligne active visible (`scrollIntoView` en mode `nearest`)
-- retours asynchrones (preview/execute/report): exposer des live regions (`role="status"` + `aria-live="polite"`)
-- exécution batch: déclencher un chargement automatique du rapport quand `batch_id` est disponible
-- pendant preview/exécution batch: verrouiller temporairement les décisions batch (`KEEP/REJECT/Vider`)
+- retours asynchrones: exposer des live regions (`role="status"` + `aria-live="polite"`)
 
 ## TDD (obligatoire par défaut)
 
@@ -113,11 +109,8 @@ Le BDD sert à verrouiller les parcours utilisateurs critiques avec Gherkin.
 
 Parcours prioritaires:
 
-- Review d'asset
-- Décision `KEEP/REJECT`
-- Batch move (preview + execute + report)
-- Purge confirmée
-- i18n `en/fr` + fallback `en`
+- derives directement de `specs/tests/TEST-PLAN.md`, `specs/workflows/WORKFLOWS.md` et `specs/api/API-CONTRACTS.md`
+- ne pas inventer un parcours critique uniquement dans la doc locale
 
 Format attendu:
 
@@ -145,12 +138,8 @@ Mapping recommandé:
 
 Scénarios BDD minimum à garder verts:
 
-- clic asset -> ouverture du panneau détail
-- `Shift+clic` -> création/extension du batch
-- `Ctrl/Cmd+Z` -> annulation de la dernière action
-- `Shift+Espace` -> ajout/retrait de l'asset sélectionné au batch
-- `Ctrl/Cmd+A` -> sélection de tous les assets visibles
-- purge asset rejeté -> preview puis confirmation
+- derives du plan de test normatif et du registre de raccourcis normatif
+- documentes en local uniquement quand un detail purement technique de test l'exige
 
 ## I18N
 
@@ -159,13 +148,13 @@ Scénarios BDD minimum à garder verts:
 - Fallback strict: `locale utilisateur -> en -> clé brute`.
 - Les libellés destructifs (move/purge/reject) doivent être explicites.
 
-Implémentation locale actuelle:
+Base technique locale disponible dans le repo:
 
 - stack standard `i18next` + `react-i18next`
 - ressources i18n dans `src/i18n/resources.ts`
 - instance i18n partagée dans `src/i18n/index.ts`
 - fallback strict `locale -> en -> key`
-- switch de langue `FR/EN` dans l'en-tête UI desktop-like
+- des briques techniques existent pour supporter un futur switch de langue `FR/EN`
 
 ## Branching & PR
 

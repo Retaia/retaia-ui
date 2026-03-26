@@ -2,6 +2,10 @@
 
 > Statut : non normatif.
 > Les règles métier restent dans `specs/`.
+> Le repo est actuellement en phase `UI reset`.
+
+Ce document decrit la direction technique et visuelle cible pour la future implementation UI.
+Il ne faut pas le lire comme une description d'une interface deja livree.
 
 ## Stack cible
 
@@ -26,14 +30,14 @@
 ## Navigation et layout
 
 - Navigation principale en sidebar gauche.
-- Ordre principal: `Review`, `Library`, `Rejects`.
-- Actions admin placées en bas de sidebar.
+- La composition exacte du shell, des workspaces, des routes et des libelles visibles releve de `specs/ui/UI-GLOBAL-SPEC.md`.
+- Localement, on documente seulement la direction technique du rendu et du theming.
 
 ## Batch UX
 
 - La liste d'assets expose une checkbox batch par ligne.
-- Cocher une checkbox ajoute l'asset au batch et ouvre le panneau d'édition batch.
-- Le panneau batch reste la source d'actions batch (preview/execute/cancel/report).
+- Les details produit de multi-selection et d'actions groupees relevent de `specs/`.
+- Localement, l'implementation doit garder ces flux explicites, lisibles et testables.
 
 ## Références
 

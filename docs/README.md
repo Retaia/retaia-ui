@@ -21,6 +21,15 @@
 - `docs/PR-CHECKLIST-UI-STATEFUL-REFACTOR.md`
 - `bdd/features/`
 
+## Etat actuel du repo
+
+Le repository est toujours en phase `UI reset`.
+
+- l'ancienne UI a ete retiree
+- la nouvelle implementation n'a pas encore commence
+- `specs/` decrit la cible
+- `docs/` doit distinguer clairement `etat courant` et `etat cible`
+
 ## Cadrage produit/UI migre vers `retaia-docs`
 
 Les documents de cadrage UI/UX globaux ne vivent plus dans `retaia-ui`. Ils ont ete centralises dans `retaia-docs`:
@@ -47,10 +56,10 @@ Reference GitHub:
 
 ## Architecture UI/DDD
 
-- Source détaillée (structure UI, couches DDD, garde-fous d'import, tests): `docs/UI-ARCHITECTURE.md`
+- Source détaillée (etat courant + cible structurelle, couches DDD, garde-fous d'import, tests): `docs/UI-ARCHITECTURE.md`
 - Conventions UI TailAdmin/Tailwind (pas d'héritage Bootstrap): `docs/TAILADMIN-TECHNIQUE.md`
 - Bonnes pratiques de développement/PR: `docs/DEVELOPMENT-BEST-PRACTICES.md`
-- Raccourcis et shell UI globaux: `retaia-docs/ui/*` (voir lien ci-dessus)
+- Les regles produit/UI globales doivent etre lues dans `specs/ui/*`, pas redefinies localement.
 
 ## Commandes BDD/E2E locales
 
@@ -62,3 +71,8 @@ Reference GitHub:
 - `APP_URL=http://127.0.0.1:4173 BDD_API_MODE=real-api npm run bdd:test:real-api` (suite real-api)
 - `APP_ENV=test` (ou `VITE_APP_ENV=test`) active une mock DB in-memory dans l'UI.
 - CI: definir la variable repo `E2E_TEST_ENV_URL` pour executer les BDD contre un environnement test distant.
+
+Note:
+
+- en phase `UI reset`, ces commandes servent surtout a verifier l'ossature, les placeholders, les contrats et les garde-fous
+- elles ne doivent pas etre lues comme une preuve que les parcours produit cibles sont deja implementes

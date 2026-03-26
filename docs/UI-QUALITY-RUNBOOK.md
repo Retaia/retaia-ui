@@ -1,5 +1,8 @@
 # Runbook Qualité UI (React + TS)
 
+> Statut : runbook de travail pour la base technique actuelle et la future implementation.
+> Le repo est actuellement en phase `UI reset`.
+
 ## Objectif
 
 Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de qualité constant.

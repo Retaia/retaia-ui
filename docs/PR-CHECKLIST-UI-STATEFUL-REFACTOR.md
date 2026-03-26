@@ -23,7 +23,7 @@ Objectif: securiser les refactors qui touchent l'etat partage UI, les controller
 ## UX et accessibilite
 
 - [ ] Les statuts asynchrones visibles (`role="status"`, `aria-live`) sont conserves.
-- [ ] Les raccourcis clavier critiques ne regressent pas (`j/k`, `Enter`, `Shift+Espace`, `Ctrl/Cmd+Z`).
+- [ ] Les raccourcis clavier critiques definis par `specs/ui/KEYBOARD-SHORTCUTS-REGISTRY.md` ne regressent pas.
 - [ ] Aucun changement de label casse les flux E2E/a11y relies.
 
 ## Tests minimaux

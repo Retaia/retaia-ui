@@ -1,5 +1,8 @@
 # UI Accessibility (v1)
 
+> Statut : cible qualite/accessibilite pour la future implementation.
+> Le repo est actuellement en phase `UI reset`.
+
 ## Objectif
 
 Maintenir un niveau minimum WCAG AA sur les parcours critiques desktop.
@@ -19,5 +22,5 @@ Maintenir un niveau minimum WCAG AA sur les parcours critiques desktop.
 
 ## Gouvernance raccourcis
 
-- Registre central: `retaia-docs/ui/KEYBOARD-SHORTCUTS-REGISTRY.md`.
+- Registre central: `specs/ui/KEYBOARD-SHORTCUTS-REGISTRY.md`.
 - Toute modification de binding clavier doit mettre a jour registre + tests + aide UI.
