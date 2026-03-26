@@ -9,7 +9,7 @@ import {
 
 type ApiClient = {
   previewAssetPurge: (assetId: string) => Promise<unknown>
-  executeAssetPurge: (assetId: string, idempotencyKey: string) => Promise<unknown>
+  executeAssetPurge: (assetId: string, idempotencyKey: string, ifMatch?: string | null) => Promise<unknown>
 }
 
 type PurgeStatus = {
@@ -80,7 +80,7 @@ export function usePurgeFlow({
     setRetryStatus(null)
 
     try {
-      await apiClient.executeAssetPurge(selectedAsset.id, crypto.randomUUID())
+      await apiClient.executeAssetPurge(selectedAsset.id, crypto.randomUUID(), selectedAsset.revisionEtag)
       recordAction(t('activity.purge', { id: selectedAsset.id }))
       onPurgeSuccess(selectedAsset.id)
       setPurgePreviewAssetId(null)

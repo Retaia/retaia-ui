@@ -84,7 +84,7 @@ export function useStandaloneAssetDetailController(context: Context) {
     setSavingMetadata(true)
     setMetadataStatus(null)
     try {
-      await apiClient.updateAssetMetadata(targetAssetId, payload)
+      await apiClient.updateAssetMetadata(targetAssetId, payload, selectedAsset?.revisionEtag)
       setSelectedAsset((current) =>
         current && current.id === targetAssetId
           ? { ...current, tags: payload.tags, notes: payload.notes }

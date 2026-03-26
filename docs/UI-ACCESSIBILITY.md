@@ -19,5 +19,5 @@ Maintenir un niveau minimum WCAG AA sur les parcours critiques desktop.
 
 ## Gouvernance raccourcis
 
-- Registre central: `docs/KEYBOARD-SHORTCUTS-REGISTRY.md`.
+- Registre central: `retaia-docs/ui/KEYBOARD-SHORTCUTS-REGISTRY.md`.
 - Toute modification de binding clavier doit mettre a jour registre + tests + aide UI.

@@ -22,6 +22,7 @@ export type Asset = {
   mediaType?: AssetMediaType
   capturedAt?: string
   updatedAt?: string
+  revisionEtag?: string | null
   proxyVideoUrl?: string | null
   proxyAudioUrl?: string | null
   proxyPhotoUrl?: string | null

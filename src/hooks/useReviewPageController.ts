@@ -357,7 +357,14 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
             if (targetAction !== 'KEEP' && targetAction !== 'REJECT') {
               return
             }
-            await dispatch(syncAssetDecisionThunk({ assetId: targetId, action: targetAction }))
+            const targetAsset = assets.find((asset) => asset.id === targetId)
+            await dispatch(
+              syncAssetDecisionThunk({
+                assetId: targetId,
+                action: targetAction,
+                revisionEtag: targetAsset?.revisionEtag,
+              }),
+            )
               .unwrap()
               .then(() => undefined)
           },
@@ -398,13 +405,19 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
         targetIds,
         action,
         submitAssetDecision: (id, nextAction) =>
-          dispatch(syncAssetDecisionThunk({ assetId: id, action: nextAction }))
+          dispatch(
+            syncAssetDecisionThunk({
+              assetId: id,
+              action: nextAction,
+              revisionEtag: assets.find((asset) => asset.id === id)?.revisionEtag,
+            }),
+          )
             .unwrap()
             .then(() => undefined),
         mapErrorToMessage: mapDecisionErrorToMessage,
       })
     },
-    [dispatch, isApiAssetSource, mapDecisionErrorToMessage],
+    [assets, dispatch, isApiAssetSource, mapDecisionErrorToMessage],
   )
 
   const finalizeBulkDecision = useCallback(
@@ -683,6 +696,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
                 assetId: targetAssetId,
                 tags: targetPayload.tags ?? [],
                 notes: targetPayload.notes ?? '',
+                revisionEtag: assets.find((asset) => asset.id === targetAssetId)?.revisionEtag,
               }),
             )
               .unwrap()
@@ -707,7 +721,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
         setSavingMetadata(false)
       }
     },
-    [dispatch, isApiAssetSource, mapStateConflictAwareErrorToMessage, recordAction, t],
+    [assets, dispatch, isApiAssetSource, mapStateConflictAwareErrorToMessage, recordAction, t],
   )
 
   const refreshSelectedAsset = useCallback(async () => {

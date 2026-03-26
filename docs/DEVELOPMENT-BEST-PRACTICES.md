@@ -76,7 +76,8 @@ Raccourcis clavier desktop:
 
 Registre de gouvernance:
 
-- source de vérité locale: `docs/KEYBOARD-SHORTCUTS-REGISTRY.md` (priorités, conflits, règles de blocage en saisie)
+- source de verite produit/UI: `retaia-docs/ui/KEYBOARD-SHORTCUTS-REGISTRY.md`
+- l'implementation locale doit s'y aligner (priorites, conflits, regles de blocage en saisie)
 
 Règles UX:
 

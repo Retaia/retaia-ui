@@ -35,6 +35,7 @@ export function mapApiSummaryToAsset(
 ): Asset {
   const fallbackId = `UNKNOWN-ASSET-${fallbackIndex + 1}`
   const id = typeof summary.uuid === 'string' && summary.uuid.trim() !== '' ? summary.uuid : fallbackId
+  const name = typeof summary.name === 'string' && summary.name.trim() !== '' ? summary.name : id
   const capturedAt =
     typeof summary.captured_at === 'string'
       ? summary.captured_at
@@ -48,10 +49,14 @@ export function mapApiSummaryToAsset(
 
   return {
     id,
-    name: id,
+    name,
     state: mapState(summary.state),
     mediaType: mapMediaType(summary.media_type),
     capturedAt,
+    ...(typeof summary.updated_at === 'string' ? { updatedAt: summary.updated_at } : {}),
+    ...(summary.revision_etag === null || typeof summary.revision_etag === 'string'
+      ? { revisionEtag: summary.revision_etag ?? null }
+      : {}),
     ...(tags ? { tags } : {}),
   }
 }

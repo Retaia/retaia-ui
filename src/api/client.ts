@@ -7,6 +7,7 @@ import type {
   AuthEmailPayload,
   AuthLoginPayload,
   AuthLoginResponse,
+  AuthRefreshPayload,
   AuthLostPasswordResetPayload,
   AuthTokenPayload,
   HealthResponse,
@@ -18,6 +19,10 @@ import type {
   PurgeExecutePayload,
   UserFeaturesUpdatePayload,
   UserFeaturesResponse,
+  WebAuthnAuthenticateVerifyPayload,
+  WebAuthnDeviceResponse,
+  WebAuthnPublicKeyOptionsResponse,
+  WebAuthnRegisterVerifyPayload,
 } from './contracts'
 import {
   parseAppFeaturesResponse,
@@ -43,6 +48,10 @@ export function createApiClient(
 ) {
   const config = resolveConfig(baseUrlOrConfig, legacyFetchImpl)
   const request = createRequest(config)
+  const withIfMatchHeader = (ifMatch?: string | null) =>
+    typeof ifMatch === 'string' && ifMatch.trim() !== ''
+      ? { 'If-Match': ifMatch }
+      : undefined
 
   return {
     listAssets: (query?: ListAssetsQuery) =>
@@ -90,6 +99,12 @@ export function createApiClient(
         body: JSON.stringify(payload),
       }),
 
+    refreshAuthToken: (payload: AuthRefreshPayload) =>
+      request<AuthLoginResponse>('/auth/refresh', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+
     requestLostPassword: (payload: AuthEmailPayload) =>
       request<void>('/auth/lost-password/request', {
         method: 'POST',
@@ -125,6 +140,31 @@ export function createApiClient(
       const result = await request<unknown>(path)
       return parseCurrentUserResponse(result, path)
     },
+
+    getWebauthnRegistrationOptions: (deviceLabel?: string) =>
+      request<WebAuthnPublicKeyOptionsResponse>('/auth/webauthn/register/options', {
+        method: 'POST',
+        ...(typeof deviceLabel === 'string' && deviceLabel.trim() !== ''
+          ? { body: JSON.stringify({ device_label: deviceLabel }) }
+          : {}),
+      }),
+
+    verifyWebauthnRegistration: (payload: WebAuthnRegisterVerifyPayload) =>
+      request<WebAuthnDeviceResponse>('/auth/webauthn/register/verify', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
+
+    getWebauthnAuthenticationOptions: () =>
+      request<WebAuthnPublicKeyOptionsResponse>('/auth/webauthn/authenticate/options', {
+        method: 'POST',
+      }),
+
+    verifyWebauthnAuthentication: (payload: WebAuthnAuthenticateVerifyPayload) =>
+      request<AuthLoginResponse>('/auth/webauthn/authenticate/verify', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      }),
 
     getUserFeatures: async () => {
       const path = '/auth/me/features'
@@ -192,25 +232,33 @@ export function createApiClient(
         method: 'POST',
       }),
 
-    executeAssetPurge: (assetId: string, idempotencyKey: string) =>
+    executeAssetPurge: (assetId: string, idempotencyKey: string, ifMatch?: string | null) =>
       request<void>(`/assets/${assetId}/purge`, {
         method: 'POST',
         headers: {
+          ...withIfMatchHeader(ifMatch),
           'Idempotency-Key': idempotencyKey,
         },
         body: JSON.stringify({ confirm: true } satisfies PurgeExecutePayload),
       }),
 
-    updateAssetMetadata: (assetId: string, payload: AssetMetadataPatchPayload) =>
+    updateAssetMetadata: (assetId: string, payload: AssetMetadataPatchPayload, ifMatch?: string | null) =>
       request<void>(`/assets/${assetId}`, {
         method: 'PATCH',
+        ...(withIfMatchHeader(ifMatch) ? { headers: withIfMatchHeader(ifMatch) } : {}),
         body: JSON.stringify(payload),
       }),
 
-    submitAssetDecision: (assetId: string, payload: AssetDecisionPayload, idempotencyKey: string) =>
+    submitAssetDecision: (
+      assetId: string,
+      payload: AssetDecisionPayload,
+      idempotencyKey: string,
+      ifMatch?: string | null,
+    ) =>
       request<void>(`/assets/${assetId}/decision`, {
         method: 'POST',
         headers: {
+          ...withIfMatchHeader(ifMatch),
           'Idempotency-Key': idempotencyKey,
         },
         body: JSON.stringify(payload),

@@ -7,7 +7,10 @@ export interface paths {
     "/auth/login": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -15,12 +18,15 @@ export interface paths {
         put?: never;
         /**
          * User login with email and password
-         * @description Interactive login endpoint for supported human-operated clients (`UI_WEB`, `UI_MOBILE`, and `AGENT`). Supports optional TOTP 2FA code when enabled.
+         * @description Interactive bootstrap/recovery login endpoint for `UI_WEB`, the only human-authenticated UI in v1. Supports optional TOTP 2FA code when enabled.
          */
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -83,10 +89,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refresh interactive user bearer token */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AuthRefreshRequest"];
+                };
+            };
+            responses: {
+                /** @description Refresh success */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AuthLoginSuccess"];
+                    };
+                };
+                /** @description Invalid or revoked refresh token (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Too many attempts (`TOO_MANY_ATTEMPTS`) */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/2fa/setup": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -100,7 +182,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -144,7 +229,10 @@ export interface paths {
     "/auth/2fa/enable": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -154,7 +242,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -220,7 +311,10 @@ export interface paths {
     "/auth/2fa/disable": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -230,7 +324,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -294,7 +391,10 @@ export interface paths {
     "/auth/2fa/recovery-codes/regenerate": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -304,7 +404,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -348,7 +451,10 @@ export interface paths {
     "/auth/logout": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -358,7 +464,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -391,7 +500,10 @@ export interface paths {
     "/auth/me": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -399,7 +511,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -433,10 +548,188 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/me/sessions": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        /** List interactive sessions for current user */
+        get: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Interactive sessions list */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: components["schemas"]["AuthSession"][];
+                        };
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/me/sessions/{session_id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke one interactive session for current user */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
+                path: {
+                    session_id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Interactive session revoked */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Session not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Current session cannot be self-revoked (`STATE_CONFLICT`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/me/sessions/revoke-others": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke all other interactive sessions for current user */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Other interactive sessions revoked */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            revoked: number;
+                        };
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/me/features": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -449,7 +742,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -488,7 +784,10 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -541,23 +840,24 @@ export interface paths {
     "/app/features": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
         /**
          * Get effective app feature switches
-         * @description Returns global app switches (`app_feature_enabled`).
-         *     Also returns dependency/escalation metadata for deterministic client behavior.
-         *     Effective global availability requires Core `feature_flags` AND `app_feature_enabled`.
-         *     Normative gate: when `app_feature_enabled.features.ai=false`, `client_kind=MCP` is disabled at runtime.
-         *     Admin-only endpoint.
-         *     Runtime payload contract is stable: `app_feature_enabled`, `feature_governance`, `core_v1_global_features`.
+         * @description Returns effective app feature switches. Admin-only endpoint.
          */
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -605,7 +905,10 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -658,15 +961,16 @@ export interface paths {
     "/app/policy": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
         /**
          * Get runtime app policy
-         * @description Returns runtime `server_policy` including `feature_flags`.
-         *     This endpoint is the canonical runtime policy transport for UI_WEB, UI_MOBILE, AGENT, and MCP clients.
-         *     Clients may optionally send their supported feature-flags contract version for compatibility negotiation.
+         * @description Returns runtime app policy, including `server_policy.feature_flags`. Clients may optionally send their supported feature-flags contract version.
          */
         get: {
             parameters: {
@@ -674,7 +978,10 @@ export interface paths {
                     /** @description Optional client-advertised feature-flags contract version (SemVer). */
                     client_feature_flags_contract_version?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -710,7 +1017,73 @@ export interface paths {
             };
         };
         put?: never;
-        post?: never;
+        /**
+         * Update runtime app policy
+         * @description Updates runtime app policy. Admin-only operation.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AppPolicyUpdateRequest"];
+                };
+            };
+            responses: {
+                /** @description Updated runtime app policy */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AppPolicyResponse"];
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden actor or scope (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Flag is not runtime-mutable yet (`STATE_CONFLICT`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -720,7 +1093,10 @@ export interface paths {
     "/auth/lost-password/request": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -730,7 +1106,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -776,7 +1155,10 @@ export interface paths {
     "/auth/lost-password/reset": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -786,7 +1168,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -832,7 +1217,10 @@ export interface paths {
     "/auth/verify-email/request": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -842,7 +1230,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -888,7 +1279,10 @@ export interface paths {
     "/auth/verify-email/confirm": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -898,7 +1292,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -944,7 +1341,10 @@ export interface paths {
     "/auth/verify-email/admin-confirm": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -957,7 +1357,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1021,7 +1424,10 @@ export interface paths {
     "/auth/clients/{client_id}/revoke-token": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1035,7 +1441,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path: {
                     client_id: components["parameters"]["ClientIdPath"];
                 };
@@ -1090,7 +1499,10 @@ export interface paths {
     "/auth/clients/token": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1098,15 +1510,15 @@ export interface paths {
         put?: never;
         /**
          * Mint client bearer token from secret key
-         * @description Exchanges `(client_id, secret_key)` for a bearer token.
-         *     Normative rule: one active token per technical client_id; minting a new token revokes the previous one.
-         *     This endpoint is for technical non-interactive clients only.
-         *     Runtime gate: when `app_feature_enabled.features.ai=false`, `client_kind=MCP` MUST be rejected.
+         * @description Exchanges `(client_id, secret_key)` for an AGENT technical bearer token.
          */
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1134,7 +1546,7 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
-                /** @description Forbidden client kind or disabled app switch for this flow (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`) */
+                /** @description Forbidden client kind for this flow (`FORBIDDEN_ACTOR`) */
                 403: {
                     headers: {
                         [name: string]: unknown;
@@ -1172,7 +1584,10 @@ export interface paths {
     "/auth/clients/device/start": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1180,14 +1595,15 @@ export interface paths {
         put?: never;
         /**
          * Start device authorization flow for technical client bootstrap
-         * @description Starts a browser-assisted authorization flow (GitHub-style) for `AGENT`/`MCP`.
-         *     User validation (and optional 2FA) happens via `verification_uri`.
-         *     Runtime gate: when `app_feature_enabled.features.ai=false`, `client_kind=MCP` MUST be rejected.
+         * @description Starts a browser-assisted device authorization flow for `AGENT_TECHNICAL`. Human approval happens in `UI_WEB`.
          */
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1206,7 +1622,7 @@ export interface paths {
                         "application/json": components["schemas"]["AuthDeviceStartResponse"];
                     };
                 };
-                /** @description Forbidden actor or disabled app switch (`FORBIDDEN_ACTOR` or `FORBIDDEN_SCOPE`) */
+                /** @description Forbidden actor (`FORBIDDEN_ACTOR`) */
                 403: {
                     headers: {
                         [name: string]: unknown;
@@ -1244,7 +1660,10 @@ export interface paths {
     "/auth/clients/device/poll": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1252,13 +1671,15 @@ export interface paths {
         put?: never;
         /**
          * Poll device authorization status
-         * @description Polls authorization status for a previously started device flow.
-         *     On approval, returns one-shot `secret_key`.
+         * @description Polls authorization status for a previously started device flow. On approval, returns one-shot `secret_key`.
          */
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1315,7 +1736,10 @@ export interface paths {
     "/auth/clients/device/cancel": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1325,7 +1749,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1373,7 +1800,10 @@ export interface paths {
     "/auth/clients/{client_id}/rotate-secret": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1387,7 +1817,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path: {
                     client_id: components["parameters"]["ClientIdPath"];
                 };
@@ -1442,7 +1875,10 @@ export interface paths {
     "/assets": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1450,28 +1886,35 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    state?: components["schemas"]["AssetState"];
+                    /** @description Comma-separated asset states. Ordering is not significant; duplicates are ignored. */
+                    state?: components["schemas"]["AssetState"][];
                     media_type?: "VIDEO" | "PHOTO" | "AUDIO";
-                    tags?: string;
-                    has_proxy?: boolean;
+                    /** @description Comma-separated human tags. Ordering is not significant; duplicates are ignored. */
+                    tags?: string[];
+                    has_preview?: boolean;
                     tags_mode?: "AND" | "OR";
-                    /** @description Full-text query over filename, notes and transcript_text (available in v1). */
+                    /** @description Full-text query over filename and notes (v1 baseline). */
                     q?: string;
                     /** @description Country-level location filter (uses secure derived search index). */
                     location_country?: string;
                     /** @description City-level location filter (uses secure derived search index). */
                     location_city?: string;
-                    /** @description Bounding box filter `min_lon,min_lat,max_lon,max_lat` (uses secure derived spatial index). */
+                    /** @description Bounding box filter `min_lon,min_lat,max_lon,max_lat` with lon in `[-180,180]`, lat in `[-90,90]`, strict `min < max`, and no antimeridian crossing in v1. */
                     geo_bbox?: string;
+                    /** @description Primary sort key. Ties are stabilized by `uuid` ascending. */
                     sort?: "name" | "-name" | "created_at" | "-created_at" | "updated_at" | "-updated_at" | "captured_at" | "-captured_at" | "duration" | "-duration" | "media_type" | "-media_type" | "state" | "-state";
                     /** @description Include assets with `captured_at` greater than or equal to this timestamp (UTC ISO-8601). */
                     captured_at_from?: string;
                     /** @description Include assets with `captured_at` lower than or equal to this timestamp (UTC ISO-8601). */
                     captured_at_to?: string;
                     limit?: number;
+                    /** @description Opaque server-issued cursor bound to the exact `(filters, sort, limit)` tuple of the previous page. */
                     cursor?: string;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1480,6 +1923,8 @@ export interface paths {
                 /** @description Asset list */
                 200: {
                     headers: {
+                        /** @description Canonical cache policy for authenticated asset list responses. */
+                        "Cache-Control"?: "private, no-store";
                         [name: string]: unknown;
                     };
                     content: {
@@ -1511,7 +1956,10 @@ export interface paths {
     "/assets/{uuid}": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1519,7 +1967,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path: {
                     uuid: components["parameters"]["UuidPath"];
                 };
@@ -1530,6 +1981,10 @@ export interface paths {
                 /** @description Asset detail */
                 200: {
                     headers: {
+                        /** @description Strong quoted HTTP entity-tag for the current asset revision. */
+                        ETag?: string;
+                        /** @description Canonical cache policy for authenticated asset detail responses. */
+                        "Cache-Control"?: "private, no-store";
                         [name: string]: unknown;
                     };
                     content: {
@@ -1552,11 +2007,19 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update one asset (metadata and lifecycle transitions) */
+        /**
+         * Update one asset (metadata and lifecycle transitions)
+         * @description Partial human mutation. Only the provided fields are updated; omitted fields stay unchanged.
+         */
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                    /** @description Strong quoted HTTP entity-tag previously read from the asset `ETag` response header. */
+                    "If-Match": components["parameters"]["IfMatch"];
+                };
                 path: {
                     uuid: components["parameters"]["UuidPath"];
                 };
@@ -1566,10 +2029,21 @@ export interface paths {
                 content: {
                     "application/json": {
                         tags?: string[];
-                        notes?: string;
-                        fields?: {
-                            [key: string]: unknown;
-                        };
+                        notes?: string | null;
+                        fields?: components["schemas"]["AssetFields"];
+                        /** Format: date-time */
+                        captured_at?: string | null;
+                        gps_latitude?: number | null;
+                        gps_longitude?: number | null;
+                        gps_altitude_m?: number | null;
+                        gps_altitude_relative_m?: number | null;
+                        gps_altitude_absolute_m?: number | null;
+                        location_country?: string | null;
+                        location_city?: string | null;
+                        location_label?: string | null;
+                        projects?: components["schemas"]["AssetProjectRef"][];
+                        /** @enum {string} */
+                        processing_profile?: "video_standard" | "audio_undefined" | "audio_music" | "audio_voice" | "photo_standard";
                         /** @enum {string} */
                         state?: "DECISION_PENDING" | "DECIDED_KEEP" | "DECIDED_REJECT" | "ARCHIVED" | "REJECTED";
                     };
@@ -1579,12 +2053,23 @@ export interface paths {
                 /** @description Asset updated */
                 200: {
                     headers: {
+                        /** @description Strong quoted HTTP entity-tag after the accepted mutation. */
+                        ETag?: string;
                         [name: string]: unknown;
                     };
                     content?: never;
                 };
                 /** @description Unauthorized (`UNAUTHORIZED`) */
                 401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description State conflict (invalid transition) */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1599,6 +2084,33 @@ export interface paths {
                     };
                     content?: never;
                 };
+                /** @description Stale asset revision (`PRECONDITION_FAILED`) */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Missing optimistic concurrency precondition (`PRECONDITION_REQUIRED`) */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
             };
         };
         trace?: never;
@@ -1606,7 +2118,10 @@ export interface paths {
     "/agents/register": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1616,16 +2131,37 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
+                };
                 path?: never;
                 cookie?: never;
             };
             requestBody: {
                 content: {
                     "application/json": {
+                        /**
+                         * Format: uuid
+                         * @description Stable per-agent-instance UUIDv4 generated once and persisted locally by the agent.
+                         */
+                        agent_id: string;
                         agent_name: string;
                         agent_version: string;
-                        platform?: string;
+                        /** @description Agent OpenPGP public key in ASCII-armored format. */
+                        openpgp_public_key: string;
+                        /** @description Canonical OpenPGP fingerprint of the active agent signing key. */
+                        openpgp_fingerprint: string;
+                        /** @enum {string} */
+                        os_name: "linux" | "macos" | "windows";
+                        os_version: string;
+                        /** @enum {string} */
+                        arch: "x86_64" | "arm64" | "armv7" | "other";
                         capabilities: string[];
                         /** @description Optional client-advertised feature-flags contract version (SemVer). */
                         client_feature_flags_contract_version?: string;
@@ -1641,6 +2177,7 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
+                            /** Format: uuid */
                             agent_id?: string;
                             effective_capabilities?: string[];
                             capability_warnings?: string[];
@@ -1677,7 +2214,10 @@ export interface paths {
     "/assets/{uuid}/reprocess": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1688,6 +2228,10 @@ export interface paths {
             parameters: {
                 query?: never;
                 header: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                    /** @description Strong quoted HTTP entity-tag previously read from the asset `ETag` response header. */
+                    "If-Match": components["parameters"]["IfMatch"];
                     "Idempotency-Key": components["parameters"]["IdempotencyKey"];
                 };
                 path: {
@@ -1713,8 +2257,26 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
-                /** @description State conflict or idempotency conflict */
+                /** @description State conflict */
                 409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Stale asset revision (`PRECONDITION_FAILED`) */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Missing optimistic concurrency precondition (`PRECONDITION_REQUIRED`) */
+                428: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1733,7 +2295,10 @@ export interface paths {
     "/assets/{uuid}/reopen": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1743,7 +2308,12 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                    /** @description Strong quoted HTTP entity-tag previously read from the asset `ETag` response header. */
+                    "If-Match": components["parameters"]["IfMatch"];
+                };
                 path: {
                     uuid: components["parameters"]["UuidPath"];
                 };
@@ -1754,6 +2324,8 @@ export interface paths {
                 /** @description Asset reopened */
                 200: {
                     headers: {
+                        /** @description Strong quoted HTTP entity-tag after the accepted mutation. */
+                        ETag?: string;
                         [name: string]: unknown;
                     };
                     content?: never;
@@ -1772,7 +2344,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Stale asset revision (`PRECONDITION_FAILED`) */
+                412: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Missing optimistic concurrency precondition (`PRECONDITION_REQUIRED`) */
+                428: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1785,7 +2377,10 @@ export interface paths {
     "/jobs": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1797,7 +2392,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1834,7 +2432,10 @@ export interface paths {
     "/jobs/{job_id}/claim": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1844,7 +2445,15 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
+                };
                 path: {
                     job_id: string;
                 };
@@ -1888,7 +2497,10 @@ export interface paths {
     "/jobs/{job_id}/heartbeat": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1898,7 +2510,15 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
+                };
                 path: {
                     job_id: string;
                 };
@@ -1908,6 +2528,7 @@ export interface paths {
                 content: {
                     "application/json": {
                         lock_token: string;
+                        fencing_token: number;
                     };
                 };
             };
@@ -1920,12 +2541,31 @@ export interface paths {
                     content: {
                         "application/json": {
                             /** Format: date-time */
-                            locked_until?: string;
+                            locked_until: string;
+                            fencing_token: number;
                         };
                     };
                 };
                 /** @description Unauthorized (`UNAUTHORIZED`) */
                 401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Stale lock token (`STALE_LOCK_TOKEN`) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Missing or invalid lock (`LOCK_REQUIRED` or `LOCK_INVALID`) */
+                423: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1944,7 +2584,10 @@ export interface paths {
     "/jobs/{job_id}/submit": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -1958,7 +2601,14 @@ export interface paths {
             parameters: {
                 query?: never;
                 header: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
                     "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
                 };
                 path: {
                     job_id: string;
@@ -1987,7 +2637,7 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
-                /** @description Idempotency conflict */
+                /** @description Stale lock token or idempotency conflict (`STALE_LOCK_TOKEN` or `IDEMPOTENCY_CONFLICT`) */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -2016,7 +2666,10 @@ export interface paths {
     "/jobs/{job_id}/fail": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2027,7 +2680,14 @@ export interface paths {
             parameters: {
                 query?: never;
                 header: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
                     "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
                 };
                 path: {
                     job_id: string;
@@ -2038,6 +2698,7 @@ export interface paths {
                 content: {
                     "application/json": {
                         lock_token: string;
+                        fencing_token: number;
                         error_code: string;
                         message?: string;
                         retryable: boolean;
@@ -2061,8 +2722,17 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
-                /** @description Idempotency conflict */
+                /** @description Stale lock token or idempotency conflict (`STALE_LOCK_TOKEN` or `IDEMPOTENCY_CONFLICT`) */
                 409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Missing or invalid lock (`LOCK_REQUIRED` or `LOCK_INVALID`) */
+                423: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2081,7 +2751,10 @@ export interface paths {
     "/assets/{uuid}/derived/upload/init": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2090,17 +2763,23 @@ export interface paths {
         /**
          * Initialize derived upload
          * @description Initializes upload for one derived file.
-         *     Normative media profile constraints:
-         *     - `proxy_video`: `video/mp4` (H.264/AVC, browser-compatible), source framerate preserved.
-         *     - `proxy_audio`: `audio/mp4` (AAC-LC) or `audio/mpeg`.
-         *     - `proxy_photo` / `thumb`: `image/jpeg` or `image/webp`.
-         *     - `waveform`: `application/json` (preferred) or `application/octet-stream`.
+         *     Supported kinds: `preview_video`, `preview_audio`, `preview_photo`, `thumb`, `waveform`.
+         *     Media format details are defined in the Markdown specifications.
          */
         post: {
             parameters: {
                 query?: never;
                 header: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                    /** @description Strong quoted HTTP entity-tag previously read from the asset `ETag` response header. */
+                    "If-Match": components["parameters"]["IfMatch"];
                     "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
                 };
                 path: {
                     uuid: components["parameters"]["UuidPath"];
@@ -2111,7 +2790,7 @@ export interface paths {
                 content: {
                     "application/json": {
                         /** @enum {string} */
-                        kind: "proxy_video" | "proxy_audio" | "proxy_photo" | "thumb" | "waveform";
+                        kind: "preview_video" | "preview_audio" | "preview_photo" | "thumb" | "waveform";
                         /** @description MIME type constrained by `kind` (see endpoint description). */
                         content_type: string;
                         size_bytes: number;
@@ -2147,7 +2826,10 @@ export interface paths {
     "/assets/{uuid}/derived/upload/part": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2157,7 +2839,17 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                    /** @description Strong quoted HTTP entity-tag previously read from the asset `ETag` response header. */
+                    "If-Match": components["parameters"]["IfMatch"];
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
+                };
                 path: {
                     uuid: components["parameters"]["UuidPath"];
                 };
@@ -2165,9 +2857,11 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": {
+                    "multipart/form-data": {
                         upload_id: string;
                         part_number: number;
+                        /** Format: binary */
+                        chunk: string;
                     };
                 };
             };
@@ -2177,7 +2871,11 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": {
+                            part_etag: string;
+                        };
+                    };
                 };
                 /** @description Unauthorized (`UNAUTHORIZED`) */
                 401: {
@@ -2199,7 +2897,10 @@ export interface paths {
     "/assets/{uuid}/derived/upload/complete": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2210,7 +2911,16 @@ export interface paths {
             parameters: {
                 query?: never;
                 header: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                    /** @description Strong quoted HTTP entity-tag previously read from the asset `ETag` response header. */
+                    "If-Match": components["parameters"]["IfMatch"];
                     "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                    "X-Retaia-Agent-Id": components["parameters"]["AgentSignatureAgentId"];
+                    "X-Retaia-OpenPGP-Fingerprint": components["parameters"]["AgentSignatureOpenPgpFingerprint"];
+                    "X-Retaia-Signature": components["parameters"]["AgentSignatureValue"];
+                    "X-Retaia-Signature-Timestamp": components["parameters"]["AgentSignatureTimestamp"];
+                    "X-Retaia-Signature-Nonce": components["parameters"]["AgentSignatureNonce"];
                 };
                 path: {
                     uuid: components["parameters"]["UuidPath"];
@@ -2221,7 +2931,10 @@ export interface paths {
                 content: {
                     "application/json": {
                         upload_id: string;
-                        parts?: Record<string, never>[];
+                        parts?: {
+                            part_number: number;
+                            part_etag: string;
+                        }[];
                     };
                 };
             };
@@ -2253,7 +2966,10 @@ export interface paths {
     "/assets/{uuid}/derived": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2261,7 +2977,10 @@ export interface paths {
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path: {
                     uuid: components["parameters"]["UuidPath"];
                 };
@@ -2272,12 +2991,12 @@ export interface paths {
                 /** @description Derived list */
                 200: {
                     headers: {
+                        /** @description Canonical cache policy for authenticated derived listing responses. */
+                        "Cache-Control"?: "private, no-store";
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            [key: string]: unknown;
-                        };
+                        "application/json": components["schemas"]["AssetDerived"];
                     };
                 };
                 /** @description Unauthorized (`UNAUTHORIZED`) */
@@ -2302,18 +3021,29 @@ export interface paths {
     "/assets/{uuid}/derived/{kind}": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
-        /** Fetch one derived file by kind */
+        /**
+         * Fetch one derived file by kind
+         * @description Direct Core byte delivery for the current derived file. No redirect response is part of the v1 contract.
+         */
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                    /** @description Optional byte range request. Supported for audio/video preview delivery. */
+                    Range?: components["parameters"]["Range"];
+                };
                 path: {
                     uuid: components["parameters"]["UuidPath"];
-                    kind: "proxy_video" | "proxy_audio" | "proxy_photo" | "thumb" | "waveform";
+                    kind: "preview_video" | "preview_audio" | "preview_photo" | "thumb" | "waveform";
                 };
                 cookie?: never;
             };
@@ -2322,9 +3052,33 @@ export interface paths {
                 /** @description Derived content */
                 200: {
                     headers: {
+                        /** @description Media type of the returned derived content. */
+                        "Content-Type"?: string;
+                        /** @description Canonical cache policy for authenticated derived delivery responses. */
+                        "Cache-Control"?: "private, no-store";
+                        /** @description Present for range-capable derived resources. */
+                        "Accept-Ranges"?: "bytes";
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "*/*": string;
+                    };
+                };
+                /** @description Partial derived content */
+                206: {
+                    headers: {
+                        /** @description Media type of the returned derived content. */
+                        "Content-Type"?: string;
+                        /** @description Canonical cache policy for authenticated derived delivery responses. */
+                        "Cache-Control"?: "private, no-store";
+                        "Accept-Ranges"?: "bytes";
+                        /** @description Byte range actually returned when serving a partial response. */
+                        "Content-Range"?: string;
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "*/*": string;
+                    };
                 };
                 /** @description Unauthorized (`UNAUTHORIZED`) */
                 401: {
@@ -2342,6 +3096,13 @@ export interface paths {
                     };
                     content?: never;
                 };
+                /** @description Requested range not satisfiable */
+                416: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         put?: never;
@@ -2352,10 +3113,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/assets/purge": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Purge multiple rejected assets */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                    "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        asset_uuids: string[];
+                        /** @enum {boolean} */
+                        confirm: true;
+                    };
+                };
+            };
+            responses: {
+                /** @description Purge executed with per-asset results */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            requested: number;
+                            purged: number;
+                            failed: number;
+                            results: {
+                                /** Format: uuid */
+                                asset_uuid: string;
+                                status: string;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description State conflict or idempotency conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/assets/{uuid}/purge": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2366,6 +3208,10 @@ export interface paths {
             parameters: {
                 query?: never;
                 header: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                    /** @description Strong quoted HTTP entity-tag previously read from the asset `ETag` response header. */
+                    "If-Match": components["parameters"]["IfMatch"];
                     "Idempotency-Key": components["parameters"]["IdempotencyKey"];
                 };
                 path: {
@@ -2418,7 +3264,10 @@ export interface paths {
     "/assets/{uuid}/purge/preview": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
@@ -2428,7 +3277,10 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path: {
                     uuid: components["parameters"]["UuidPath"];
                 };
@@ -2463,15 +3315,24 @@ export interface paths {
     "/ops/ingest/diagnostics": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
-        /** Get ingest diagnostics counters and latest unmatched sidecars */
+        /**
+         * Get ingest diagnostics counters and latest unmatched sidecars
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2528,15 +3389,24 @@ export interface paths {
     "/ops/readiness": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
-        /** Get operational readiness checks */
+        /**
+         * Get operational readiness checks
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2608,11 +3478,17 @@ export interface paths {
     "/ops/locks": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
-        /** List active operation locks */
+        /**
+         * List active operation locks
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
         get: {
             parameters: {
                 query?: {
@@ -2623,7 +3499,10 @@ export interface paths {
                     /** @description Zero-based pagination offset. */
                     offset?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2646,7 +3525,7 @@ export interface paths {
                                 /** Format: date-time */
                                 released_at?: string | null;
                             }[];
-                            /** @description Total count after filters, before pagination. */
+                            /** @description Total count after filters, before pagination. Items are returned by canonical default order `acquired_at DESC`. */
                             total: number;
                         };
                     };
@@ -2682,17 +3561,26 @@ export interface paths {
     "/ops/locks/recover": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
         get?: never;
         put?: never;
-        /** Recover stale operation locks */
+        /**
+         * Recover stale operation locks
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2749,15 +3637,24 @@ export interface paths {
     "/ops/jobs/queue": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
-        /** Get jobs queue diagnostics */
+        /**
+         * Get jobs queue diagnostics
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
         get: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2813,14 +3710,142 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ops/ingest/unmatched": {
+    "/ops/agents": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
-        /** List unmatched ingest sidecars */
+        /**
+         * List known agents with runtime status and debug information
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    status?: "online_idle" | "online_busy" | "stale";
+                    limit?: number;
+                    offset?: number;
+                };
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Agents runtime snapshot */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                /** Format: uuid */
+                                agent_id: string;
+                                client_id: string;
+                                agent_name: string;
+                                agent_version: string;
+                                /** @enum {string|null} */
+                                os_name?: "linux" | "macos" | "windows" | null;
+                                os_version?: string | null;
+                                arch?: string | null;
+                                /** @enum {string} */
+                                status: "online_idle" | "online_busy" | "stale";
+                                identity_conflict: boolean;
+                                /** Format: date-time */
+                                last_seen_at: string;
+                                /** Format: date-time */
+                                last_register_at: string;
+                                /** Format: date-time */
+                                last_heartbeat_at?: string | null;
+                                effective_capabilities: string[];
+                                capability_warnings: string[];
+                                current_job?: {
+                                    job_id: string;
+                                    job_type: string;
+                                    asset_uuid: string;
+                                    /** Format: date-time */
+                                    claimed_at: string;
+                                    /** Format: date-time */
+                                    locked_until: string;
+                                } | null;
+                                last_successful_job?: {
+                                    job_id: string;
+                                    job_type: string;
+                                    asset_uuid: string;
+                                    /** Format: date-time */
+                                    completed_at: string;
+                                } | null;
+                                last_failed_job?: {
+                                    job_id: string;
+                                    job_type: string;
+                                    asset_uuid: string;
+                                    /** Format: date-time */
+                                    failed_at: string;
+                                    error_code: string;
+                                } | null;
+                                debug: {
+                                    max_parallel_jobs: number;
+                                    feature_flags_contract_version?: string | null;
+                                    effective_feature_flags_contract_version?: string | null;
+                                    server_time_skew_seconds?: number | null;
+                                };
+                            }[];
+                            /** @description Items are returned by canonical default order `last_seen_at DESC`. */
+                            total: number;
+                        };
+                    };
+                };
+                /** @description Unauthorized (`UNAUTHORIZED`) */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Forbidden (`FORBIDDEN_SCOPE` or `FORBIDDEN_ACTOR`) */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ops/ingest/unmatched": {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List unmatched ingest sidecars
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
         get: {
             parameters: {
                 query?: {
@@ -2829,7 +3854,10 @@ export interface paths {
                     since?: string;
                     limit?: number;
                 };
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2893,17 +3921,26 @@ export interface paths {
     "/ops/ingest/requeue": {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+            };
             path?: never;
             cookie?: never;
         };
         get?: never;
         put?: never;
-        /** Requeue ingest processing for a specific target */
+        /**
+         * Requeue ingest processing for a specific target
+         * @description Requires `UserBearerAuth` and an authenticated admin actor, per AUTHZ matrix.
+         */
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+                    "Accept-Language"?: components["parameters"]["AcceptLanguage"];
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -2918,7 +3955,7 @@ export interface paths {
                         /** @default true */
                         include_derived?: boolean;
                         reason: string;
-                    };
+                    } | unknown | unknown;
                 };
             };
             responses: {
@@ -3004,6 +4041,11 @@ export interface components {
             client_id?: string;
             client_kind?: components["schemas"]["ClientKind"];
         };
+        AuthRefreshRequest: {
+            refresh_token: string;
+            client_id?: string;
+            client_kind?: components["schemas"]["ClientKind"];
+        };
         AuthEmailRequest: {
             /** Format: email */
             email: string;
@@ -3025,6 +4067,21 @@ export interface components {
             mfa_enabled?: boolean;
         } & {
             [key: string]: unknown;
+        };
+        AuthSession: {
+            session_id: string;
+            client_id: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            last_used_at: string;
+            /** Format: date-time */
+            expires_at?: string | null;
+            is_current: boolean;
+            device_label?: string | null;
+            browser?: string | null;
+            os?: string | null;
+            ip_address_last_seen?: string | null;
         };
         Auth2faOtpRequest: {
             otp_code: string;
@@ -3063,7 +4120,7 @@ export interface components {
         };
         AuthClientTokenSuccess: {
             client_id: string;
-            client_kind: components["schemas"]["NonUiClientKind"];
+            client_kind: components["schemas"]["TechnicalClientKind"];
             access_token: string;
             /** @enum {string} */
             token_type: "Bearer";
@@ -3071,15 +4128,20 @@ export interface components {
             expires_in?: number;
         };
         /**
-         * @description Form factor identifier for interactive login flows.
+         * @description Form factor identifier for interactive login flows in v1.
          * @enum {string}
          */
-        ClientKind: "UI_WEB" | "UI_MOBILE" | "AGENT";
+        ClientKind: "UI_WEB";
         /**
-         * @description Allowed client kinds for technical secret-key token minting.
+         * @description Allowed client kinds for AGENT technical secret-key token minting.
          * @enum {string}
          */
-        NonUiClientKind: "AGENT" | "MCP";
+        NonUiClientKind: "AGENT";
+        /**
+         * @description Allowed client kinds for v1 technical bearer tokens.
+         * @enum {string}
+         */
+        TechnicalClientKind: "AGENT";
         AuthRotateClientSecretResponse: {
             client_id: string;
             /** @description Returned once at rotation time. */
@@ -3117,6 +4179,16 @@ export interface components {
             client_kind: components["schemas"]["NonUiClientKind"];
             /** @description One-shot credential shown only once after approval. */
             secret_key: string;
+            /**
+             * Format: date-time
+             * @description Timestamp of the human approval performed in UI_WEB.
+             */
+            approved_at: string;
+            /**
+             * Format: uuid
+             * @description Audit identifier of the human approver in UI_WEB.
+             */
+            approved_by_user_id: string;
         };
         AuthDevicePollDenied: {
             /** @enum {string} */
@@ -3169,7 +4241,7 @@ export interface components {
         /**
          * @description Application-level feature switches.
          *     Effective feature availability requires Core `FeatureFlags` AND `AppFeatureEnabled`.
-         *     `features.ai` controls MCP global availability (false => MCP disabled).
+         *     `features.ai` gates pre-release dépendantes de l'AI capabilities ahead of their validated v1.1+ rollout.
          */
         AppFeatureEnabled: {
             [key: string]: boolean;
@@ -3189,6 +4261,16 @@ export interface components {
         EffectiveFeatureEnabled: {
             [key: string]: boolean;
         };
+        FeatureExplanation: {
+            effective_value: boolean;
+            /** @enum {string} */
+            reason_code?: "FEATURE_FLAG_OFF" | "ADMIN_DISABLED" | "USER_OPT_OUT" | "DEPENDENCY_OFF" | "DISABLE_ESCALATION" | "CORE_PROTECTED" | "UNSUPPORTED_CONTRACT_VERSION";
+            dependency_key?: string;
+            parent_feature_key?: string;
+        };
+        FeatureExplanations: {
+            [key: string]: components["schemas"]["FeatureExplanation"];
+        };
         FeatureGovernanceRule: {
             /** @description Feature key. Keys listed in `core_v1_global_features` are protected. */
             key: string;
@@ -3201,6 +4283,7 @@ export interface components {
         };
         AppFeaturesResponse: {
             app_feature_enabled: components["schemas"]["AppFeatureEnabled"];
+            app_feature_explanations: components["schemas"]["FeatureExplanations"];
             core_v1_global_features: components["schemas"]["CoreV1GlobalFeatures"];
             feature_governance: components["schemas"]["FeatureGovernanceRule"][];
         };
@@ -3210,6 +4293,7 @@ export interface components {
         UserFeaturesResponse: {
             user_feature_enabled: components["schemas"]["UserFeatureEnabled"];
             effective_feature_enabled: components["schemas"]["EffectiveFeatureEnabled"];
+            effective_feature_explanations: components["schemas"]["FeatureExplanations"];
             feature_governance: components["schemas"]["FeatureGovernanceRule"][];
             core_v1_global_features: components["schemas"]["CoreV1GlobalFeatures"];
         };
@@ -3223,8 +4307,11 @@ export interface components {
         AppPolicyResponse: {
             server_policy: components["schemas"]["ServerPolicy"];
         };
+        AppPolicyUpdateRequest: {
+            feature_flags: components["schemas"]["FeatureFlags"];
+        };
         /** @enum {string} */
-        AssetState: "DISCOVERED" | "READY" | "PROCESSING_REVIEW" | "PROCESSED" | "DECISION_PENDING" | "DECIDED_KEEP" | "DECIDED_REJECT" | "ARCHIVED" | "REJECTED" | "PURGED";
+        AssetState: "DISCOVERED" | "READY" | "PROCESSING_REVIEW" | "REVIEW_PENDING_PROFILE" | "PROCESSED" | "DECISION_PENDING" | "DECIDED_KEEP" | "DECIDED_REJECT" | "ARCHIVED" | "REJECTED" | "PURGED";
         AssetSummary: {
             uuid: string;
             name?: string;
@@ -3233,23 +4320,40 @@ export interface components {
             state: components["schemas"]["AssetState"];
             /** Format: date-time */
             created_at: string;
-            /** Format: date-time */
-            updated_at?: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp of the last accepted business mutation on this asset. Informational only; not a write precondition.
+             */
+            updated_at: string | null;
+            /** @description Strong quoted HTTP entity-tag to be reused byte-for-byte in `If-Match` for the next mutation. */
+            revision_etag: string | null;
             /** Format: date-time */
             captured_at?: string | null;
             duration?: number | null;
             tags?: string[];
-            has_proxy?: boolean;
+            has_preview?: boolean;
             thumb_url?: string | null;
         };
         AssetDetail: {
             summary: components["schemas"]["AssetSummary"];
-            paths?: components["schemas"]["AssetPaths"];
-            processing?: components["schemas"]["AssetProcessing"];
-            derived?: components["schemas"]["AssetDerived"];
+            notes?: string | null;
+            fields?: components["schemas"]["AssetFields"];
+            gps_latitude?: number | null;
+            gps_longitude?: number | null;
+            gps_altitude_m?: number | null;
+            gps_altitude_relative_m?: number | null;
+            gps_altitude_absolute_m?: number | null;
+            location_country?: string | null;
+            location_city?: string | null;
+            location_label?: string | null;
+            projects?: components["schemas"]["AssetProjectRef"][];
+            paths: components["schemas"]["AssetPaths"];
+            processing: components["schemas"]["AssetProcessing"];
+            derived: components["schemas"]["AssetDerived"];
+            /** @description Pre-release field only. Outside v1 conformance scope; may be exposed earlier under feature flags before validated v1.1+ rollout. */
             transcript?: components["schemas"]["AssetTranscript"];
-            decisions?: components["schemas"]["AssetDecisions"];
-            audit?: components["schemas"]["AssetAudit"];
+            decisions: components["schemas"]["AssetDecisions"];
+            audit: components["schemas"]["AssetAudit"];
         };
         /** @description Stable logical storage identifier emitted by Core and mapped locally by agents. */
         StorageId: string;
@@ -3263,44 +4367,80 @@ export interface components {
         AssetProcessing: {
             facts_done?: boolean;
             thumbs_done?: boolean;
-            proxy_done?: boolean;
+            preview_done?: boolean;
             waveform_done?: boolean;
-            processing_profile?: string;
+            /** @enum {string} */
+            processing_profile?: "video_standard" | "audio_undefined" | "audio_music" | "audio_voice" | "photo_standard";
             review_processing_version?: string;
         };
+        AssetFieldValue: string | number | boolean | string[] | number[] | boolean[];
+        /** @description Shared complementary metadata map. Values stay JSON-simple; domains requiring dedicated semantics, storage or security rules must not be hidden implicitly here. */
+        AssetFields: {
+            [key: string]: components["schemas"]["AssetFieldValue"];
+        };
+        AssetProjectRef: {
+            project_id: string;
+            project_name: string;
+            /** Format: date-time */
+            created_at: string;
+            description?: string | null;
+        };
         AssetDerived: {
-            proxy_video_url?: string | null;
-            proxy_audio_url?: string | null;
-            proxy_photo_url?: string | null;
             /**
-             * @description Optional server-generated waveform file URL.
-             *     If absent, UI clients must render a simple local waveform from audio (pure JS).
+             * Format: uri-reference
+             * @description Stable Core URL for the current video preview. Served directly by Core in v1.
+             */
+            preview_video_url?: string | null;
+            /**
+             * Format: uri-reference
+             * @description Stable Core URL for the current audio preview. Served directly by Core in v1.
+             */
+            preview_audio_url?: string | null;
+            /**
+             * Format: uri-reference
+             * @description Stable Core URL for the current photo preview. Served directly by Core in v1.
+             */
+            preview_photo_url?: string | null;
+            /**
+             * Format: uri-reference
+             * @description Stable Core URL for the current waveform payload. Required when the effective processing profile requires waveform data beyond READY.
              */
             waveform_url?: string | null;
+            /** @description Video-only thumbnails. */
             thumbs?: string[];
         };
+        /** @description Transcript enrichment payload. Outside v1 conformance scope; reserved for pre-release feature-flagged exposure before validated v1.1+ rollout. */
         AssetTranscript: {
             /** @enum {string} */
             status?: "NONE" | "RUNNING" | "DONE" | "FAILED";
+            text?: string | null;
             text_preview?: string | null;
-            /** Format: date-time */
-            updated_at?: string | null;
+            language?: string | null;
+            /**
+             * Format: date-time
+             * @description Timestamp of the last accepted business mutation on this asset. Informational only; not a write precondition.
+             */
+            updated_at?: string;
         };
         AssetDecisions: {
             /** @enum {string|null} */
             current?: "KEEP" | "REJECT" | null;
             history?: {
                 /** @enum {string} */
-                action?: "KEEP" | "REJECT" | "CLEAR";
+                action: "KEEP" | "REJECT" | "CLEAR";
                 /** Format: date-time */
-                at?: string;
-                by?: string;
+                at: string;
+                by: string;
             }[];
         };
         AssetAudit: {
-            path_history?: string[];
+            /** @description Chronological path history in ascending order, using canonical relative paths only. */
+            path_history?: components["schemas"]["RelativeStoragePath"][];
+            /** @description Append-only revision timeline in ascending `revision` order. The entry marked `is_current=true` matches the current `summary.revision_etag`. */
             revision_history?: {
                 revision: number;
+                /** Format: date-time */
+                created_at: string;
                 is_current: boolean;
                 /** Format: date-time */
                 published_at?: string | null;
@@ -3312,21 +4452,26 @@ export interface components {
         Job: {
             job_id: string;
             /** @enum {string} */
-            job_type: "extract_facts" | "generate_proxy" | "generate_thumbnails" | "generate_audio_waveform";
+            job_type: "extract_facts" | "generate_preview" | "generate_thumbnails" | "generate_audio_waveform" | "transcribe_audio";
             /** @enum {string} */
             status: "pending" | "claimed" | "completed" | "failed";
             asset_uuid: string;
             /** @description Source locator (relative paths + storage id) for local media access. */
             source: components["schemas"]["AssetPaths"];
             required_capabilities: string[];
+            /** Format: uuid */
             claimed_by?: string | null;
+            /** @description Opaque current lease token. */
             lock_token?: string | null;
+            /** @description Monotone write-protection token bound to the current lease. Must be replayed unchanged on heartbeat/submit/fail. */
+            fencing_token?: number | null;
             /** Format: date-time */
             locked_until?: string | null;
         };
-        JobSubmitRequest: components["schemas"]["SubmitExtractFacts"] | components["schemas"]["SubmitDerived"];
+        JobSubmitRequest: components["schemas"]["SubmitExtractFacts"] | components["schemas"]["SubmitDerived"] | components["schemas"]["SubmitTranscript"];
         SubmitExtractFacts: {
             lock_token: string;
+            fencing_token: number;
             /** @enum {string} */
             job_type: "extract_facts";
             result: {
@@ -3339,10 +4484,24 @@ export interface components {
         };
         SubmitDerived: {
             lock_token: string;
+            fencing_token: number;
             /** @enum {string} */
-            job_type: "generate_proxy" | "generate_thumbnails" | "generate_audio_waveform";
+            job_type: "generate_preview" | "generate_thumbnails" | "generate_audio_waveform";
             result: {
                 derived_patch: components["schemas"]["DerivedPatch"];
+                warnings?: string[];
+                metrics?: {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        SubmitTranscript: {
+            lock_token: string;
+            fencing_token: number;
+            /** @enum {string} */
+            job_type: "transcribe_audio";
+            result: {
+                transcript_patch: components["schemas"]["TranscriptPatch"];
                 warnings?: string[];
                 metrics?: {
                     [key: string]: unknown;
@@ -3352,6 +4511,7 @@ export interface components {
         ProcessingResultPatch: {
             facts_patch?: components["schemas"]["FactsPatch"];
             derived_patch?: components["schemas"]["DerivedPatch"];
+            transcript_patch?: components["schemas"]["TranscriptPatch"];
             warnings?: string[];
             metrics?: {
                 [key: string]: unknown;
@@ -3365,11 +4525,53 @@ export interface components {
             width?: number;
             height?: number;
             fps?: number;
+            /** Format: date-time */
+            captured_at?: string;
+            exposure_time_s?: number;
+            aperture_f_number?: number;
+            iso?: number;
+            focal_length_mm?: number;
+            camera_make?: string;
+            camera_model?: string;
+            lens_model?: string;
+            orientation?: number;
+            bitrate_kbps?: number;
+            sample_rate_hz?: number;
+            channel_count?: number;
+            bits_per_sample?: number;
+            rotation_deg?: number;
+            timecode_start?: string;
+            pixel_format?: string;
+            color_range?: string;
+            color_space?: string;
+            color_transfer?: string;
+            color_primaries?: string;
+            recorder_model?: string;
+            gps_latitude?: number;
+            gps_longitude?: number;
+            gps_altitude_m?: number;
+            gps_altitude_relative_m?: number;
+            gps_altitude_absolute_m?: number;
+            exposure_compensation_ev?: number;
+            color_mode?: string;
+            color_temperature_k?: number;
+            has_dji_metadata_track?: boolean;
+            dji_metadata_track_types?: string[];
+        };
+        /** @description Pre-release transcript merge patch. Accepted only when `features.ai.transcribe_audio` is effectively enabled; outside v1 conformance scope until validated v1.1+ rollout. */
+        TranscriptPatch: {
+            /** @enum {string} */
+            status?: "NONE" | "RUNNING" | "DONE" | "FAILED";
+            text?: string | null;
+            text_preview?: string | null;
+            language?: string | null;
+            /** Format: date-time */
+            updated_at?: string;
         };
         DerivedPatch: {
             derived_manifest?: {
                 /** @enum {string} */
-                kind: "proxy_video" | "proxy_audio" | "proxy_photo" | "thumb" | "waveform";
+                kind: "preview_video" | "preview_audio" | "preview_photo" | "thumb" | "waveform";
                 ref: string;
                 size_bytes?: number;
                 sha256?: string;
@@ -3377,8 +4579,9 @@ export interface components {
         };
         ErrorResponse: {
             /** @enum {string} */
-            code: "UNAUTHORIZED" | "EMAIL_NOT_VERIFIED" | "FORBIDDEN_SCOPE" | "FORBIDDEN_ACTOR" | "USER_NOT_FOUND" | "STATE_CONFLICT" | "IDEMPOTENCY_CONFLICT" | "STALE_LOCK_TOKEN" | "NAME_COLLISION_EXHAUSTED" | "PURGED" | "VALIDATION_FAILED" | "INVALID_TOKEN" | "LOCK_REQUIRED" | "LOCK_INVALID" | "TOO_MANY_ATTEMPTS" | "MFA_REQUIRED" | "INVALID_2FA_CODE" | "MFA_ALREADY_ENABLED" | "MFA_NOT_ENABLED" | "INVALID_DEVICE_CODE" | "EXPIRED_DEVICE_CODE" | "UNSUPPORTED_FEATURE_FLAGS_CONTRACT_VERSION" | "SLOW_DOWN" | "RATE_LIMITED" | "TEMPORARY_UNAVAILABLE";
+            code: "UNAUTHORIZED" | "EMAIL_NOT_VERIFIED" | "FORBIDDEN_SCOPE" | "FORBIDDEN_ACTOR" | "USER_NOT_FOUND" | "STATE_CONFLICT" | "IDEMPOTENCY_CONFLICT" | "STALE_LOCK_TOKEN" | "NAME_COLLISION_EXHAUSTED" | "PURGED" | "VALIDATION_FAILED" | "INVALID_TOKEN" | "LOCK_REQUIRED" | "LOCK_INVALID" | "TOO_MANY_ATTEMPTS" | "MFA_REQUIRED" | "INVALID_2FA_CODE" | "MFA_ALREADY_ENABLED" | "MFA_NOT_ENABLED" | "INVALID_DEVICE_CODE" | "EXPIRED_DEVICE_CODE" | "UNSUPPORTED_FEATURE_FLAGS_CONTRACT_VERSION" | "SLOW_DOWN" | "TEMPORARY_UNAVAILABLE" | "PRECONDITION_REQUIRED" | "PRECONDITION_FAILED";
             message: string;
+            /** @description May include endpoint-specific structured fields such as `current_revision_etag` and `current_state` for asset state conflicts. */
             details?: {
                 [key: string]: unknown;
             };
@@ -3390,7 +4593,18 @@ export interface components {
     parameters: {
         UuidPath: string;
         IdempotencyKey: string;
+        /** @description Strong quoted HTTP entity-tag previously read from the asset `ETag` response header. */
+        IfMatch: string;
+        /** @description Optional locale preference for localized human-readable messages. Business payload semantics remain locale-independent. */
+        AcceptLanguage: string;
+        /** @description Optional byte range request. Supported for audio/video preview delivery. */
+        Range: string;
         ClientIdPath: string;
+        AgentSignatureAgentId: string;
+        AgentSignatureOpenPgpFingerprint: string;
+        AgentSignatureValue: string;
+        AgentSignatureTimestamp: string;
+        AgentSignatureNonce: string;
     };
     requestBodies: never;
     headers: never;
