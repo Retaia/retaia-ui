@@ -6,6 +6,9 @@ on:
       - master
   pull_request:
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -33,7 +36,6 @@ jobs:
 
   branch-up-to-date:
     runs-on: ubuntu-latest
-    needs: no-black-magic
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -50,9 +52,6 @@ jobs:
 
   commitlint:
     runs-on: ubuntu-latest
-    needs:
-      - no-black-magic
-      - branch-up-to-date
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -82,6 +81,7 @@ jobs:
           npx commitlint --from "origin/$GITHUB_BASE_REF" --to "$GITHUB_SHA" --verbose
 
   lint:
+    name: Lint and duplication
     runs-on: ubuntu-latest
     needs:
       - no-black-magic
@@ -112,11 +112,57 @@ jobs:
       - name: Duplication check
         run: npm run dup:check
 
+  typecheck-i18n:
+    name: Typecheck and i18n
+    runs-on: ubuntu-latest
+    needs:
+      - no-black-magic
+      - branch-up-to-date
+      - commitlint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Typecheck
         run: npm run typecheck
 
       - name: i18n key parity check
         run: npm run i18n:check
+
+  api-contracts:
+    name: API and runtime contract checks
+    runs-on: ubuntu-latest
+    needs:
+      - no-black-magic
+      - branch-up-to-date
+      - commitlint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: OpenAPI contract freeze check
         run: npm run api:contract:check
@@ -136,7 +182,9 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    needs: lint
+    needs:
+      - lint
+      - typecheck-i18n
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -167,7 +215,10 @@ jobs:
 
   security-audit:
     runs-on: ubuntu-latest
-    needs: lint
+    needs:
+      - no-black-magic
+      - branch-up-to-date
+      - commitlint
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -264,6 +315,8 @@ jobs:
       - branch-up-to-date
       - commitlint
       - lint
+      - typecheck-i18n
+      - api-contracts
       - test
       - security-audit
       - performance-budget
