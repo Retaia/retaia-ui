@@ -122,17 +122,17 @@ jobs:
             "${OUT_DIR}/${PKG}.sbom.cdx.json"
 
       - name: Attest release archive provenance
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: release-assets/retaia-ui-${{ github.ref_name }}.tar.gz
 
       - name: Attest release zip provenance
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: release-assets/retaia-ui-${{ github.ref_name }}.zip
 
       - name: Attest SBOM provenance
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: release-assets/retaia-ui-${{ github.ref_name }}.sbom.cdx.json
 
