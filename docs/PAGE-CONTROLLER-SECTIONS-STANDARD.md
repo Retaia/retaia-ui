@@ -2,6 +2,7 @@
 
 > Statut: non normatif.
 > Source de verite produit: `specs/`.
+> Standard cible pour la future implementation apres `UI reset`.
 
 ## Objectif
 
@@ -43,7 +44,7 @@ Interdits:
 
 ### Sections
 
-- Rendent un sous-flux lisible (overview, list/detail, reports, activity, auth blocks).
+- Rendent un sous-flux lisible et focalise.
 - Restent deterministes selon les props recues.
 - Emettent des intentions utilisateur via callbacks nommes.
 
@@ -108,7 +109,7 @@ src/
 - La page reste un fichier de composition.
 - Le controller expose un contrat stable et testable.
 - Chaque section a un scope de rendu clair.
-- Les invariants d'etat partage (selection, filtres, contexte route) sont preservés.
+- Les invariants d'etat partage sont preservés.
 - Les tests couvrent au minimum: une action critique, un etat d'erreur, un retour navigation.
 
 ## Migration incrementalement sure

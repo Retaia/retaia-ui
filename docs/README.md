@@ -6,34 +6,34 @@
 ## Contenu
 
 - `docs/DEVELOPMENT-BEST-PRACTICES.md`
-- `docs/TAILADMIN-TECHNIQUE.md`
-- `docs/BOOTSTRAP-TECHNIQUE.md` (historique/deprecated)
 - `docs/UI-DESIGN-SYSTEM.md`
 - `docs/UI-ARCHITECTURE.md`
 - `docs/PAGE-CONTROLLER-SECTIONS-STANDARD.md`
-- `docs/PAGE-SCAFFOLDING.md`
 - `docs/GITHUB-WORKFLOWS.md`
 - `docs/DOCKER-DEVELOPMENT.md`
-- `docs/USER-QUICKSTART.md`
-- `docs/RELEASE-CHECKLIST.md`
 - `docs/UI-QUALITY-RUNBOOK.md`
 - `docs/UI-ACCESSIBILITY.md`
 - `docs/PR-CHECKLIST-UI-STATEFUL-REFACTOR.md`
 - `bdd/features/`
 
-## Cadrage produit/UI migre vers `retaia-docs`
+## Etat actuel du repo
 
-Les documents de cadrage UI/UX globaux ne vivent plus dans `retaia-ui`. Ils ont ete centralises dans `retaia-docs`:
+Le repository est toujours en phase `UI reset`.
 
-- `ui/UI-GLOBAL-SPEC.md`
-- `ui/KEYBOARD-SHORTCUTS-REGISTRY.md`
-- `ui/UI-UX-BRIEF-DESIGNER.md`
-- `ui/UI-REFONTE-RECOMMANDATION.md`
-- `ui/UI-WIREFRAMES-TEXTE.md`
+- l'ancienne UI a ete retiree
+- la nouvelle implementation n'a pas encore commence
+- `specs/` decrit la cible
+- `docs/` doit distinguer clairement `etat courant` et `etat cible`
 
-Reference GitHub:
+## Cadrage produit/UI
 
-- [retaia-docs/ui](https://github.com/Retaia/retaia-docs/tree/master/ui)
+Le cadrage produit/UI a lire pour cette implementation est dans `specs/ui/`:
+
+- `specs/ui/UI-GLOBAL-SPEC.md`
+- `specs/ui/KEYBOARD-SHORTCUTS-REGISTRY.md`
+- `specs/ui/UI-UX-BRIEF-DESIGNER.md`
+- `specs/ui/UI-REFONTE-RECOMMANDATION.md`
+- `specs/ui/UI-WIREFRAMES-TEXTE.md`
 
 ## Lecture minimale avant de coder
 
@@ -47,10 +47,10 @@ Reference GitHub:
 
 ## Architecture UI/DDD
 
-- Source détaillée (structure UI, couches DDD, garde-fous d'import, tests): `docs/UI-ARCHITECTURE.md`
-- Conventions UI TailAdmin/Tailwind (pas d'héritage Bootstrap): `docs/TAILADMIN-TECHNIQUE.md`
+- Source détaillée (etat courant + cible structurelle, couches DDD, garde-fous d'import, tests): `docs/UI-ARCHITECTURE.md`
+- Conventions UI visuelles et Tailwind: `docs/UI-DESIGN-SYSTEM.md`
 - Bonnes pratiques de développement/PR: `docs/DEVELOPMENT-BEST-PRACTICES.md`
-- Raccourcis et shell UI globaux: `retaia-docs/ui/*` (voir lien ci-dessus)
+- Les regles produit/UI globales doivent etre lues dans `specs/ui/*`, pas redefinies localement.
 
 ## Commandes BDD/E2E locales
 
@@ -62,3 +62,8 @@ Reference GitHub:
 - `APP_URL=http://127.0.0.1:4173 BDD_API_MODE=real-api npm run bdd:test:real-api` (suite real-api)
 - `APP_ENV=test` (ou `VITE_APP_ENV=test`) active une mock DB in-memory dans l'UI.
 - CI: definir la variable repo `E2E_TEST_ENV_URL` pour executer les BDD contre un environnement test distant.
+
+Note:
+
+- en phase `UI reset`, ces commandes servent surtout a verifier l'ossature, les placeholders, les contrats et les garde-fous
+- elles ne doivent pas etre lues comme une preuve que les parcours produit cibles sont deja implementes

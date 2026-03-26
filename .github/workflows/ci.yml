@@ -174,9 +174,6 @@ jobs:
           GITHUB_EVENT_PATH: ${{ github.event_path }}
         run: npm run api:governance:check
 
-      - name: v1 critical flows presence check
-        run: npm run qa:v1:flows
-
       - name: BDD mock/OpenAPI contract alignment check
         run: npm run bdd:mock:contract:check
 

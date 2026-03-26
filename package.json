@@ -20,7 +20,6 @@
     "bdd:test:real-api:ci": "BDD_API_MODE=real-api cucumber-js \"bdd/features/**/*.feature\" --tags \"@real-api\" --require-module tsx/cjs --require \"bdd/step-definitions/**/*.ts\" --format progress --format json:test-results/bdd-real-api-report.json --format html:test-results/bdd-real-api-report.html",
     "bdd:test:critical": "cucumber-js \"bdd/features/**/*.feature\" --require-module tsx/cjs --require \"bdd/step-definitions/**/*.ts\" --tags \"@critical\" --format progress",
     "bdd:test:critical:ci": "cucumber-js \"bdd/features/**/*.feature\" --require-module tsx/cjs --require \"bdd/step-definitions/**/*.ts\" --tags \"@critical\" --format progress --format json:test-results/bdd-critical-report.json --format html:test-results/bdd-critical-report.html",
-    "bdd:test:headed": "PW_HEADLESS=false cucumber-js \"bdd/features/**/*.feature\" --require-module tsx/cjs --require \"bdd/step-definitions/**/*.ts\" --format progress",
     "bdd:coverage:run": "rm -rf coverage/bdd && BDD_COVERAGE=1 BDD_COVERAGE_DIR=coverage/bdd/raw node scripts/ci/run-bdd-e2e.mjs --script bdd:test",
     "bdd:coverage:check": "BDD_COVERAGE_METRICS=lines,functions,branches node scripts/ci/check-bdd-browser-coverage.mjs",
     "bdd:coverage": "npm run bdd:coverage:run && npm run bdd:coverage:check",
@@ -36,11 +35,8 @@
     "qa": "npm run i18n:check && npm run lint && npm run test:coverage",
     "qa:coverage:all": "npm run test:coverage && npm run bdd:coverage",
     "prepare": "husky",
-    "hooks:install": "husky",
     "typecheck": "tsc -b --pretty false",
     "dup:check": "jscpd src --min-lines 12 --min-tokens 80 --reporters console --format \"ts,tsx\" --threshold 4",
-    "runtime:status-driven:check": "node scripts/ci/check-runtime-status-driven.mjs",
-    "qa:v1:flows": "npm run runtime:status-driven:check && node scripts/ci/check-v1-critical-flows.mjs",
     "bdd:mock:contract:check": "tsx scripts/ci/check-bdd-mock-openapi-alignment.ts",
     "qa:v1:go-no-go": "node scripts/ci/run-v1-release-gate.mjs",
     "security:audit": "npm audit --omit=dev",
@@ -49,8 +45,7 @@
     "api:contract:check": "node scripts/ci/check-api-contract-freeze.mjs",
     "api:contract:freeze": "node scripts/ci/update-api-contract-freeze.mjs",
     "api:governance:check": "node scripts/ci/check-openapi-pr-governance.mjs",
-    "icons:generate": "node scripts/generate-icons.mjs",
-    "scaffold:page": "node scripts/scaffold-orchestrated-page.mjs"
+    "icons:generate": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",

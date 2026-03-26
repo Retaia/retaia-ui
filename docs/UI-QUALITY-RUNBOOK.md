@@ -1,5 +1,8 @@
 # Runbook Qualité UI (React + TS)
 
+> Statut : runbook de travail pour la base technique actuelle et la future implementation.
+> Le repo est actuellement en phase `UI reset`.
+
 ## Objectif
 
 Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de qualité constant.
@@ -38,7 +41,6 @@ Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de 
   - `npm run qa:v1:go-no-go`
 - Exécute dans l'ordre:
   - `npm run qa`
-  - `npm run qa:v1:flows`
   - `npm run e2e:bdd:critical:ci`
   - `npm run visual:test`
 
@@ -53,7 +55,7 @@ Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de 
 - La source SSOT `specs/api/openapi/v1.yaml` est verrouillee par hash (`contracts/openapi-v1.sha256`).
 - Verification locale/CI: `npm run api:contract:check`.
 - Si un changement API est volontaire:
-  1. Mettre a jour la source normative `specs/api/openapi/v1.yaml` (dans `retaia-docs`).
+  1. Mettre a jour la source normative `specs/api/openapi/v1.yaml`.
   2. `npm run api:contract:freeze` (refresh hash depuis `specs/api/openapi/v1.yaml`).
   3. `npm run api:types:generate`
   4. commit de `contracts/openapi-v1.sha256` et `src/api/generated/openapi.ts`.
@@ -85,6 +87,7 @@ Toute PR qui modifie la source OpenAPI (`specs/api/openapi/v1.yaml` via mise a j
   - `BDD_API_MODE=mock npm run bdd:test:ci`
   - `BDD_API_MODE=real-api npm run bdd:test:real-api:ci` (suite smoke contre API réelle)
   - `npm run bdd:test:critical:ci` (suite smoke `@critical`)
+  - `npm run bdd:coverage` (couverture navigateur sur suite mock)
 - Artifacts produits:
   - `test-results/bdd-report.json`
   - `test-results/bdd-report.html`

@@ -1,7 +1,11 @@
-# UI Design System (TailAdmin/Tailwind) — retaia-ui
+# UI Design System (Tailwind) — retaia-ui
 
 > Statut : non normatif.
 > Source produit: `specs/`.
+> Le repo est actuellement en phase `UI reset`.
+
+Ce document decrit le systeme visuel et les conventions de rendu vises pour la future UI.
+Il ne decrit pas un produit deja implemente de bout en bout.
 
 ## Objectif
 
@@ -10,6 +14,12 @@ Conserver une UI cohérente et rapidement remplaçable en gardant:
 - un shell TailAdmin clair (sidebar + contenu),
 - des classes Tailwind explicites,
 - un minimum d'abstractions de rendu.
+
+## Stack locale cible
+
+- Runtime UI: React 19 + TypeScript + Vite
+- UI/CSS: Tailwind CSS avec patterns TailAdmin
+- Tests UI: Vitest + Testing Library + Playwright/Cucumber
 
 ## Principes
 
@@ -40,18 +50,16 @@ Conserver une UI cohérente et rapidement remplaçable en gardant:
   - variants `primary`, `outline-*`, `warning`, `danger`, `secondary`
 - Sections:
   - cartes en `rounded-xl border bg-white p-4 shadow-theme-sm`
-- Batch:
-  - checkbox par ligne asset + panneau batch dédié
 - Feedback:
   - `role="status"` + `aria-live="polite"` pour statuts async.
 
 ## Navigation
 
 - Sidebar gauche:
-  - top: navigation métier
-  - bottom: admin/langue/thème
-- Ordre métier:
-  - `Review`, `Library`, `Rejects`
+  - top: navigation principale
+  - bottom: contrôles secondaires
+- Les details produit de navigation, routes et libelles visibles relevent de `specs/ui/UI-GLOBAL-SPEC.md`.
+- Ce document local se limite aux principes visuels et de composition.
 
 ## Évolutions
 

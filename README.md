@@ -1,11 +1,11 @@
 # Retaia UI
 
-React + TypeScript web application for media review workflows (asset list/detail, decisioning, batch operations, purge).
+React + TypeScript web application for Retaia UI, currently in `UI reset` mode before the new implementation starts.
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Key Features](#key-features)
+- [Product Target](#product-target)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
@@ -20,25 +20,30 @@ React + TypeScript web application for media review workflows (asset list/detail
 
 ## Overview
 
-Retaia UI implements the review experience against API v1 contracts and follows a spec-first workflow (UI rollout is in global v1.1):
+This repository is aligned on specs first, but the product UI is not implemented yet.
+The current branch state is an intentional `UI reset` used to prepare the next implementation pass against API v1 contracts and the global UI v1.1 target:
 
 - `specs/` is normative (source of truth)
 - `docs/` is local and non-normative
 - if there is a conflict, `specs/` wins
 
-## Key Features
+Current repo state:
 
-- Desktop-like review UX (`/review`, `/review/:assetId`)
-- TailAdmin-style shell (left sidebar navigation, admin actions at bottom)
-- System-first theme kit (default follows OS light/dark, manual override available)
-- Asset decisions: `KEEP`, `REJECT`, `CLEAR`
-- Batch execution and reporting
-- Batch checkbox flow in asset list (check -> opens batch edit panel)
-- Purge preview + confirmation flow
-- Auth UI (`/auth`): login/logout, recovery, verify email, MFA
-- Runtime settings UI (`/settings`): API base URL/token + asset source
-- i18n support (`en`, `fr`)
-- Contract-aligned BDD/E2E flows (mock + real API mode)
+- routes exist for the future application shell
+- several pages intentionally render a reset placeholder while the redesign/rebuild has not started
+- local docs may describe the target architecture or target UX, not a shipped runtime
+
+## Product Target
+
+The final expected product behavior is defined in `specs/`, especially:
+
+- `specs/ui/UI-GLOBAL-SPEC.md`
+- `specs/ui/KEYBOARD-SHORTCUTS-REGISTRY.md`
+- `specs/api/API-CONTRACTS.md`
+- `specs/workflows/WORKFLOWS.md`
+- `specs/tests/TEST-PLAN.md`
+
+Local docs do not redefine this target behavior. They only document current repo state and local implementation conventions.
 
 ## Tech Stack
 
@@ -52,7 +57,7 @@ Retaia UI implements the review experience against API v1 contracts and follows 
 ## Project Structure
 
 - `src/`: application source code
-- `src/pages/`: route pages (`ReviewPage`, `AuthPage`)
+- `src/pages/`: route pages and temporary reset placeholders
 - `src/domain/`: domain rules
 - `src/application/`: use-cases/orchestration
 - `src/infrastructure/`: technical adapters
@@ -90,6 +95,8 @@ Maintenance note:
 - this override can be removed once the ESLint chain is bumped coherently and the transitive path no longer resolves a vulnerable `flatted` release
 - in practice, that means re-checking the full chain `eslint -> file-entry-cache -> flat-cache -> flatted` during the future ESLint upgrade
 
+At this stage, expect reset placeholder pages rather than the final product workflows.
+
 ## Environment Variables
 
 See `.env.example`.
@@ -126,7 +133,7 @@ Main variables:
 - `npm run bdd:test`
 - `npm run e2e:bdd`
 - `npm run e2e:bdd:ci`
-- `npm run e2e:bdd:critical:ci`
+- `npm run bdd:coverage`
 - `npm run visual:test`
 
 ### API Contract
@@ -149,6 +156,9 @@ npm run bdd:mock:contract:check
 npm run e2e:bdd:ci
 ```
 
+During `UI reset`, these commands validate repository quality and contract alignment.
+They do not imply that the future feature-complete UI has already been implemented.
+
 For v1 release gate:
 
 ```bash
@@ -166,6 +176,11 @@ Contract governance:
 - API changes must be specified first in `specs/`
 - then synced and validated with contract checks
 
+Implementation note:
+
+- `specs/` defines the target behavior
+- the current repository content is still pre-implementation for the new UI pass
+
 ## Contributing
 
 Please read:
@@ -182,10 +197,6 @@ Core rules:
 - keep changes spec-aligned
 
 ## Release
-
-Release process and checklist:
-
-- `docs/RELEASE-CHECKLIST.md`
 
 GitHub Release is tag-driven (workflow: `.github/workflows/release.yml`):
 

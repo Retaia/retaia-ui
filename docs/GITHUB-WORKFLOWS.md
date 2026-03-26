@@ -19,10 +19,13 @@ Jobs:
 2. `branch-up-to-date` (vérifie qu'une PR est rebased sur la base et sans merge commit)
 3. `commitlint` (valide les commits de la PR selon Conventional Commits)
 4. `lint`
-5. `test`
-6. `security-audit`
-7. `e2e-bdd`
-8. `ci-required` (gate final, recommandé en check obligatoire unique)
+5. `typecheck-i18n`
+6. `api-contracts`
+7. `test`
+8. `security-audit`
+9. `performance-budget`
+10. `e2e-bdd`
+11. `ci-required` (gate final, recommande en check obligatoire unique)
 
 ## Gates bloquants
 
@@ -45,9 +48,15 @@ Jobs:
 
 ## Gates de conformité specs
 
-- Vérifier que les parcours critiques `review/decision/move/purge` sont couverts côté BDD.
+- Vérifier que les parcours critiques définis par `specs/tests/TEST-PLAN.md` sont couverts côté BDD.
 - Vérifier la conformité i18n `en/fr` (clé manquante = échec CI).
 - Vérifier les codes d'erreur et états affichés sans dépendance à un texte traduit.
+
+En phase `UI reset`, la CI sert aussi a proteger:
+
+- l'alignement spec-first
+- les contrats OpenAPI et BDD mock
+- l'ossature technique avant implementation fonctionnelle
 
 ## Déclenchement recommandé
 
@@ -60,8 +69,11 @@ Jobs:
 - `branch-up-to-date`
 - `commitlint`
 - `lint`
+- `typecheck-i18n`
+- `api-contracts`
 - `test`
 - `security-audit`
+- `performance-budget`
 - `e2e-bdd`
 - `ci-required` (si vous préférez un seul check bloquant côté règle GitHub)
 

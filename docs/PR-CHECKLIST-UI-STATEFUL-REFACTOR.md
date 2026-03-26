@@ -1,6 +1,6 @@
 # Checklist PR — Refactor UI Stateful
 
-Objectif: securiser les refactors qui touchent l'etat partage UI, les controllers de page, et les parcours multi-routes.
+Objectif: securiser les refactors qui touchent l'etat partage UI, les controllers de page, et la navigation.
 
 ## Portee et decoupage
 
@@ -11,19 +11,19 @@ Objectif: securiser les refactors qui touchent l'etat partage UI, les controller
 ## Contrats d'etat
 
 - [ ] Les types d'etat publics sont stables ou documentes (controller/store/selectors).
-- [ ] Les invariants metier sont preservés (`selectedAssetId`, `batchIds`, filtres, route contextuelle).
+- [ ] Les invariants metier sont preservés (selection, multi-selection, filtres, contexte de navigation).
 - [ ] Les valeurs derivees restent coherentes (memo/selectors sans divergence stale).
 
 ## Navigation et persistance
 
-- [ ] Le contexte inter-pages est preserve (`lastRoute`, filtres, scroll, selection).
+- [ ] Le contexte inter-pages est preserve (filtres, scroll, selection, contexte de retour).
 - [ ] Les query params restent synchronises (init + navigation browser back/forward).
 - [ ] Les gardes `unsaved changes` restent actives sur les points de sortie critiques.
 
 ## UX et accessibilite
 
 - [ ] Les statuts asynchrones visibles (`role="status"`, `aria-live`) sont conserves.
-- [ ] Les raccourcis clavier critiques ne regressent pas (`j/k`, `Enter`, `Shift+Espace`, `Ctrl/Cmd+Z`).
+- [ ] Les raccourcis clavier critiques definis par `specs/ui/KEYBOARD-SHORTCUTS-REGISTRY.md` ne regressent pas.
 - [ ] Aucun changement de label casse les flux E2E/a11y relies.
 
 ## Tests minimaux
