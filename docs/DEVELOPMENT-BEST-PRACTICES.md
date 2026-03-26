@@ -46,16 +46,7 @@ Contexte actuel:
   - aucune dépendance `SessionCookieAuth`/cookie session côté runtime
   - hook central `onAuthError(401|403)` dans le client pour gérer les redirects/login
 
-## UI Desktop-like (référence cible locale)
-
-Objectif:
-
-- privilegier une experience de review rapide type application desktop, sans complexifier la surface UI
-
-Important:
-
-- cette section decrit la cible locale d'implementation
-- elle ne signifie pas que ces interactions sont deja disponibles dans le repo courant
+## Conventions UI locales
 
 Le comportement produit cible ne doit pas etre redefini ici.
 Pour les routes, libelles, raccourcis, actions groupees et contraintes de parcours, utiliser directement:
@@ -75,11 +66,6 @@ Details d'implementation locaux recommandes:
 - separation nette entre rendu, orchestration et logique pure
 - navigation clavier basee sur un modele accessible (`listbox/option`, `aria-selected`, roving `tabIndex`)
 - feedbacks async exposes via live regions (`role="status"` + `aria-live="polite"`)
-
-Registre de gouvernance:
-
-- source de verite produit/UI: `specs/ui/KEYBOARD-SHORTCUTS-REGISTRY.md`
-- l'implementation locale doit s'y aligner (priorites, conflits, regles de blocage en saisie)
 
 Règles UX:
 

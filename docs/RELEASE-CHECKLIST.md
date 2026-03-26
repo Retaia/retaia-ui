@@ -40,5 +40,5 @@
 
 ## Post-release
 
-- valider la smoke-prod (review -> batch-only -> execute -> report)
+- valider la smoke-prod selon les parcours critiques applicables definis dans `specs/` et dans le gate release courant
 - archiver les notes de release dans l’outil de suivi

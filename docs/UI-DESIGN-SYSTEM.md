@@ -44,8 +44,6 @@ Conserver une UI cohérente et rapidement remplaçable en gardant:
   - variants `primary`, `outline-*`, `warning`, `danger`, `secondary`
 - Sections:
   - cartes en `rounded-xl border bg-white p-4 shadow-theme-sm`
-- Batch:
-  - checkbox par ligne asset + panneau batch dédié
 - Feedback:
   - `role="status"` + `aria-live="polite"` pour statuts async.
 

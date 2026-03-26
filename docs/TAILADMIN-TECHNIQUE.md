@@ -35,7 +35,6 @@ Il ne faut pas le lire comme une description d'une interface deja livree.
 
 ## Batch UX
 
-- La liste d'assets expose une checkbox batch par ligne.
 - Les details produit de multi-selection et d'actions groupees relevent de `specs/`.
 - Localement, l'implementation doit garder ces flux explicites, lisibles et testables.
 

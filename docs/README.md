@@ -27,19 +27,15 @@ Le repository est toujours en phase `UI reset`.
 - `specs/` decrit la cible
 - `docs/` doit distinguer clairement `etat courant` et `etat cible`
 
-## Cadrage produit/UI migre vers `retaia-docs`
+## Cadrage produit/UI
 
-Les documents de cadrage UI/UX globaux ne vivent plus dans `retaia-ui`. Ils ont ete centralises dans `retaia-docs`:
+Le cadrage produit/UI a lire pour cette implementation est dans `specs/ui/`:
 
-- `ui/UI-GLOBAL-SPEC.md`
-- `ui/KEYBOARD-SHORTCUTS-REGISTRY.md`
-- `ui/UI-UX-BRIEF-DESIGNER.md`
-- `ui/UI-REFONTE-RECOMMANDATION.md`
-- `ui/UI-WIREFRAMES-TEXTE.md`
-
-Reference GitHub:
-
-- [retaia-docs/ui](https://github.com/Retaia/retaia-docs/tree/master/ui)
+- `specs/ui/UI-GLOBAL-SPEC.md`
+- `specs/ui/KEYBOARD-SHORTCUTS-REGISTRY.md`
+- `specs/ui/UI-UX-BRIEF-DESIGNER.md`
+- `specs/ui/UI-REFONTE-RECOMMANDATION.md`
+- `specs/ui/UI-WIREFRAMES-TEXTE.md`
 
 ## Lecture minimale avant de coder
 
