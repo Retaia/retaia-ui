@@ -7,14 +7,11 @@
 
 - `docs/DEVELOPMENT-BEST-PRACTICES.md`
 - `docs/TAILADMIN-TECHNIQUE.md`
-- `docs/BOOTSTRAP-TECHNIQUE.md` (historique/deprecated)
 - `docs/UI-DESIGN-SYSTEM.md`
 - `docs/UI-ARCHITECTURE.md`
 - `docs/PAGE-CONTROLLER-SECTIONS-STANDARD.md`
-- `docs/PAGE-SCAFFOLDING.md`
 - `docs/GITHUB-WORKFLOWS.md`
 - `docs/DOCKER-DEVELOPMENT.md`
-- `docs/USER-QUICKSTART.md`
 - `docs/RELEASE-CHECKLIST.md`
 - `docs/UI-QUALITY-RUNBOOK.md`
 - `docs/UI-ACCESSIBILITY.md`

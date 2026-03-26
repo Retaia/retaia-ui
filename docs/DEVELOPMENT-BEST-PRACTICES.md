@@ -154,7 +154,7 @@ Base technique locale disponible dans le repo:
 - ressources i18n dans `src/i18n/resources.ts`
 - instance i18n partagée dans `src/i18n/index.ts`
 - fallback strict `locale -> en -> key`
-- des briques techniques existent pour supporter un futur switch de langue `FR/EN`
+- la nouvelle UI doit exposer un switch de langue `FR/EN` branche sur cette base technique
 
 ## Branching & PR
 
@@ -184,9 +184,3 @@ Base technique locale disponible dans le repo:
 
 - Appliquer le standard `Page + Controller + Sections` pour toute nouvelle page feature ou refactor majeur.
 - Référence détaillée: `docs/PAGE-CONTROLLER-SECTIONS-STANDARD.md`.
-
-## Scaffold de page
-
-- Pour initialiser une page orchestrée (page + controller + section), utiliser:
-  - `npm run scaffold:page -- --name <FeatureName>`
-- Détails et limites du générateur: `docs/PAGE-SCAFFOLDING.md`.
