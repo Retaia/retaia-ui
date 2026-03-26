@@ -137,7 +137,7 @@ jobs:
           subject-path: release-assets/retaia-ui-${{ github.ref_name }}.sbom.cdx.json
 
       - name: Upload release assets artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: release-ui
           retention-days: 14
