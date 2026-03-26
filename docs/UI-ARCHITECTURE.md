@@ -30,6 +30,23 @@ Le repository est en `UI reset`:
 - plusieurs pages rendent volontairement un placeholder
 - la prochaine etape est l'implementation alignee sur `specs/`
 
+## Etape preparatoire obligatoire
+
+Avant toute implementation fonctionnelle, faire un audit d'ecart code/spec avec le cadrage suivant:
+
+- baseline technique: etat courant du repo en `UI reset`
+- reference normative unique: `specs/`
+- resultat attendu: liste priorisee des changements a faire par couche (`pages`, `hooks`, `components`, `application`, `domain`, `infrastructure`)
+
+L'audit doit distinguer:
+
+- code reutilisable sans changement majeur
+- code a adapter
+- code obsolete a supprimer
+- zones sans implementation a creer
+
+Cet audit sert de pre-tri technique avant les PR d'implementation.
+
 ## Source de verite produit
 
 Pour tout comportement produit/UI, utiliser directement:
