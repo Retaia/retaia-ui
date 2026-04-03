@@ -86,7 +86,7 @@
     "jest-axe": "^10.0.0",
     "jscpd": "^4.0.8",
     "jsdom": "^29.0.1",
-    "msw": "^2.12.10",
+    "msw": "^2.12.14",
     "openapi-typescript": "^7.13.0",
     "postcss": "^8.5.8",
     "start-server-and-test": "^3.0.0",
