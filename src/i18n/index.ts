@@ -3,7 +3,6 @@ import { initReactI18next } from 'react-i18next'
 import { resources } from './resources'
 
 void i18next.use(initReactI18next).init({
-  showSupportNotice: false,
   resources,
   lng: 'fr',
   fallbackLng: 'en',
