@@ -35,11 +35,20 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Initialize CodeQL
+      - name: Initialize CodeQL (default)
+        if: matrix.language == 'actions'
         uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
           build-mode: none
+
+      - name: Initialize CodeQL (security-extended)
+        if: matrix.language == 'javascript-typescript'
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+          queries: security-extended
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
