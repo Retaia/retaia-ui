@@ -89,7 +89,7 @@
     "msw": "^2.13.2",
     "openapi-typescript": "^7.13.0",
     "postcss": "^8.5.9",
-    "start-server-and-test": "^3.0.0",
+    "start-server-and-test": "^3.0.2",
     "tailwindcss": "^4.2.1",
     "tsx": "^4.21.0",
     "typescript": "~5.9.3",
