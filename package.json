@@ -88,7 +88,7 @@
     "jsdom": "^29.0.2",
     "msw": "^2.13.2",
     "openapi-typescript": "^7.13.0",
-    "postcss": "^8.5.9",
+    "postcss": "^8.5.10",
     "start-server-and-test": "^3.0.2",
     "tailwindcss": "^4.2.1",
     "tsx": "^4.21.0",
