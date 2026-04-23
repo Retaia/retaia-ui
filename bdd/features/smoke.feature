@@ -1,15 +1,15 @@
 @ui-reset
 Feature: Chargement de l'interface reset
   En tant qu'utilisateur
-  Je veux vérifier les placeholders actifs
-  Afin de garantir un smoke test BDD pendant le reset UI
+  Je veux vérifier les surfaces canoniques actives
+  Afin de garantir un smoke test BDD pendant la refonte UI
 
-  Scenario: Afficher le placeholder review
+  Scenario: Afficher le shell review canonique
     Given je suis sur la page d'accueil
-    Then le titre principal "Review UI removed" est visible
-    And le message "UI reset in progress" est visible
+    Then le titre principal "Review" est visible
+    And le message "Le shell canonique est en place." est visible
 
-  Scenario: Afficher le placeholder auth
+  Scenario: Afficher la surface auth publique
     Given je suis sur la page "/auth"
-    Then le titre principal "Auth UI removed" est visible
-    And le message "UI reset in progress" est visible
+    Then le titre principal "Authentification et récupération" est visible
+    And le message "Surface publique pour connexion" est visible
