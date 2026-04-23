@@ -437,20 +437,20 @@ describe('api client', () => {
     )
   })
 
-  it('sends asset decision payload with POST method and idempotency key', async () => {
+  it('sends asset decision payload with PATCH method', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
     const api = createApiClient('/api/v1', fetchMock)
 
-    await api.submitAssetDecision('A-001', { action: 'REJECT' }, 'idem-decision-1')
+    await api.submitAssetDecision('A-001', { state: 'DECIDED_REJECT' }, undefined, 'etag-1')
 
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/v1/assets/A-001/decision',
+      '/api/v1/assets/A-001',
       expect.objectContaining({
-        method: 'POST',
+        method: 'PATCH',
         headers: expect.objectContaining({
-          'Idempotency-Key': 'idem-decision-1',
+          'If-Match': 'etag-1',
         }),
-        body: JSON.stringify({ action: 'REJECT' }),
+        body: JSON.stringify({ state: 'DECIDED_REJECT' }),
       }),
     )
   })
@@ -526,7 +526,7 @@ describe('api client', () => {
             created_at: '2026-02-12T10:00:00Z',
           },
           derived: {
-            proxy_video_url: '/derived/A-001/proxy.mp4',
+            preview_video_url: '/derived/A-001/proxy.mp4',
           },
         }),
         { status: 200, headers: { 'content-type': 'application/json' } },
@@ -590,6 +590,22 @@ describe('api client', () => {
 
     expect(fetchMock).toHaveBeenCalledWith('/api/v1/app/features', expect.any(Object))
     expect(features.app_feature_enabled['features.auth.2fa']).toBe(true)
+  })
+
+  it('sends Accept-Language when configured', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }))
+    const api = createApiClient({
+      baseUrl: '/api/v1',
+      fetchImpl: fetchMock,
+      getAcceptLanguage: () => 'fr-BE',
+    })
+
+    await api.logout()
+
+    const requestInit = fetchMock.mock.calls[0]?.[1]
+    expect(requestInit?.headers).toMatchObject({
+      'Accept-Language': 'fr-BE',
+    })
   })
 
   it('updates app feature switches with PATCH', async () => {

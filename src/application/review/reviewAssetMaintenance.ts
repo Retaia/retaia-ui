@@ -10,10 +10,11 @@ type ReviewAssetDetail = {
     revision_etag?: string | null
   }
   derived?: {
-    proxy_video_url?: string | null
-    proxy_audio_url?: string | null
-    proxy_photo_url?: string | null
+    preview_video_url?: string | null
+    preview_audio_url?: string | null
+    preview_photo_url?: string | null
     waveform_url?: string | null
+    thumbs?: unknown
   }
   transcript?: {
     text_preview?: string | null

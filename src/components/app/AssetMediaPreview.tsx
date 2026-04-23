@@ -24,11 +24,11 @@ function buildWaveformBars(seed: string, count = 48): number[] {
 export function AssetMediaPreview({ selectedAsset, t }: Props) {
   const mediaUrl =
     selectedAsset.mediaType === 'VIDEO'
-      ? selectedAsset.proxyVideoUrl
+      ? selectedAsset.previewVideoUrl
       : selectedAsset.mediaType === 'AUDIO'
-        ? selectedAsset.proxyAudioUrl
+        ? selectedAsset.previewAudioUrl
         : selectedAsset.mediaType === 'IMAGE'
-          ? selectedAsset.proxyPhotoUrl
+          ? selectedAsset.previewPhotoUrl
           : null
 
   if (selectedAsset.mediaType === 'IMAGE' && mediaUrl) {

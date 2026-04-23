@@ -252,15 +252,12 @@ export function createApiClient(
     submitAssetDecision: (
       assetId: string,
       payload: AssetDecisionPayload,
-      idempotencyKey: string,
+      _idempotencyKey?: string,
       ifMatch?: string | null,
     ) =>
-      request<void>(`/assets/${assetId}/decision`, {
-        method: 'POST',
-        headers: {
-          ...withIfMatchHeader(ifMatch),
-          'Idempotency-Key': idempotencyKey,
-        },
+      request<void>(`/assets/${assetId}`, {
+        method: 'PATCH',
+        ...(withIfMatchHeader(ifMatch) ? { headers: withIfMatchHeader(ifMatch) } : {}),
         body: JSON.stringify(payload),
       }),
   }

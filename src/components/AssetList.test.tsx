@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
 import { AssetList } from './AssetList'
+import type { AssetState } from '../domain/assets'
 
 const assets = [
   { id: 'A-001', name: 'interview-camera-a.mov', state: 'DECISION_PENDING' as const },
@@ -18,7 +19,7 @@ const labels = {
   keep: 'Conserver',
   reject: 'Rejeter',
   clear: 'Réinitialiser',
-  state: (value: 'DECISION_PENDING' | 'DECIDED_KEEP' | 'DECIDED_REJECT' | 'ARCHIVED') => value,
+  state: (value: AssetState) => value,
 }
 
 describe('AssetList', () => {

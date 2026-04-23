@@ -1,7 +1,13 @@
 import type { ApiErrorPayload } from './client'
 import { INITIAL_ASSETS } from '../data/mockAssets'
 
-type MockAssetState = 'DECISION_PENDING' | 'DECIDED_KEEP' | 'DECIDED_REJECT' | 'ARCHIVED' | 'REJECTED'
+type MockAssetState =
+  | 'DECISION_PENDING'
+  | 'DECIDED_KEEP'
+  | 'DECIDED_REJECT'
+  | 'ARCHIVED'
+  | 'REJECTED'
+  | 'PURGED'
 
 type MockAsset = {
   uuid: string
@@ -64,6 +70,12 @@ function inferState(state: string): MockAssetState {
   }
   if (state === 'DECIDED_REJECT') {
     return 'DECIDED_REJECT'
+  }
+  if (state === 'REJECTED') {
+    return 'REJECTED'
+  }
+  if (state === 'PURGED') {
+    return 'PURGED'
   }
   return 'DECISION_PENDING'
 }
@@ -312,27 +324,6 @@ export function createInMemoryMockApiFetch(): typeof fetch {
       return jsonResponse(200, listAssetsResponse())
     }
 
-    if (pathname.startsWith('/assets/') && pathname.endsWith('/decision') && method === 'POST') {
-      const assetId = extractAssetId(pathname)
-      if (!assetId) {
-        return notFound('Asset not found.', 'mock-asset-id-missing')
-      }
-      const body = await parseJson(init)
-      const action = body.action
-      const asset = sharedState.assets.get(assetId)
-      if (!asset) {
-        return notFound('Asset not found.', 'mock-asset-not-found')
-      }
-      if (action === 'KEEP') {
-        asset.state = 'DECIDED_KEEP'
-      } else if (action === 'REJECT') {
-        asset.state = 'DECIDED_REJECT'
-      } else if (action === 'CLEAR') {
-        asset.state = 'DECISION_PENDING'
-      }
-      return emptyResponse(200)
-    }
-
     if (pathname.startsWith('/assets/') && pathname.endsWith('/purge/preview') && method === 'POST') {
       return emptyResponse(204)
     }
@@ -344,7 +335,7 @@ export function createInMemoryMockApiFetch(): typeof fetch {
       }
       const asset = sharedState.assets.get(assetId)
       if (asset) {
-        asset.state = 'REJECTED'
+        asset.state = 'PURGED'
       }
       return emptyResponse(204)
     }
@@ -364,6 +355,13 @@ export function createInMemoryMockApiFetch(): typeof fetch {
       }
       if (typeof body.notes === 'string') {
         asset.notes = body.notes
+      }
+      if (
+        body.state === 'DECISION_PENDING' ||
+        body.state === 'DECIDED_KEEP' ||
+        body.state === 'DECIDED_REJECT'
+      ) {
+        asset.state = body.state
       }
       return emptyResponse(200)
     }

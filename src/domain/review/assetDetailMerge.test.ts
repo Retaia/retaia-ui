@@ -18,7 +18,7 @@ describe('mergeAssetWithDetail', () => {
         tags: ['a', 10, 'b'],
       },
       derived: {
-        proxy_video_url: '/video.mp4',
+        preview_video_url: '/video.mp4',
       },
       transcript: {
         text_preview: 'preview',
@@ -28,7 +28,7 @@ describe('mergeAssetWithDetail', () => {
 
     expect(merged.state).toBe('DECISION_PENDING')
     expect(merged.tags).toEqual(['a', 'b'])
-    expect(merged.proxyVideoUrl).toBe('/video.mp4')
+    expect(merged.previewVideoUrl).toBe('/video.mp4')
     expect(merged.transcriptPreview).toBe('preview')
     expect(merged.transcriptStatus).toBe('DONE')
   })
@@ -65,5 +65,30 @@ describe('mergeAssetWithDetail', () => {
     )
 
     expect(merged.state).toBe('ARCHIVED')
+  })
+
+  it('preserves terminal reject states from detail payload when requested', () => {
+    const rejected = mergeAssetWithDetail(
+      baseAsset,
+      {
+        summary: {
+          state: 'REJECTED',
+        },
+      },
+      { includeDecisionState: true },
+    )
+
+    const purged = mergeAssetWithDetail(
+      baseAsset,
+      {
+        summary: {
+          state: 'PURGED',
+        },
+      },
+      { includeDecisionState: true },
+    )
+
+    expect(rejected.state).toBe('REJECTED')
+    expect(purged.state).toBe('PURGED')
   })
 })

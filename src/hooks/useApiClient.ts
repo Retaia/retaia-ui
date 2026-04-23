@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { type ApiClient, createApiClient } from '../api/client'
 import { createInMemoryMockApiFetch, isAppEnvTest } from '../api/mockDb'
+import { i18next } from '../i18n'
 
 type RuntimeConfig = {
   API_BASE_URL?: string
@@ -66,6 +67,7 @@ export function useApiClient({
         baseUrl: effectiveApiBaseUrl,
         fetchImpl: shouldUseInMemoryMockDb ? createInMemoryMockApiFetch() : undefined,
         getAccessToken: () => effectiveApiToken,
+        getAcceptLanguage: () => i18next.resolvedLanguage ?? i18next.language ?? null,
         onAuthError,
         onRetry,
         retry: {

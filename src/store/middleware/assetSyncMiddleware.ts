@@ -55,6 +55,7 @@ export const assetSyncMiddleware: Middleware = (store) => (next) => (action) => 
     const apiClient = createApiClient({
       baseUrl: runtime.baseUrl,
       getAccessToken: () => runtime.token,
+      getAcceptLanguage: () => i18next.resolvedLanguage ?? i18next.language ?? null,
     })
     void apiClient
       .updateAssetMetadata(payload.assetId, {
@@ -92,12 +93,13 @@ export const assetSyncMiddleware: Middleware = (store) => (next) => (action) => 
     const apiClient = createApiClient({
       baseUrl: runtime.baseUrl,
       getAccessToken: () => runtime.token,
+      getAcceptLanguage: () => i18next.resolvedLanguage ?? i18next.language ?? null,
     })
     void apiClient
       .submitAssetDecision(
         payload.assetId,
-        { action: payload.action },
-        crypto.randomUUID(),
+        { state: payload.action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT' },
+        undefined,
         payload.revisionEtag,
       )
       .then(() => {
