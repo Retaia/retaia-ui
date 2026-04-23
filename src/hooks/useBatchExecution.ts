@@ -64,6 +64,7 @@ export function useBatchExecution({
   const [reportData, setReportData] = useState<unknown>(null)
   const [lastSuccessfulReport, setLastSuccessfulReport] = useState<{ batchId: string; report: unknown } | null>(null)
   const [reportExportStatus, setReportExportStatus] = useState<string | null>(null)
+  const [now, setNow] = useState(() => Date.now())
 
   const pendingBatchExecutionTimer = useRef<number | null>(null)
 
@@ -76,6 +77,18 @@ export function useBatchExecution({
     [],
   )
 
+  useEffect(() => {
+    if (!pendingBatchExecution) {
+      return
+    }
+    const intervalId = window.setInterval(() => {
+      setNow(Date.now())
+    }, 1000)
+    return () => {
+      window.clearInterval(intervalId)
+    }
+  }, [pendingBatchExecution])
+
   const batchTimeline = useMemo(() => {
     return buildBatchTimeline({
       pendingBatchExecution,
@@ -85,7 +98,10 @@ export function useBatchExecution({
     })
   }, [executeStatus?.kind, executingBatch, pendingBatchExecution, t])
 
-  const pendingBatchUndoSeconds = getPendingBatchUndoSeconds(pendingBatchExecution, Date.now())
+  const pendingBatchUndoSeconds = useMemo(
+    () => getPendingBatchUndoSeconds(pendingBatchExecution, now),
+    [now, pendingBatchExecution],
+  )
 
   const previewBatchMove = useCallback(async () => {
     if (batchIds.length === 0 || previewingBatch) {
@@ -171,6 +187,7 @@ export function useBatchExecution({
       window.clearTimeout(pendingBatchExecutionTimer.current)
       pendingBatchExecutionTimer.current = null
     }
+    setNow(Date.now())
     setPendingBatchExecution(null)
     setExecuteStatus(buildExecuteCanceledStatus(t))
   }, [pendingBatchExecution, t])
@@ -199,6 +216,7 @@ export function useBatchExecution({
     }
 
     setExecuteStatus(buildExecuteQueuedStatus(t, plan.undoSeconds))
+    setNow(Date.now())
     setPendingBatchExecution({
       assetIds: plan.selection,
       expiresAt: plan.expiresAt,

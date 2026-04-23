@@ -45,8 +45,6 @@ export function useAuthFeatureGovernance({
 
   useEffect(() => {
     if (!authUserIsAdmin) {
-      setAppFeatureState(null)
-      setAppFeatureStatus(null)
       return
     }
     let canceled = false
@@ -76,22 +74,25 @@ export function useAuthFeatureGovernance({
     }
   }, [apiClient, authUserIsAdmin, t])
 
+  const effectiveAppFeatureState = authUserIsAdmin ? appFeatureState : null
+  const effectiveAppFeatureStatus = authUserIsAdmin ? appFeatureStatus : null
+
   const appMfaFeatureKey = useMemo(() => {
-    if (!appFeatureState) {
+    if (!effectiveAppFeatureState) {
       return null
     }
     return findMfaFeatureKey({
-      featureGovernance: appFeatureState.featureGovernance,
-      enabledMap: appFeatureState.appFeatureEnabled,
+      featureGovernance: effectiveAppFeatureState.featureGovernance,
+      enabledMap: effectiveAppFeatureState.appFeatureEnabled,
     })
-  }, [appFeatureState])
+  }, [effectiveAppFeatureState])
 
   const appMfaFeatureEnabled = useMemo(() => {
-    if (!appMfaFeatureKey || !appFeatureState) {
+    if (!appMfaFeatureKey || !effectiveAppFeatureState) {
       return false
     }
-    return appFeatureState.appFeatureEnabled[appMfaFeatureKey] === true
-  }, [appFeatureState, appMfaFeatureKey])
+    return effectiveAppFeatureState.appFeatureEnabled[appMfaFeatureKey] === true
+  }, [effectiveAppFeatureState, appMfaFeatureKey])
 
   const setAppFeature = useCallback(
     async (enabled: boolean) => {
@@ -202,7 +203,7 @@ export function useAuthFeatureGovernance({
 
   return {
     appFeatureBusy,
-    appFeatureStatus,
+    appFeatureStatus: effectiveAppFeatureStatus,
     appMfaFeatureKey,
     appMfaFeatureEnabled,
     mfaFeatureKey,

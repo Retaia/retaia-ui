@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
 import { mapApiSummaryToAsset } from '../api/assetMapper'
@@ -15,27 +15,27 @@ export function useStandaloneAssetDetailController(context: Context) {
   const { t, i18n } = useTranslation()
   const { assetId } = useParams<{ assetId: string }>()
   const { apiClient, isApiAssetSource } = useReviewApiRuntime()
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null)
+  const [apiSelectedAsset, setApiSelectedAsset] = useState<Asset | null>(null)
   const [loadingState, setLoadingState] = useState<'idle' | 'loading' | 'error'>('idle')
   const [savingMetadata, setSavingMetadata] = useState(false)
   const [metadataStatus, setMetadataStatus] = useState<{
     kind: 'success' | 'error'
     message: string
   } | null>(null)
+  const localSelectedAsset = useMemo(() => {
+    if (!assetId) {
+      return null
+    }
+    return (
+      INITIAL_ASSETS.find((asset) => asset.id === assetId) ??
+      (context === 'library'
+        ? INITIAL_ASSETS.find((asset) => asset.id === assetId && asset.state === 'ARCHIVED')
+        : null)
+    )
+  }, [assetId, context])
 
   useEffect(() => {
-    if (!assetId) {
-      setSelectedAsset(null)
-      return
-    }
-
-    if (!isApiAssetSource) {
-      const localAsset =
-        INITIAL_ASSETS.find((asset) => asset.id === assetId) ??
-        (context === 'library'
-          ? INITIAL_ASSETS.find((asset) => asset.id === assetId && asset.state === 'ARCHIVED')
-          : null)
-      setSelectedAsset(localAsset ?? null)
+    if (!assetId || !isApiAssetSource) {
       return
     }
 
@@ -63,13 +63,13 @@ export function useStandaloneAssetDetailController(context: Context) {
         const merged = mergeAssetWithDetail(summaryAsset ?? fallbackAsset, detail, {
           includeDecisionState: true,
         })
-        setSelectedAsset(merged)
+        setApiSelectedAsset(merged)
         setLoadingState('idle')
       } catch {
         if (canceled) {
           return
         }
-        setSelectedAsset(null)
+        setApiSelectedAsset(null)
         setLoadingState('error')
       }
     }
@@ -80,12 +80,14 @@ export function useStandaloneAssetDetailController(context: Context) {
     }
   }, [apiClient, assetId, context, isApiAssetSource])
 
+  const selectedAsset = isApiAssetSource ? apiSelectedAsset : localSelectedAsset
+
   const saveMetadata = async (targetAssetId: string, payload: { tags: string[]; notes: string }) => {
     setSavingMetadata(true)
     setMetadataStatus(null)
     try {
       await apiClient.updateAssetMetadata(targetAssetId, payload, selectedAsset?.revisionEtag)
-      setSelectedAsset((current) =>
+      setApiSelectedAsset((current) =>
         current && current.id === targetAssetId
           ? { ...current, tags: payload.tags, notes: payload.notes }
           : current,
