@@ -4,6 +4,7 @@ import type {
   AssetMediaTypeFilter,
   AssetSort,
 } from '../domain/assets'
+import { ASSET_STATES } from '../domain/assets'
 import { BsCalendar3, BsFunnel, BsSearch, BsSliders2, BsSortDown } from 'react-icons/bs'
 
 type ReviewToolbarProps = {
@@ -28,10 +29,7 @@ type ReviewToolbarProps = {
     all: string
     date7d: string
     date30d: string
-    statePending: string
-    stateKept: string
-    stateRejected: string
-    stateArchived: string
+    stateLabel: (value: AssetFilter) => string
     mediaTypeVideo: string
     mediaTypeAudio: string
     mediaTypeImage: string
@@ -75,10 +73,11 @@ export function ReviewToolbar({
               className={controlClass}
             >
               <option value="ALL">{labels.all}</option>
-              <option value="DECISION_PENDING">{labels.statePending}</option>
-              <option value="DECIDED_KEEP">{labels.stateKept}</option>
-              <option value="DECIDED_REJECT">{labels.stateRejected}</option>
-              <option value="ARCHIVED">{labels.stateArchived}</option>
+              {ASSET_STATES.map((state) => (
+                <option key={state} value={state}>
+                  {labels.stateLabel(state)}
+                </option>
+              ))}
             </select>
           </div>
 

@@ -8,6 +8,7 @@ import type {
   AssetSort,
   AssetState,
 } from '../../domain/assets'
+import { ASSET_STATE_LABEL_KEYS } from '../../domain/assets'
 import type { TFunction } from 'i18next'
 
 type Props = {
@@ -84,10 +85,7 @@ export function ReviewOverviewSection({
           all: t('toolbar.all'),
           date7d: t('toolbar.date7d'),
           date30d: t('toolbar.date30d'),
-          statePending: t('toolbar.statePending'),
-          stateKept: t('toolbar.stateKept'),
-          stateRejected: t('toolbar.stateRejected'),
-          stateArchived: t('toolbar.stateArchived'),
+          stateLabel: (value) => (value === 'ALL' ? t('toolbar.all') : t(ASSET_STATE_LABEL_KEYS[value])),
           mediaTypeVideo: t('toolbar.mediaTypeVideo'),
           mediaTypeAudio: t('toolbar.mediaTypeAudio'),
           mediaTypeImage: t('toolbar.mediaTypeImage'),
