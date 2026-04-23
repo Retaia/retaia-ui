@@ -239,12 +239,12 @@ describe('AssetDetailPanel media preview', () => {
       },
       {
         onOpenStandaloneDetail,
-        standaloneHref: '/review/detail/A-040?from=%2Freview%3Fq%3Dasset',
+        standaloneHref: '/review/asset/A-040?from=%2Freview%3Fq%3Dasset',
       },
     )
 
     const newTabLink = screen.getByTestId('asset-open-standalone-new-tab')
-    expect(newTabLink).toHaveAttribute('href', '/review/detail/A-040?from=%2Freview%3Fq%3Dasset')
+    expect(newTabLink).toHaveAttribute('href', '/review/asset/A-040?from=%2Freview%3Fq%3Dasset')
     expect(newTabLink).toHaveAttribute('target', '_blank')
     expect(newTabLink).toHaveAttribute('rel', 'noopener noreferrer')
   })
