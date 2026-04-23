@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import type { Asset } from '../domain/assets'
 import {
   buildPurgeErrorStatus,
@@ -102,14 +102,6 @@ export function usePurgeFlow({
     setRetryStatus,
     t,
   ])
-
-  useEffect(() => {
-    if (!selectedAsset || selectedAsset.id === purgePreviewAssetId) {
-      return
-    }
-    setPurgePreviewAssetId(null)
-  }, [purgePreviewAssetId, selectedAsset])
-
   return {
     previewingPurge,
     executingPurge,

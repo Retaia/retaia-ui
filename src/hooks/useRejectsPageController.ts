@@ -237,6 +237,7 @@ export function useRejectsPageController() {
       }),
     [executingPurge, previewingPurge, purgePreviewAssetId, selectedAsset?.id, selectedAsset?.state, visibleAssets.length],
   )
+  const selectedAssetRevisionEtag = selectedAsset?.revisionEtag ?? null
 
   const saveSelectedAssetMetadata = useCallback(
     async (assetId: string, payload: { tags: string[]; notes: string }) => {
@@ -249,7 +250,7 @@ export function useRejectsPageController() {
               assetId,
               tags: payload.tags,
               notes: payload.notes,
-              revisionEtag: selectedAsset?.revisionEtag,
+              revisionEtag: selectedAssetRevisionEtag,
             }),
           ).unwrap()
         }
@@ -273,7 +274,7 @@ export function useRejectsPageController() {
         setSavingMetadata(false)
       }
     },
-    [dispatch, isApiAssetSource, selectedAsset?.revisionEtag, t],
+    [dispatch, isApiAssetSource, selectedAssetRevisionEtag, t],
   )
 
   const selectionStatusLabel = useMemo(

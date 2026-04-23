@@ -120,10 +120,6 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   const [assets, setAssets] = useState<Asset[]>(INITIAL_ASSETS)
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(() => readSelectedAssetId('review'))
   const [selectionAnchorId, setSelectionAnchorId] = useState<string | null>(null)
-  const applySelectedAssetId = useCallback((nextAssetId: string | null) => {
-    setSelectedAssetId(nextAssetId)
-    setSelectionAnchorId(nextAssetId)
-  }, [])
   const { densityMode, toggleDensityMode } = useDensityMode()
   const { displayType, setDisplayType } = useDisplayType('retaia_ui_review_asset_display_type')
   const [savingMetadata, setSavingMetadata] = useState(false)
@@ -137,6 +133,13 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   } | null>(null)
   const [shouldRefreshSelectedAsset, setShouldRefreshSelectedAsset] = useState(false)
   const [refreshingSelectedAsset, setRefreshingSelectedAsset] = useState(false)
+  const applySelectedAssetId = useCallback((nextAssetId: string | null) => {
+    setMetadataStatus(null)
+    setDecisionStatus(null)
+    setShouldRefreshSelectedAsset(false)
+    setSelectedAssetId(nextAssetId)
+    setSelectionAnchorId(nextAssetId)
+  }, [setDecisionStatus, setMetadataStatus, setSelectedAssetId, setSelectionAnchorId, setShouldRefreshSelectedAsset])
   const listQuery = useMemo<ListAssetsQuery>(() => {
     const now = new Date()
     const from = new Date(now)
@@ -283,7 +286,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       }
       return result.message
     },
-    [t],
+    [setShouldRefreshSelectedAsset, t],
   )
   const {
     previewingBatch,
@@ -395,7 +398,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
 
       void run()
     },
-    [assets, dispatch, isApiAssetSource, mapDecisionErrorToMessage, recordAction, t],
+    [assets, dispatch, isApiAssetSource, mapDecisionErrorToMessage, recordAction, setDecisionStatus, t],
   )
 
   const submitDecisionsForIds = useCallback(
@@ -477,7 +480,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
         message: t('detail.decisionBulkSaved', { action: actionLabel, count: result.successCount }),
       })
     },
-    [recordAction, t],
+    [recordAction, setDecisionStatus, t],
   )
 
   const applyDecisionToVisible = useCallback(
@@ -511,7 +514,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
 
       void run()
     },
-    [bulkDecisionsEnabled, finalizeBulkDecision, isApiAssetSource, submitDecisionsForIds, t, visibleAssets],
+    [bulkDecisionsEnabled, finalizeBulkDecision, isApiAssetSource, setDecisionStatus, submitDecisionsForIds, t, visibleAssets],
   )
 
   const applyDecisionToBatch = useCallback(
@@ -548,7 +551,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
 
       void run()
     },
-    [batchIds, bulkDecisionsEnabled, finalizeBulkDecision, isApiAssetSource, setBatchIds, submitDecisionsForIds, t],
+    [batchIds, bulkDecisionsEnabled, finalizeBulkDecision, isApiAssetSource, setBatchIds, setDecisionStatus, submitDecisionsForIds, t],
   )
 
   const clearBatch = useCallback(() => {
@@ -639,7 +642,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       }
       return result.message
     },
-    [t],
+    [setShouldRefreshSelectedAsset, t],
   )
   const {
     previewingPurge,
@@ -669,16 +672,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   })
 
   useEffect(() => {
-    setMetadataStatus(null)
-  }, [selectedAssetId])
-
-  useEffect(() => {
     persistSelectedAssetId('review', selectedAssetId)
-  }, [selectedAssetId])
-
-  useEffect(() => {
-    setDecisionStatus(null)
-    setShouldRefreshSelectedAsset(false)
   }, [selectedAssetId])
 
   const saveSelectedAssetMetadata = useCallback(
@@ -777,12 +771,20 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   const setSelectedAssetIdFromSelectionFlow = useCallback(
     (value: string | null | ((current: string | null) => string | null)) => {
       if (typeof value === 'function') {
-        setSelectedAssetId(value)
+        setSelectedAssetId((current) => {
+          const nextValue = value(current)
+          if (nextValue !== current) {
+            setMetadataStatus(null)
+            setDecisionStatus(null)
+            setShouldRefreshSelectedAsset(false)
+          }
+          return nextValue
+        })
         return
       }
       applySelectedAssetId(value)
     },
-    [applySelectedAssetId, setSelectedAssetId],
+    [applySelectedAssetId, setDecisionStatus, setMetadataStatus, setSelectedAssetId, setShouldRefreshSelectedAsset],
   )
 
   const {

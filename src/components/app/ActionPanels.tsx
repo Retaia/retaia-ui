@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import {
   BsArrowClockwise,
   BsTools,
@@ -112,11 +111,7 @@ export function ActionPanels({
   onUndoLastAction,
 }: Props) {
   const hasBatchSelection = batchIdsLength > 0
-  const [isBatchSidebarOpen, setIsBatchSidebarOpen] = useState(false)
-
-  useEffect(() => {
-    setIsBatchSidebarOpen(hasBatchSelection)
-  }, [hasBatchSelection])
+  const isBatchSidebarOpen = hasBatchSelection
 
   return (
     <>

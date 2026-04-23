@@ -183,6 +183,7 @@ export function useLibraryPageController() {
     () => assets.find((asset) => asset.id === selectedAssetId) ?? null,
     [assets, selectedAssetId],
   )
+  const selectedAssetRevisionEtag = selectedAsset?.revisionEtag ?? null
 
   const handleAssetClick = useCallback(
     (assetId: string) => {
@@ -203,7 +204,7 @@ export function useLibraryPageController() {
               assetId,
               tags: payload.tags,
               notes: payload.notes,
-              revisionEtag: selectedAsset?.revisionEtag,
+              revisionEtag: selectedAssetRevisionEtag,
             }),
           ).unwrap()
         }
@@ -227,7 +228,7 @@ export function useLibraryPageController() {
         setSavingMetadata(false)
       }
     },
-    [dispatch, isApiAssetSource, selectedAsset?.revisionEtag, t],
+    [dispatch, isApiAssetSource, selectedAssetRevisionEtag, t],
   )
 
   const reopenSelectedAsset = useCallback(async () => {
