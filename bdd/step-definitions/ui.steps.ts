@@ -131,7 +131,7 @@ Given("je suis sur la page d'accueil en mode source API", async () => {
 })
 
 Then('le titre principal {string} est visible', async (title: string) => {
-  await expect(getPage().getByRole('heading', { name: title })).toBeVisible()
+  await expect(getPage().getByRole('heading', { name: title, exact: true })).toBeVisible()
 })
 
 Then('l\'URL courante contient {string}', async (value: string) => {
