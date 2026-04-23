@@ -55,6 +55,31 @@ export const currentUserResponseSchema = z
   })
   .passthrough()
 
+export const authSessionsResponseSchema = z
+  .object({
+    items: z.array(
+      z.object({
+        session_id: z.string().min(1),
+        client_id: z.string().min(1),
+        created_at: z.string().min(1),
+        last_used_at: z.string().min(1),
+        expires_at: z.string().nullable().optional(),
+        is_current: z.boolean(),
+        device_label: z.string().nullable().optional(),
+        browser: z.string().nullable().optional(),
+        os: z.string().nullable().optional(),
+        ip_address_last_seen: z.string().nullable().optional(),
+      }).passthrough(),
+    ),
+  })
+  .passthrough()
+
+export const authRevokeOthersResponseSchema = z
+  .object({
+    revoked: z.number(),
+  })
+  .passthrough()
+
 export const userFeaturesResponseSchema = z
   .object({
     user_feature_enabled: unknownObjectSchema,

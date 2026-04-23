@@ -165,6 +165,8 @@ export function useAuthPageController() {
   )
 
   return {
+    apiClient,
+    effectiveApiToken,
     retryStatus,
     apiTokenInput,
     setApiTokenInput,

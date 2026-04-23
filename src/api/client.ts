@@ -7,7 +7,9 @@ import type {
   AuthEmailPayload,
   AuthLoginPayload,
   AuthLoginResponse,
+  AuthRevokeOthersResponse,
   AuthRefreshPayload,
+  AuthSessionsResponse,
   AuthLostPasswordResetPayload,
   AuthTokenPayload,
   HealthResponse,
@@ -30,6 +32,8 @@ import {
   parseAssetDetailResponse,
   parseAssetSummariesResponse,
   parseAuth2faSetupResponse,
+  parseAuthRevokeOthersResponse,
+  parseAuthSessionsResponse,
   parseCurrentUserResponse,
   parseHealthResponse,
   parseMoveExecuteResponse,
@@ -139,6 +143,25 @@ export function createApiClient(
       const path = '/auth/me'
       const result = await request<unknown>(path)
       return parseCurrentUserResponse(result, path)
+    },
+
+    listAuthSessions: async () => {
+      const path = '/auth/me/sessions'
+      const result = await request<unknown>(path)
+      return parseAuthSessionsResponse(result, path) as AuthSessionsResponse
+    },
+
+    revokeAuthSession: (sessionId: string) =>
+      request<void>(`/auth/me/sessions/${sessionId}/revoke`, {
+        method: 'POST',
+      }),
+
+    revokeOtherAuthSessions: async () => {
+      const path = '/auth/me/sessions/revoke-others'
+      const result = await request<unknown>(path, {
+        method: 'POST',
+      })
+      return parseAuthRevokeOthersResponse(result, path) as AuthRevokeOthersResponse
     },
 
     getWebauthnRegistrationOptions: (deviceLabel?: string) =>
