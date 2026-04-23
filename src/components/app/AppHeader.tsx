@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react'
 import {
   BsArchiveFill,
+  BsClockHistory,
   BsFlagFill,
-  BsGearFill,
   BsGlobe2,
   BsMoonStarsFill,
+  BsPersonFill,
+  BsSliders,
   BsShieldLockFill,
   BsSunFill,
   BsXOctagonFill,
@@ -18,11 +20,12 @@ type Props = {
   t: (key: string, values?: Record<string, string | number>) => string
   onChangeLanguage: (locale: Locale) => void
   onOpenSettings: () => void
-  onOpenAuth: () => void
+  onOpenAccount: () => void
   onOpenReview: () => void
   onOpenActivity: () => void
   onOpenLibrary: () => void
-  currentView?: 'workspace' | 'activity' | 'library'
+  onOpenRejects: () => void
+  currentView?: 'review' | 'library' | 'rejects' | 'activity' | 'settings' | 'account'
   children?: ReactNode
 }
 
@@ -31,11 +34,12 @@ export function AppHeader({
   t,
   onChangeLanguage,
   onOpenSettings,
-  onOpenAuth,
+  onOpenAccount,
   onOpenReview,
   onOpenActivity,
   onOpenLibrary,
-  currentView = 'workspace',
+  onOpenRejects,
+  currentView = 'review',
   children,
 }: Props) {
   const trackNavigationAction = (origin: string, pathname: string, run: () => void) => {
@@ -65,7 +69,7 @@ export function AppHeader({
 
   const navItems = [
     {
-      id: 'workspace',
+      id: 'review',
       icon: BsShieldLockFill,
       label: t('app.nav.review'),
       onClick: () => trackNavigationAction('sidebar:review', '/review', onOpenReview),
@@ -77,9 +81,15 @@ export function AppHeader({
       onClick: () => trackNavigationAction('sidebar:library', '/library', onOpenLibrary),
     },
     {
-      id: 'activity',
+      id: 'rejects',
       icon: BsXOctagonFill,
       label: t('app.nav.rejects'),
+      onClick: () => trackNavigationAction('sidebar:rejects', '/rejects', onOpenRejects),
+    },
+    {
+      id: 'activity',
+      icon: BsClockHistory,
+      label: t('app.nav.activity'),
       onClick: () => trackNavigationAction('sidebar:activity', '/activity', onOpenActivity),
     },
   ] as const
@@ -110,7 +120,7 @@ export function AppHeader({
             <button
               key={item.id}
               type="button"
-              data-testid={`nav-${item.id === 'workspace' ? 'review' : item.id}`}
+              data-testid={`nav-${item.id}`}
               className={navButtonClass(currentView === item.id)}
               onClick={item.onClick}
             >
@@ -124,19 +134,19 @@ export function AppHeader({
           <div className="w-full text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('app.adminMenu')}</div>
           <button
             type="button"
-            className={adminButtonClass}
+            className={currentView === 'settings' ? navButtonClass(true) : adminButtonClass}
             onClick={() => trackNavigationAction('sidebar:settings', '/settings', onOpenSettings)}
           >
-            <BsGearFill className="shrink-0" aria-hidden="true" />
+            <BsSliders className="shrink-0" aria-hidden="true" />
             {t('settings.openSettings')}
           </button>
           <button
             type="button"
-            className={adminButtonClass}
-            onClick={() => trackNavigationAction('sidebar:auth', '/auth', onOpenAuth)}
+            className={currentView === 'account' ? navButtonClass(true) : adminButtonClass}
+            onClick={() => trackNavigationAction('sidebar:account', '/account', onOpenAccount)}
           >
-            <BsShieldLockFill className="shrink-0" aria-hidden="true" />
-            {t('settings.openAuth')}
+            <BsPersonFill className="shrink-0" aria-hidden="true" />
+            {t('app.nav.account')}
           </button>
           <div className="inline-flex gap-2" aria-label={t('app.language')}>
             <button
