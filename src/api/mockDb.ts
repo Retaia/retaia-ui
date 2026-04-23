@@ -69,7 +69,7 @@ function inferState(state: string): MockAssetState {
     return 'ARCHIVED'
   }
   if (state === 'DECIDED_REJECT') {
-    return 'DECIDED_REJECT'
+    return 'REJECTED'
   }
   if (state === 'REJECTED') {
     return 'REJECTED'
@@ -189,9 +189,35 @@ async function parseJson(init?: RequestInit): Promise<Record<string, unknown>> {
   }
 }
 
-function listAssetsResponse() {
+function listAssetsResponse(urlInput: string) {
+  const parsed = new URL(urlInput, 'http://mock.local')
+  const requestedState = parsed.searchParams.get('state')
+  const query = parsed.searchParams.get('q')?.trim().toLowerCase() ?? ''
+  const sort = parsed.searchParams.get('sort') ?? '-created_at'
+  const filteredItems = Array.from(sharedState.assets.values()).filter((asset) => {
+    const matchesState = !requestedState || asset.state === requestedState
+    const matchesQuery =
+      query.length === 0 ||
+      asset.uuid.toLowerCase().includes(query) ||
+      asset.tags.some((tag) => tag.toLowerCase().includes(query))
+    return matchesState && matchesQuery
+  })
+  const items = [...filteredItems].sort((left, right) => {
+    if (sort === 'name') {
+      return left.uuid.localeCompare(right.uuid)
+    }
+    if (sort === '-name') {
+      return right.uuid.localeCompare(left.uuid)
+    }
+    const leftTime = Date.parse(left.captured_at)
+    const rightTime = Date.parse(right.captured_at)
+    if (sort === 'created_at' || sort === 'updated_at') {
+      return leftTime - rightTime
+    }
+    return rightTime - leftTime
+  })
   return {
-    items: Array.from(sharedState.assets.values()),
+    items,
     next_cursor: null,
   }
 }
@@ -321,7 +347,7 @@ export function createInMemoryMockApiFetch(): typeof fetch {
     }
 
     if (pathname === '/assets' && method === 'GET') {
-      return jsonResponse(200, listAssetsResponse())
+      return jsonResponse(200, listAssetsResponse(String(input)))
     }
 
     if (pathname.startsWith('/assets/') && pathname.endsWith('/purge/preview') && method === 'POST') {
