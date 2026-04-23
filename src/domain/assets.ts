@@ -1,4 +1,16 @@
-export const ASSET_STATES = ['DECISION_PENDING', 'DECIDED_KEEP', 'DECIDED_REJECT', 'ARCHIVED'] as const
+export const ASSET_STATES = [
+  'DISCOVERED',
+  'READY',
+  'PROCESSING_REVIEW',
+  'REVIEW_PENDING_PROFILE',
+  'PROCESSED',
+  'DECISION_PENDING',
+  'DECIDED_KEEP',
+  'DECIDED_REJECT',
+  'ARCHIVED',
+  'REJECTED',
+  'PURGED',
+] as const
 export const ASSET_MEDIA_TYPES = ['VIDEO', 'AUDIO', 'IMAGE', 'OTHER'] as const
 
 export type AssetState = (typeof ASSET_STATES)[number]
@@ -23,10 +35,11 @@ export type Asset = {
   capturedAt?: string
   updatedAt?: string
   revisionEtag?: string | null
-  proxyVideoUrl?: string | null
-  proxyAudioUrl?: string | null
-  proxyPhotoUrl?: string | null
+  previewVideoUrl?: string | null
+  previewAudioUrl?: string | null
+  previewPhotoUrl?: string | null
   waveformUrl?: string | null
+  thumbUrls?: string[]
   tags?: string[]
   notes?: string
   fields?: Record<string, unknown>
@@ -35,10 +48,17 @@ export type Asset = {
 }
 
 export const ASSET_STATE_LABEL_KEYS: Record<AssetState, string> = {
+  DISCOVERED: 'toolbar.stateDiscovered',
+  READY: 'toolbar.stateReady',
+  PROCESSING_REVIEW: 'toolbar.stateProcessingReview',
+  REVIEW_PENDING_PROFILE: 'toolbar.stateReviewPendingProfile',
+  PROCESSED: 'toolbar.stateProcessed',
   DECISION_PENDING: 'toolbar.statePending',
   DECIDED_KEEP: 'toolbar.stateKept',
   DECIDED_REJECT: 'toolbar.stateRejected',
   ARCHIVED: 'toolbar.stateArchived',
+  REJECTED: 'toolbar.stateMovedToRejects',
+  PURGED: 'toolbar.statePurged',
 }
 
 function inferMediaTypeFromName(name: string): AssetMediaType {
@@ -136,10 +156,17 @@ export const countAssetsByState = (assets: Asset[]): Record<AssetState, number> 
       return accumulator
     },
     {
+      DISCOVERED: 0,
+      READY: 0,
+      PROCESSING_REVIEW: 0,
+      REVIEW_PENDING_PROFILE: 0,
+      PROCESSED: 0,
       DECISION_PENDING: 0,
       DECIDED_KEEP: 0,
       DECIDED_REJECT: 0,
       ARCHIVED: 0,
+      REJECTED: 0,
+      PURGED: 0,
     },
   )
 }
@@ -173,7 +200,8 @@ export const getStateFromDecision = (
     if (
       currentState === 'DECIDED_KEEP' ||
       currentState === 'DECIDED_REJECT' ||
-      currentState === 'ARCHIVED'
+      currentState === 'ARCHIVED' ||
+      currentState === 'REJECTED'
     ) {
       return 'DECISION_PENDING'
     }

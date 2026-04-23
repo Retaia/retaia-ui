@@ -8,10 +8,11 @@ type AssetDetailLike = {
     revision_etag?: string | null
   }
   derived?: {
-    proxy_video_url?: string | null
-    proxy_audio_url?: string | null
-    proxy_photo_url?: string | null
+    preview_video_url?: string | null
+    preview_audio_url?: string | null
+    preview_photo_url?: string | null
     waveform_url?: string | null
+    thumbs?: unknown
   }
   transcript?: {
     text_preview?: string | null
@@ -21,10 +22,17 @@ type AssetDetailLike = {
 
 function toUiDecisionState(state: string | undefined): AssetState | null {
   if (
+    state === 'DISCOVERED' ||
+    state === 'READY' ||
+    state === 'PROCESSING_REVIEW' ||
+    state === 'REVIEW_PENDING_PROFILE' ||
+    state === 'PROCESSED' ||
     state === 'DECISION_PENDING' ||
     state === 'DECIDED_KEEP' ||
     state === 'DECIDED_REJECT' ||
-    state === 'ARCHIVED'
+    state === 'ARCHIVED' ||
+    state === 'REJECTED' ||
+    state === 'PURGED'
   ) {
     return state
   }
@@ -48,10 +56,15 @@ export function mergeAssetWithDetail(
     ...(normalizedTags ? { tags: normalizedTags } : {}),
     updatedAt: detail.summary.updated_at ?? asset.updatedAt,
     revisionEtag: detail.summary.revision_etag ?? asset.revisionEtag ?? null,
-    proxyVideoUrl: detail.derived?.proxy_video_url ?? asset.proxyVideoUrl ?? null,
-    proxyAudioUrl: detail.derived?.proxy_audio_url ?? asset.proxyAudioUrl ?? null,
-    proxyPhotoUrl: detail.derived?.proxy_photo_url ?? asset.proxyPhotoUrl ?? null,
+    previewVideoUrl: detail.derived?.preview_video_url ?? asset.previewVideoUrl ?? null,
+    previewAudioUrl: detail.derived?.preview_audio_url ?? asset.previewAudioUrl ?? null,
+    previewPhotoUrl: detail.derived?.preview_photo_url ?? asset.previewPhotoUrl ?? null,
     waveformUrl: detail.derived?.waveform_url ?? asset.waveformUrl ?? null,
+    ...(Array.isArray(detail.derived?.thumbs)
+      ? {
+          thumbUrls: detail.derived.thumbs.filter((thumb): thumb is string => typeof thumb === 'string'),
+        }
+      : {}),
     transcriptPreview: detail.transcript?.text_preview ?? asset.transcriptPreview ?? null,
     transcriptStatus: detail.transcript?.status ?? asset.transcriptStatus,
   }

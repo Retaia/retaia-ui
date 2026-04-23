@@ -19,7 +19,7 @@ export type AssetSummary = {
   revision_etag?: string | null
   duration?: number | null
   tags?: string[]
-  has_proxy?: boolean
+  has_preview?: boolean
   thumb_url?: string | null
   [key: string]: unknown
 }
@@ -66,7 +66,7 @@ export type AssetMetadataPatchPayload = {
   fields?: Record<string, unknown>
 }
 export type AssetDecisionPayload = {
-  action: 'KEEP' | 'REJECT' | 'CLEAR'
+  state: 'DECISION_PENDING' | 'DECIDED_KEEP' | 'DECIDED_REJECT'
 }
 export type AppPolicyResponse = {
   server_policy: {

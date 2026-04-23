@@ -79,7 +79,7 @@ describe('AssetDetailPanel media preview', () => {
       name: 'video.mov',
       state: 'DECISION_PENDING',
       mediaType: 'VIDEO',
-      proxyVideoUrl: '/mock-media/video.mp4',
+      previewVideoUrl: '/mock-media/video.mp4',
     })
 
     expect(screen.getByTestId('react-player')).toBeInTheDocument()
@@ -97,7 +97,7 @@ describe('AssetDetailPanel media preview', () => {
       name: 'audio.wav',
       state: 'DECIDED_KEEP',
       mediaType: 'AUDIO',
-      proxyAudioUrl: '/mock-media/audio.mp3',
+      previewAudioUrl: '/mock-media/audio.mp3',
     })
 
     expect(screen.getByTestId('react-player')).toBeInTheDocument()
@@ -116,7 +116,7 @@ describe('AssetDetailPanel media preview', () => {
       name: 'audio-with-waveform.wav',
       state: 'DECISION_PENDING',
       mediaType: 'AUDIO',
-      proxyAudioUrl: '/mock-media/audio.mp3',
+      previewAudioUrl: '/mock-media/audio.mp3',
       waveformUrl: '/mock-media/waveform.png',
     })
 
@@ -131,7 +131,7 @@ describe('AssetDetailPanel media preview', () => {
       name: 'image.jpg',
       state: 'DECIDED_REJECT',
       mediaType: 'IMAGE',
-      proxyPhotoUrl: '/mock-media/image.jpg',
+      previewPhotoUrl: '/mock-media/image.jpg',
     })
 
     const image = screen.getByRole('img', { name: 'image.jpg' })

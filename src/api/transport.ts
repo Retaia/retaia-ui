@@ -10,6 +10,7 @@ export type ApiClientConfig = {
   baseUrl?: string
   fetchImpl?: FetchLike
   getAccessToken?: () => string | null | undefined
+  getAcceptLanguage?: () => string | null | undefined
   onAuthError?: (status: AuthStatus, payload?: ApiErrorPayload) => void
   onRetry?: (context: {
     path: string
@@ -29,6 +30,7 @@ type ResolvedApiConfig = {
   baseUrl: string
   fetchImpl: FetchLike
   getAccessToken?: () => string | null | undefined
+  getAcceptLanguage?: () => string | null | undefined
   onAuthError?: (status: AuthStatus, payload?: ApiErrorPayload) => void
   onRetry?: ApiClientConfig['onRetry']
   retry: {
@@ -102,6 +104,7 @@ export function resolveConfig(
       baseUrl: baseUrlOrConfig.baseUrl ?? '/api/v1',
       fetchImpl: baseUrlOrConfig.fetchImpl ?? defaultFetchImpl,
       getAccessToken: baseUrlOrConfig.getAccessToken,
+      getAcceptLanguage: baseUrlOrConfig.getAcceptLanguage,
       onAuthError: baseUrlOrConfig.onAuthError,
       onRetry: baseUrlOrConfig.onRetry,
       retry: {
@@ -116,6 +119,7 @@ export function resolveConfig(
     baseUrl: baseUrlOrConfig ?? '/api/v1',
     fetchImpl: legacyFetchImpl ?? defaultFetchImpl,
     getAccessToken: undefined,
+    getAcceptLanguage: undefined,
     onAuthError: undefined,
     onRetry: undefined,
     retry: { maxRetries: 2, baseDelayMs: 50 },
@@ -132,11 +136,13 @@ export function createRequest(config: ResolvedApiConfig) {
 
     while (attempt <= maxRetries) {
       const accessToken = config.getAccessToken?.()
+      const acceptLanguage = config.getAcceptLanguage?.()
       response = await config.fetchImpl(`${config.baseUrl}${path}`, {
         ...init,
         credentials: config.credentials,
         headers: {
           'Content-Type': 'application/json',
+          ...(acceptLanguage ? { 'Accept-Language': acceptLanguage } : {}),
           ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
           ...(init?.headers ?? {}),
         },

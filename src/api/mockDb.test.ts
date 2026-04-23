@@ -97,7 +97,7 @@ describe('in-memory mock db for APP_ENV=test', () => {
     const afterPatch = await api.getAssetDetail('A-001')
     expect(afterPatch.summary.tags).toEqual(['edited'])
 
-    await api.submitAssetDecision('A-001', { action: 'REJECT' }, 'idem-asset-1')
+    await api.submitAssetDecision('A-001', { state: 'DECIDED_REJECT' })
     const afterDecision = await api.getAssetDetail('A-001')
     expect(afterDecision.summary.state).toBe('DECIDED_REJECT')
   })
@@ -112,7 +112,7 @@ describe('in-memory mock db for APP_ENV=test', () => {
     await api.previewAssetPurge('A-001')
     await api.executeAssetPurge('A-001', 'idem-purge-1')
     const purged = await api.getAssetDetail('A-001')
-    expect(purged.summary.state).toBe('REJECTED')
+    expect(purged.summary.state).toBe('PURGED')
 
     await api.previewMoveBatch({ include: 'KEEP' })
     const execute = await api.executeMoveBatch({ mode: 'EXECUTE', selection: {} }, 'idem-batch-1')

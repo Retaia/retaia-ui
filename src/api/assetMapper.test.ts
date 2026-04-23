@@ -44,7 +44,7 @@ describe('assetMapper', () => {
         state: 'PURGED',
         created_at: '2026-02-12T10:00:00Z',
       }).state,
-    ).toBe('DECIDED_REJECT')
+    ).toBe('PURGED')
   })
 
   it('falls back safely when api payload is partially malformed', () => {

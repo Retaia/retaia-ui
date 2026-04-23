@@ -17,14 +17,20 @@ function mapMediaType(mediaType: ApiAssetSummary['media_type'] | undefined): Ass
 }
 
 function mapState(state: ApiAssetSummary['state'] | undefined): AssetState {
-  if (state === 'DECIDED_KEEP') {
-    return 'DECIDED_KEEP'
-  }
-  if (state === 'ARCHIVED') {
-    return 'ARCHIVED'
-  }
-  if (state === 'DECIDED_REJECT' || state === 'REJECTED' || state === 'PURGED') {
-    return 'DECIDED_REJECT'
+  if (
+    state === 'DISCOVERED' ||
+    state === 'READY' ||
+    state === 'PROCESSING_REVIEW' ||
+    state === 'REVIEW_PENDING_PROFILE' ||
+    state === 'PROCESSED' ||
+    state === 'DECISION_PENDING' ||
+    state === 'DECIDED_KEEP' ||
+    state === 'DECIDED_REJECT' ||
+    state === 'ARCHIVED' ||
+    state === 'REJECTED' ||
+    state === 'PURGED'
+  ) {
+    return state
   }
   return 'DECISION_PENDING'
 }
@@ -57,6 +63,7 @@ export function mapApiSummaryToAsset(
     ...(summary.revision_etag === null || typeof summary.revision_etag === 'string'
       ? { revisionEtag: summary.revision_etag ?? null }
       : {}),
+    ...(typeof summary.thumb_url === 'string' ? { thumbUrls: [summary.thumb_url] } : {}),
     ...(tags ? { tags } : {}),
   }
 }

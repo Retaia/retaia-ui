@@ -41,10 +41,17 @@ describe('assets domain', () => {
 
   it('counts assets by state', () => {
     expect(countAssetsByState(assets)).toEqual({
+      DISCOVERED: 0,
+      READY: 0,
+      PROCESSING_REVIEW: 0,
+      REVIEW_PENDING_PROFILE: 0,
+      PROCESSED: 0,
       DECISION_PENDING: 1,
       DECIDED_KEEP: 1,
       DECIDED_REJECT: 1,
       ARCHIVED: 0,
+      REJECTED: 0,
+      PURGED: 0,
     })
   })
 
@@ -85,6 +92,7 @@ describe('assets domain', () => {
     expect(getStateFromDecision('REJECT', 'DECISION_PENDING')).toBe('DECIDED_REJECT')
     expect(getStateFromDecision('CLEAR', 'DECIDED_KEEP')).toBe('DECISION_PENDING')
     expect(getStateFromDecision('CLEAR', 'ARCHIVED')).toBe('DECISION_PENDING')
+    expect(getStateFromDecision('CLEAR', 'REJECTED')).toBe('DECISION_PENDING')
     expect(getStateFromDecision('CLEAR', 'DECISION_PENDING')).toBe('DECISION_PENDING')
   })
 })
