@@ -42,6 +42,10 @@ function renderPanel(
     onKeywordClick?: (keyword: string) => void
     onOpenStandaloneDetail?: (assetId: string) => void
     standaloneHref?: string
+    onReopenAsset?: () => Promise<void>
+    onReprocessAsset?: () => Promise<void>
+    showLibraryActions?: boolean
+    transitionStatus?: { kind: 'success' | 'error'; message: string } | null
   },
 ) {
   const onSaveMetadata = options?.onSaveMetadata ?? vi.fn(async () => {})
@@ -64,6 +68,12 @@ function renderPanel(
       onRefreshAsset={onRefreshAsset}
       showRefreshAction={options?.showRefreshAction ?? false}
       refreshingAsset={false}
+      showLibraryActions={options?.showLibraryActions ?? false}
+      onReopenAsset={options?.onReopenAsset}
+      onReprocessAsset={options?.onReprocessAsset}
+      reopeningAsset={false}
+      reprocessingAsset={false}
+      transitionStatus={options?.transitionStatus ?? null}
       onOpenStandaloneDetail={options?.onOpenStandaloneDetail}
       standaloneHref={options?.standaloneHref}
       onKeywordClick={options?.onKeywordClick}
@@ -247,5 +257,33 @@ describe('AssetDetailPanel media preview', () => {
     expect(newTabLink).toHaveAttribute('href', '/review/asset/A-040?from=%2Freview%3Fq%3Dasset')
     expect(newTabLink).toHaveAttribute('target', '_blank')
     expect(newTabLink).toHaveAttribute('rel', 'noopener noreferrer')
+  })
+
+  it('renders library requalification actions and forwards callbacks', async () => {
+    const user = userEvent.setup()
+    const onReopenAsset = vi.fn(async () => {})
+    const onReprocessAsset = vi.fn(async () => {})
+
+    renderPanel(
+      {
+        id: 'A-050',
+        name: 'archived.mov',
+        state: 'ARCHIVED',
+        mediaType: 'VIDEO',
+      },
+      {
+        showLibraryActions: true,
+        onReopenAsset,
+        onReprocessAsset,
+        transitionStatus: { kind: 'success', message: 'done' },
+      },
+    )
+
+    await user.click(screen.getByTestId('asset-reopen-action'))
+    await user.click(screen.getByTestId('asset-reprocess-action'))
+
+    expect(onReopenAsset).toHaveBeenCalled()
+    expect(onReprocessAsset).toHaveBeenCalled()
+    expect(screen.getByTestId('asset-transition-status')).toHaveTextContent('done')
   })
 })

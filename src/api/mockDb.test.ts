@@ -121,6 +121,22 @@ describe('in-memory mock db for APP_ENV=test', () => {
     expect(report).toMatchObject({ completed: true })
   })
 
+  it('supports reopen and reprocess routes in memory', async () => {
+    const api = createApiClient({
+      baseUrl: '/api/v1',
+      fetchImpl: createInMemoryMockApiFetch(),
+      getAccessToken: () => 'test-token-memory',
+    })
+
+    await api.reopenAsset('A-002', '"etag-reopen"')
+    const reopened = await api.getAssetDetail('A-002')
+    expect(reopened.summary.state).toBe('DECISION_PENDING')
+
+    await api.reprocessAsset('A-003', 'idem-reprocess-memory', '"etag-reprocess"')
+    const reprocessed = await api.getAssetDetail('A-003')
+    expect(reprocessed.summary.state).toBe('READY')
+  })
+
   it('filters asset summaries by state in memory', async () => {
     const api = createApiClient({
       baseUrl: '/api/v1',
