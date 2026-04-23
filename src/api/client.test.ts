@@ -221,6 +221,41 @@ describe('api client', () => {
     )
   })
 
+  it('calls reopen endpoint with If-Match when provided', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await api.reopenAsset('A-002', '"etag-1"')
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/assets/A-002/reopen',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          'If-Match': '"etag-1"',
+        }),
+      }),
+    )
+  })
+
+  it('calls reprocess endpoint with idempotency key and If-Match', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await api.reprocessAsset('A-002', 'idem-reprocess-1', '"etag-2"')
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/assets/A-002/reprocess',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          'If-Match': '"etag-2"',
+          'Idempotency-Key': 'idem-reprocess-1',
+        }),
+      }),
+    )
+  })
+
   it('requests lost password reset email', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 202 }))
     const api = createApiClient('/api/v1', fetchMock)

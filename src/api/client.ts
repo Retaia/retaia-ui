@@ -242,6 +242,21 @@ export function createApiClient(
         body: JSON.stringify({ confirm: true } satisfies PurgeExecutePayload),
       }),
 
+    reopenAsset: (assetId: string, ifMatch?: string | null) =>
+      request<void>(`/assets/${assetId}/reopen`, {
+        method: 'POST',
+        ...(withIfMatchHeader(ifMatch) ? { headers: withIfMatchHeader(ifMatch) } : {}),
+      }),
+
+    reprocessAsset: (assetId: string, idempotencyKey: string, ifMatch?: string | null) =>
+      request<void>(`/assets/${assetId}/reprocess`, {
+        method: 'POST',
+        headers: {
+          ...withIfMatchHeader(ifMatch),
+          'Idempotency-Key': idempotencyKey,
+        },
+      }),
+
     updateAssetMetadata: (assetId: string, payload: AssetMetadataPatchPayload, ifMatch?: string | null) =>
       request<void>(`/assets/${assetId}`, {
         method: 'PATCH',

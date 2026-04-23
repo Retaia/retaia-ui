@@ -20,9 +20,15 @@ import { selectLibraryWorkspaceQueryModel } from '../store/selectors/workspaceSe
 import { syncAssetMetadataThunk } from '../store/thunks/assetSyncThunks'
 import { persistSelectedAssetId, readSelectedAssetId } from '../services/workspaceContextPersistence'
 
-const INITIAL_LIBRARY_ASSETS = INITIAL_ASSETS.filter(
-  (asset) => asset.state === 'ARCHIVED' || asset.state === 'DECIDED_KEEP',
-)
+const INITIAL_LIBRARY_ASSETS = INITIAL_ASSETS.flatMap((asset) => {
+  if (asset.state === 'ARCHIVED') {
+    return [asset]
+  }
+  if (asset.state === 'DECIDED_KEEP') {
+    return [{ ...asset, state: 'ARCHIVED' as const }]
+  }
+  return []
+})
 const DEFAULT_LIBRARY_PAGE_SIZE = 50
 
 export function useLibraryPageController() {
@@ -42,6 +48,12 @@ export function useLibraryPageController() {
   const [loadingMoreAssets, setLoadingMoreAssets] = useState(false)
   const [assetDetailLoadState, setAssetDetailLoadState] = useState<'idle' | 'loading' | 'error'>('idle')
   const [savingMetadata, setSavingMetadata] = useState(false)
+  const [transitionStatus, setTransitionStatus] = useState<{
+    kind: 'success' | 'error'
+    message: string
+  } | null>(null)
+  const [reopeningAsset, setReopeningAsset] = useState(false)
+  const [reprocessingAsset, setReprocessingAsset] = useState(false)
   const [metadataStatus, setMetadataStatus] = useState<{
     kind: 'success' | 'error'
     message: string
@@ -151,11 +163,12 @@ export function useLibraryPageController() {
   }, [apiClient, isApiAssetSource, selectedAssetId])
 
   const visibleAssets = useMemo(() => {
+    const archivedAssets = assets.filter((asset) => asset.state === 'ARCHIVED')
     if (isApiAssetSource) {
-      return assets
+      return archivedAssets
     }
     const normalizedSearch = search.trim().toLowerCase()
-    const filtered = normalizedSearch.length === 0 ? assets : assets.filter((asset) => {
+    const filtered = normalizedSearch.length === 0 ? archivedAssets : archivedAssets.filter((asset) => {
       const tags = asset.tags ?? []
       return (
         asset.name.toLowerCase().includes(normalizedSearch) ||
@@ -182,6 +195,7 @@ export function useLibraryPageController() {
     async (assetId: string, payload: { tags: string[]; notes: string }) => {
       setSavingMetadata(true)
       setMetadataStatus(null)
+      setTransitionStatus(null)
       try {
         if (isApiAssetSource) {
           await dispatch(
@@ -215,6 +229,72 @@ export function useLibraryPageController() {
     },
     [dispatch, isApiAssetSource, selectedAsset?.revisionEtag, t],
   )
+
+  const reopenSelectedAsset = useCallback(async () => {
+    if (!selectedAsset || reopeningAsset || reprocessingAsset) {
+      return
+    }
+    setReopeningAsset(true)
+    setTransitionStatus(null)
+    try {
+      if (isApiAssetSource) {
+        await apiClient.reopenAsset(selectedAsset.id, selectedAsset.revisionEtag)
+      }
+      setAssets((current) =>
+        current.map((asset) =>
+          asset.id === selectedAsset.id ? { ...asset, state: 'DECISION_PENDING' as const } : asset,
+        ),
+      )
+      setTransitionStatus({
+        kind: 'success',
+        message: t('actions.reopenDone', { id: selectedAsset.id }),
+      })
+    } catch (error) {
+      setTransitionStatus({
+        kind: 'error',
+        message: t('actions.reopenError', {
+          message: mapReviewApiErrorToMessage(error, t),
+        }),
+      })
+    } finally {
+      setReopeningAsset(false)
+    }
+  }, [apiClient, isApiAssetSource, reopeningAsset, reprocessingAsset, selectedAsset, t])
+
+  const reprocessSelectedAsset = useCallback(async () => {
+    if (!selectedAsset || reopeningAsset || reprocessingAsset) {
+      return
+    }
+    setReprocessingAsset(true)
+    setTransitionStatus(null)
+    try {
+      if (isApiAssetSource) {
+        await apiClient.reprocessAsset(
+          selectedAsset.id,
+          crypto.randomUUID(),
+          selectedAsset.revisionEtag,
+        )
+      }
+      setAssets((current) =>
+        current.map((asset) =>
+          asset.id === selectedAsset.id ? { ...asset, state: 'READY' as const } : asset,
+        ),
+      )
+      setTransitionStatus({
+        kind: 'success',
+        message: t('actions.reprocessDone', { id: selectedAsset.id }),
+      })
+    } catch (error) {
+      setTransitionStatus({
+        kind: 'error',
+        message: t('actions.reprocessError', {
+          message: mapReviewApiErrorToMessage(error, t),
+        }),
+      })
+    } finally {
+      setReprocessingAsset(false)
+    }
+  }, [apiClient, isApiAssetSource, reopeningAsset, reprocessingAsset, selectedAsset, t])
 
   const locale = (i18n.resolvedLanguage ?? 'fr') as Locale
   const onKeywordClick = useCallback((keyword: string) => {
@@ -267,9 +347,14 @@ export function useLibraryPageController() {
     assetDetailLoadState,
     isApiAssetSource,
     savingMetadata,
+    transitionStatus,
+    reopeningAsset,
+    reprocessingAsset,
     metadataStatus,
     onAssetClick: handleAssetClick,
     onSaveMetadata: saveSelectedAssetMetadata,
+    onReopenAsset: reopenSelectedAsset,
+    onReprocessAsset: reprocessSelectedAsset,
     onChangeLanguage: (nextLocale: Locale) => {
       void i18n.changeLanguage(nextLocale)
     },

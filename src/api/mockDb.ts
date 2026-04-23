@@ -2,6 +2,7 @@ import type { ApiErrorPayload } from './client'
 import { INITIAL_ASSETS } from '../data/mockAssets'
 
 type MockAssetState =
+  | 'READY'
   | 'DECISION_PENDING'
   | 'DECIDED_KEEP'
   | 'DECIDED_REJECT'
@@ -62,6 +63,9 @@ function inferMediaType(name: string): MockAsset['media_type'] {
 }
 
 function inferState(state: string): MockAssetState {
+  if (state === 'READY') {
+    return 'READY'
+  }
   if (state === 'DECIDED_KEEP') {
     return 'DECIDED_KEEP'
   }
@@ -364,6 +368,32 @@ export function createInMemoryMockApiFetch(): typeof fetch {
         asset.state = 'PURGED'
       }
       return emptyResponse(204)
+    }
+
+    if (pathname.startsWith('/assets/') && pathname.endsWith('/reopen') && method === 'POST') {
+      const assetId = extractAssetId(pathname)
+      if (!assetId) {
+        return notFound('Asset not found.', 'mock-asset-id-missing')
+      }
+      const asset = sharedState.assets.get(assetId)
+      if (!asset) {
+        return notFound('Asset not found.', 'mock-asset-not-found')
+      }
+      asset.state = 'DECISION_PENDING'
+      return emptyResponse(200)
+    }
+
+    if (pathname.startsWith('/assets/') && pathname.endsWith('/reprocess') && method === 'POST') {
+      const assetId = extractAssetId(pathname)
+      if (!assetId) {
+        return notFound('Asset not found.', 'mock-asset-id-missing')
+      }
+      const asset = sharedState.assets.get(assetId)
+      if (!asset) {
+        return notFound('Asset not found.', 'mock-asset-not-found')
+      }
+      asset.state = 'READY'
+      return emptyResponse(200)
     }
 
     if (pathname.startsWith('/assets/') && method === 'PATCH') {

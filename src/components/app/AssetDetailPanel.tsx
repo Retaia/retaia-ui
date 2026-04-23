@@ -44,6 +44,11 @@ type DecisionStatus = {
   message: string
 }
 
+type TransitionStatus = {
+  kind: 'success' | 'error'
+  message: string
+}
+
 type Props = {
   selectedAsset: Asset | null
   availability?: ReturnType<typeof getActionAvailability>
@@ -63,6 +68,12 @@ type Props = {
   refreshingAsset?: boolean
   showDecisionActions?: boolean
   showPurgeActions?: boolean
+  showLibraryActions?: boolean
+  onReopenAsset?: () => Promise<void>
+  onReprocessAsset?: () => Promise<void>
+  reopeningAsset?: boolean
+  reprocessingAsset?: boolean
+  transitionStatus?: TransitionStatus | null
   onOpenStandaloneDetail?: (assetId: string) => void
   standaloneHref?: string
   onKeywordClick?: (keyword: string) => void
@@ -236,6 +247,12 @@ export function AssetDetailPanel({
   refreshingAsset = false,
   showDecisionActions = true,
   showPurgeActions = true,
+  showLibraryActions = false,
+  onReopenAsset,
+  onReprocessAsset,
+  reopeningAsset = false,
+  reprocessingAsset = false,
+  transitionStatus = null,
   onOpenStandaloneDetail,
   standaloneHref,
   onKeywordClick,
@@ -378,6 +395,36 @@ export function AssetDetailPanel({
                 onKeywordClick={onKeywordClick}
                 onMetadataDirtyChange={onMetadataDirtyChange}
               />
+              {showLibraryActions && (onReopenAsset || onReprocessAsset) ? (
+                <section className="border rounded p-3 mt-3" aria-label={t('actions.requalificationTitle')}>
+                  <h3 className="mb-2 text-sm font-semibold text-gray-900">{t('actions.requalificationTitle')}</h3>
+                  <p className="text-xs text-gray-500 mb-2">{t('actions.requalificationHelp')}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {onReopenAsset ? (
+                      <button
+                        type="button"
+                        className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        onClick={() => void onReopenAsset()}
+                        disabled={reopeningAsset || reprocessingAsset}
+                        data-testid="asset-reopen-action"
+                      >
+                        {reopeningAsset ? t('actions.reopening') : t('actions.reopen')}
+                      </button>
+                    ) : null}
+                    {onReprocessAsset ? (
+                      <button
+                        type="button"
+                        className="inline-flex items-center justify-center rounded-lg border border-brand-500 bg-brand-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:border-brand-600 hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
+                        onClick={() => void onReprocessAsset()}
+                        disabled={reopeningAsset || reprocessingAsset}
+                        data-testid="asset-reprocess-action"
+                      >
+                        {reprocessingAsset ? t('actions.reprocessing') : t('actions.reprocess')}
+                      </button>
+                    ) : null}
+                  </div>
+                </section>
+              ) : null}
               {showPurgeActions && onPreviewPurge && onExecutePurge ? (
                 <section className="border border-2 border-error-200 rounded p-3 mt-3">
                   <h3 className="mb-2 text-sm font-semibold text-gray-900">{t('actions.purgeTitle')}</h3>
@@ -424,6 +471,19 @@ export function AssetDetailPanel({
               ].join(' ')}
             >
               {purgeStatus.message}
+            </p>
+          ) : null}
+          {transitionStatus ? (
+            <p
+              data-testid="asset-transition-status"
+              role="status"
+              aria-live="polite"
+              className={[
+                'text-xs',
+                transitionStatus.kind === 'success' ? 'text-success-700' : 'text-error-700',
+              ].join(' ')}
+            >
+              {transitionStatus.message}
             </p>
           ) : null}
           {decisionStatus ? (
