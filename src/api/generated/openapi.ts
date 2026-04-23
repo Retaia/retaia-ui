@@ -218,6 +218,15 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
+                /** @description Too many 2FA setup attempts (`TOO_MANY_ATTEMPTS`) */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
             };
         };
         delete?: never;
@@ -293,6 +302,15 @@ export interface paths {
                 };
                 /** @description Validation failed (`VALIDATION_FAILED`) */
                 422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Too many 2FA attempts (`TOO_MANY_ATTEMPTS`) */
+                429: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -380,6 +398,15 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
+                /** @description Too many 2FA attempts (`TOO_MANY_ATTEMPTS`) */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
             };
         };
         delete?: never;
@@ -411,7 +438,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["Auth2faOtpRequest"];
+                };
+            };
             responses: {
                 /** @description Recovery codes regenerated */
                 200: {
@@ -420,6 +451,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["Auth2faRecoveryCodesResponse"];
+                    };
+                };
+                /** @description Invalid TOTP code (`INVALID_2FA_CODE`) */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description Unauthorized (`UNAUTHORIZED`) */
@@ -433,6 +473,24 @@ export interface paths {
                 };
                 /** @description 2FA is not enabled (`MFA_NOT_ENABLED`) */
                 409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Validation failed (`VALIDATION_FAILED`) */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description Too many 2FA attempts (`TOO_MANY_ATTEMPTS`) */
+                429: {
                     headers: {
                         [name: string]: unknown;
                     };
