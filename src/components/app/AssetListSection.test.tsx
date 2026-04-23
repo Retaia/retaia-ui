@@ -69,4 +69,33 @@ describe('AssetListSection', () => {
     await user.click(screen.getByRole('button', { name: 'asset-a.mp4' }))
     expect(onAssetClick).toHaveBeenCalledWith('A-001', false)
   })
+
+  it('hides batch status and decision actions when used in read-only mode', () => {
+    render(
+      <AssetListSection
+        t={t}
+        visibleAssets={[
+          {
+            id: 'A-003',
+            name: 'asset-rejected.jpg',
+            state: 'REJECTED',
+          },
+        ]}
+        selectedAssetId="A-003"
+        batchIds={[]}
+        selectionStatusLabel="selection"
+        densityMode="COMPACT"
+        emptyAssetsMessage="empty"
+        showDecisionActions={false}
+        helpText="read-only help"
+        onDecision={vi.fn()}
+        onAssetClick={vi.fn()}
+        assetListRegionRef={{ current: null }}
+      />,
+    )
+
+    expect(screen.queryByTestId('batch-status')).not.toBeInTheDocument()
+    expect(screen.getByText('read-only help')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'actions.decisionKeep' })).not.toBeInTheDocument()
+  })
 })

@@ -44,7 +44,7 @@ export function usePurgeFlow({
   const [purgeStatus, setPurgeStatus] = useState<PurgeStatus | null>(null)
 
   const previewSelectedAssetPurge = useCallback(async () => {
-    if (!selectedAsset || selectedAsset.state !== 'DECIDED_REJECT' || previewingPurge) {
+    if (!selectedAsset || selectedAsset.state !== 'REJECTED' || previewingPurge) {
       return
     }
 
@@ -68,7 +68,7 @@ export function usePurgeFlow({
   const executeSelectedAssetPurge = useCallback(async () => {
     if (
       !selectedAsset ||
-      selectedAsset.state !== 'DECIDED_REJECT' ||
+      selectedAsset.state !== 'REJECTED' ||
       purgePreviewAssetId !== selectedAsset.id ||
       executingPurge
     ) {

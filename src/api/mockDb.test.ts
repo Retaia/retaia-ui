@@ -121,6 +121,23 @@ describe('in-memory mock db for APP_ENV=test', () => {
     expect(report).toMatchObject({ completed: true })
   })
 
+  it('filters asset summaries by state in memory', async () => {
+    const api = createApiClient({
+      baseUrl: '/api/v1',
+      fetchImpl: createInMemoryMockApiFetch(),
+      getAccessToken: () => 'test-token-memory',
+    })
+
+    const rejects = await api.listAssetSummaries({ state: 'REJECTED' })
+    expect(rejects.some((asset) => asset.uuid === 'A-003')).toBe(true)
+
+    await api.submitAssetDecision('A-003', { state: 'DECIDED_REJECT' })
+    await api.executeAssetPurge('A-001', 'idem-purge-filter')
+
+    const rejected = await api.listAssetSummaries({ state: 'DECIDED_REJECT' })
+    expect(rejected.every((asset) => asset.state === 'DECIDED_REJECT')).toBe(true)
+  })
+
   it('returns unauthorized and not found errors from mock routes', async () => {
     const apiNoAuth = createApiClient({
       baseUrl: '/api/v1',

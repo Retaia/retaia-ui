@@ -10,7 +10,7 @@ const baseInput = {
   reportBatchId: 'b-1',
   reportLoading: false,
   undoCount: 1,
-  selectedAssetState: 'DECIDED_REJECT' as const,
+  selectedAssetState: 'REJECTED' as const,
   previewingPurge: false,
   executingPurge: false,
   purgePreviewMatchesSelected: true,

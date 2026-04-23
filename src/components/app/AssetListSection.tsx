@@ -18,6 +18,8 @@ type AssetListSectionProps = {
   emptyAssetsMessage: string
   hasMoreAssets?: boolean
   loadingMoreAssets?: boolean
+  showDecisionActions?: boolean
+  helpText?: string
   onDecision: (id: string, action: DecisionAction) => void
   onAssetClick: (assetId: string, shiftKey: boolean) => void
   onBatchSelectionChange?: (assetId: string, selected: boolean) => void
@@ -37,6 +39,8 @@ export function AssetListSection({
   emptyAssetsMessage,
   hasMoreAssets = false,
   loadingMoreAssets = false,
+  showDecisionActions = true,
+  helpText,
   onDecision,
   onAssetClick,
   onBatchSelectionChange,
@@ -64,13 +68,15 @@ export function AssetListSection({
             <BsCrosshair className="mr-1 inline-block" aria-hidden="true" />
             {selectionStatusLabel}
           </p>
-          <p className="mb-2 text-xs text-gray-500" data-testid="batch-status">
-            <BsCollection className="mr-1 inline-block" aria-hidden="true" />
-            {t('assets.batchStatus', { count: batchIds.length })}
-          </p>
+          {showDecisionActions ? (
+            <p className="mb-2 text-xs text-gray-500" data-testid="batch-status">
+              <BsCollection className="mr-1 inline-block" aria-hidden="true" />
+              {t('assets.batchStatus', { count: batchIds.length })}
+            </p>
+          ) : null}
           <p className="text-xs text-gray-500">
             <BsQuestionCircle className="mr-1 inline-block" aria-hidden="true" />
-            {t('assets.help')}
+            {helpText ?? t('assets.help')}
           </p>
           <AssetList
             assets={visibleAssets}
@@ -92,6 +98,7 @@ export function AssetListSection({
             onDecision={onDecision}
             onAssetClick={onAssetClick}
             onBatchSelectionChange={onBatchSelectionChange}
+            showDecisionActions={showDecisionActions}
           />
           {hasMoreAssets && onLoadMoreAssets ? (
             <div className="flex justify-center mt-3">

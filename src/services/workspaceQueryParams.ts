@@ -225,3 +225,27 @@ export function writeLibraryFilterParams(
   writeCommonListQueryParams(params, { search, sort })
   updateCurrentSearch(params, mode)
 }
+
+export function readRejectsFilterParams(): {
+  search?: string
+  sort?: AssetSort
+} {
+  const params = readCurrentSearchParams()
+  if (!params) {
+    return {}
+  }
+  return readCommonListQueryParams(params)
+}
+
+export function writeRejectsFilterParams(
+  search: string,
+  sort: AssetSort,
+  mode: 'push' | 'replace' = 'push',
+) {
+  const params = readCurrentSearchParams()
+  if (!params) {
+    return
+  }
+  writeCommonListQueryParams(params, { search, sort })
+  updateCurrentSearch(params, mode)
+}

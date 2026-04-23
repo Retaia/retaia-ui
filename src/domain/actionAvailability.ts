@@ -16,7 +16,7 @@ export type ActionAvailabilityInput = {
 }
 
 export function getActionAvailability(input: ActionAvailabilityInput) {
-  const selectedRejected = input.selectedAssetState === 'DECIDED_REJECT'
+  const selectedRejected = input.selectedAssetState === 'REJECTED'
   const batchBusy = input.previewingBatch || input.executingBatch || input.schedulingBatchExecution
 
   return {

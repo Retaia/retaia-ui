@@ -271,7 +271,7 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
           summary: {
             uuid: assetId,
             media_type: assetId === 'A-003' ? 'PHOTO' : 'VIDEO',
-            state: assetId === 'A-003' ? 'DECIDED_REJECT' : 'DECISION_PENDING',
+            state: assetId === 'A-003' ? 'REJECTED' : 'DECISION_PENDING',
             created_at: new Date().toISOString(),
             captured_at: new Date().toISOString(),
             tags: assetId === 'A-003' ? ['photo'] : ['baseline'],
@@ -335,6 +335,8 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
       })
       return
     }
+    const requestUrl = new URL(route.request().url())
+    const requestedState = requestUrl.searchParams.get('state')
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -346,22 +348,24 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
             },
           ]
           : [
-            {
-              uuid: 'A-001',
-              media_type: 'VIDEO',
-              state: 'DECISION_PENDING',
-              created_at: new Date().toISOString(),
-              captured_at: new Date().toISOString(),
-              tags: ['baseline'],
-            },
-            {
-              uuid: 'A-003',
-              media_type: 'PHOTO',
-              state: 'DECIDED_REJECT',
-              created_at: new Date().toISOString(),
-              captured_at: new Date().toISOString(),
-              tags: ['photo'],
-            },
+            [
+              {
+                uuid: 'A-001',
+                media_type: 'VIDEO',
+                state: 'DECISION_PENDING',
+                created_at: new Date().toISOString(),
+                captured_at: new Date().toISOString(),
+                tags: ['baseline'],
+              },
+              {
+                uuid: 'A-003',
+                media_type: 'PHOTO',
+                state: 'REJECTED',
+                created_at: new Date().toISOString(),
+                captured_at: new Date().toISOString(),
+                tags: ['photo'],
+              },
+            ].filter((item) => !requestedState || item.state === requestedState),
           ],
         next_cursor: null,
       }),
