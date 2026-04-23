@@ -2,22 +2,26 @@ import type { z } from 'zod'
 import { ApiError } from './errors'
 import type {
   AppFeaturesResponse,
-  HealthResponse,
   AppPolicyResponse,
   AssetDetail,
   AssetSummary,
   Auth2faSetupResponse,
   AuthCurrentUserResponse,
+  AuthRevokeOthersResponse,
+  AuthSessionsResponse,
+  HealthResponse,
   MoveStatusResponse,
   UserFeaturesResponse,
 } from './contracts'
 import {
   appFeaturesResponseSchema,
-  healthResponseSchema,
   appPolicyResponseSchema,
   assetDetailResponseSchema,
   auth2faSetupResponseSchema,
+  authRevokeOthersResponseSchema,
+  authSessionsResponseSchema,
   currentUserResponseSchema,
+  healthResponseSchema,
   listAssetSummariesResponseSchema,
   moveExecuteResponseSchema,
   moveReportResponseSchema,
@@ -125,6 +129,24 @@ export function parseCurrentUserResponse(payload: unknown, path: string) {
     path,
     'expected non-empty email',
   ) as AuthCurrentUserResponse
+}
+
+export function parseAuthSessionsResponse(payload: unknown, path: string) {
+  return parseWithSchema(
+    authSessionsResponseSchema,
+    payload,
+    path,
+    'expected interactive sessions payload',
+  ) as AuthSessionsResponse
+}
+
+export function parseAuthRevokeOthersResponse(payload: unknown, path: string) {
+  return parseWithSchema(
+    authRevokeOthersResponseSchema,
+    payload,
+    path,
+    'expected revoked count payload',
+  ) as AuthRevokeOthersResponse
 }
 
 export function parseUserFeaturesResponse(payload: unknown, path: string) {

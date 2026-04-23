@@ -1,11 +1,18 @@
 import { useTranslation } from 'react-i18next'
+import { AccountSessionsSection } from '../components/auth/AccountSessionsSection'
 import { AuthAccountSection } from '../components/auth/AuthAccountSection'
 import { AuthenticatedShell } from '../components/layout/AuthenticatedShell'
+import { useAuthSessionsController } from '../hooks/auth/useAuthSessionsController'
 import { useAuthPageController } from '../hooks/useAuthPageController'
 
 export function AccountPage() {
   const { t } = useTranslation()
   const controller = useAuthPageController()
+  const sessionsController = useAuthSessionsController({
+    apiClient: controller.apiClient,
+    t,
+    enabled: Boolean(controller.authUser && controller.effectiveApiToken),
+  })
 
   return (
     <AuthenticatedShell currentView="account">
@@ -25,6 +32,18 @@ export function AccountPage() {
         <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-sm dark:border-gray-800 dark:bg-gray-900">
           <AuthAccountSection t={t} controller={controller} />
         </section>
+
+        <AccountSessionsSection
+          t={t}
+          sessions={sessionsController.sessions}
+          loading={sessionsController.loading}
+          busySessionId={sessionsController.busySessionId}
+          revokingOthers={sessionsController.revokingOthers}
+          status={sessionsController.status}
+          onRefresh={sessionsController.loadSessions}
+          onRevokeSession={sessionsController.revokeSession}
+          onRevokeOthers={sessionsController.revokeOthers}
+        />
       </div>
     </AuthenticatedShell>
   )

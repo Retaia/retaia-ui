@@ -167,6 +167,61 @@ describe('api client', () => {
     expect(user.mfa_enabled).toBe(true)
   })
 
+  it('loads interactive sessions and validates payload shape', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          items: [
+            {
+              session_id: 'sess-1',
+              client_id: 'client-1',
+              created_at: '2026-04-01T10:00:00Z',
+              last_used_at: '2026-04-02T10:00:00Z',
+              is_current: true,
+            },
+          ],
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      ),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    const sessions = await api.listAuthSessions()
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/v1/auth/me/sessions', expect.any(Object))
+    expect(sessions.items[0]?.session_id).toBe('sess-1')
+  })
+
+  it('revokes one interactive session', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await api.revokeAuthSession('sess-2')
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/auth/me/sessions/sess-2/revoke',
+      expect.objectContaining({ method: 'POST' }),
+    )
+  })
+
+  it('revokes other interactive sessions and parses count', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ revoked: 2 }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
+    const api = createApiClient('/api/v1', fetchMock)
+
+    const result = await api.revokeOtherAuthSessions()
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/auth/me/sessions/revoke-others',
+      expect.objectContaining({ method: 'POST' }),
+    )
+    expect(result.revoked).toBe(2)
+  })
+
   it('loads health payload with self-healing fields', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(

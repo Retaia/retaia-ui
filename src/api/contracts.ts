@@ -105,6 +105,27 @@ export type AuthCurrentUserResponse = {
   email: string
   [key: string]: unknown
 }
+export type AuthSession = {
+  session_id: string
+  client_id: string
+  created_at: string
+  last_used_at: string
+  expires_at?: string | null
+  is_current: boolean
+  device_label?: string | null
+  browser?: string | null
+  os?: string | null
+  ip_address_last_seen?: string | null
+  [key: string]: unknown
+}
+export type AuthSessionsResponse = {
+  items: AuthSession[]
+  [key: string]: unknown
+}
+export type AuthRevokeOthersResponse = {
+  revoked: number
+  [key: string]: unknown
+}
 export type UserFeaturesResponse = {
   user_feature_enabled: Record<string, unknown>
   effective_feature_enabled: Record<string, unknown>

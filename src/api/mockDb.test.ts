@@ -35,6 +35,9 @@ describe('in-memory mock db for APP_ENV=test', () => {
     const currentUser = await authedApi.getCurrentUser()
     expect(currentUser.email).toBe('test.user@retaia.dev')
 
+    const sessions = await authedApi.listAuthSessions()
+    expect(sessions.items.length).toBeGreaterThan(0)
+
     await authedApi.requestEmailVerification({ email: 'test.user@retaia.dev' })
     await authedApi.confirmEmailVerification({ token: 'verify-token' })
     await authedApi.adminConfirmEmailVerification({ email: 'test.user@retaia.dev' })
@@ -205,5 +208,28 @@ describe('in-memory mock db for APP_ENV=test', () => {
     expect(unknownResponse.status).toBe(404)
     const payload = (await unknownResponse.json()) as { code: string }
     expect(payload.code).toBe('VALIDATION_FAILED')
+  })
+
+  it('supports revoking one session and revoking others in memory', async () => {
+    const api = createApiClient({
+      baseUrl: '/api/v1',
+      fetchImpl: createInMemoryMockApiFetch(),
+      getAccessToken: () => 'test-token-memory',
+    })
+
+    await expect(api.revokeAuthSession('session-current')).rejects.toMatchObject({
+      status: 409,
+      payload: { code: 'STATE_CONFLICT' },
+    })
+
+    await api.revokeAuthSession('session-other')
+    let sessions = await api.listAuthSessions()
+    expect(sessions.items.some((session) => session.session_id === 'session-other')).toBe(false)
+
+    const revokeOthers = await api.revokeOtherAuthSessions()
+    expect(revokeOthers.revoked).toBe(0)
+    sessions = await api.listAuthSessions()
+    expect(sessions.items).toHaveLength(1)
+    expect(sessions.items[0]?.is_current).toBe(true)
   })
 })

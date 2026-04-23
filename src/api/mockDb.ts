@@ -27,6 +27,18 @@ type MockDbState = {
     mfa_enabled: boolean
     roles?: string[]
   }
+  sessions: Array<{
+    session_id: string
+    client_id: string
+    created_at: string
+    last_used_at: string
+    expires_at?: string | null
+    is_current: boolean
+    device_label?: string | null
+    browser?: string | null
+    os?: string | null
+    ip_address_last_seen?: string | null
+  }>
   userFeatures: {
     user_feature_enabled: Record<string, boolean>
     effective_feature_enabled: Record<string, boolean>
@@ -109,6 +121,32 @@ function createInitialState(): MockDbState {
       mfa_enabled: false,
       roles: ['ADMIN'],
     },
+    sessions: [
+      {
+        session_id: 'session-current',
+        client_id: 'client-current',
+        created_at: '2026-04-20T08:00:00Z',
+        last_used_at: '2026-04-23T08:00:00Z',
+        expires_at: '2026-05-20T08:00:00Z',
+        is_current: true,
+        device_label: 'Current browser',
+        browser: 'Codex Browser',
+        os: 'macOS',
+        ip_address_last_seen: '127.0.0.1',
+      },
+      {
+        session_id: 'session-other',
+        client_id: 'client-other',
+        created_at: '2026-04-10T08:00:00Z',
+        last_used_at: '2026-04-21T08:00:00Z',
+        expires_at: '2026-05-10T08:00:00Z',
+        is_current: false,
+        device_label: 'Studio laptop',
+        browser: 'Firefox',
+        os: 'Linux',
+        ip_address_last_seen: '10.0.0.5',
+      },
+    ],
     userFeatures: {
       user_feature_enabled: { 'features.auth.2fa': true },
       effective_feature_enabled: { 'features.auth.2fa': true },
@@ -292,6 +330,39 @@ export function createInMemoryMockApiFetch(): typeof fetch {
 
     if (pathname === '/auth/me' && method === 'GET') {
       return jsonResponse(200, sharedState.user)
+    }
+
+    if (pathname === '/auth/me/sessions' && method === 'GET') {
+      return jsonResponse(200, {
+        items: sharedState.sessions,
+      })
+    }
+
+    if (pathname === '/auth/me/sessions/revoke-others' && method === 'POST') {
+      const before = sharedState.sessions.length
+      sharedState.sessions = sharedState.sessions.filter((session) => session.is_current)
+      return jsonResponse(200, {
+        revoked: Math.max(before - sharedState.sessions.length, 0),
+      })
+    }
+
+    if (pathname.startsWith('/auth/me/sessions/') && pathname.endsWith('/revoke') && method === 'POST') {
+      const parts = pathname.split('/')
+      const sessionId = parts[4]
+      const targetSession = sharedState.sessions.find((session) => session.session_id === sessionId)
+      if (!targetSession) {
+        return notFound('Session not found.', 'mock-session-not-found')
+      }
+      if (targetSession.is_current) {
+        return errorResponse(409, {
+          code: 'STATE_CONFLICT',
+          message: 'Current session cannot be self-revoked.',
+          retryable: false,
+          correlation_id: 'mock-session-self-revoke',
+        })
+      }
+      sharedState.sessions = sharedState.sessions.filter((session) => session.session_id !== sessionId)
+      return emptyResponse(200)
     }
 
     if (pathname === '/auth/me/features' && method === 'GET') {
