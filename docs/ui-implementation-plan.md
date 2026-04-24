@@ -2,63 +2,46 @@
 
 ## 9. Plan d'actions priorise
 
+Etat au 2026-04-24 :
+
+- phases 0 a 4 : majoritairement executees
+- phase 5 : largement executee sur auth/account/settings, mais reste a stabiliser
+- phase 6 : encore ouverte
+
 ### Priorite haute
 
-1. Re-aligner le modele UI sur le contrat v1.
-   - remplacer le modele local d'asset et le mapper API
-   - reintroduire la machine a etats complete cote UI
-   - renommer les derives `proxy_*` vers `preview_*`
-
-2. Remettre a plat le client API sans casser le wiring utile.
+1. Finaliser les reliquats contractuels batch/apply.
    - supprimer `/batches/moves/*`
-   - supprimer `/assets/{uuid}/decision`
-   - utiliser `PATCH /assets/{uuid}` pour metadata, decisions et apply
-   - utiliser `POST /assets/{uuid}/reopen`, `POST /assets/{uuid}/reprocess`, `POST /assets/{uuid}/purge`, `POST /assets/purge`
-   - injecter `Accept-Language`
-   - imposer `If-Match` sur tous les flows mutateurs concernes
+   - garantir que le bulk reste un concept UI et non une ressource metier
+   - realigner mock API et tests sur ce contrat
 
-3. Refaire le routing et le shell applicatif.
-   - routes publiques auth
-   - routes authentifiees review/library/rejects/activity/settings/account
-   - detail standalone `asset/:assetId`
-   - preservation du contexte de retour
+2. Livrer le flow `REVIEW_PENDING_PROFILE`.
+   - choix `processing_profile`
+   - explicitation `audio_music` / `audio_voice`
+   - aucune decision KEEP/REJECT avant qualification terminee
 
-4. Refaire les workspaces critiques.
-   - `Review`
-   - `Library`
-   - `Rejects`
+3. Terminer `Activity`.
+   - remplacer le scaffold
+   - borner le journal operateur local
+   - lier proprement vers les assets et les resultats d'actions
 
-5. Refaire les actions critiques.
-   - choix `processing_profile` en `REVIEW_PENDING_PROFILE`
-   - KEEP / REJECT / annulation explicite
-   - apply decisions avec confirmation et resultat agrege
-   - purge preview puis purge execute
-   - reopen / reprocess
-
-6. Refaire la validation automatique.
-   - reecrire les BDD critiques selon les specs
-   - remplacer les snapshots visuels legacy
+4. Stabiliser la validation automatique.
+   - continuer la reecriture des BDD critiques selon les specs
+   - remplacer les snapshots visuels legacy encore utiles comme garde-fous
 
 ### Priorite moyenne
 
-1. Refaire `Account`.
-   - sessions interactives
-   - revoke single / revoke others
-   - MFA
-   - user features
+1. Stabiliser `Account` et `Settings`.
+   - consolider les etats de chargement/erreur
+   - verifier toute la separation compte vs runtime
+   - cadrer l'eventuelle extension admin
 
-2. Refaire `Settings`.
-   - langue
-   - theme
-   - config runtime API
-   - surfaces admin runtime si role admin
-
-3. Introduire le systeme clavier final.
+2. Introduire le systeme clavier final.
    - registry d'aide
    - raccourcis non destructifs priorises
    - garde de focus sur champs de saisie
 
-4. Stabiliser les etats UX.
+3. Stabiliser les etats UX.
    - loading
    - empty states
    - `412` / `428`
@@ -82,11 +65,15 @@
 
 ### Phase 0 - Assainissement contractuel
 
+Statut : execute en grande partie.
+
 - corriger le modele asset, le mapper et le client API
 - sortir les endpoints legacy du chemin critique
 - fiabiliser le mock API pour qu'il mime le contrat v1 reel
 
 ### Phase 1 - Shell et routing
+
+Statut : execute.
 
 - creer le shell connecte
 - poser les routes canoniques
@@ -94,6 +81,8 @@
 - garder le wiring theme/i18n/persistance
 
 ### Phase 2 - Review workspace
+
+Statut : execute partiellement.
 
 - liste + detail
 - qualification `REVIEW_PENDING_PROFILE`
@@ -103,6 +92,8 @@
 
 ### Phase 3 - Apply decisions et Rejects
 
+Statut : execute partiellement.
+
 - rail de selection multiple
 - preview/confirmation/resultat pour actions groupees
 - workspace `Rejects`
@@ -110,11 +101,15 @@
 
 ### Phase 4 - Library
 
+Statut : execute.
+
 - recherche/filtres/tri par contrat API
 - detail standalone et requalification
 - reopen / reprocess
 
 ### Phase 5 - Auth, Account, Settings
+
+Statut : execute en grande partie.
 
 - auth publique
 - sessions
@@ -123,6 +118,8 @@
 - configuration runtime
 
 ### Phase 6 - Activity, a11y, tests, polish
+
+Statut : ouverte.
 
 - workspace activity borne
 - raccourcis

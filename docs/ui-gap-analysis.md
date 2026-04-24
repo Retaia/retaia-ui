@@ -6,35 +6,28 @@
 
 | Priorite | Ecart | Existant | Attendu | Risque |
 | --- | --- | --- | --- | --- |
-| Haute | Routing canonique absent | `/review/detail/:assetId`, `/library/detail/:assetId`, pas de `/rejects`, `/account`, `/auth/reset-password`, `/auth/verify-email` | routes canoniques du cadrage UI recommande et des parcours auth/specs | deep links faux, architecture non migrable |
-| Haute | Pages runtime inexistantes | `UiResetPage` pour review/library/auth/settings/detail | vrais workspaces et detail focus | impossible d'auditer le comportement utilisateur final |
-| Haute | Machine a etats reduite localement | 4 etats dans `src/domain/assets.ts` | etats complets de `STATE-MACHINE.md` | contresens metier dans toute la UI |
-| Haute | Endpoints inventes | `/batches/moves/*`, `/assets/{uuid}/decision` | `PATCH /assets/{uuid}`, `POST /assets/{uuid}/purge`, `POST /assets/purge`, `POST /assets/{uuid}/reopen`, `POST /assets/{uuid}/reprocess` | wiring API invalide |
-| Haute | Mapping etats faux | `REJECTED` et `PURGED` maps vers `DECIDED_REJECT` | distinctions strictes entre decision, rejected et purged | actions destructives mal cadrees |
-| Haute | Mapping workspace faux | library accepte `DECIDED_KEEP`, pas de workspace rejects | `ARCHIVED` dans library, `REJECTED` dans rejects, `DECIDED_*` dans review/apply queue | confusion produit majeure |
-| Haute | Review media nommee en `proxy_*` | `proxyVideoUrl`, `has_proxy`, `proxy_*` | previews/derived `preview_*`, `waveform`, `thumbs` | s'emboite mal avec le contrat v1 |
-| Haute | Auth/account incomplet | auth compacte, pas de route account, pas de sessions UI | surfaces distinctes auth/account/settings | compte utilisateur sous-specifie |
+| Haute | Wiring batch hors contrat encore present | `src/api/client.ts` et `src/api/mockDb.ts` exposent encore `/batches/moves/*` | apply decision et bulk UI sans ressource batch Core normative | dette contractuelle au coeur des actions groupees |
+| Haute | Qualification `REVIEW_PENDING_PROFILE` encore absente | etat present dans le modele, mais pas de vrai flow UX de choix `processing_profile` | action explicite `audio_music` / `audio_voice` avant decision | blocage produit sur un parcours normatif |
+| Haute | `Activity` reste un scaffold | route et shell presents, mais page encore basee sur `WorkspaceScaffold` | workspace borne ou journal local reel | faux sentiment de completion du runtime |
+| Haute | Apply groupé encore partiellement legacy | selection et rails UI existent, mais le socle reste adosse a une logique batch historique | previsualisation, confirmation, execution unitaire, resultat agrege sans endpoint invente | ambiguite entre pattern UX autorise et ressource backend interdite |
 | Haute | Tests de validation legacy | BDD `@legacy-ui`, visual baselines sur batch/detail legacy | suites reconstruites depuis specs v1 | faux sentiment de securite |
 
 ### Ecarts importants
 
 | Priorite | Ecart | Existant | Attendu | Risque |
 | --- | --- | --- | --- | --- |
-| Moyenne/haute | `Accept-Language` absent du transport | `src/api/transport.ts` n'envoie pas le header | locale utilisateur transportee a l'API | messages incoherents et non conformes |
-| Moyenne/haute | Concurrence optimistic partiellement optionnelle | `If-Match` passe parfois mais pas impose par les flows UI | toute mutation asset partagee branchee sur `revision_etag` | `428` et `412` non geres proprement |
+| Moyenne/haute | Concurrence optimistic encore heterogene | une partie des flows unitaires passe `If-Match`, mais le nettoyage n'est pas uniforme sur tout le parcours review/apply/reprocess/purge | toute mutation asset partagee branchee sur `revision_etag` | `428` et `412` geres de facon incomplete |
 | Moyenne/haute | Feature runtime branchee de facon partielle | poll `GET /app/policy`, mais surface review finale absente | gating complet par disponibilite serveur | UI incoherente entre code et runtime |
-| Moyenne/haute | Activity sans contrat clair | activity heritagee du review | journal local borne ou vraie surface si backend l'expose plus tard | faux audit systeme |
-| Moyenne | Shell global incomplet | pas de shell connecte, header legacy non servi | shell stable de production | perte de contexte entre workspaces |
+| Moyenne/haute | Activity sans contrat clair | route canonique servie, mais contenu encore scaffold | journal local borne ou vraie surface si backend l'expose plus tard | faux audit systeme |
 | Moyenne | Metadata humaine incomplete | tags/notes presentes, `projects` absent du rendu legacy echantillonne | `projects`, localisation, fields dedies visibles | detail asset incomplet |
-| Moyenne | Qualification audio absente | aucun vrai flow `REVIEW_PENDING_PROFILE` | action explicite de choix `audio_music`/`audio_voice` | blocage produit non adresse |
+| Moyenne | Settings admin encore borne a un sous-ensemble | config runtime et feature MFA globale presentes, pas de surface ops admin plus large | exposition admin minimale si retenue | runtime admin incomplet mais non bloquant v1 |
 | Moyenne | Ops admin non integres | endpoints presents dans OpenAPI, UI locale absente | exposition admin minimale si retenue | manque de diagnosique operateur |
 
 ### Ecarts secondaires
 
 | Priorite | Ecart | Existant | Attendu | Risque |
 | --- | --- | --- | --- | --- |
-| Basse/moyenne | Vocabulaire incoherent | header legacy associe `activity` au label rejects | vocabulaire stable par workspace | confusion navigation |
-| Basse/moyenne | Persistance locale non etendue | review/library seulement | review/library/rejects/activity selon besoin | experience fragile |
+| Basse/moyenne | Persistance locale encore inegale | review/library/rejects sont mieux servis, `activity` reste borne | review/library/rejects/activity selon besoin | experience fragile sur les surfaces secondaires |
 | Basse | Design system encore generic TailAdmin | primitives presentes, pas d'identite produit | rendu d'outil operateur sobre et robuste | dette cosmétique, pas blocage contractuel |
 
 ## Points de suppression/refonte prioritaires
@@ -42,7 +35,6 @@
 ### Supprimer
 
 - references a `/batches/moves/*`
-- references a `/assets/{uuid}/decision`
 - baselines visuelles legacy `batch-*`, `detail-*`, `activity-route-*` comme cible produit
 - scenarios BDD `@legacy-ui` comme gates de conformite
 
@@ -52,11 +44,10 @@
 - `src/api/contracts.ts`
 - `src/api/assetMapper.ts`
 - `src/api/mockDb.ts`
-- `src/routes/AppRoutes.tsx`
-- `src/pages/*`
+- `src/pages/ActivityPage.tsx`
 - `src/hooks/useReviewPageController.ts`
-- `src/hooks/useLibraryPageController.ts`
-- `src/hooks/useStandaloneAssetDetailController.ts`
+- `src/hooks/useAuthPageController.ts`
+- `src/hooks/auth/useAuthSessionsController.ts`
 - tous les composants legacy app/review qui portent l'ancien flux batch/proxy
 
 ## Ce qui peut servir de base sans imposer l'ancienne UX
