@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+set -eu
+
+# Match the CI gate that currently catches stale BDD smoke expectations.
+APP_URL="${APP_URL:-http://127.0.0.1:4173}" BDD_API_MODE="${BDD_API_MODE:-mock}" npm run e2e:bdd:ci
