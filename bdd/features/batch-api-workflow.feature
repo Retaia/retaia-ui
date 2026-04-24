@@ -1,4 +1,4 @@
-@legacy-ui
+@canonical-ui
 Feature: Workflow batch API
   En tant qu'utilisateur de review desktop-like
   Je veux prévisualiser, exécuter puis consulter le rapport d'un batch

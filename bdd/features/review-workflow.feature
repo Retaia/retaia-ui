@@ -1,4 +1,4 @@
-@legacy-ui
+@canonical-ui
 Feature: Workflow de review desktop-like
   En tant qu'utilisateur de review
   Je veux appliquer les interactions desktop clés

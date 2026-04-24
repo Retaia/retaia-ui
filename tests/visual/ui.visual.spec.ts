@@ -96,28 +96,28 @@ test('library page baseline', async ({ page }) => {
 
 test('standalone detail review page baseline', async ({ page }) => {
   await setStableUiStorage(page)
-  await page.goto('/review/detail/A-001')
+  await page.goto('/review/asset/A-001')
   await disableMotion(page)
-  await expect(page.locator('main')).toHaveScreenshot('detail-review-page.png')
+  await expect(page.locator('main')).toHaveScreenshot('review-standalone-detail-page.png')
 })
 
-test('batch route page baseline', async ({ page }) => {
+test('rejects page baseline', async ({ page }) => {
   await setStableUiStorage(page)
-  await page.goto('/batch')
+  await page.goto('/rejects')
   await disableMotion(page)
-  await expect(page.locator('main')).toHaveScreenshot('batch-route-page.png')
+  await expect(page.locator('main')).toHaveScreenshot('rejects-page.png')
 })
 
-test('batch reports route page baseline', async ({ page }) => {
+test('account page baseline', async ({ page }) => {
   await setStableUiStorage(page)
-  await page.goto('/batch/reports')
+  await page.goto('/account')
   await disableMotion(page)
-  await expect(page.locator('main')).toHaveScreenshot('batch-reports-route-page.png')
+  await expect(page.locator('main')).toHaveScreenshot('account-page.png')
 })
 
-test('activity route page baseline', async ({ page }) => {
+test('activity page baseline', async ({ page }) => {
   await setStableUiStorage(page)
   await page.goto('/activity')
   await disableMotion(page)
-  await expect(page.locator('main')).toHaveScreenshot('activity-route-page.png')
+  await expect(page.locator('main')).toHaveScreenshot('activity-page.png')
 })

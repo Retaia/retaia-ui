@@ -1,6 +1,6 @@
 # language: fr
 
-@legacy-ui
+@canonical-ui
 
 Fonctionnalité: Couverture fonctionnelle routing, API source et signaux desktop
   En tant qu'utilisateur review desktop-like

@@ -1,6 +1,6 @@
 # language: fr
 
-@legacy-ui
+@canonical-ui
 
 Fonctionnalité: Hardening clavier, purge deep-link et API assets
   En tant qu'utilisateur review desktop-like

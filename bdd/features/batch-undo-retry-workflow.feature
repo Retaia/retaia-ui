@@ -1,4 +1,4 @@
-@legacy-ui
+@canonical-ui
 Feature: Workflow batch undo + retry
   En tant qu'utilisateur desktop-like
   Je veux confirmer/annuler l'exécution et tolérer une erreur temporaire
