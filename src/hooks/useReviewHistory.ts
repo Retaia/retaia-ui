@@ -1,5 +1,11 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useState } from 'react'
 import type { Asset } from '../domain/assets'
+import { useActivityLog } from './useActivityLog'
+import {
+  appendActivityLogEntry,
+  clearActivityLog as clearPersistedActivityLog,
+  type ActivityLogScope,
+} from '../services/activityLogPersistence'
 
 type Snapshot = {
   assets: Asset[]
@@ -17,6 +23,11 @@ type Params = {
   t: (key: string) => string
 }
 
+type RecordActionOptions = {
+  assetId?: string
+  scope?: ActivityLogScope
+}
+
 export function useReviewHistory({
   assets,
   selectedAssetId,
@@ -26,14 +37,15 @@ export function useReviewHistory({
   setBatchIds,
   t,
 }: Params) {
-  const activityId = useRef(1)
   const [undoStack, setUndoStack] = useState<Snapshot[]>([])
-  const [activityLog, setActivityLog] = useState<Array<{ id: number; label: string }>>([])
+  const activityLog = useActivityLog()
 
-  const logActivity = useCallback((label: string) => {
-    setActivityLog((current) =>
-      [{ id: activityId.current++, label }, ...current].slice(0, 8),
-    )
+  const logActivity = useCallback((label: string, options?: RecordActionOptions) => {
+    appendActivityLogEntry({
+      label,
+      assetId: options?.assetId,
+      scope: options?.scope ?? 'review',
+    })
   }, [])
 
   const pushUndoSnapshot = useCallback(() => {
@@ -43,20 +55,15 @@ export function useReviewHistory({
   }, [assets, selectedAssetId, batchIds])
 
   const recordAction = useCallback(
-    (label: string) => {
+    (label: string, options?: RecordActionOptions) => {
       pushUndoSnapshot()
-      logActivity(label)
+      logActivity(label, options)
     },
     [logActivity, pushUndoSnapshot],
   )
 
   const clearActivityLog = useCallback(() => {
-    setActivityLog((current) => {
-      if (current.length === 0) {
-        return current
-      }
-      return []
-    })
+    clearPersistedActivityLog()
   }, [])
 
   const undoLastAction = useCallback(() => {

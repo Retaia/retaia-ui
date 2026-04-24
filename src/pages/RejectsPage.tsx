@@ -1,5 +1,4 @@
-import { useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { AssetDetailPanel } from '../components/app/AssetDetailPanel'
 import { AssetListSection } from '../components/app/AssetListSection'
 import { AuthenticatedShell } from '../components/layout/AuthenticatedShell'
@@ -17,11 +16,7 @@ const SORT_OPTIONS = [
 export function RejectsPage() {
   const controller = useRejectsPageController()
   const navigate = useNavigate()
-  const location = useLocation()
-  const from = useMemo(
-    () => `${location.pathname}${location.search}`,
-    [location.pathname, location.search],
-  )
+  const from = typeof window === 'undefined' ? '/rejects' : `${window.location.pathname}${window.location.search}`
 
   const standaloneHref = controller.selectedAsset
     ? `/rejects/asset/${controller.selectedAsset.id}?from=${encodeURIComponent(from)}`

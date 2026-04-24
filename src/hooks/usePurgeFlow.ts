@@ -25,7 +25,7 @@ type Params = {
   t: Translate
   setRetryStatus: (value: string | null) => void
   mapErrorToMessage: (error: unknown) => string
-  recordAction: (label: string) => void
+  recordAction: (label: string, options?: { assetId?: string }) => void
   onPurgeSuccess: (assetId: string) => void
 }
 
@@ -81,7 +81,7 @@ export function usePurgeFlow({
 
     try {
       await apiClient.executeAssetPurge(selectedAsset.id, crypto.randomUUID(), selectedAsset.revisionEtag)
-      recordAction(t('activity.purge', { id: selectedAsset.id }))
+      recordAction(t('activity.purge', { id: selectedAsset.id }), { assetId: selectedAsset.id })
       onPurgeSuccess(selectedAsset.id)
       setPurgePreviewAssetId(null)
       setPurgeStatus(buildPurgeSuccessStatus(t, selectedAsset.id))
