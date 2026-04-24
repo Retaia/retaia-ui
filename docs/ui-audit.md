@@ -2,20 +2,20 @@
 
 ## 1. Resume executif
 
-Le repo est bien en phase `UI reset`. Le runtime actuellement servi n'est pas une base fonctionnelle de v1, seulement une coque de placeholder.
+Le repo n'est plus en phase `UI reset` pure. Le runtime principal sert maintenant un shell canonique avec de vrais workspaces `Review`, `Library`, `Rejects`, `Account` et `Settings`. En revanche, la refonte reste inachevee : plusieurs ecarts contractuels ont ete fermes, mais `Activity`, la qualification `REVIEW_PENDING_PROFILE`, et une partie du wiring batch/apply restent incomplets ou encore branches sur du legacy.
 
 Constats majeurs :
 
 - la vision produit est coherente : outil de revue et de decision humaine, pas media server, pas DAM generique
 - les contraintes normatives sont strictes : machine a etats fermees, review via derives uniquement, bulk purement UI, mutations unitaires cote Core
-- l'UI actuelle n'est pas conforme a ces contraintes
-- le repo conserve toutefois un socle reutilisable : client API, gestion i18n/theme, persistance locale query params/contexte, hooks auth/features, quelques helpers purs
+- une partie importante de l'UI est maintenant alignee : routes canoniques, shell connecte, workspaces principaux, compte, settings, details standalone, i18n/theme et sessions
+- les ecarts restants sont concentres sur les flows critiques encore incomplets ou partiellement legacy : `REVIEW_PENDING_PROFILE`, apply groupé contractuel, `Activity`, et quelques endpoints batch historiques
 
 Verdict :
 
-- il faut refondre la structure UX et le modele UI
+- il ne faut plus parler de "placeholder global", mais d'une refonte avancee encore partielle
 - il ne faut pas repartir de zero sur tout le repo
-- il faut preserver le wiring API utile, mais supprimer les abstractions legacy qui inventent des routes, des endpoints ou des etats
+- il faut maintenant nettoyer les reliquats contractuels et fermer les parcours encore non conformes plutot que reconstruire encore le shell
 
 ## 2. Vision produit vs contraintes specs
 
@@ -114,6 +114,10 @@ La cartographie cible est detaillee dans `docs/ui-information-architecture.md`.
 
 ### Reutilisable tel quel ou presque
 
+- `src/routes/AppRoutes.tsx`
+- `src/components/layout/AuthenticatedShell.tsx`
+- `src/pages/ReviewWorkspacePage.tsx`, `src/pages/LibraryPage.tsx`, `src/pages/RejectsPage.tsx`
+- `src/pages/AccountPage.tsx`, `src/pages/SettingsPage.tsx`
 - `src/hooks/useApiClient.ts`
 - `src/services/workspaceQueryParams.ts`
 - `src/services/workspaceContextPersistence.ts`
@@ -125,6 +129,10 @@ La cartographie cible est detaillee dans `docs/ui-information-architecture.md`.
 ### Reutilisable avec refonte importante
 
 - `src/hooks/useAuthPageController.ts` et sous-hooks auth
+- `src/hooks/useReviewPageController.ts`
+- `src/hooks/useLibraryPageController.ts`
+- `src/hooks/useRejectsPageController.ts`
+- `src/hooks/useStandaloneAssetDetailController.ts`
 - `src/components/auth/*`
 - `src/components/ui/AppButton.tsx`
 - les composants liste/detail legacy comme base de decomposition, pas comme reference de comportement
@@ -132,33 +140,28 @@ La cartographie cible est detaillee dans `docs/ui-information-architecture.md`.
 
 ### A supprimer ou sortir du chemin critique
 
-- toutes les pages runtime placeholder comme implementation finale
 - la logique `/batches/*`
-- la logique `/assets/{uuid}/decision`
-- les hypotheses `proxy_*` / `has_proxy`
+- les reliquats `/assets/{uuid}/decision` s'ils reapparaissent hors des flows deja realignes
 - les tests BDD `@legacy-ui` comme suite de validation
 - les baselines visuelles de l'ancienne UI
+- les scaffolds encore exposes comme pages runtime finales, en particulier `Activity`
 
 ### A refondre de fond en comble
 
-- routing
-- modele d'etats UI asset
-- mapping etat metier -> workspace
-- orchestration review / apply / purge
-- detail asset
-- shell global authentifie
-- workspace rejects
-- account / sessions
+- qualification `REVIEW_PENDING_PROFILE`
+- orchestration review / apply / purge groupé
+- workspace activity
+- nettoyage contractuel des flows batch
 - integration stricte des preconditions `If-Match`
 
 ### Constats critiques sur le code courant
 
-1. `src/routes/AppRoutes.tsx` sert des routes non conformes : `detail/:assetId` au lieu de `asset/:assetId`, absence de `/rejects`, `/account`, `/auth/reset-password`, `/auth/verify-email`.
-2. `src/pages/*` servent presque uniquement `UiResetPage`.
-3. `src/domain/assets.ts` ecrase la machine a etats normative en 4 etats (`DECISION_PENDING`, `DECIDED_KEEP`, `DECIDED_REJECT`, `ARCHIVED`).
-4. `src/api/client.ts` appelle des endpoints hors contrat v1 : `/batches/moves/*` et `/assets/{uuid}/decision`.
-5. `src/api/assetMapper.ts` confond `REJECTED` et `PURGED` avec `DECIDED_REJECT`.
-6. `src/hooks/useLibraryPageController.ts` prend `DECIDED_KEEP` comme pseudo-etat library, ce qui contredit le workflow apply decision.
-7. `src/api/transport.ts` n'injecte pas `Accept-Language`.
-8. `src/components/app/AppHeader.tsx` montre deja des collisions de vocabulaire et de navigation : l'entree `activity` affiche le label rejects.
-9. `src/api/mockDb.ts` et les tests simulent des surfaces legacy qui ne sont pas le contrat v1 reel.
+1. `src/routes/AppRoutes.tsx` est maintenant largement aligne : routes canoniques presentes pour `review/library/rejects/activity/settings/account`, sous-routes `auth/*`, et details standalone `/asset/:assetId`. Les redirects legacy `detail/:assetId` subsistent a juste titre comme compatibilite.
+2. `src/pages/*` ne servent plus majoritairement `UiResetPage`. `Review`, `Library`, `Rejects`, `Account` et `Settings` ont une vraie surface. `Activity` reste le principal scaffold visible.
+3. `src/domain/assets.ts` a recupere une machine a etats bien plus proche du contrat, incluant notamment `READY`, `PROCESSING_REVIEW`, `REVIEW_PENDING_PROFILE`, `DECISION_PENDING`, `DECIDED_*`, `ARCHIVED`, `REJECTED`, `PURGED`. Le gap porte moins sur le modele que sur certains flows qui n'exploitent pas encore tous les etats.
+4. `src/api/transport.ts` injecte maintenant `Accept-Language`, et les mutations unitaires critiques ont ete realignees. En revanche, `src/api/client.ts` et `src/api/mockDb.ts` exposent encore `/batches/moves/*`, ce qui maintient un reliquat hors contrat v1.
+5. Le mapping `REJECTED` vs `PURGED` a ete corrige. `Library` et `Rejects` sont maintenant separes correctement au runtime.
+6. `src/pages/AccountPage.tsx` et `src/pages/SettingsPage.tsx` respectent maintenant la separation cible : identite/sessions/MFA d'un cote, runtime/preferences/admin de l'autre.
+7. Le workspace `Review` reste incomplet sur un point metier bloquant : la qualification `REVIEW_PENDING_PROFILE` est visible dans le modele mais pas encore implementee comme parcours UX final.
+8. `src/pages/ActivityPage.tsx` reste un scaffold. L'audit ne doit plus le traiter comme une simple absence de route, mais comme un workspace encore non refondu.
+9. Le socle batch/apply est partiellement modernise cote UX, mais une partie du backend wiring mock/client reste encore exprimee via des ressources batch historiques.
