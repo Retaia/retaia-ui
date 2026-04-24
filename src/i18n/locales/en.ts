@@ -418,6 +418,8 @@ export const enTranslation = {
   'actions.executeUndoWindow': 'Batch execution starts in {seconds}s.',
   'actions.executing': 'Execution in progress...',
   'actions.executeResult': 'Batch execution accepted',
+  'actions.executePartial':
+    'Batch execution partially completed ({success} ok, {failed} failed): {message}. Failed assets remain selected.',
   'actions.executeNoEligible': 'No eligible batch decisions to apply.',
   'actions.executeError': 'Execution failed: {message}',
   'actions.retrying': 'Retrying request ({attempt}/{total})...',
@@ -469,6 +471,8 @@ export const enTranslation = {
   'actions.reprocessError': 'Reprocess failed: {message}',
   'error.scope': 'Missing scope permission for this action.',
   'error.stateConflict': 'State conflict: refresh data and try again.',
+  'error.preconditionRequired': 'Missing precondition: reload data and try again.',
+  'error.preconditionFailed': 'Stale revision: refresh data and try again.',
   'error.idempotency': 'Duplicate action detected (idempotency conflict).',
   'error.validation': 'Invalid API payload received. Please retry or contact support.',
   'error.lock': 'Resource lock conflict: refresh data and retry.',

@@ -12,6 +12,7 @@ import {
 import {
   buildExecuteCanceledStatus,
   buildExecuteErrorStatus,
+  buildExecutePartialStatus,
   buildExecuteQueuedStatus,
   buildExecuteSuccessStatus,
   buildPreviewErrorStatus,
@@ -229,6 +230,17 @@ export function useBatchExecution({
 
         if (successIds.length > 0) {
           onBatchExecutionApplied(successIds, nextStatesById)
+          if (errors.length > 0) {
+            setExecuteStatus(
+              buildExecutePartialStatus(
+                t,
+                successIds.length,
+                errors.length,
+                errors[0]?.reason ?? t('actions.executeNoEligible'),
+              ),
+            )
+            return
+          }
           setExecuteStatus(buildExecuteSuccessStatus(t))
           return
         }

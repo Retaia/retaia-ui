@@ -418,6 +418,8 @@ export const frTranslation = {
   'actions.executeUndoWindow': "Exécution batch dans {seconds}s.",
   'actions.executing': 'Exécution en cours...',
   'actions.executeResult': 'Exécution du batch acceptée',
+  'actions.executePartial':
+    'Exécution batch partielle ({success} ok, {failed} en échec): {message}. Les assets en échec restent sélectionnés.',
   'actions.executeNoEligible': 'Aucune décision batch éligible à appliquer.',
   'actions.executeError': 'Exécution en échec: {message}',
   'actions.retrying': 'Nouvelle tentative ({attempt}/{total})...',
@@ -469,6 +471,8 @@ export const frTranslation = {
   'actions.reprocessError': 'Reprocess en échec: {message}',
   'error.scope': "Droit insuffisant pour cette action (scope manquant).",
   'error.stateConflict': "Conflit d'état: rafraîchir puis réessayer.",
+  'error.preconditionRequired': 'Précondition manquante: recharger les données puis réessayer.',
+  'error.preconditionFailed': 'Révision obsolète: rafraîchir les données puis réessayer.',
   'error.idempotency': 'Action dupliquée détectée (conflit idempotence).',
   'error.validation': 'Payload API invalide reçu. Réessaie ou contacte le support.',
   'error.lock': 'Conflit de verrouillage: rafraîchir puis réessayer.',
