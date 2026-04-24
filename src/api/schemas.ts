@@ -22,9 +22,6 @@ export const listAssetSummariesResponseSchema = z
   })
   .passthrough()
 
-export const moveExecuteResponseSchema = z.union([unknownObjectSchema, z.undefined()])
-export const moveReportResponseSchema = unknownObjectSchema
-
 export const assetDetailResponseSchema = z
   .object({
     summary: unknownObjectSchema,

@@ -105,7 +105,7 @@ describe('in-memory mock db for APP_ENV=test', () => {
     expect(afterDecision.summary.state).toBe('DECIDED_REJECT')
   })
 
-  it('supports purge and batch routes in memory', async () => {
+  it('supports purge and apply-decision routes in memory', async () => {
     const api = createApiClient({
       baseUrl: '/api/v1',
       fetchImpl: createInMemoryMockApiFetch(),
@@ -117,11 +117,13 @@ describe('in-memory mock db for APP_ENV=test', () => {
     const purged = await api.getAssetDetail('A-001')
     expect(purged.summary.state).toBe('PURGED')
 
-    await api.previewMoveBatch({ include: 'KEEP' })
-    const execute = await api.executeMoveBatch({ mode: 'EXECUTE', selection: {} }, 'idem-batch-1')
-    expect(execute).toMatchObject({ batch_id: 'BATCH-TEST-1' })
-    const report = await api.getMoveBatchReport('BATCH-TEST-1')
-    expect(report).toMatchObject({ completed: true })
+    await api.submitAssetDecision('A-002', { state: 'ARCHIVED' })
+    const archived = await api.getAssetDetail('A-002')
+    expect(archived.summary.state).toBe('ARCHIVED')
+
+    await api.submitAssetDecision('A-003', { state: 'REJECTED' })
+    const rejected = await api.getAssetDetail('A-003')
+    expect(rejected.summary.state).toBe('REJECTED')
   })
 
   it('supports reopen and reprocess routes in memory', async () => {

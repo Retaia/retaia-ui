@@ -6,7 +6,6 @@
 
 | Priorite | Ecart | Existant | Attendu | Risque |
 | --- | --- | --- | --- | --- |
-| Haute | Wiring batch hors contrat encore present | `src/api/client.ts` et `src/api/mockDb.ts` exposent encore `/batches/moves/*` | apply decision et bulk UI sans ressource batch Core normative | dette contractuelle au coeur des actions groupees |
 | Haute | Qualification `REVIEW_PENDING_PROFILE` encore absente | etat present dans le modele, mais pas de vrai flow UX de choix `processing_profile` | action explicite `audio_music` / `audio_voice` avant decision | blocage produit sur un parcours normatif |
 | Haute | `Activity` reste un scaffold | route et shell presents, mais page encore basee sur `WorkspaceScaffold` | workspace borne ou journal local reel | faux sentiment de completion du runtime |
 | Haute | Apply groupé encore partiellement legacy | selection et rails UI existent, mais le socle reste adosse a une logique batch historique | previsualisation, confirmation, execution unitaire, resultat agrege sans endpoint invente | ambiguite entre pattern UX autorise et ressource backend interdite |
@@ -34,7 +33,6 @@
 
 ### Supprimer
 
-- references a `/batches/moves/*`
 - baselines visuelles legacy `batch-*`, `detail-*`, `activity-route-*` comme cible produit
 - scenarios BDD `@legacy-ui` comme gates de conformite
 

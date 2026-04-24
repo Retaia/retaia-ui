@@ -9,12 +9,12 @@ Feature: Workflow batch API
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je fais Maj+clic sur l'asset "behind-the-scenes.jpg"
     Then le batch sélectionné affiche 2
+    When je clique sur le bouton "Conserver batch"
     When je clique sur le bouton "Prévisualiser batch"
     Then le statut de prévisualisation contient "BOTH"
     When je clique sur le bouton "Exécuter batch"
     And je clique sur le bouton "Exécuter maintenant"
     Then le statut d'exécution contient "acceptée"
-    When je clique sur le bouton "Rafraîchir rapport"
     Then le rapport batch affiche le statut "Terminé"
     And le rapport batch affiche 2 assets déplacés
     And le rapport batch affiche 0 assets en échec
@@ -23,6 +23,7 @@ Feature: Workflow batch API
     Given je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je fais Maj+clic sur l'asset "behind-the-scenes.jpg"
+    And je clique sur le bouton "Conserver batch"
     And je clique sur le bouton "Exécuter batch"
     And je clique sur le bouton "Exécuter maintenant"
     Then le statut d'exécution contient "acceptée"
@@ -32,6 +33,7 @@ Feature: Workflow batch API
     Given je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je fais Maj+clic sur l'asset "behind-the-scenes.jpg"
+    And je clique sur le bouton "Conserver batch"
     And j'appuie sur la touche "b"
     Then le titre principal "Assets (2)" est visible
     When je clique sur le bouton "Exécuter batch"
@@ -43,6 +45,7 @@ Feature: Workflow batch API
     Given je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je fais Maj+clic sur l'asset "behind-the-scenes.jpg"
+    And je clique sur le bouton "Conserver batch"
     And je clique sur le bouton "Exécuter batch"
     And je clique sur le bouton "Exécuter maintenant"
     And je clique sur le bouton "Exporter JSON"
