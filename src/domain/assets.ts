@@ -34,6 +34,10 @@ export type AssetSort =
   | 'name'
   | '-name'
 export type DecisionAction = 'KEEP' | 'REJECT' | 'CLEAR'
+export type AssetProjectRef = {
+  id: string
+  name: string
+}
 
 export type Asset = {
   id: string
@@ -50,6 +54,7 @@ export type Asset = {
   thumbUrls?: string[]
   processingProfile?: ProcessingProfile | null
   tags?: string[]
+  projects?: AssetProjectRef[]
   notes?: string
   fields?: Record<string, unknown>
   transcriptPreview?: string | null

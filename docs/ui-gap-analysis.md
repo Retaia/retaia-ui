@@ -16,7 +16,6 @@
 | Moyenne/haute | Concurrence optimistic encore heterogene | une partie des flows unitaires passe `If-Match`, mais le nettoyage n'est pas uniforme sur tout le parcours review/apply/reprocess/purge | toute mutation asset partagee branchee sur `revision_etag` | `428` et `412` geres de facon incomplete |
 | Moyenne/haute | Feature runtime branchee de facon partielle | poll `GET /app/policy`, mais surface review finale absente | gating complet par disponibilite serveur | UI incoherente entre code et runtime |
 | Moyenne | Activity encore a densifier | route canonique servie avec journal local borne, filtres et liens retour, mais sans segmentation plus fine ni validation dediee abondante | journal local lisible, robuste et clairement distinct d'un audit backend | valeur percue encore trop faible ou trop generique |
-| Moyenne | Metadata humaine incomplete | tags/notes presentes, `projects` absent du rendu legacy echantillonne | `projects`, localisation, fields dedies visibles | detail asset incomplet |
 | Moyenne | Settings admin encore borne a un sous-ensemble | config runtime et feature MFA globale presentes, pas de surface ops admin plus large | exposition admin minimale si retenue | runtime admin incomplet mais non bloquant v1 |
 | Moyenne | Ops admin non integres | endpoints presents dans OpenAPI, UI locale absente | exposition admin minimale si retenue | manque de diagnosique operateur |
 

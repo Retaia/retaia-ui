@@ -1,8 +1,9 @@
-import type { Asset, AssetState } from '../assets'
+import type { Asset, AssetProjectRef, AssetState } from '../assets'
 
 type AssetDetailLike = {
   summary: {
     tags?: unknown
+    projects?: unknown
     state?: string
     processing_profile?: string
     updated_at?: string | null
@@ -55,6 +56,28 @@ function toUiDecisionState(state: string | undefined): AssetState | null {
   return null
 }
 
+function normalizeProjects(projects: unknown): AssetProjectRef[] | undefined {
+  if (!Array.isArray(projects)) {
+    return undefined
+  }
+
+  const normalized = projects.flatMap((project): AssetProjectRef[] => {
+    if (!project || typeof project !== 'object') {
+      return []
+    }
+
+    const id = typeof project.project_id === 'string' ? project.project_id.trim() : ''
+    const name = typeof project.project_name === 'string' ? project.project_name.trim() : ''
+    if (id === '' || name === '') {
+      return []
+    }
+
+    return [{ id, name }]
+  })
+
+  return normalized.length > 0 ? normalized : undefined
+}
+
 export function mergeAssetWithDetail(
   asset: Asset,
   detail: AssetDetailLike,
@@ -63,6 +86,7 @@ export function mergeAssetWithDetail(
   const normalizedTags = Array.isArray(detail.summary.tags)
     ? detail.summary.tags.filter((tag): tag is string => typeof tag === 'string')
     : undefined
+  const normalizedProjects = normalizeProjects(detail.summary.projects)
   const nextState =
     options?.includeDecisionState === true ? toUiDecisionState(detail.summary.state) ?? asset.state : asset.state
 
@@ -70,6 +94,7 @@ export function mergeAssetWithDetail(
     ...asset,
     state: nextState,
     ...(normalizedTags ? { tags: normalizedTags } : {}),
+    ...(normalizedProjects ? { projects: normalizedProjects } : {}),
     processingProfile: toUiProcessingProfile(detail.summary.processing_profile) ?? asset.processingProfile ?? null,
     updatedAt: detail.summary.updated_at ?? asset.updatedAt,
     revisionEtag: detail.summary.revision_etag ?? asset.revisionEtag ?? null,

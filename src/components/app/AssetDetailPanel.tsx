@@ -352,6 +352,22 @@ export function AssetDetailPanel({
                   })}
                 </p>
               ) : null}
+              {selectedAsset.projects && selectedAsset.projects.length > 0 ? (
+                <section className="mb-3" aria-label={t('detail.projectsTitle')}>
+                  <h3 className="mb-2 text-sm font-semibold text-gray-900">{t('detail.projectsTitle')}</h3>
+                  <div className="flex flex-wrap gap-2" data-testid="asset-project-list">
+                    {selectedAsset.projects.map((project) => (
+                      <span
+                        key={project.id}
+                        className="inline-flex items-center rounded-full bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700 dark:bg-brand-500/10 dark:text-brand-300"
+                        title={t('detail.projectId', { id: project.id })}
+                      >
+                        {project.name}
+                      </span>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
               <section className="mb-3" aria-label={t('detail.previewTitle')}>
                 <h3 className="mb-2 text-sm font-semibold text-gray-900">{t('detail.previewTitle')}</h3>
                 <AssetMediaPreview selectedAsset={selectedAsset} t={t} />

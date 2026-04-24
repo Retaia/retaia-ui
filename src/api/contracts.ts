@@ -20,6 +20,7 @@ export type AssetSummary = {
   revision_etag?: string | null
   duration?: number | null
   tags?: string[]
+  projects?: Array<{ project_id?: string; project_name?: string }>
   has_preview?: boolean
   thumb_url?: string | null
   [key: string]: unknown
