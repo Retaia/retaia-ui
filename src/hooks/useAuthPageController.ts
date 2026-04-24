@@ -7,6 +7,7 @@ import { useAuthRecoveryController } from './auth/useAuthRecoveryController'
 import { useAuthSessionController } from './auth/useAuthSessionController'
 import { useApiClient } from './useApiClient'
 import { useAuthFeatureGovernance } from './auth/useAuthFeatureGovernance'
+import { useRuntimeDiagnostics } from './useRuntimeDiagnostics'
 
 export function useAuthPageController() {
   const { t, i18n } = useTranslation()
@@ -146,6 +147,11 @@ export function useAuthPageController() {
     setAuthMfaStatus,
     setAuthMfaBusy,
   })
+  const runtimeDiagnostics = useRuntimeDiagnostics({
+    apiClient,
+    t,
+    enabled: Boolean(authUser && effectiveApiToken),
+  })
   const hasUnsavedAuthInputs = useMemo(
     () =>
       [
@@ -227,6 +233,7 @@ export function useAuthPageController() {
     handleVerifyEmailAdminConfirm,
     setAppFeature,
     setUserFeature,
+    runtimeDiagnostics,
     startMfaSetup,
     enableMfa,
     disableMfa,
