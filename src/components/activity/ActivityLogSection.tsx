@@ -67,6 +67,16 @@ export function ActivityLogSection({ t, entries, onClear, formatTimestamp }: Pro
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-gray-900 dark:text-gray-100">{entry.label}</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <span className="inline-flex rounded-full border border-gray-300 bg-white px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                        {t(`page.activity.scope.${entry.scope}`)}
+                      </span>
+                      {entry.assetId ? (
+                        <span className="inline-flex rounded-full border border-brand-200 bg-brand-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-brand-700 dark:border-brand-900/60 dark:bg-brand-950/40 dark:text-brand-200">
+                          {t('page.activity.assetBadge', { id: entry.assetId })}
+                        </span>
+                      ) : null}
+                    </div>
                     <p className="mt-2 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">
                       <BsClockHistory aria-hidden="true" />
                       <span>{formatTimestamp(entry.createdAt)}</span>

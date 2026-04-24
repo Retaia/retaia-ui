@@ -14,6 +14,8 @@ type ReviewFilterParams = {
   search: string
 }
 
+export type ActivityScopeFilter = 'ALL' | 'review' | 'library' | 'rejects'
+
 type ApiDateRange = {
   captured_at_from?: string
   captured_at_to?: string
@@ -48,6 +50,10 @@ function isAssetSort(value: string | null): value is AssetSort {
     value === 'name' ||
     value === '-name'
   )
+}
+
+function isActivityScopeFilter(value: string | null): value is ActivityScopeFilter {
+  return value === 'ALL' || value === 'review' || value === 'library' || value === 'rejects'
 }
 
 function updateCurrentSearch(params: URLSearchParams, mode: 'push' | 'replace' = 'push') {
@@ -247,5 +253,54 @@ export function writeRejectsFilterParams(
     return
   }
   writeCommonListQueryParams(params, { search, sort })
+  updateCurrentSearch(params, mode)
+}
+
+export function readActivityFilterParams(): {
+  search?: string
+  scope?: ActivityScopeFilter
+  linkedOnly?: boolean
+} {
+  const params = readCurrentSearchParams()
+  if (!params) {
+    return {}
+  }
+
+  const common = readCommonListQueryParams(params)
+  const scope = params.get('scope')
+  const linkedOnly = params.get('linked')
+
+  return {
+    search: common.search,
+    scope: isActivityScopeFilter(scope) ? scope : undefined,
+    linkedOnly: linkedOnly === '1' ? true : undefined,
+  }
+}
+
+export function writeActivityFilterParams(
+  search: string,
+  scope: ActivityScopeFilter,
+  linkedOnly: boolean,
+  mode: 'push' | 'replace' = 'push',
+) {
+  const params = readCurrentSearchParams()
+  if (!params) {
+    return
+  }
+
+  writeCommonListQueryParams(params, { search, sort: '-created_at' })
+
+  if (scope === 'ALL') {
+    params.delete('scope')
+  } else {
+    params.set('scope', scope)
+  }
+
+  if (linkedOnly) {
+    params.set('linked', '1')
+  } else {
+    params.delete('linked')
+  }
+
   updateCurrentSearch(params, mode)
 }

@@ -6,7 +6,6 @@
 
 | Priorite | Ecart | Existant | Attendu | Risque |
 | --- | --- | --- | --- | --- |
-| Haute | `Activity` reste un scaffold | route et shell presents, mais page encore basee sur `WorkspaceScaffold` | workspace borne ou journal local reel | faux sentiment de completion du runtime |
 | Haute | Apply groupé encore a stabiliser | selection et rails UI existent, et l'execution est redevenue unitaire, mais le resultat agrege et certains etats UX restent fragiles | previsualisation, confirmation, execution unitaire, resultat agrege robuste sans endpoint invente | faux positifs UX ou perte de lisibilite sur les actions critiques |
 | Haute | Tests de validation legacy | BDD `@legacy-ui`, visual baselines sur batch/detail legacy | suites reconstruites depuis specs v1 | faux sentiment de securite |
 
@@ -16,7 +15,7 @@
 | --- | --- | --- | --- | --- |
 | Moyenne/haute | Concurrence optimistic encore heterogene | une partie des flows unitaires passe `If-Match`, mais le nettoyage n'est pas uniforme sur tout le parcours review/apply/reprocess/purge | toute mutation asset partagee branchee sur `revision_etag` | `428` et `412` geres de facon incomplete |
 | Moyenne/haute | Feature runtime branchee de facon partielle | poll `GET /app/policy`, mais surface review finale absente | gating complet par disponibilite serveur | UI incoherente entre code et runtime |
-| Moyenne/haute | Activity sans contrat clair | route canonique servie, mais contenu encore scaffold | journal local borne ou vraie surface si backend l'expose plus tard | faux audit systeme |
+| Moyenne | Activity encore a densifier | route canonique servie avec journal local borne, filtres et liens retour, mais sans segmentation plus fine ni validation dediee abondante | journal local lisible, robuste et clairement distinct d'un audit backend | valeur percue encore trop faible ou trop generique |
 | Moyenne | Metadata humaine incomplete | tags/notes presentes, `projects` absent du rendu legacy echantillonne | `projects`, localisation, fields dedies visibles | detail asset incomplet |
 | Moyenne | Settings admin encore borne a un sous-ensemble | config runtime et feature MFA globale presentes, pas de surface ops admin plus large | exposition admin minimale si retenue | runtime admin incomplet mais non bloquant v1 |
 | Moyenne | Ops admin non integres | endpoints presents dans OpenAPI, UI locale absente | exposition admin minimale si retenue | manque de diagnosique operateur |
@@ -41,7 +40,6 @@
 - `src/api/contracts.ts`
 - `src/api/assetMapper.ts`
 - `src/api/mockDb.ts`
-- `src/pages/ActivityPage.tsx`
 - `src/hooks/useReviewPageController.ts`
 - `src/hooks/useAuthPageController.ts`
 - `src/hooks/auth/useAuthSessionsController.ts`
