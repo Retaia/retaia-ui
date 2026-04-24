@@ -44,21 +44,6 @@ export type AssetDetail = {
   [key: string]: unknown
 }
 
-// NOTE: Specs v1 no longer exposes legacy /batches/* endpoints used by current UI flow.
-// Keep explicit UI payload types until batch flow is migrated to the new contract.
-export type MovePreviewPayload = {
-  include?: 'KEEP' | 'REJECT' | 'BOTH'
-  limit?: number
-}
-export type MoveExecutePayload = {
-  mode: 'EXECUTE' | 'DRY_RUN'
-  selection: {
-    asset_ids?: string[]
-    include?: 'KEEP' | 'REJECT' | 'BOTH'
-  }
-}
-export type MoveExecuteResponse = Record<string, unknown> | void
-export type MoveStatusResponse = Record<string, unknown>
 export type PurgeExecutePayload = { confirm: true }
 export type AssetMetadataPatchPayload = {
   tags?: string[]
@@ -66,7 +51,7 @@ export type AssetMetadataPatchPayload = {
   fields?: Record<string, unknown>
 }
 export type AssetDecisionPayload = {
-  state: 'DECISION_PENDING' | 'DECIDED_KEEP' | 'DECIDED_REJECT'
+  state: 'DECISION_PENDING' | 'DECIDED_KEEP' | 'DECIDED_REJECT' | 'ARCHIVED' | 'REJECTED'
 }
 export type AppPolicyResponse = {
   server_policy: {

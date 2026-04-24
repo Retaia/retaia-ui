@@ -309,10 +309,22 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     exportBatchReport,
   } = useBatchExecution({
     apiClient,
+    assets,
     batchIds,
+    isApiAssetSource,
     t,
     setRetryStatus,
     mapErrorToMessage: mapBatchErrorToMessage,
+    onBatchExecutionApplied: (successIds, nextStatesById) => {
+      setAssets((current) =>
+        current.map((asset) => {
+          const nextState = nextStatesById[asset.id]
+          return nextState ? { ...asset, state: nextState } : asset
+        }),
+      )
+      setBatchIds((current) => current.filter((id) => !successIds.includes(id)))
+      recordAction(t('activity.applyDecisions', { count: successIds.length }))
+    },
   })
   const locale = (i18n.resolvedLanguage ?? 'fr') as Locale
   const emptyAssetsMessage = useMemo(

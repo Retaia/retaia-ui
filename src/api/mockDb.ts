@@ -486,7 +486,9 @@ export function createInMemoryMockApiFetch(): typeof fetch {
       if (
         body.state === 'DECISION_PENDING' ||
         body.state === 'DECIDED_KEEP' ||
-        body.state === 'DECIDED_REJECT'
+        body.state === 'DECIDED_REJECT' ||
+        body.state === 'ARCHIVED' ||
+        body.state === 'REJECTED'
       ) {
         asset.state = body.state
       }
@@ -504,22 +506,6 @@ export function createInMemoryMockApiFetch(): typeof fetch {
       }
       return jsonResponse(200, {
         summary: asset,
-      })
-    }
-
-    if (pathname === '/batches/moves/preview' && method === 'POST') {
-      return emptyResponse(204)
-    }
-
-    if (pathname === '/batches/moves' && method === 'POST') {
-      return jsonResponse(200, { batch_id: 'BATCH-TEST-1', accepted: true })
-    }
-
-    if (pathname.startsWith('/batches/moves/') && method === 'GET') {
-      return jsonResponse(200, {
-        batch_id: pathname.split('/')[3] ?? 'BATCH-TEST-1',
-        completed: true,
-        stats: { total: 0, applied: 0, rejected: 0 },
       })
     }
 

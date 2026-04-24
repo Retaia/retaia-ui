@@ -6,11 +6,6 @@ function ensureMockMode(stepName: string) {
   requireBddMockApiMode(stepName)
 }
 
-Given('le mock API retourne FORBIDDEN_SCOPE sur la preview batch', async () => {
-  ensureMockMode('le mock API retourne FORBIDDEN_SCOPE sur la preview batch')
-  mockApiState.previewShouldFailScope = true
-})
-
 Given('le mock API retourne une erreur sur la liste assets', async () => {
   ensureMockMode('le mock API retourne une erreur sur la liste assets')
   mockApiState.assetsListShouldFail = true
@@ -24,21 +19,6 @@ Given('le mock API retarde la liste assets de {int} ms', async (delayMs: number)
 Given('le mock API retourne une liste assets partiellement invalide', async () => {
   ensureMockMode('le mock API retourne une liste assets partiellement invalide')
   mockApiState.assetsListMalformed = true
-})
-
-Given('le mock API retourne TEMPORARY_UNAVAILABLE une fois sur la preview batch', async () => {
-  ensureMockMode('le mock API retourne TEMPORARY_UNAVAILABLE une fois sur la preview batch')
-  mockApiState.previewTemporaryOnce = true
-})
-
-Given('le mock API retourne STATE_CONFLICT sur l\'exécution batch', async () => {
-  ensureMockMode('le mock API retourne STATE_CONFLICT sur l\'exécution batch')
-  mockApiState.executeShouldFailStateConflict = true
-})
-
-Given('le mock API retourne TEMPORARY_UNAVAILABLE sur le rapport batch', async () => {
-  ensureMockMode('le mock API retourne TEMPORARY_UNAVAILABLE sur le rapport batch')
-  mockApiState.reportShouldFailTemporary = true
 })
 
 Given('le mock API retourne FORBIDDEN_SCOPE sur la preview purge', async () => {

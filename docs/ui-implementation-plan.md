@@ -10,22 +10,12 @@ Etat au 2026-04-24 :
 
 ### Priorite haute
 
-1. Finaliser les reliquats contractuels batch/apply.
-   - supprimer `/batches/moves/*`
-   - garantir que le bulk reste un concept UI et non une ressource metier
-   - realigner mock API et tests sur ce contrat
-
-2. Livrer le flow `REVIEW_PENDING_PROFILE`.
+1. Livrer le flow `REVIEW_PENDING_PROFILE`.
    - choix `processing_profile`
    - explicitation `audio_music` / `audio_voice`
    - aucune decision KEEP/REJECT avant qualification terminee
 
-3. Terminer `Activity`.
-   - remplacer le scaffold
-   - borner le journal operateur local
-   - lier proprement vers les assets et les resultats d'actions
-
-4. Stabiliser la validation automatique.
+2. Stabiliser la validation automatique.
    - continuer la reecriture des BDD critiques selon les specs
    - remplacer les snapshots visuels legacy encore utiles comme garde-fous
 

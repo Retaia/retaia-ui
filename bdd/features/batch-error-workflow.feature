@@ -4,29 +4,28 @@ Feature: Workflow batch API en erreur
   Je veux des messages explicites sur les erreurs API critiques
   Afin de savoir quoi faire ensuite
 
-  Scenario: erreur de scope lors de la preview batch
-    Given le mock API retourne FORBIDDEN_SCOPE sur la preview batch
-    And je suis sur la page d'accueil
+  Scenario: preview batch sans décision éligible
+    Given je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je clique sur le bouton "Prévisualiser batch"
     Then le statut de prévisualisation contient "échec"
-    And le statut de prévisualisation contient "scope manquant"
+    And le statut de prévisualisation contient "Aucune décision batch éligible"
 
-  Scenario: conflit d'état lors de l'exécution batch
-    Given le mock API retourne STATE_CONFLICT sur l'exécution batch
+  Scenario: erreur de scope lors de l'application batch
+    Given le mock API retourne FORBIDDEN_SCOPE sur le patch asset
     And je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
+    And je clique sur le bouton "Conserver batch"
     And je clique sur le bouton "Exécuter batch"
     And je clique sur le bouton "Exécuter maintenant"
     Then le statut d'exécution contient "échec"
-    And le statut d'exécution contient "Conflit d'état"
+    And le statut d'exécution contient "Droit insuffisant"
 
-  Scenario: indisponibilité temporaire lors du chargement rapport
-    Given le mock API retourne TEMPORARY_UNAVAILABLE sur le rapport batch
-    And je suis sur la page d'accueil
+  Scenario: rapport local déjà à jour après exécution
+    Given je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
+    And je clique sur le bouton "Conserver batch"
     And je clique sur le bouton "Exécuter batch"
     And je clique sur le bouton "Exécuter maintenant"
     And je clique sur le bouton "Rafraîchir rapport"
-    Then le message "Chargement rapport en échec" est visible
-    And le message "Indisponibilité temporaire" est visible
+    Then le message "Rapport local déjà à jour." est visible

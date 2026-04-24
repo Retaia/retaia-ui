@@ -15,9 +15,6 @@ import type {
   HealthResponse,
   ListAssetsQuery,
   ListAssetsResponse,
-  MoveExecutePayload,
-  MoveExecuteResponse,
-  MovePreviewPayload,
   PurgeExecutePayload,
   UserFeaturesUpdatePayload,
   UserFeaturesResponse,
@@ -36,8 +33,6 @@ import {
   parseAuthSessionsResponse,
   parseCurrentUserResponse,
   parseHealthResponse,
-  parseMoveExecuteResponse,
-  parseMoveReportResponse,
   parseUserFeaturesResponse,
 } from './parsers'
 import { ApiError, type ApiErrorPayload } from './errors'
@@ -225,30 +220,6 @@ export function createApiClient(
         method: 'POST',
         body: JSON.stringify(payload),
       }),
-
-    previewMoveBatch: (payload: MovePreviewPayload) =>
-      request<void>('/batches/moves/preview', {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      }),
-
-    executeMoveBatch: async (payload: MoveExecutePayload, idempotencyKey: string) => {
-      const path = '/batches/moves'
-      const response = await request<unknown>(path, {
-        method: 'POST',
-        headers: {
-          'Idempotency-Key': idempotencyKey,
-        },
-        body: JSON.stringify(payload),
-      })
-      return parseMoveExecuteResponse(response, path) as MoveExecuteResponse
-    },
-
-    getMoveBatchReport: async (batchId: string) => {
-      const path = `/batches/moves/${batchId}`
-      const response = await request<unknown>(path)
-      return parseMoveReportResponse(response, path)
-    },
 
     previewAssetPurge: (assetId: string) =>
       request<void>(`/assets/${assetId}/purge/preview`, {

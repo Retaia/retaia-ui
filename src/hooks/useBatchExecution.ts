@@ -1,15 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { Asset } from '../domain/assets'
 import {
   buildBatchTimeline,
   getPendingBatchUndoSeconds,
-  resolveBatchId,
   serializeBatchReportExport,
 } from '../application/review/batchExecutionHelpers'
 import {
   BATCH_EXECUTION_UNDO_WINDOW_MS,
   planBatchExecution,
 } from '../application/review/batchExecutionPlanning'
-import { loadBatchReport } from '../application/review/batchReportLoading'
 import {
   buildExecuteCanceledStatus,
   buildExecuteErrorStatus,
@@ -20,12 +19,18 @@ import {
 } from '../application/review/batchExecutionStatus'
 
 type ApiClient = {
-  previewMoveBatch: (payload: { include: 'BOTH'; limit: number }) => Promise<unknown>
-  executeMoveBatch: (
-    payload: { mode: 'EXECUTE'; selection: { asset_ids: string[] } },
-    idempotencyKey: string,
-  ) => Promise<unknown>
-  getMoveBatchReport: (batchId: string) => Promise<unknown>
+  submitAssetDecision: (
+    assetId: string,
+    payload: { state: 'ARCHIVED' | 'REJECTED' },
+    idempotencyKey?: string,
+    ifMatch?: string | null,
+  ) => Promise<void>
+}
+
+type BatchApplyTarget = {
+  assetId: string
+  nextState: 'ARCHIVED' | 'REJECTED'
+  revisionEtag?: string | null
 }
 
 type StatusMessage = {
@@ -37,18 +42,47 @@ type Translate = (key: string, values?: Record<string, unknown>) => string
 
 type Params = {
   apiClient: ApiClient
+  assets: Asset[]
   batchIds: string[]
+  isApiAssetSource: boolean
   t: Translate
   setRetryStatus: (value: string | null) => void
   mapErrorToMessage: (error: unknown) => string
+  onBatchExecutionApplied: (
+    successIds: string[],
+    nextStatesById: Record<string, 'ARCHIVED' | 'REJECTED'>,
+  ) => void
+}
+
+function resolveBatchApplyTargets(assets: Asset[], batchIds: string[]): BatchApplyTarget[] {
+  const selectedIds = new Set(batchIds)
+  return assets.flatMap<BatchApplyTarget>((asset) => {
+    if (!selectedIds.has(asset.id)) {
+      return []
+    }
+    if (asset.state === 'DECIDED_KEEP') {
+      return [{ assetId: asset.id, nextState: 'ARCHIVED' as const, revisionEtag: asset.revisionEtag }]
+    }
+    if (asset.state === 'DECIDED_REJECT') {
+      return [{ assetId: asset.id, nextState: 'REJECTED' as const, revisionEtag: asset.revisionEtag }]
+    }
+    return []
+  })
+}
+
+function buildLocalReportReference() {
+  return `ui-${new Date().toISOString().replaceAll(/[-:.TZ]/g, '').slice(0, 14)}`
 }
 
 export function useBatchExecution({
   apiClient,
+  assets,
   batchIds,
+  isApiAssetSource,
   t,
   setRetryStatus,
   mapErrorToMessage,
+  onBatchExecutionApplied,
 }: Params) {
   const [previewingBatch, setPreviewingBatch] = useState(false)
   const [executingBatch, setExecutingBatch] = useState(false)
@@ -113,18 +147,23 @@ export function useBatchExecution({
     setRetryStatus(null)
 
     try {
-      await apiClient.previewMoveBatch({
-        include: 'BOTH',
-        limit: batchIds.length,
-      })
-      setPreviewStatus(buildPreviewSuccessStatus(t, batchIds.length))
-    } catch (error) {
-      setPreviewStatus(buildPreviewErrorStatus(t, mapErrorToMessage, error))
+      const targets = resolveBatchApplyTargets(assets, batchIds)
+      if (targets.length === 0) {
+        setPreviewStatus(
+          buildPreviewErrorStatus(
+            t,
+            () => t('actions.previewNoEligible'),
+            new Error('preview-no-eligible'),
+          ),
+        )
+        return
+      }
+      setPreviewStatus(buildPreviewSuccessStatus(t, targets.length))
     } finally {
       setPreviewingBatch(false)
       setRetryStatus(null)
     }
-  }, [apiClient, batchIds.length, mapErrorToMessage, previewingBatch, setRetryStatus, t])
+  }, [assets, batchIds, previewingBatch, setRetryStatus, t])
 
   const runBatchExecution = useCallback(
     async (assetIds: string[]) => {
@@ -132,51 +171,81 @@ export function useBatchExecution({
         return
       }
 
+      const targets = resolveBatchApplyTargets(assets, assetIds)
+      if (targets.length === 0) {
+        setExecuteStatus(
+          buildExecuteErrorStatus(
+            t,
+            () => t('actions.executeNoEligible'),
+            new Error('execute-no-eligible'),
+          ),
+        )
+        return
+      }
+
       setExecutingBatch(true)
       setExecuteStatus(null)
+      setReportStatus(null)
+      setReportExportStatus(null)
       setRetryStatus(null)
 
+      const successIds: string[] = []
+      const nextStatesById: Record<string, 'ARCHIVED' | 'REJECTED'> = {}
+      const errors: Array<{ asset_id: string; reason: string }> = []
+
       try {
-        const response = await apiClient.executeMoveBatch(
-          {
-            mode: 'EXECUTE',
-            selection: { asset_ids: assetIds },
-          },
-          crypto.randomUUID(),
-        )
-        const batchId = resolveBatchId(response)
-        setReportBatchId(batchId)
-        setExecuteStatus(buildExecuteSuccessStatus(t))
-        setReportExportStatus(null)
-        if (!batchId) {
+        for (const target of targets) {
+          try {
+            if (isApiAssetSource) {
+              await apiClient.submitAssetDecision(
+                target.assetId,
+                { state: target.nextState },
+                undefined,
+                target.revisionEtag,
+              )
+            }
+            successIds.push(target.assetId)
+            nextStatesById[target.assetId] = target.nextState
+          } catch (error) {
+            errors.push({
+              asset_id: target.assetId,
+              reason: mapErrorToMessage(error),
+            })
+          }
+        }
+
+        const reportReference = buildLocalReportReference()
+        const report = {
+          status:
+            errors.length === 0 ? 'DONE' : successIds.length === 0 ? 'FAILED' : 'PARTIAL',
+          moved: successIds.length,
+          failed: errors.length,
+          errors,
+        }
+
+        setReportBatchId(reportReference)
+        setReportData(report)
+        setLastSuccessfulReport({ batchId: reportReference, report })
+
+        if (successIds.length > 0) {
+          onBatchExecutionApplied(successIds, nextStatesById)
+          setExecuteStatus(buildExecuteSuccessStatus(t))
           return
         }
-        setReportLoading(true)
-        setReportStatus(null)
-        setReportData(null)
-        try {
-          const reportResult = await loadBatchReport({
-            getMoveBatchReport: apiClient.getMoveBatchReport,
-            batchId,
+
+        setExecuteStatus(
+          buildExecuteErrorStatus(
             t,
-            mapErrorToMessage,
-          })
-          if (reportResult.kind === 'success') {
-            setReportData(reportResult.report)
-            setLastSuccessfulReport({ batchId, report: reportResult.report })
-          }
-          setReportStatus(reportResult.statusMessage)
-        } finally {
-          setReportLoading(false)
-        }
-      } catch (error) {
-        setExecuteStatus(buildExecuteErrorStatus(t, mapErrorToMessage, error))
+            () => errors[0]?.reason ?? t('actions.executeNoEligible'),
+            new Error('execute-failed'),
+          ),
+        )
       } finally {
         setExecutingBatch(false)
         setRetryStatus(null)
       }
     },
-    [apiClient, executingBatch, mapErrorToMessage, setRetryStatus, t],
+    [apiClient, assets, executingBatch, isApiAssetSource, mapErrorToMessage, onBatchExecutionApplied, setRetryStatus, t],
   )
 
   const cancelPendingBatchExecution = useCallback(() => {
@@ -193,10 +262,22 @@ export function useBatchExecution({
   }, [pendingBatchExecution, t])
 
   const executeBatchMove = useCallback(async () => {
+    const targetIds = resolveBatchApplyTargets(assets, batchIds).map((target) => target.assetId)
+    if (targetIds.length === 0) {
+      setExecuteStatus(
+        buildExecuteErrorStatus(
+          t,
+          () => t('actions.executeNoEligible'),
+          new Error('execute-no-eligible'),
+        ),
+      )
+      return
+    }
+
     const plan = planBatchExecution({
       executingBatch,
       pendingBatchExecution,
-      batchIds,
+      batchIds: targetIds,
       now: Date.now(),
       undoWindowMs: BATCH_EXECUTION_UNDO_WINDOW_MS,
     })
@@ -231,43 +312,26 @@ export function useBatchExecution({
         return null
       })
     }, BATCH_EXECUTION_UNDO_WINDOW_MS)
-  }, [batchIds, executingBatch, pendingBatchExecution, runBatchExecution, t])
+  }, [assets, batchIds, executingBatch, pendingBatchExecution, runBatchExecution, t])
 
   const refreshBatchReport = useCallback(async () => {
-    if (!reportBatchId || reportLoading) {
+    if (!reportData || reportLoading) {
       return
     }
 
     setReportLoading(true)
-    setReportStatus(null)
-    setReportExportStatus(null)
+    setReportStatus(t('actions.reportLocalCurrent'))
     setRetryStatus(null)
-
-    try {
-      const reportResult = await loadBatchReport({
-        getMoveBatchReport: apiClient.getMoveBatchReport,
-        batchId: reportBatchId,
-        t,
-        mapErrorToMessage,
-      })
-      if (reportResult.kind === 'success') {
-        setReportData(reportResult.report)
-        setLastSuccessfulReport({ batchId: reportBatchId, report: reportResult.report })
-      }
-      setReportStatus(reportResult.statusMessage)
-    } finally {
-      setReportLoading(false)
-      setRetryStatus(null)
-    }
-  }, [apiClient, mapErrorToMessage, reportBatchId, reportLoading, setRetryStatus, t])
+    setReportLoading(false)
+  }, [reportData, reportLoading, setRetryStatus, t])
 
   const exportBatchReport = useCallback(
     (format: 'json' | 'csv') => {
-      if (!reportData || !reportBatchId || typeof document === 'undefined') {
+      if (!reportData || typeof document === 'undefined') {
         return
       }
 
-      const fallbackName = `batch-${reportBatchId}`
+      const fallbackName = `batch-${reportBatchId ?? 'local'}`
       const { content, mimeType, extension } = serializeBatchReportExport(format, reportData)
 
       const blob = new Blob([content], { type: mimeType })

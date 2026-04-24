@@ -38,26 +38,11 @@ describe('api client', () => {
     const api = createApiClient('/api/v1', fetchMock)
 
     await expect(
-      api.executeMoveBatch({ mode: 'EXECUTE', selection: {} }, 'idem-1'),
+      api.submitAssetDecision('A-001', { state: 'REJECTED' }, undefined, 'etag-1'),
     ).rejects.toMatchObject({
       name: 'ApiError',
       status: 409,
       payload: { code: 'STATE_CONFLICT' },
-    })
-  })
-
-  it('sends idempotency key for batch execution', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      new Response(null, { status: 200 }),
-    )
-
-    const api = createApiClient('/api/v1', fetchMock)
-    await api.executeMoveBatch({ mode: 'DRY_RUN', selection: { include: 'KEEP' } }, 'idem-2')
-
-    const requestInit = fetchMock.mock.calls[0]?.[1]
-    expect(requestInit?.headers).toMatchObject({
-      'Idempotency-Key': 'idem-2',
-      'Content-Type': 'application/json',
     })
   })
 
@@ -107,7 +92,7 @@ describe('api client', () => {
       onAuthError,
     })
 
-    await expect(api.previewMoveBatch({ include: 'KEEP' })).rejects.toBeInstanceOf(ApiError)
+    await expect(api.submitAssetDecision('A-001', { state: 'REJECTED' })).rejects.toBeInstanceOf(ApiError)
     expect(onAuthError).toHaveBeenCalledWith(
       403,
       expect.objectContaining({ code: 'FORBIDDEN_SCOPE' }),
@@ -589,8 +574,8 @@ describe('api client', () => {
       )
 
     const api = createApiClient('/api/v1', fetchMock)
-    await expect(api.previewMoveBatch({ include: 'KEEP' })).resolves.toBeUndefined()
-    await expect(api.previewMoveBatch({ include: 'REJECT' })).resolves.toBeUndefined()
+    await expect(api.reopenAsset('A-001')).resolves.toBeUndefined()
+    await expect(api.previewAssetPurge('A-001')).resolves.toBeUndefined()
   })
 
   it('returns an empty list when items is missing in listAssetSummaries', async () => {
@@ -755,21 +740,6 @@ describe('api client', () => {
     })
   })
 
-  it('throws validation error when batch report payload is not an object', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(
-      new Response(JSON.stringify(['invalid']), {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      }),
-    )
-    const api = createApiClient('/api/v1', fetchMock)
-
-    await expect(api.getMoveBatchReport('batch-1')).rejects.toMatchObject({
-      status: 502,
-      payload: { code: 'VALIDATION_FAILED' },
-    })
-  })
-
   it('retries retryable temporary errors and notifies onRetry', async () => {
     const onRetry = vi.fn()
     const fetchMock = vi
@@ -918,7 +888,7 @@ describe('api client', () => {
     })
 
     await expect(
-      api.executeMoveBatch({ mode: 'EXECUTE', selection: {} }, 'idem-nr'),
+      api.submitAssetDecision('A-001', { state: 'ARCHIVED' }, undefined, 'etag-nr'),
     ).rejects.toMatchObject({
       status: 409,
       payload: { code: 'STATE_CONFLICT' },

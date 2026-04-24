@@ -10,7 +10,6 @@ import type {
   AuthRevokeOthersResponse,
   AuthSessionsResponse,
   HealthResponse,
-  MoveStatusResponse,
   UserFeaturesResponse,
 } from './contracts'
 import {
@@ -23,8 +22,6 @@ import {
   currentUserResponseSchema,
   healthResponseSchema,
   listAssetSummariesResponseSchema,
-  moveExecuteResponseSchema,
-  moveReportResponseSchema,
   userFeaturesResponseSchema,
 } from './schemas'
 
@@ -63,14 +60,6 @@ export function parseAssetSummariesResponse(payload: unknown, path: string): Ass
     return []
   }
   return items as AssetSummary[]
-}
-
-export function parseMoveExecuteResponse(payload: unknown, path: string) {
-  return parseWithSchema(moveExecuteResponseSchema, payload, path, 'expected object or empty response')
-}
-
-export function parseMoveReportResponse(payload: unknown, path: string) {
-  return parseWithSchema(moveReportResponseSchema, payload, path, 'expected object') as MoveStatusResponse
 }
 
 export function parseAssetDetailResponse(payload: unknown, path: string) {
