@@ -1,5 +1,4 @@
-import { useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { AuthenticatedShell } from '../components/layout/AuthenticatedShell'
 import { ReviewListDetailSection } from '../components/review/ReviewListDetailSection'
 import { ReviewOverviewSection } from '../components/review/ReviewOverviewSection'
@@ -9,11 +8,7 @@ import { useReviewPageController } from '../hooks/useReviewPageController'
 export default function ReviewWorkspacePage() {
   const controller = useReviewPageController({ view: 'workspace' })
   const navigate = useNavigate()
-  const location = useLocation()
-  const from = useMemo(
-    () => `${location.pathname}${location.search}`,
-    [location.pathname, location.search],
-  )
+  const from = typeof window === 'undefined' ? '/review' : `${window.location.pathname}${window.location.search}`
 
   const standaloneHref = controller.selectedAsset
     ? `/review/asset/${controller.selectedAsset.id}?from=${encodeURIComponent(from)}`

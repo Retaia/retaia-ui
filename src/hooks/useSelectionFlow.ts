@@ -9,7 +9,7 @@ type Params = {
   visibleAssets: Asset[]
   selectedAssetId: string | null
   selectionAnchorId: string | null
-  recordAction: (label: string) => void
+  recordAction: (label: string, options?: { assetId?: string }) => void
   t: (key: string, values?: Record<string, string | number>) => string
   setSelectedAssetId: (value: string | null | ((current: string | null) => string | null)) => void
   setSelectionAnchorId: (value: string | null | ((current: string | null) => string | null)) => void
@@ -38,6 +38,7 @@ export function useSelectionFlow({
           willAdd
             ? t('activity.batchAdd', { id })
             : t('activity.batchRemove', { id }),
+          { assetId: id },
         )
         return willAdd ? [...current, id] : current.filter((value) => value !== id)
       })
@@ -56,6 +57,7 @@ export function useSelectionFlow({
           selected
             ? t('activity.batchAdd', { id })
             : t('activity.batchRemove', { id }),
+          { assetId: id },
         )
         return selected ? [...current, id] : current.filter((value) => value !== id)
       })

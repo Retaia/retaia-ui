@@ -388,7 +388,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
         }
 
         const actionLabel = getDecisionActionLabel(t, action)
-        recordAction(t('activity.actionDecision', { action: actionLabel, id }))
+        recordAction(t('activity.actionDecision', { action: actionLabel, id }), { assetId: id })
         setAssets(result.updatedAssets)
         setDecisionStatus({
           kind: 'success',
@@ -706,7 +706,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
           return
         }
         setAssets(result.apply)
-        recordAction(t('activity.tagging', { id: assetId }))
+        recordAction(t('activity.tagging', { id: assetId }), { assetId })
         setMetadataStatus({
           kind: 'success',
           message: t('detail.taggingSaved', { id: assetId }),
