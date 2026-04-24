@@ -9,6 +9,15 @@ Feature: Workflow de review desktop-like
     When je clique sur l'asset "behind-the-scenes.jpg"
     Then le panneau détail affiche l'asset "behind-the-scenes.jpg"
 
+  Scenario: Qualifier un asset REVIEW_PENDING_PROFILE avant décision
+    Given je suis sur la page d'accueil
+    When je clique sur l'asset "voice-note-casting.wav"
+    Then le panneau détail affiche l'asset "voice-note-casting.wav"
+    And le message "Les décisions KEEP/REJECT restent bloquées" est visible
+    When je clique sur le bouton "Profil musique"
+    Then le message "Profil de processing enregistré" est visible
+    And l'état "A-004 - En attente" est visible
+
   Scenario: Créer un batch avec Maj+clic
     Given je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
@@ -51,7 +60,7 @@ Feature: Workflow de review desktop-like
   Scenario: Sélectionner tous les assets visibles via Ctrl/Cmd+A
     Given je suis sur la page d'accueil
     When je sélectionne tous les assets visibles via Ctrl/Cmd+A
-    Then le batch sélectionné affiche 3
+    Then le batch sélectionné affiche 4
 
   Scenario: Ouvrir le prochain asset à traiter via raccourci
     Given je suis sur la page d'accueil
@@ -71,7 +80,7 @@ Feature: Workflow de review desktop-like
     And j'appuie sur la touche "b"
     Then le titre principal "Assets (1)" est visible
     When j'appuie sur la touche "n"
-    Then le titre principal "Assets (3)" est visible
+    Then le titre principal "Assets (4)" est visible
     And le panneau détail affiche l'asset "interview-camera-a.mov"
 
   Scenario: Annuler une exécution batch avant envoi API
@@ -143,7 +152,7 @@ Feature: Workflow de review desktop-like
     When je clique sur l'element testid "quick-view-pending"
     Then le titre principal "Assets (1)" est visible
     When je clique sur l'element testid "quick-view-default"
-    Then le titre principal "Assets (3)" est visible
+    Then le titre principal "Assets (4)" est visible
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je clique sur l'element testid "quick-view-batch"
     Then le titre principal "Assets (1)" est visible
@@ -151,13 +160,13 @@ Feature: Workflow de review desktop-like
     And je filtre par date "LAST_30_DAYS"
     Then le titre principal "Assets (1)" est visible
     When je clique sur le bouton "Réinitialiser filtres"
-    Then le titre principal "Assets (3)" est visible
+    Then le titre principal "Assets (4)" est visible
 
   Scenario: Vider la recherche avec Escape
     Given je suis sur la page d'accueil
     When je recherche "behind"
     And j'appuie sur la touche "Escape"
-    Then le titre principal "Assets (3)" est visible
+    Then le titre principal "Assets (4)" est visible
 
   Scenario: Fermer la sélection au clavier
     Given je suis sur la page d'accueil

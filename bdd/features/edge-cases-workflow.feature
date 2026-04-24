@@ -15,7 +15,7 @@ Fonctionnalité: Edge cases fonctionnels review desktop-like
   Scénario: Deep-link avec asset inconnu garde une UI exploitable
     Given je suis sur la page "/review/A-999"
     Then le message "Clique un asset pour ouvrir le détail." est visible
-    And le titre principal "Assets (3)" est visible
+    And le titre principal "Assets (4)" est visible
 
   Scénario: Flux anglais critique
     Given je suis sur la page d'accueil

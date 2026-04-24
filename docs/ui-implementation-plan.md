@@ -10,12 +10,7 @@ Etat au 2026-04-24 :
 
 ### Priorite haute
 
-1. Livrer le flow `REVIEW_PENDING_PROFILE`.
-   - choix `processing_profile`
-   - explicitation `audio_music` / `audio_voice`
-   - aucune decision KEEP/REJECT avant qualification terminee
-
-2. Stabiliser la validation automatique.
+1. Stabiliser la validation automatique.
    - continuer la reecriture des BDD critiques selon les specs
    - remplacer les snapshots visuels legacy encore utiles comme garde-fous
 
@@ -72,7 +67,7 @@ Statut : execute.
 
 ### Phase 2 - Review workspace
 
-Statut : execute partiellement.
+Statut : execute en grande partie.
 
 - liste + detail
 - qualification `REVIEW_PENDING_PROFILE`
@@ -82,7 +77,7 @@ Statut : execute partiellement.
 
 ### Phase 3 - Apply decisions et Rejects
 
-Statut : execute partiellement.
+Statut : execute en grande partie.
 
 - rail de selection multiple
 - preview/confirmation/resultat pour actions groupees

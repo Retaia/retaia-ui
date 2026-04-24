@@ -7,10 +7,12 @@ import {
   type AssetDateFilter,
   type AssetFilter,
   type AssetMediaTypeFilter,
+  getStateFromDecision,
   type AssetSort,
   type AssetState,
   countAssetsByState,
   filterAssets,
+  type ProcessingProfile,
   sortAssets,
   type DecisionAction,
   updateAssetsState,
@@ -61,7 +63,11 @@ import {
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { readReviewFilterParams, writeReviewFilterParams } from '../services/workspaceQueryParams'
 import { selectReviewWorkspaceQueryModel } from '../store/selectors/workspaceSelectors'
-import { syncAssetDecisionThunk, syncAssetMetadataThunk } from '../store/thunks/assetSyncThunks'
+import {
+  syncAssetDecisionThunk,
+  syncAssetMetadataThunk,
+  syncAssetProcessingProfileThunk,
+} from '../store/thunks/assetSyncThunks'
 import { persistSelectedAssetId, readSelectedAssetId } from '../services/workspaceContextPersistence'
 
 export type ReviewPageView = 'workspace' | 'batch' | 'reports' | 'activity'
@@ -78,6 +84,46 @@ function getDecisionActionLabel(t: TFunction, action: 'KEEP' | 'REJECT' | 'CLEAR
     return t('actions.decisionReject')
   }
   return t('actions.decisionClear')
+}
+
+function getProcessingProfileLabelKey(profile: ProcessingProfile) {
+  if (profile === 'audio_music') {
+    return 'detail.processingProfileAudioMusic'
+  }
+  if (profile === 'audio_voice') {
+    return 'detail.processingProfileAudioVoice'
+  }
+  if (profile === 'audio_undefined') {
+    return 'detail.processingProfileAudioUndefined'
+  }
+  if (profile === 'video_standard') {
+    return 'detail.processingProfileVideoStandard'
+  }
+  return 'detail.processingProfilePhotoStandard'
+}
+
+function resolveDecisionEligibleIds(
+  assets: Asset[],
+  targetIds: string[],
+  action: 'KEEP' | 'REJECT',
+) {
+  return targetIds.filter((id) => {
+    const asset = assets.find((candidate) => candidate.id === id)
+    if (!asset) {
+      return false
+    }
+    return getStateFromDecision(action, asset.state) !== asset.state
+  })
+}
+
+function resolveLocalProcessingProfileState(profile: ProcessingProfile): AssetState {
+  if (profile === 'audio_voice') {
+    return 'READY'
+  }
+  if (profile === 'audio_music') {
+    return 'DECISION_PENDING'
+  }
+  return 'REVIEW_PENDING_PROFILE'
 }
 
 export function useReviewPageController({ view = 'workspace' }: ReviewPageProps = {}) {
@@ -131,15 +177,21 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     kind: 'success' | 'error'
     message: string
   } | null>(null)
+  const [processingProfileStatus, setProcessingProfileStatus] = useState<{
+    kind: 'success' | 'error'
+    message: string
+  } | null>(null)
+  const [savingProcessingProfile, setSavingProcessingProfile] = useState(false)
   const [shouldRefreshSelectedAsset, setShouldRefreshSelectedAsset] = useState(false)
   const [refreshingSelectedAsset, setRefreshingSelectedAsset] = useState(false)
   const applySelectedAssetId = useCallback((nextAssetId: string | null) => {
     setMetadataStatus(null)
     setDecisionStatus(null)
+    setProcessingProfileStatus(null)
     setShouldRefreshSelectedAsset(false)
     setSelectedAssetId(nextAssetId)
     setSelectionAnchorId(nextAssetId)
-  }, [setDecisionStatus, setMetadataStatus, setSelectedAssetId, setSelectionAnchorId, setShouldRefreshSelectedAsset])
+  }, [setDecisionStatus, setMetadataStatus, setProcessingProfileStatus, setSelectedAssetId, setSelectionAnchorId, setShouldRefreshSelectedAsset])
   const listQuery = useMemo<ListAssetsQuery>(() => {
     const now = new Date()
     const from = new Date(now)
@@ -415,9 +467,10 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
 
   const submitDecisionsForIds = useCallback(
     async (targetIds: string[], action: 'KEEP' | 'REJECT') => {
+      const eligibleTargetIds = resolveDecisionEligibleIds(assets, targetIds, action)
       return submitReviewDecisions({
         isApiAssetSource,
-        targetIds,
+        targetIds: eligibleTargetIds,
         action,
         submitAssetDecision: (id, nextAction) =>
           dispatch(
@@ -505,16 +558,21 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
         return
       }
       const targetIds = visibleAssets.map((asset) => asset.id)
-      if (targetIds.length === 0) {
+      const eligibleTargetIds = resolveDecisionEligibleIds(assets, targetIds, action)
+      if (eligibleTargetIds.length === 0) {
+        setDecisionStatus({
+          kind: 'error',
+          message: t('detail.decisionBlockedByProfile'),
+        })
         return
       }
 
       const run = async () => {
         setDecisionStatus(null)
-        const { successIds, firstErrorMessage } = await submitDecisionsForIds(targetIds, action)
+        const { successIds, firstErrorMessage } = await submitDecisionsForIds(eligibleTargetIds, action)
         finalizeBulkDecision({
           action,
-          targetIds,
+          targetIds: eligibleTargetIds,
           successIds,
           firstErrorMessage,
           activityMessage: t('activity.actionVisible', {
@@ -526,7 +584,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
 
       void run()
     },
-    [bulkDecisionsEnabled, finalizeBulkDecision, isApiAssetSource, setDecisionStatus, submitDecisionsForIds, t, visibleAssets],
+    [assets, bulkDecisionsEnabled, finalizeBulkDecision, isApiAssetSource, setDecisionStatus, submitDecisionsForIds, t, visibleAssets],
   )
 
   const applyDecisionToBatch = useCallback(
@@ -541,10 +599,18 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       if (batchIds.length === 0) {
         return
       }
+      const eligibleTargetIds = resolveDecisionEligibleIds(assets, batchIds, action)
+      if (eligibleTargetIds.length === 0) {
+        setDecisionStatus({
+          kind: 'error',
+          message: t('detail.decisionBlockedByProfile'),
+        })
+        return
+      }
 
       const run = async () => {
         setDecisionStatus(null)
-        const targetIds = [...batchIds]
+        const targetIds = [...eligibleTargetIds]
         const { successIds, firstErrorMessage } = await submitDecisionsForIds(targetIds, action)
         finalizeBulkDecision({
           action,
@@ -563,7 +629,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
 
       void run()
     },
-    [batchIds, bulkDecisionsEnabled, finalizeBulkDecision, isApiAssetSource, setBatchIds, setDecisionStatus, submitDecisionsForIds, t],
+    [assets, batchIds, bulkDecisionsEnabled, finalizeBulkDecision, isApiAssetSource, setBatchIds, setDecisionStatus, submitDecisionsForIds, t],
   )
 
   const clearBatch = useCallback(() => {
@@ -780,6 +846,74 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     setRetryStatus,
     t,
   ])
+
+  const chooseSelectedAssetProcessingProfile = useCallback(
+    async (processingProfile: ProcessingProfile) => {
+      if (!selectedAsset) {
+        return
+      }
+
+      const processingProfileLabel = t(getProcessingProfileLabelKey(processingProfile))
+      setSavingProcessingProfile(true)
+      setProcessingProfileStatus(null)
+      try {
+        if (isApiAssetSource) {
+          await dispatch(
+            syncAssetProcessingProfileThunk({
+              assetId: selectedAsset.id,
+              processingProfile,
+              revisionEtag: selectedAsset.revisionEtag,
+            }),
+          )
+            .unwrap()
+            .then(() => undefined)
+        }
+
+        const optimisticState = resolveLocalProcessingProfileState(processingProfile)
+        setAssets((current) =>
+          current.map((asset) =>
+            asset.id === selectedAsset.id
+              ? {
+                  ...asset,
+                  processingProfile,
+                  state: optimisticState,
+                }
+              : asset,
+          ),
+        )
+
+        if (isApiAssetSource) {
+          const refreshed = await refreshReviewAsset({
+            isApiAssetSource,
+            selectedAssetId: selectedAsset.id,
+            getAssetDetail: apiClient.getAssetDetail,
+          })
+          if (refreshed.kind === 'success') {
+            setAssets(refreshed.apply)
+          }
+        }
+
+        recordAction(t('activity.processingProfile', {
+          id: selectedAsset.id,
+          profile: processingProfileLabel,
+        }), { assetId: selectedAsset.id })
+        setProcessingProfileStatus({
+          kind: 'success',
+          message: t('detail.processingProfileSaved', { profile: processingProfileLabel }),
+        })
+      } catch (error) {
+        setProcessingProfileStatus({
+          kind: 'error',
+          message: t('detail.processingProfileError', {
+            message: mapStateConflictAwareErrorToMessage(error),
+          }),
+        })
+      } finally {
+        setSavingProcessingProfile(false)
+      }
+    },
+    [apiClient.getAssetDetail, dispatch, isApiAssetSource, mapStateConflictAwareErrorToMessage, recordAction, selectedAsset, t],
+  )
   const setSelectedAssetIdFromSelectionFlow = useCallback(
     (value: string | null | ((current: string | null) => string | null)) => {
       if (typeof value === 'function') {
@@ -1037,6 +1171,8 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     executingPurge,
     purgeStatus,
     decisionStatus,
+    processingProfileStatus,
+    savingProcessingProfile,
     savingMetadata,
     metadataStatus,
     shouldRefreshSelectedAsset,
@@ -1045,6 +1181,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     handleAssetClick,
     clearSelection,
     setBatchAssetSelected,
+    chooseSelectedAssetProcessingProfile,
     saveSelectedAssetMetadata,
     previewSelectedAssetPurge,
     executeSelectedAssetPurge,

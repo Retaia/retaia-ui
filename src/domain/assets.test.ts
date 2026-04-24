@@ -89,10 +89,14 @@ describe('assets domain', () => {
 
   it('maps decision actions to states', () => {
     expect(getStateFromDecision('KEEP', 'DECISION_PENDING')).toBe('DECIDED_KEEP')
+    expect(getStateFromDecision('KEEP', 'DECIDED_REJECT')).toBe('DECIDED_KEEP')
     expect(getStateFromDecision('REJECT', 'DECISION_PENDING')).toBe('DECIDED_REJECT')
+    expect(getStateFromDecision('REJECT', 'DECIDED_KEEP')).toBe('DECIDED_REJECT')
     expect(getStateFromDecision('CLEAR', 'DECIDED_KEEP')).toBe('DECISION_PENDING')
     expect(getStateFromDecision('CLEAR', 'ARCHIVED')).toBe('DECISION_PENDING')
     expect(getStateFromDecision('CLEAR', 'REJECTED')).toBe('DECISION_PENDING')
     expect(getStateFromDecision('CLEAR', 'DECISION_PENDING')).toBe('DECISION_PENDING')
+    expect(getStateFromDecision('KEEP', 'REVIEW_PENDING_PROFILE')).toBe('REVIEW_PENDING_PROFILE')
+    expect(getStateFromDecision('REJECT', 'READY')).toBe('READY')
   })
 })

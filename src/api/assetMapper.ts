@@ -1,4 +1,4 @@
-import type { Asset, AssetMediaType, AssetState } from '../domain/assets'
+import type { Asset, AssetMediaType, AssetState, ProcessingProfile } from '../domain/assets'
 import type { AssetSummary } from './contracts'
 
 type ApiAssetSummary = AssetSummary
@@ -35,6 +35,21 @@ function mapState(state: ApiAssetSummary['state'] | undefined): AssetState {
   return 'DECISION_PENDING'
 }
 
+function mapProcessingProfile(
+  processingProfile: ApiAssetSummary['processing_profile'] | undefined,
+): ProcessingProfile | null {
+  if (
+    processingProfile === 'video_standard' ||
+    processingProfile === 'audio_undefined' ||
+    processingProfile === 'audio_music' ||
+    processingProfile === 'audio_voice' ||
+    processingProfile === 'photo_standard'
+  ) {
+    return processingProfile
+  }
+  return null
+}
+
 export function mapApiSummaryToAsset(
   summary: Partial<ApiAssetSummary>,
   fallbackIndex = 0,
@@ -63,6 +78,7 @@ export function mapApiSummaryToAsset(
     ...(summary.revision_etag === null || typeof summary.revision_etag === 'string'
       ? { revisionEtag: summary.revision_etag ?? null }
       : {}),
+    processingProfile: mapProcessingProfile(summary.processing_profile),
     ...(typeof summary.thumb_url === 'string' ? { thumbUrls: [summary.thumb_url] } : {}),
     ...(tags ? { tags } : {}),
   }

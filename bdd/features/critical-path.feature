@@ -32,9 +32,10 @@ Feature: Parcours critiques de review
   @critical
   Scenario: Executer un batch et voir le rapport
     Given je suis sur la page d'accueil
-    When je fais Maj+clic sur l'asset "interview-camera-a.mov"
+    When je fais Maj+clic sur l'asset "ambiance-plateau.wav"
+    And je fais Maj+clic sur l'asset "behind-the-scenes.jpg"
     And je clique sur le bouton "Exécuter batch"
-    And j'appuie sur la touche "Shift+Enter"
+    And je clique sur le bouton "Exécuter maintenant"
     Then le message "Exécution du batch acceptée" est visible
     And le rapport batch affiche le statut "Terminé"
 

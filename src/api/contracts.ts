@@ -13,6 +13,7 @@ export type AssetSummary = {
   name?: string
   state?: string
   media_type?: string
+  processing_profile?: string
   captured_at?: string
   created_at?: string
   updated_at?: string | null
@@ -49,6 +50,9 @@ export type AssetMetadataPatchPayload = {
   tags?: string[]
   notes?: string
   fields?: Record<string, unknown>
+}
+export type AssetProcessingProfilePatchPayload = {
+  processing_profile: 'video_standard' | 'audio_undefined' | 'audio_music' | 'audio_voice' | 'photo_standard'
 }
 export type AssetDecisionPayload = {
   state: 'DECISION_PENDING' | 'DECIDED_KEEP' | 'DECIDED_REJECT' | 'ARCHIVED' | 'REJECTED'

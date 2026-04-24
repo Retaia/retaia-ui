@@ -35,7 +35,7 @@ Feature: Workflow desktop avancé
     When je recherche "behind"
     Then le titre principal "Assets (1)" est visible
     When j'appuie sur la touche "Escape"
-    Then le titre principal "Assets (3)" est visible
+    Then le titre principal "Assets (4)" est visible
 
   Scenario: Action générale pour ouvrir le pending
     Given je suis sur la page d'accueil

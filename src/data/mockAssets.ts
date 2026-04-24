@@ -32,4 +32,16 @@ export const INITIAL_ASSETS: Asset[] = [
     notes: 'Cadre inutilisable.',
     capturedAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
   },
+  {
+    id: 'A-004',
+    name: 'voice-note-casting.wav',
+    state: 'REVIEW_PENDING_PROFILE',
+    mediaType: 'AUDIO',
+    processingProfile: 'audio_undefined',
+    previewAudioUrl: '/mock-media/ambiance-plateau.mp3',
+    waveformUrl: '/mock-media/waveform.png',
+    tags: ['casting'],
+    notes: 'Qualification manuelle requise avant processing complet.',
+    capturedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+  },
 ]

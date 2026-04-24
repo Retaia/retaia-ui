@@ -512,6 +512,28 @@ describe('api client', () => {
     )
   })
 
+  it('sends processing profile patch payload with PATCH method', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
+    const api = createApiClient('/api/v1', fetchMock)
+
+    await api.updateAssetProcessingProfile('A-004', {
+      processing_profile: 'audio_voice',
+    }, 'etag-profile-1')
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/assets/A-004',
+      expect.objectContaining({
+        method: 'PATCH',
+        headers: expect.objectContaining({
+          'If-Match': 'etag-profile-1',
+        }),
+        body: JSON.stringify({
+          processing_profile: 'audio_voice',
+        }),
+      }),
+    )
+  })
+
   it('sends asset decision payload with PATCH method', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
     const api = createApiClient('/api/v1', fetchMock)

@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { AssetDetailPanel } from './AssetDetailPanel'
 import { getActionAvailability } from '../../domain/actionAvailability'
-import type { Asset } from '../../domain/assets'
+import type { Asset, ProcessingProfile } from '../../domain/assets'
 
 const reactPlayerMock = vi.fn((props?: unknown) => {
   void props
@@ -36,8 +36,10 @@ function renderPanel(
   selectedAsset: Asset,
   options?: {
     decisionStatus?: { kind: 'success' | 'error'; message: string } | null
+    processingProfileStatus?: { kind: 'success' | 'error'; message: string } | null
     onSaveMetadata?: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
     onRefreshAsset?: () => Promise<void>
+    onChooseProcessingProfile?: (processingProfile: ProcessingProfile) => Promise<void> | void
     showRefreshAction?: boolean
     onKeywordClick?: (keyword: string) => void
     onOpenStandaloneDetail?: (assetId: string) => void
@@ -58,10 +60,13 @@ function renderPanel(
       executingPurge={false}
       purgeStatus={null}
       decisionStatus={options?.decisionStatus ?? null}
+      processingProfileStatus={options?.processingProfileStatus ?? null}
       savingMetadata={false}
+      savingProcessingProfile={false}
       metadataStatus={null}
       t={t}
       onDecision={() => {}}
+      onChooseProcessingProfile={options?.onChooseProcessingProfile}
       onSaveMetadata={onSaveMetadata}
       onPreviewPurge={async () => {}}
       onExecutePurge={async () => {}}
@@ -285,5 +290,31 @@ describe('AssetDetailPanel media preview', () => {
     expect(onReopenAsset).toHaveBeenCalled()
     expect(onReprocessAsset).toHaveBeenCalled()
     expect(screen.getByTestId('asset-transition-status')).toHaveTextContent('done')
+  })
+
+  it('renders processing profile qualification and forwards explicit selection', async () => {
+    const user = userEvent.setup()
+    const onChooseProcessingProfile = vi.fn()
+
+    renderPanel(
+      {
+        id: 'A-060',
+        name: 'voice-note-casting.wav',
+        state: 'REVIEW_PENDING_PROFILE',
+        mediaType: 'AUDIO',
+        processingProfile: 'audio_undefined',
+      },
+      {
+        onChooseProcessingProfile,
+        processingProfileStatus: { kind: 'success', message: 'saved' },
+      },
+    )
+
+    expect(screen.getByText('detail.processingProfileTitle')).toBeInTheDocument()
+    expect(screen.getByText('detail.processingProfileDecisionBlocked')).toBeInTheDocument()
+    expect(screen.getByTestId('asset-processing-profile-status')).toHaveTextContent('saved')
+
+    await user.click(screen.getByTestId('asset-processing-profile-voice'))
+    expect(onChooseProcessingProfile).toHaveBeenCalledWith('audio_voice')
   })
 })

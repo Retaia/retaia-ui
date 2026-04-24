@@ -1,10 +1,11 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type { AssetState } from '../../domain/assets'
+import type { AssetState, ProcessingProfile } from '../../domain/assets'
 
 type AssetPatch = {
   tags?: string[]
   notes?: string
   state?: AssetState
+  processingProfile?: ProcessingProfile
   updatedAt: string
 }
 
@@ -20,6 +21,12 @@ type PendingMutation =
       kind: 'decision'
       assetId: string
       action: 'KEEP' | 'REJECT'
+      revisionEtag?: string | null
+    }
+  | {
+      kind: 'processingProfile'
+      assetId: string
+      processingProfile: ProcessingProfile
       revisionEtag?: string | null
     }
 
@@ -75,6 +82,23 @@ const assetSyncSlice = createSlice({
       }
       state.lastError = null
     },
+    assetProcessingProfileSyncRequested: (
+      state,
+      action: PayloadAction<{
+        mutationId: string
+        assetId: string
+        processingProfile: ProcessingProfile
+        revisionEtag?: string | null
+      }>,
+    ) => {
+      state.pendingByMutationId[action.payload.mutationId] = {
+        kind: 'processingProfile',
+        assetId: action.payload.assetId,
+        processingProfile: action.payload.processingProfile,
+        revisionEtag: action.payload.revisionEtag,
+      }
+      state.lastError = null
+    },
     assetSyncSucceeded: (
       state,
       action: PayloadAction<{ mutationId: string; assetId: string; patch: Omit<AssetPatch, 'updatedAt'> }>,
@@ -103,6 +127,7 @@ const assetSyncSlice = createSlice({
 export const {
   assetMetadataSyncRequested,
   assetDecisionSyncRequested,
+  assetProcessingProfileSyncRequested,
   assetSyncSucceeded,
   assetSyncFailed,
   clearAssetSyncError,

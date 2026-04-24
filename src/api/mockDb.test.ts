@@ -105,6 +105,28 @@ describe('in-memory mock db for APP_ENV=test', () => {
     expect(afterDecision.summary.state).toBe('DECIDED_REJECT')
   })
 
+  it('supports processing profile qualification in memory', async () => {
+    const api = createApiClient({
+      baseUrl: '/api/v1',
+      fetchImpl: createInMemoryMockApiFetch(),
+      getAccessToken: () => 'test-token-memory',
+    })
+
+    const before = await api.getAssetDetail('A-004')
+    expect(before.summary.state).toBe('REVIEW_PENDING_PROFILE')
+    expect(before.summary.processing_profile).toBe('audio_undefined')
+
+    await api.updateAssetProcessingProfile('A-004', { processing_profile: 'audio_voice' })
+    const afterVoice = await api.getAssetDetail('A-004')
+    expect(afterVoice.summary.processing_profile).toBe('audio_voice')
+    expect(afterVoice.summary.state).toBe('READY')
+
+    await api.updateAssetProcessingProfile('A-004', { processing_profile: 'audio_music' })
+    const afterMusic = await api.getAssetDetail('A-004')
+    expect(afterMusic.summary.processing_profile).toBe('audio_music')
+    expect(afterMusic.summary.state).toBe('DECISION_PENDING')
+  })
+
   it('supports purge and apply-decision routes in memory', async () => {
     const api = createApiClient({
       baseUrl: '/api/v1',

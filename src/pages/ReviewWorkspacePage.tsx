@@ -110,6 +110,8 @@ export default function ReviewWorkspacePage() {
           executingPurge={controller.executingPurge}
           purgeStatus={controller.purgeStatus}
           decisionStatus={controller.decisionStatus}
+          processingProfileStatus={controller.processingProfileStatus}
+          savingProcessingProfile={controller.savingProcessingProfile}
           savingMetadata={controller.savingMetadata}
           metadataStatus={controller.metadataStatus}
           showRefreshAction={controller.shouldRefreshSelectedAsset}
@@ -118,6 +120,7 @@ export default function ReviewWorkspacePage() {
           onDecision={controller.handleDecision}
           onAssetClick={controller.handleAssetClick}
           onBatchSelectionChange={controller.setBatchAssetSelected}
+          onChooseProcessingProfile={controller.chooseSelectedAssetProcessingProfile}
           onDisplayTypeChange={controller.setDisplayType}
           onSaveMetadata={controller.saveSelectedAssetMetadata}
           onPreviewPurge={controller.previewSelectedAssetPurge}

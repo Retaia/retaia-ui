@@ -4,6 +4,7 @@ type AssetDetailLike = {
   summary: {
     tags?: unknown
     state?: string
+    processing_profile?: string
     updated_at?: string | null
     revision_etag?: string | null
   }
@@ -18,6 +19,21 @@ type AssetDetailLike = {
     text_preview?: string | null
     status?: Asset['transcriptStatus']
   }
+}
+
+function toUiProcessingProfile(
+  processingProfile: string | undefined,
+): Asset['processingProfile'] {
+  if (
+    processingProfile === 'video_standard' ||
+    processingProfile === 'audio_undefined' ||
+    processingProfile === 'audio_music' ||
+    processingProfile === 'audio_voice' ||
+    processingProfile === 'photo_standard'
+  ) {
+    return processingProfile
+  }
+  return null
 }
 
 function toUiDecisionState(state: string | undefined): AssetState | null {
@@ -54,6 +70,7 @@ export function mergeAssetWithDetail(
     ...asset,
     state: nextState,
     ...(normalizedTags ? { tags: normalizedTags } : {}),
+    processingProfile: toUiProcessingProfile(detail.summary.processing_profile) ?? asset.processingProfile ?? null,
     updatedAt: detail.summary.updated_at ?? asset.updatedAt,
     revisionEtag: detail.summary.revision_etag ?? asset.revisionEtag ?? null,
     previewVideoUrl: detail.derived?.preview_video_url ?? asset.previewVideoUrl ?? null,

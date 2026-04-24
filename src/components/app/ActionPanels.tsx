@@ -111,7 +111,14 @@ export function ActionPanels({
   onUndoLastAction,
 }: Props) {
   const hasBatchSelection = batchIdsLength > 0
-  const isBatchSidebarOpen = hasBatchSelection
+  const hasBatchSidebarContent =
+    hasBatchSelection ||
+    !!pendingBatchExecution ||
+    !!previewStatus ||
+    !!executeStatus ||
+    !!reportBatchId ||
+    reportData !== null
+  const isBatchSidebarOpen = hasBatchSidebarContent
 
   return (
     <>
@@ -169,7 +176,7 @@ export function ActionPanels({
         aria-label={t('app.nav.batch')}
       >
         <div className="flex h-full flex-col overflow-y-auto p-4">
-          {hasBatchSelection ? (
+          {hasBatchSidebarContent ? (
             <>
               <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {t('app.nav.batch')}

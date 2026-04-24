@@ -8,8 +8,8 @@ import {
   BsTrash3,
   BsXCircle,
 } from 'react-icons/bs'
-import type { Asset, DecisionAction } from '../../domain/assets'
-import { ASSET_STATE_LABEL_KEYS } from '../../domain/assets'
+import type { Asset, DecisionAction, ProcessingProfile } from '../../domain/assets'
+import { ASSET_STATE_LABEL_KEYS, getStateFromDecision } from '../../domain/assets'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import { AssetMediaPreview } from './AssetMediaPreview'
 
@@ -29,6 +29,25 @@ function getTranscriptStatusLabel(
   return t('detail.transcriptStatusNone')
 }
 
+function getProcessingProfileLabel(
+  t: (key: string, values?: Record<string, string>) => string,
+  processingProfile: ProcessingProfile,
+) {
+  if (processingProfile === 'audio_music') {
+    return t('detail.processingProfileAudioMusic')
+  }
+  if (processingProfile === 'audio_voice') {
+    return t('detail.processingProfileAudioVoice')
+  }
+  if (processingProfile === 'audio_undefined') {
+    return t('detail.processingProfileAudioUndefined')
+  }
+  if (processingProfile === 'video_standard') {
+    return t('detail.processingProfileVideoStandard')
+  }
+  return t('detail.processingProfilePhotoStandard')
+}
+
 type PurgeStatus = {
   kind: 'success' | 'error'
   message: string
@@ -40,6 +59,11 @@ type MetadataStatus = {
 }
 
 type DecisionStatus = {
+  kind: 'success' | 'error'
+  message: string
+}
+
+type ProcessingProfileStatus = {
   kind: 'success' | 'error'
   message: string
 }
@@ -56,10 +80,13 @@ type Props = {
   executingPurge?: boolean
   purgeStatus?: PurgeStatus | null
   decisionStatus: DecisionStatus | null
+  processingProfileStatus?: ProcessingProfileStatus | null
   savingMetadata: boolean
+  savingProcessingProfile?: boolean
   metadataStatus: MetadataStatus | null
   t: (key: string, values?: Record<string, string>) => string
   onDecision?: (assetId: string, action: DecisionAction) => void
+  onChooseProcessingProfile?: (processingProfile: ProcessingProfile) => Promise<void> | void
   onSaveMetadata: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
   onPreviewPurge?: () => Promise<void>
   onExecutePurge?: () => Promise<void>
@@ -235,10 +262,13 @@ export function AssetDetailPanel({
   executingPurge = false,
   purgeStatus = null,
   decisionStatus,
+  processingProfileStatus = null,
   savingMetadata,
+  savingProcessingProfile = false,
   metadataStatus,
   t,
   onDecision,
+  onChooseProcessingProfile,
   onSaveMetadata,
   onPreviewPurge,
   onExecutePurge,
@@ -274,6 +304,9 @@ export function AssetDetailPanel({
     executingPurge,
     purgePreviewMatchesSelected: false,
   })
+  const keepDisabled = selectedAsset ? getStateFromDecision('KEEP', selectedAsset.state) === selectedAsset.state : true
+  const rejectDisabled = selectedAsset ? getStateFromDecision('REJECT', selectedAsset.state) === selectedAsset.state : true
+  const clearDisabled = selectedAsset ? getStateFromDecision('CLEAR', selectedAsset.state) === selectedAsset.state : true
 
   useEffect(() => {
     if (!selectedAsset) {
@@ -312,6 +345,13 @@ export function AssetDetailPanel({
               <p className="text-gray-500 mb-3">
                 {t('detail.state', { state: t(ASSET_STATE_LABEL_KEYS[selectedAsset.state]) })}
               </p>
+              {selectedAsset.processingProfile ? (
+                <p className="text-gray-500 mb-3">
+                  {t('detail.processingProfileCurrent', {
+                    profile: getProcessingProfileLabel(t, selectedAsset.processingProfile),
+                  })}
+                </p>
+              ) : null}
               <section className="mb-3" aria-label={t('detail.previewTitle')}>
                 <h3 className="mb-2 text-sm font-semibold text-gray-900">{t('detail.previewTitle')}</h3>
                 <AssetMediaPreview selectedAsset={selectedAsset} t={t} />
@@ -362,29 +402,59 @@ export function AssetDetailPanel({
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
-                    className="inline-flex items-center justify-center rounded-lg border border-success-300 bg-white px-3 py-2 text-sm font-semibold text-success-700 transition-colors hover:bg-success-50"
+                    className="inline-flex items-center justify-center rounded-lg border border-success-300 bg-white px-3 py-2 text-sm font-semibold text-success-700 transition-colors hover:bg-success-50 disabled:cursor-not-allowed disabled:opacity-50"
                     onClick={() => onDecision(selectedAsset.id, 'KEEP')}
+                    disabled={keepDisabled}
                   >
                     <BsCheck2Circle className="mr-1" aria-hidden="true" />
                     {t('actions.decisionKeep')}
                   </button>
                   <button
                     type="button"
-                    className="inline-flex items-center justify-center rounded-lg border border-error-300 bg-white px-3 py-2 text-sm font-semibold text-error-700 transition-colors hover:bg-error-50"
+                    className="inline-flex items-center justify-center rounded-lg border border-error-300 bg-white px-3 py-2 text-sm font-semibold text-error-700 transition-colors hover:bg-error-50 disabled:cursor-not-allowed disabled:opacity-50"
                     onClick={() => onDecision(selectedAsset.id, 'REJECT')}
+                    disabled={rejectDisabled}
                   >
                     <BsXCircle className="mr-1" aria-hidden="true" />
                     {t('actions.decisionReject')}
                   </button>
                   <button
                     type="button"
-                    className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100"
+                    className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
                     onClick={() => onDecision(selectedAsset.id, 'CLEAR')}
+                    disabled={clearDisabled}
                   >
                     <BsTrash3 className="mr-1" aria-hidden="true" />
                     {t('actions.decisionClear')}
                   </button>
                 </div>
+              ) : null}
+              {selectedAsset.state === 'REVIEW_PENDING_PROFILE' && onChooseProcessingProfile ? (
+                <section className="border border-2 border-warning-200 rounded p-3 mt-3" aria-label={t('detail.processingProfileTitle')}>
+                  <h3 className="mb-2 text-sm font-semibold text-gray-900">{t('detail.processingProfileTitle')}</h3>
+                  <p className="text-xs text-gray-500 mb-2">{t('detail.processingProfileBody')}</p>
+                  <p className="text-xs text-warning-700 mb-2">{t('detail.processingProfileDecisionBlocked')}</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      onClick={() => void onChooseProcessingProfile('audio_music')}
+                      disabled={savingProcessingProfile || selectedAsset.processingProfile === 'audio_music'}
+                      data-testid="asset-processing-profile-music"
+                    >
+                      {savingProcessingProfile ? t('detail.processingProfileSaving') : t('detail.processingProfileAudioMusic')}
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-flex items-center justify-center rounded-lg border border-brand-500 bg-brand-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:border-brand-600 hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
+                      onClick={() => void onChooseProcessingProfile('audio_voice')}
+                      disabled={savingProcessingProfile || selectedAsset.processingProfile === 'audio_voice'}
+                      data-testid="asset-processing-profile-voice"
+                    >
+                      {savingProcessingProfile ? t('detail.processingProfileSaving') : t('detail.processingProfileAudioVoice')}
+                    </button>
+                  </div>
+                </section>
               ) : null}
               <MetadataEditor
                 key={selectedAsset.id}
@@ -499,6 +569,21 @@ export function AssetDetailPanel({
               ].join(' ')}
             >
               {decisionStatus.message}
+            </p>
+          ) : null}
+          {processingProfileStatus ? (
+            <p
+              data-testid="asset-processing-profile-status"
+              role="status"
+              aria-live="polite"
+              className={[
+                'text-xs',
+                'mt-2',
+                'mb-0',
+                processingProfileStatus.kind === 'success' ? 'text-success-700' : 'text-error-700',
+              ].join(' ')}
+            >
+              {processingProfileStatus.message}
             </p>
           ) : null}
           {metadataStatus ? (

@@ -3,6 +3,7 @@ import { INITIAL_ASSETS } from '../data/mockAssets'
 
 type MockAssetState =
   | 'READY'
+  | 'REVIEW_PENDING_PROFILE'
   | 'DECISION_PENDING'
   | 'DECIDED_KEEP'
   | 'DECIDED_REJECT'
@@ -14,6 +15,7 @@ type MockAsset = {
   uuid: string
   state: MockAssetState
   media_type: 'VIDEO' | 'AUDIO' | 'PHOTO' | 'UNKNOWN'
+  processing_profile: 'video_standard' | 'audio_undefined' | 'audio_music' | 'audio_voice' | 'photo_standard' | null
   captured_at: string
   tags: string[]
   notes: string
@@ -78,6 +80,9 @@ function inferState(state: string): MockAssetState {
   if (state === 'READY') {
     return 'READY'
   }
+  if (state === 'REVIEW_PENDING_PROFILE') {
+    return 'REVIEW_PENDING_PROFILE'
+  }
   if (state === 'DECIDED_KEEP') {
     return 'DECIDED_KEEP'
   }
@@ -104,6 +109,7 @@ function createInitialAssets() {
         uuid: asset.id,
         state: inferState(asset.state),
         media_type: inferMediaType(asset.name),
+        processing_profile: asset.processingProfile ?? null,
         captured_at: asset.capturedAt ?? new Date(0).toISOString(),
         tags: Array.isArray(asset.tags) ? [...asset.tags] : [],
         notes: asset.notes ?? '',
@@ -491,6 +497,20 @@ export function createInMemoryMockApiFetch(): typeof fetch {
         body.state === 'REJECTED'
       ) {
         asset.state = body.state
+      }
+      if (
+        body.processing_profile === 'video_standard' ||
+        body.processing_profile === 'audio_undefined' ||
+        body.processing_profile === 'audio_music' ||
+        body.processing_profile === 'audio_voice' ||
+        body.processing_profile === 'photo_standard'
+      ) {
+        asset.processing_profile = body.processing_profile
+        if (body.processing_profile === 'audio_voice') {
+          asset.state = 'READY'
+        } else if (body.processing_profile === 'audio_music') {
+          asset.state = 'DECISION_PENDING'
+        }
       }
       return emptyResponse(200)
     }
