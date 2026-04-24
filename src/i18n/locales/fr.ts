@@ -232,6 +232,28 @@ export const frTranslation = {
     'La configuration runtime doit rester explicite : ce qui est verrouillé par l’environnement reste visible, et la gouvernance admin reste séparée du compte opérateur.',
   'settings.runtimeConnectionBody':
     'Configure la connexion UI vers Core et vérifie l’accessibilité sans inventer une machine à états runtime parallèle.',
+  'settings.runtimeDiagnosticsTitle': 'Diagnostics runtime',
+  'settings.runtimeDiagnosticsBody':
+    'Expose un état de lecture seule du runtime pour éviter les suppositions locales sur la disponibilité serveur.',
+  'settings.runtimeDiagnosticsRefresh': 'Rafraîchir diagnostics',
+  'settings.runtimeDiagnosticsSignedOut':
+    'Connecte un compte opérateur pour lire le readiness et la policy runtime du serveur.',
+  'settings.runtimeDiagnosticsLoaded': 'Diagnostics runtime chargés ({status}).',
+  'settings.runtimeDiagnosticsError': 'Chargement diagnostics runtime en échec: {message}',
+  'settings.runtimeDiagnosticsUnknown': 'Inconnu',
+  'settings.runtimeReadinessLabel': 'Readiness',
+  'settings.runtimeReadinessStatus.ok': 'OK',
+  'settings.runtimeReadinessStatus.degraded': 'Dégradé',
+  'settings.runtimeReadinessStatus.down': 'Indisponible',
+  'settings.runtimeSelfHealingLabel': 'Self-healing',
+  'settings.runtimeSelfHealingActive': 'Actif',
+  'settings.runtimeSelfHealingInactive': 'Inactif',
+  'settings.runtimeSelfHealingWindow': "Fenêtre max d'auto-récupération: {seconds}s",
+  'settings.runtimeFeatureFlagsLabel': 'Feature flags runtime',
+  'settings.runtimeFeatureFlagsCount': '{count} flags visibles',
+  'settings.runtimeFlagEnabled': 'actif',
+  'settings.runtimeFlagDisabled': 'inactif',
+  'settings.runtimeFeatureFlagsEmpty': 'Aucun flag runtime visible dans la policy courante.',
   'settings.runtimeAdminTitle': 'Gouvernance runtime admin',
   'settings.runtimeAdminBody':
     'Les toggles runtime réservés aux admins vivent ici parce qu’ils affectent la disponibilité côté serveur, pas le compte opérateur.',

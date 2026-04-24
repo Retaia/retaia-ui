@@ -232,6 +232,28 @@ export const enTranslation = {
     'Runtime configuration stays explicit: what is locked by environment remains visible, and admin governance stays separate from operator account actions.',
   'settings.runtimeConnectionBody':
     'Configure the UI connection to Core and verify reachability without inventing a parallel runtime state machine.',
+  'settings.runtimeDiagnosticsTitle': 'Runtime diagnostics',
+  'settings.runtimeDiagnosticsBody':
+    'Read-only runtime signals keep server availability explicit instead of inferred locally.',
+  'settings.runtimeDiagnosticsRefresh': 'Refresh diagnostics',
+  'settings.runtimeDiagnosticsSignedOut':
+    'Sign in with an operator account to read server readiness and runtime policy.',
+  'settings.runtimeDiagnosticsLoaded': 'Runtime diagnostics loaded ({status}).',
+  'settings.runtimeDiagnosticsError': 'Runtime diagnostics failed to load: {message}',
+  'settings.runtimeDiagnosticsUnknown': 'Unknown',
+  'settings.runtimeReadinessLabel': 'Readiness',
+  'settings.runtimeReadinessStatus.ok': 'OK',
+  'settings.runtimeReadinessStatus.degraded': 'Degraded',
+  'settings.runtimeReadinessStatus.down': 'Unavailable',
+  'settings.runtimeSelfHealingLabel': 'Self-healing',
+  'settings.runtimeSelfHealingActive': 'Active',
+  'settings.runtimeSelfHealingInactive': 'Inactive',
+  'settings.runtimeSelfHealingWindow': 'Max self-healing window: {seconds}s',
+  'settings.runtimeFeatureFlagsLabel': 'Runtime feature flags',
+  'settings.runtimeFeatureFlagsCount': '{count} visible flags',
+  'settings.runtimeFlagEnabled': 'enabled',
+  'settings.runtimeFlagDisabled': 'disabled',
+  'settings.runtimeFeatureFlagsEmpty': 'No runtime feature flags are exposed by the current policy.',
   'settings.runtimeAdminTitle': 'Admin runtime governance',
   'settings.runtimeAdminBody':
     'Admin-only runtime toggles belong here because they affect server-side availability, not the operator account itself.',
