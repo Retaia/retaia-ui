@@ -52,7 +52,7 @@ Jobs:
 - Vérifier la conformité i18n `en/fr` (clé manquante = échec CI).
 - Vérifier les codes d'erreur et états affichés sans dépendance à un texte traduit.
 
-En phase `UI reset`, la CI sert aussi a proteger:
+Dans la refonte en cours, la CI sert aussi a proteger:
 
 - l'alignement spec-first
 - les contrats OpenAPI et BDD mock
