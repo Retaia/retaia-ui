@@ -10,9 +10,9 @@ Pour le workflow quotidien branch/PR/checks, voir aussi `docs/UI-QUALITY-RUNBOOK
 
 Contexte actuel:
 
-- le repo est en phase `UI reset`
-- la nouvelle implementation n'a pas encore commence
-- ce document fixe donc surtout des regles pour la prochaine implementation, pas une description du runtime actuel
+- le repo est en refonte active
+- plusieurs workspaces et surfaces runtime sont deja livres
+- ce document fixe des regles de continuation et de stabilisation, pas seulement de demarrage
 
 ## Principes
 

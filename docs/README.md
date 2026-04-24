@@ -6,7 +6,6 @@
 ## Contenu
 
 - `docs/DEVELOPMENT-BEST-PRACTICES.md`
-- `docs/IMPLEMENTATION-AUDIT.md`
 - `docs/UI-DESIGN-SYSTEM.md`
 - `docs/UI-ARCHITECTURE.md`
 - `docs/PAGE-CONTROLLER-SECTIONS-STANDARD.md`
@@ -19,29 +18,28 @@
 
 ## Etat actuel du repo
 
-Le repository est toujours en phase `UI reset`.
+Le repository n'est plus en phase `UI reset` pure.
 
-- l'ancienne UI a ete retiree
-- la nouvelle implementation n'a pas encore commence
-- `specs/` decrit la cible
+- un shell canonique et plusieurs workspaces sont deja livres
+- la refonte reste partielle et plusieurs flows critiques restent a fermer
+- `specs/` decrit toujours la cible normative
 - `docs/` doit distinguer clairement `etat courant` et `etat cible`
 
-## Prochaine etape
+## Prochaines etapes
 
-Avant de commencer l'implementation, la prochaine etape attendue est un audit d'ecart entre:
+La prochaine etape n'est plus de produire le premier audit, mais de terminer la refonte sur les gaps encore ouverts:
 
-- le code courant du repo
-- les contrats et parcours definis dans `specs/`
+- qualification `REVIEW_PENDING_PROFILE`
+- nettoyage contractuel des flows batch/apply
+- finalisation du workspace `Activity`
+- poursuite de la reecriture BDD/E2E et des garde-fous visuels
 
-Objectif de cet audit:
+Les audits et plans de reference a jour sont:
 
-- identifier ce qui peut etre conserve
-- identifier ce qui doit etre supprime ou refactoré
-- identifier les zones a reimplementer from scratch
-- produire un plan de changements technique, page par page et couche par couche
-
-Cet audit ne doit pas redefinir le produit.
-Il doit partir de `specs/` comme reference unique et traiter le repo courant comme baseline technique `UI reset`.
+- `docs/ui-audit.md`
+- `docs/ui-gap-analysis.md`
+- `docs/ui-implementation-plan.md`
+- `docs/ui-information-architecture.md`
 
 ## Cadrage produit/UI
 
@@ -66,7 +64,7 @@ Le cadrage produit/UI a lire pour cette implementation est dans `specs/ui/`:
 ## Architecture UI/DDD
 
 - Source détaillée (etat courant + cible structurelle, couches DDD, garde-fous d'import, tests): `docs/UI-ARCHITECTURE.md`
-- Audit d'ecart code/spec avant implementation: `docs/IMPLEMENTATION-AUDIT.md`
+- Audit d'ecart et plan d'implementation a jour: `docs/ui-audit.md`, `docs/ui-gap-analysis.md`, `docs/ui-implementation-plan.md`
 - Conventions UI visuelles et Tailwind: `docs/UI-DESIGN-SYSTEM.md`
 - Bonnes pratiques de développement/PR: `docs/DEVELOPMENT-BEST-PRACTICES.md`
 - Les regles produit/UI globales doivent etre lues dans `specs/ui/*`, pas redefinies localement.
@@ -84,5 +82,5 @@ Le cadrage produit/UI a lire pour cette implementation est dans `specs/ui/`:
 
 Note:
 
-- en phase `UI reset`, ces commandes servent surtout a verifier l'ossature, les placeholders, les contrats et les garde-fous
-- elles ne doivent pas etre lues comme une preuve que les parcours produit cibles sont deja implementes
+- ces commandes verifient le runtime effectivement livre, les contrats et les garde-fous
+- elles ne doivent pas etre lues comme une preuve que tous les parcours produit normatifs sont deja completes

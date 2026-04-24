@@ -2,13 +2,13 @@
 
 > Statut : non normatif.
 > Source de verite produit : `specs/`.
-> Le repo est actuellement en phase `UI reset`.
+> Le repo est en refonte avancee, mais pas encore complet.
 
 ## Objectif
 
 Decrire uniquement:
 
-- l'etat courant du repo pendant `UI reset`
+- l'etat courant du repo pendant la refonte
 - la structure technique locale visee pour l'implementation
 - les garde-fous d'architecture du code
 
@@ -23,29 +23,22 @@ Ce document ne doit pas redefinir:
 
 ## Etat courant
 
-Le repository est en `UI reset`:
+Le repository sert deja:
 
-- l'ancienne UI a ete retiree
-- certaines routes existent encore comme points d'entree techniques
-- plusieurs pages rendent volontairement un placeholder
-- la prochaine etape est l'implementation alignee sur `specs/`
+- un shell authentifie canonique
+- les routes principales `review/library/rejects/activity/settings/account`
+- des surfaces publiques auth
+- plusieurs workspaces reels encore a completer sur certains flows
 
-## Etape preparatoire obligatoire
+## Reference de pilotage
 
-Avant toute implementation fonctionnelle, faire un audit d'ecart code/spec avec le cadrage suivant:
+Les audits de pilotage deja produits et mis a jour sont:
 
-- baseline technique: etat courant du repo en `UI reset`
-- reference normative unique: `specs/`
-- resultat attendu: liste priorisee des changements a faire par couche (`pages`, `hooks`, `components`, `application`, `domain`, `infrastructure`)
+- `docs/ui-audit.md`
+- `docs/ui-gap-analysis.md`
+- `docs/ui-implementation-plan.md`
 
-L'audit doit distinguer:
-
-- code reutilisable sans changement majeur
-- code a adapter
-- code obsolete a supprimer
-- zones sans implementation a creer
-
-Cet audit sert de pre-tri technique avant les PR d'implementation.
+Ce document d'architecture ne remplace pas ces audits; il complete seulement la structure technique cible.
 
 ## Source de verite produit
 

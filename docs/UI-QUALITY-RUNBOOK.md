@@ -1,7 +1,6 @@
 # Runbook Qualité UI (React + TS)
 
-> Statut : runbook de travail pour la base technique actuelle et la future implementation.
-> Le repo est actuellement en phase `UI reset`.
+> Statut : runbook de travail pour la base technique actuelle et les tranches restantes de refonte.
 
 ## Objectif
 

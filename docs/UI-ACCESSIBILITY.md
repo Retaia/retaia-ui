@@ -1,11 +1,10 @@
 # UI Accessibility (v1)
 
-> Statut : cible qualite/accessibilite pour la future implementation.
-> Le repo est actuellement en phase `UI reset`.
+> Statut : cible qualite/accessibilite pour le runtime en cours de refonte.
 
 ## Objectif
 
-Maintenir un niveau minimum WCAG AA sur les surfaces critiques.
+Maintenir un niveau minimum WCAG AA sur les surfaces critiques deja livrées et sur les tranches restantes.
 
 ## Gates automatiques
 

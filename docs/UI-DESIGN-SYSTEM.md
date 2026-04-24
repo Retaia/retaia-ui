@@ -2,10 +2,10 @@
 
 > Statut : non normatif.
 > Source produit: `specs/`.
-> Le repo est actuellement en phase `UI reset`.
+> Le repo est en refonte avancee, avec un design system deja en usage mais encore a homogeniser.
 
-Ce document decrit le systeme visuel et les conventions de rendu vises pour la future UI.
-Il ne decrit pas un produit deja implemente de bout en bout.
+Ce document decrit le systeme visuel et les conventions de rendu pour l'UI en cours de refonte.
+Il ne decrit pas un produit completement termine.
 
 ## Objectif
 
