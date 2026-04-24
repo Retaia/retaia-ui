@@ -173,4 +173,34 @@ describe('AssetList', () => {
     expect(option).toHaveClass('py-2')
     expect(screen.getByRole('button', { name: 'interview-camera-a.mov' })).toHaveClass('text-xs')
   })
+
+  it('disables decision actions for assets still in REVIEW_PENDING_PROFILE', () => {
+    render(
+      <AssetList
+        assets={[
+          ...assets,
+          {
+            id: 'A-004',
+            name: 'voice-note-casting.wav',
+            state: 'REVIEW_PENDING_PROFILE' as const,
+            mediaType: 'AUDIO' as const,
+          },
+        ]}
+        selectedAssetId={'A-004'}
+        batchIds={[]}
+        density="COMFORTABLE"
+        labels={labels}
+        onDecision={vi.fn()}
+        onAssetClick={vi.fn()}
+      />,
+    )
+
+    const keepButtons = screen.getAllByRole('button', { name: 'Conserver' })
+    const rejectButtons = screen.getAllByRole('button', { name: 'Rejeter' })
+    const clearButtons = screen.getAllByRole('button', { name: 'Réinitialiser' })
+
+    expect(keepButtons.at(-1)).toBeDisabled()
+    expect(rejectButtons.at(-1)).toBeDisabled()
+    expect(clearButtons.at(-1)).toBeDisabled()
+  })
 })

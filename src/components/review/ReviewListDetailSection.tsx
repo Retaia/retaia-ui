@@ -1,7 +1,7 @@
 import type { TFunction } from 'i18next'
 import { AssetListSection } from '../app/AssetListSection'
 import { AssetDetailPanel } from '../app/AssetDetailPanel'
-import type { Asset, DecisionAction } from '../../domain/assets'
+import type { Asset, DecisionAction, ProcessingProfile } from '../../domain/assets'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import type { DensityMode } from '../../hooks/useDensityMode'
 import type { DisplayType } from '../../hooks/useDisplayType'
@@ -23,6 +23,8 @@ type Props = {
   executingPurge: boolean
   purgeStatus: { kind: 'success' | 'error'; message: string } | null
   decisionStatus: { kind: 'success' | 'error'; message: string } | null
+  processingProfileStatus: { kind: 'success' | 'error'; message: string } | null
+  savingProcessingProfile: boolean
   savingMetadata: boolean
   metadataStatus: { kind: 'success' | 'error'; message: string } | null
   showRefreshAction: boolean
@@ -31,6 +33,7 @@ type Props = {
   onDecision: (id: string, action: DecisionAction) => void
   onAssetClick: (assetId: string, shiftKey: boolean) => void
   onBatchSelectionChange?: (assetId: string, selected: boolean) => void
+  onChooseProcessingProfile?: (processingProfile: ProcessingProfile) => Promise<void> | void
   onDisplayTypeChange?: (value: DisplayType) => void
   onSaveMetadata: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
   onPreviewPurge: () => Promise<void>
@@ -61,6 +64,8 @@ export function ReviewListDetailSection({
   executingPurge,
   purgeStatus,
   decisionStatus,
+  processingProfileStatus,
+  savingProcessingProfile,
   savingMetadata,
   metadataStatus,
   showRefreshAction,
@@ -69,6 +74,7 @@ export function ReviewListDetailSection({
   onDecision,
   onAssetClick,
   onBatchSelectionChange,
+  onChooseProcessingProfile,
   onDisplayTypeChange,
   onSaveMetadata,
   onPreviewPurge,
@@ -120,10 +126,13 @@ export function ReviewListDetailSection({
           executingPurge={executingPurge}
           purgeStatus={purgeStatus}
           decisionStatus={decisionStatus}
+          processingProfileStatus={processingProfileStatus}
+          savingProcessingProfile={savingProcessingProfile}
           savingMetadata={savingMetadata}
           metadataStatus={metadataStatus}
           t={t}
           onDecision={onDecision}
+          onChooseProcessingProfile={onChooseProcessingProfile}
           onSaveMetadata={onSaveMetadata}
           onPreviewPurge={onPreviewPurge}
           onExecutePurge={onExecutePurge}

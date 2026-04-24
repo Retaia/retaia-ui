@@ -6,9 +6,8 @@
 
 | Priorite | Ecart | Existant | Attendu | Risque |
 | --- | --- | --- | --- | --- |
-| Haute | Qualification `REVIEW_PENDING_PROFILE` encore absente | etat present dans le modele, mais pas de vrai flow UX de choix `processing_profile` | action explicite `audio_music` / `audio_voice` avant decision | blocage produit sur un parcours normatif |
 | Haute | `Activity` reste un scaffold | route et shell presents, mais page encore basee sur `WorkspaceScaffold` | workspace borne ou journal local reel | faux sentiment de completion du runtime |
-| Haute | Apply groupé encore partiellement legacy | selection et rails UI existent, mais le socle reste adosse a une logique batch historique | previsualisation, confirmation, execution unitaire, resultat agrege sans endpoint invente | ambiguite entre pattern UX autorise et ressource backend interdite |
+| Haute | Apply groupé encore a stabiliser | selection et rails UI existent, et l'execution est redevenue unitaire, mais le resultat agrege et certains etats UX restent fragiles | previsualisation, confirmation, execution unitaire, resultat agrege robuste sans endpoint invente | faux positifs UX ou perte de lisibilite sur les actions critiques |
 | Haute | Tests de validation legacy | BDD `@legacy-ui`, visual baselines sur batch/detail legacy | suites reconstruites depuis specs v1 | faux sentiment de securite |
 
 ### Ecarts importants

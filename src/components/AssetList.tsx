@@ -1,4 +1,4 @@
-import type { Asset, DecisionAction } from '../domain/assets'
+import { getStateFromDecision, type Asset, type DecisionAction } from '../domain/assets'
 import { BsCheck2Circle, BsEraser, BsInbox, BsXCircle } from 'react-icons/bs'
 import type { DisplayType } from '../hooks/useDisplayType'
 import { AppButton } from './ui/AppButton'
@@ -63,7 +63,11 @@ export function AssetList({
             </tr>
           </thead>
           <tbody>
-            {assets.map((asset) => (
+            {assets.map((asset) => {
+              const keepDisabled = getStateFromDecision('KEEP', asset.state) === asset.state
+              const rejectDisabled = getStateFromDecision('REJECT', asset.state) === asset.state
+              const clearDisabled = getStateFromDecision('CLEAR', asset.state) === asset.state
+              return (
               <tr
                 key={asset.id}
                 data-asset-id={asset.id}
@@ -125,7 +129,7 @@ export function AssetList({
                           event.stopPropagation()
                           onDecision(asset.id, 'KEEP')
                         }}
-                        disabled={asset.state === 'DECIDED_KEEP' || asset.state === 'ARCHIVED'}
+                        disabled={keepDisabled}
                       >
                         <BsCheck2Circle className="mr-1" aria-hidden="true" />
                         {labels.keep}
@@ -137,7 +141,7 @@ export function AssetList({
                           event.stopPropagation()
                           onDecision(asset.id, 'REJECT')
                         }}
-                        disabled={asset.state === 'DECIDED_REJECT'}
+                        disabled={rejectDisabled}
                       >
                         <BsXCircle className="mr-1" aria-hidden="true" />
                         {labels.reject}
@@ -149,7 +153,7 @@ export function AssetList({
                           event.stopPropagation()
                           onDecision(asset.id, 'CLEAR')
                         }}
-                        disabled={asset.state === 'DECISION_PENDING'}
+                        disabled={clearDisabled}
                       >
                         <BsEraser className="mr-1" aria-hidden="true" />
                         {labels.clear}
@@ -158,7 +162,8 @@ export function AssetList({
                   </td>
                 ) : null}
               </tr>
-            ))}
+              )
+            })}
           </tbody>
         </table>
       </div>
@@ -167,7 +172,11 @@ export function AssetList({
 
   return (
     <ul className="m-0 list-none overflow-hidden rounded-xl" role="list" aria-label="asset-list">
-      {assets.map((asset) => (
+      {assets.map((asset) => {
+        const keepDisabled = getStateFromDecision('KEEP', asset.state) === asset.state
+        const rejectDisabled = getStateFromDecision('REJECT', asset.state) === asset.state
+        const clearDisabled = getStateFromDecision('CLEAR', asset.state) === asset.state
+        return (
         <li
           key={asset.id}
           data-asset-id={asset.id}
@@ -236,7 +245,7 @@ export function AssetList({
                   event.stopPropagation()
                   onDecision(asset.id, 'KEEP')
                 }}
-                disabled={asset.state === 'DECIDED_KEEP' || asset.state === 'ARCHIVED'}
+                disabled={keepDisabled}
               >
                 <BsCheck2Circle className="mr-1" aria-hidden="true" />
                 {labels.keep}
@@ -248,7 +257,7 @@ export function AssetList({
                   event.stopPropagation()
                   onDecision(asset.id, 'REJECT')
                 }}
-                disabled={asset.state === 'DECIDED_REJECT'}
+                disabled={rejectDisabled}
               >
                 <BsXCircle className="mr-1" aria-hidden="true" />
                 {labels.reject}
@@ -260,7 +269,7 @@ export function AssetList({
                   event.stopPropagation()
                   onDecision(asset.id, 'CLEAR')
                 }}
-                disabled={asset.state === 'DECISION_PENDING'}
+                disabled={clearDisabled}
               >
                 <BsEraser className="mr-1" aria-hidden="true" />
                 {labels.clear}
@@ -268,7 +277,8 @@ export function AssetList({
             </div>
           ) : null}
         </li>
-      ))}
+        )
+      })}
     </ul>
   )
 }

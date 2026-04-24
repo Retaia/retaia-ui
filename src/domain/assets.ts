@@ -12,11 +12,19 @@ export const ASSET_STATES = [
   'PURGED',
 ] as const
 export const ASSET_MEDIA_TYPES = ['VIDEO', 'AUDIO', 'IMAGE', 'OTHER'] as const
+export const PROCESSING_PROFILES = [
+  'video_standard',
+  'audio_undefined',
+  'audio_music',
+  'audio_voice',
+  'photo_standard',
+] as const
 
 export type AssetState = (typeof ASSET_STATES)[number]
 export type AssetFilter = AssetState | 'ALL'
 export type AssetMediaType = (typeof ASSET_MEDIA_TYPES)[number]
 export type AssetMediaTypeFilter = AssetMediaType | 'ALL'
+export type ProcessingProfile = (typeof PROCESSING_PROFILES)[number]
 export type AssetDateFilter = 'ALL' | 'LAST_7_DAYS' | 'LAST_30_DAYS'
 export type AssetSort =
   | 'created_at'
@@ -40,6 +48,7 @@ export type Asset = {
   previewPhotoUrl?: string | null
   waveformUrl?: string | null
   thumbUrls?: string[]
+  processingProfile?: ProcessingProfile | null
   tags?: string[]
   notes?: string
   fields?: Record<string, unknown>
@@ -205,6 +214,10 @@ export const getStateFromDecision = (
     ) {
       return 'DECISION_PENDING'
     }
+    return currentState
+  }
+
+  if (currentState !== 'DECISION_PENDING' && currentState !== 'DECIDED_KEEP' && currentState !== 'DECIDED_REJECT') {
     return currentState
   }
 

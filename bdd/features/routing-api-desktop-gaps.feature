@@ -43,7 +43,7 @@ Fonctionnalité: Couverture fonctionnelle routing, API source et signaux desktop
     Given le mock API retourne une erreur sur la liste assets
     And je suis sur la page d'accueil en mode source API
     Then le statut d'erreur assets API est visible
-    And le message "Assets (3)" est visible
+    And le message "Assets (4)" est visible
 
   Scénario: Mode source API charge le détail complet au clic
     Given je suis sur la page d'accueil en mode source API

@@ -20,6 +20,7 @@ describe('assetMapper', () => {
       name: 'cam-a.mov',
       state: 'DECISION_PENDING',
       mediaType: 'VIDEO',
+      processingProfile: null,
       capturedAt: '2026-02-11T10:00:00Z',
       updatedAt: '2026-02-13T10:00:00Z',
       revisionEtag: 'etag-1',
@@ -63,6 +64,7 @@ describe('assetMapper', () => {
       name: 'UNKNOWN-ASSET-1',
       state: 'DECISION_PENDING',
       mediaType: 'OTHER',
+      processingProfile: null,
       capturedAt: '1970-01-01T00:00:00.000Z',
       revisionEtag: null,
     })

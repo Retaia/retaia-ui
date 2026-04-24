@@ -287,13 +287,13 @@ export const frTranslation = {
   'page.review.eyebrow': 'Workspace critique',
   'page.review.title': 'Review',
   'page.review.body':
-    'Le shell canonique est en place. La prochaine tranche remplacera ce cadrage par la vraie lecture liste + détail et les décisions humaines unitaires.',
+    'Le workspace Review sert maintenant la lecture liste + détail, la qualification explicite des profils de processing et les décisions humaines unitaires sans automation.',
   'page.review.constraint1': 'Aucune décision automatique KEEP ou REJECT.',
   'page.review.constraint2': 'La compréhension prime sur la vitesse et aucune action silencieuse n’est admise.',
   'page.review.constraint3': 'Le workspace doit rester strictement aligné sur la machine à états Core.',
-  'page.review.next1': 'Poser la liste review et le panneau détail dans ce shell.',
-  'page.review.next2': 'Réintroduire la qualification REVIEW_PENDING_PROFILE.',
-  'page.review.next3': 'Reconnecter les décisions unitaires et les conflits 412/428.',
+  'page.review.next1': 'Durcir les états de chargement, d’erreur et de conflit 412/428.',
+  'page.review.next2': 'Stabiliser les retours de batch et les rapports agrégés sans endpoint inventé.',
+  'page.review.next3': 'Finaliser les parcours Activity et la validation critique bout en bout.',
   'page.library.eyebrow': 'Workspace borne',
   'page.library.title': 'Library',
   'page.library.body':
@@ -513,6 +513,22 @@ export const frTranslation = {
   'detail.title': 'Détail',
   'detail.id': 'Identifiant: {id}',
   'detail.state': 'État: {state}',
+  'detail.processingProfileCurrent': 'Profil de processing: {profile}',
+  'detail.processingProfileTitle': 'Qualification audio requise',
+  'detail.processingProfileBody':
+    "Cet asset a des dérivés minimums de review, mais le processing complet reste bloqué tant qu'un humain n'a pas choisi le profil audio final.",
+  'detail.processingProfileDecisionBlocked':
+    'Les décisions KEEP/REJECT restent bloquées tant que le profil final n’a pas été choisi explicitement.',
+  'detail.processingProfileAudioUndefined': 'Audio non qualifié',
+  'detail.processingProfileAudioMusic': 'Profil musique',
+  'detail.processingProfileAudioVoice': 'Profil voix',
+  'detail.processingProfileVideoStandard': 'Vidéo standard',
+  'detail.processingProfilePhotoStandard': 'Photo standard',
+  'detail.processingProfileSaving': 'Enregistrement profil...',
+  'detail.processingProfileSaved': 'Profil de processing enregistré: {profile}',
+  'detail.processingProfileError': 'Enregistrement profil en échec: {message}',
+  'detail.decisionBlockedByProfile':
+    'Choisir d’abord un processing profile explicite pour les assets en qualification REVIEW_PENDING_PROFILE.',
   'detail.previewTitle': 'Aperçu média',
   'detail.previewUnavailable': 'Aperçu indisponible pour cet asset.',
   'detail.waveformImageAlt': 'Aperçu waveform pour {id}',
@@ -566,5 +582,6 @@ export const frTranslation = {
   'activity.range': 'Sélection plage ({count})',
   'activity.purge': 'Purge {id}',
   'activity.tagging': 'Tagging {id}',
+  'activity.processingProfile': 'Profil {profile} {id}',
   'activity.applyDecisions': 'Apply decisions ({count})',
 } as const

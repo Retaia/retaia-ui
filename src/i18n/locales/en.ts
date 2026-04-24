@@ -287,13 +287,13 @@ export const enTranslation = {
   'page.review.eyebrow': 'Critical workspace',
   'page.review.title': 'Review',
   'page.review.body':
-    'The canonical shell is now in place. The next slice will replace this frame with the real list + detail reading flow and human single-asset decisions.',
+    'The Review workspace now serves the list + detail reading flow, explicit processing profile qualification, and human single-asset decisions without automation.',
   'page.review.constraint1': 'No automatic KEEP or REJECT decisions.',
   'page.review.constraint2': 'Clarity takes priority over speed and silent actions are not allowed.',
   'page.review.constraint3': 'The workspace must stay strictly aligned with the Core state machine.',
-  'page.review.next1': 'Install the review list and detail panel inside this shell.',
-  'page.review.next2': 'Reintroduce REVIEW_PENDING_PROFILE qualification.',
-  'page.review.next3': 'Reconnect single decisions and 412/428 conflict handling.',
+  'page.review.next1': 'Harden loading, error, and 412/428 conflict states.',
+  'page.review.next2': 'Stabilize batch feedback and aggregated reports without invented endpoints.',
+  'page.review.next3': 'Finish Activity and critical end-to-end validation flows.',
   'page.library.eyebrow': 'Bounded workspace',
   'page.library.title': 'Library',
   'page.library.body':
@@ -513,6 +513,22 @@ export const enTranslation = {
   'detail.title': 'Detail',
   'detail.id': 'Identifier: {id}',
   'detail.state': 'State: {state}',
+  'detail.processingProfileCurrent': 'Processing profile: {profile}',
+  'detail.processingProfileTitle': 'Audio qualification required',
+  'detail.processingProfileBody':
+    'This asset has the minimum review derivatives, but complete processing remains blocked until a human chooses the final audio profile.',
+  'detail.processingProfileDecisionBlocked':
+    'KEEP/REJECT decisions remain blocked until the final profile is chosen explicitly.',
+  'detail.processingProfileAudioUndefined': 'Unqualified audio',
+  'detail.processingProfileAudioMusic': 'Music profile',
+  'detail.processingProfileAudioVoice': 'Voice profile',
+  'detail.processingProfileVideoStandard': 'Standard video',
+  'detail.processingProfilePhotoStandard': 'Standard photo',
+  'detail.processingProfileSaving': 'Saving profile...',
+  'detail.processingProfileSaved': 'Processing profile saved: {profile}',
+  'detail.processingProfileError': 'Processing profile save failed: {message}',
+  'detail.decisionBlockedByProfile':
+    'Choose an explicit processing profile first for assets still in REVIEW_PENDING_PROFILE qualification.',
   'detail.previewTitle': 'Media preview',
   'detail.previewUnavailable': 'Preview unavailable for this asset.',
   'detail.waveformImageAlt': 'Waveform preview for {id}',
@@ -566,5 +582,6 @@ export const enTranslation = {
   'activity.range': 'Range selection ({count})',
   'activity.purge': 'Purge {id}',
   'activity.tagging': 'Tagging {id}',
+  'activity.processingProfile': 'Profile {profile} {id}',
   'activity.applyDecisions': 'Apply decisions ({count})',
 } as const

@@ -2,14 +2,14 @@
 
 ## 1. Resume executif
 
-Le repo n'est plus en phase `UI reset` pure. Le runtime principal sert maintenant un shell canonique avec de vrais workspaces `Review`, `Library`, `Rejects`, `Account` et `Settings`. En revanche, la refonte reste inachevee : plusieurs ecarts contractuels ont ete fermes, mais `Activity`, la qualification `REVIEW_PENDING_PROFILE`, et une partie du wiring batch/apply restent incomplets ou encore branches sur du legacy.
+Le repo n'est plus en phase `UI reset` pure. Le runtime principal sert maintenant un shell canonique avec de vrais workspaces `Review`, `Library`, `Rejects`, `Account` et `Settings`. En revanche, la refonte reste inachevee : plusieurs ecarts contractuels ont ete fermes, mais `Activity` et une partie de la stabilisation batch/apply restent incomplets ou encore branches sur du legacy.
 
 Constats majeurs :
 
 - la vision produit est coherente : outil de revue et de decision humaine, pas media server, pas DAM generique
 - les contraintes normatives sont strictes : machine a etats fermees, review via derives uniquement, bulk purement UI, mutations unitaires cote Core
 - une partie importante de l'UI est maintenant alignee : routes canoniques, shell connecte, workspaces principaux, compte, settings, details standalone, i18n/theme et sessions
-- les ecarts restants sont concentres sur les flows critiques encore incomplets ou partiellement legacy : `REVIEW_PENDING_PROFILE`, apply groupé contractuel, `Activity`, et quelques endpoints batch historiques
+- les ecarts restants sont concentres sur les flows critiques encore incomplets ou partiellement legacy : stabilisation de l'apply groupé contractuel, `Activity`, et durcissement des parcours critiques
 
 Verdict :
 
@@ -148,7 +148,6 @@ La cartographie cible est detaillee dans `docs/ui-information-architecture.md`.
 
 ### A refondre de fond en comble
 
-- qualification `REVIEW_PENDING_PROFILE`
 - orchestration review / apply / purge groupé
 - workspace activity
 - nettoyage contractuel des flows batch
@@ -162,6 +161,6 @@ La cartographie cible est detaillee dans `docs/ui-information-architecture.md`.
 4. `src/api/transport.ts` injecte maintenant `Accept-Language`, et les mutations critiques passent desormais par les endpoints unitaires normatifs. Le reliquat `/batches/moves/*` a ete retire ; le batch reste un concept UI avec application asset par asset.
 5. Le mapping `REJECTED` vs `PURGED` a ete corrige. `Library` et `Rejects` sont maintenant separes correctement au runtime.
 6. `src/pages/AccountPage.tsx` et `src/pages/SettingsPage.tsx` respectent maintenant la separation cible : identite/sessions/MFA d'un cote, runtime/preferences/admin de l'autre.
-7. Le workspace `Review` reste incomplet sur un point metier bloquant : la qualification `REVIEW_PENDING_PROFILE` est visible dans le modele mais pas encore implementee comme parcours UX final.
+7. Le workspace `Review` couvre maintenant le cas bloquant `REVIEW_PENDING_PROFILE` avec choix explicite de `processing_profile` et blocage des decisions tant que la qualification n'est pas terminee. Le reste du travail porte surtout sur le durcissement des conflits, etats limites et signaux de chargement.
 8. `src/pages/ActivityPage.tsx` reste un scaffold. L'audit ne doit plus le traiter comme une simple absence de route, mais comme un workspace encore non refondu.
-9. Le socle batch/apply est partiellement modernise cote UX, mais une partie du backend wiring mock/client reste encore exprimee via des ressources batch historiques.
+9. Le socle batch/apply a ete nettoye de ses endpoints historiques. Le chantier restant porte davantage sur la stabilisation UX, les rapports agreges et les garde-fous de validation.

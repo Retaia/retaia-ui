@@ -7,7 +7,7 @@ Feature: Chargement de l'interface reset
   Scenario: Afficher le shell review canonique
     Given je suis sur la page d'accueil
     Then le titre principal "Review" est visible
-    And le message "Le shell canonique est en place." est visible
+    And le message "Le workspace Review sert maintenant la lecture liste + détail" est visible
 
   Scenario: Afficher la surface auth publique
     Given je suis sur la page "/auth"

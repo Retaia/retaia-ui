@@ -3,6 +3,7 @@ import type {
   AppFeaturesUpdatePayload,
   AssetDecisionPayload,
   AssetMetadataPatchPayload,
+  AssetProcessingProfilePatchPayload,
   Auth2faOtpPayload,
   AuthEmailPayload,
   AuthLoginPayload,
@@ -252,6 +253,17 @@ export function createApiClient(
       }),
 
     updateAssetMetadata: (assetId: string, payload: AssetMetadataPatchPayload, ifMatch?: string | null) =>
+      request<void>(`/assets/${assetId}`, {
+        method: 'PATCH',
+        ...(withIfMatchHeader(ifMatch) ? { headers: withIfMatchHeader(ifMatch) } : {}),
+        body: JSON.stringify(payload),
+      }),
+
+    updateAssetProcessingProfile: (
+      assetId: string,
+      payload: AssetProcessingProfilePatchPayload,
+      ifMatch?: string | null,
+    ) =>
       request<void>(`/assets/${assetId}`, {
         method: 'PATCH',
         ...(withIfMatchHeader(ifMatch) ? { headers: withIfMatchHeader(ifMatch) } : {}),

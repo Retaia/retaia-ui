@@ -4,6 +4,7 @@ import { mapReviewApiErrorToMessage } from '../../infrastructure/review/apiRevie
 import {
   assetDecisionSyncRequested,
   assetMetadataSyncRequested,
+  assetProcessingProfileSyncRequested,
   assetSyncFailed,
   assetSyncSucceeded,
 } from '../slices/assetSyncSlice'
@@ -109,6 +110,44 @@ export const assetSyncMiddleware: Middleware = (store) => (next) => (action) => 
             assetId: payload.assetId,
             patch: {
               state: payload.action === 'KEEP' ? 'DECIDED_KEEP' : 'DECIDED_REJECT',
+            },
+          }),
+        )
+        resolveAssetSyncWaiter(payload.mutationId)
+      })
+      .catch((error) => {
+        const message = mapReviewApiErrorToMessage(error, i18next.t.bind(i18next))
+        store.dispatch(
+          assetSyncFailed({
+            mutationId: payload.mutationId,
+            message,
+          }),
+        )
+        rejectAssetSyncWaiter(payload.mutationId, normalizeSerializableError(error))
+      })
+  }
+
+  if (assetProcessingProfileSyncRequested.match(action)) {
+    const payload = action.payload
+    const runtime = resolveApiRuntime(store.getState() as AuthRuntimeState)
+    const apiClient = createApiClient({
+      baseUrl: runtime.baseUrl,
+      getAccessToken: () => runtime.token,
+      getAcceptLanguage: () => i18next.resolvedLanguage ?? i18next.language ?? null,
+    })
+    void apiClient
+      .updateAssetProcessingProfile(
+        payload.assetId,
+        { processing_profile: payload.processingProfile },
+        payload.revisionEtag,
+      )
+      .then(() => {
+        store.dispatch(
+          assetSyncSucceeded({
+            mutationId: payload.mutationId,
+            assetId: payload.assetId,
+            patch: {
+              processingProfile: payload.processingProfile,
             },
           }),
         )
