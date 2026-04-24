@@ -7,12 +7,11 @@
 | Priorite | Ecart | Existant | Attendu | Risque |
 | --- | --- | --- | --- | --- |
 | Haute | Apply groupé encore a stabiliser | selection et rails UI existent, et l'execution est redevenue unitaire, mais le resultat agrege et certains etats UX restent fragiles | previsualisation, confirmation, execution unitaire, resultat agrege robuste sans endpoint invente | faux positifs UX ou perte de lisibilite sur les actions critiques |
-| Haute | Tests de validation legacy | BDD `@legacy-ui`, visual baselines sur batch/detail legacy | suites reconstruites depuis specs v1 | faux sentiment de securite |
-
 ### Ecarts importants
 
 | Priorite | Ecart | Existant | Attendu | Risque |
 | --- | --- | --- | --- | --- |
+| Haute | Elargissement progressif des gates de validation | le smoke BDD et les visuels sont maintenant alignes sur les routes/workspaces canoniques, mais la suite BDD canonique complete revele encore des casses hors gate standard | elargir les gates au-dela du smoke sans remettre de legacy ni casser la CI | zones de regression encore hors gate bloquante |
 | Moyenne/haute | Concurrence optimistic encore heterogene | une partie des flows unitaires passe `If-Match`, mais le nettoyage n'est pas uniforme sur tout le parcours review/apply/reprocess/purge | toute mutation asset partagee branchee sur `revision_etag` | `428` et `412` geres de facon incomplete |
 | Moyenne/haute | Feature runtime branchee de facon partielle | poll `GET /app/policy`, mais surface review finale absente | gating complet par disponibilite serveur | UI incoherente entre code et runtime |
 | Moyenne | Activity encore a densifier | route canonique servie avec journal local borne, filtres et liens retour, mais sans segmentation plus fine ni validation dediee abondante | journal local lisible, robuste et clairement distinct d'un audit backend | valeur percue encore trop faible ou trop generique |
@@ -30,8 +29,7 @@
 
 ### Supprimer
 
-- baselines visuelles legacy `batch-*`, `detail-*`, `activity-route-*` comme cible produit
-- scenarios BDD `@legacy-ui` comme gates de conformite
+- reliquats de tags/scripts/snapshots lies au vocabulaire legacy
 
 ### Refondre
 

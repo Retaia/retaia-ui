@@ -1,8 +1,9 @@
-@ui-reset
-Feature: Chargement de l'interface reset
+@canonical-ui
+@smoke
+Feature: Chargement de l'interface canonique
   En tant qu'utilisateur
   Je veux vérifier les surfaces canoniques actives
-  Afin de garantir un smoke test BDD pendant la refonte UI
+  Afin de garantir un smoke test BDD sur le runtime reellement livre
 
   Scenario: Afficher le shell review canonique
     Given je suis sur la page d'accueil

@@ -142,7 +142,7 @@ La cartographie cible est detaillee dans `docs/ui-information-architecture.md`.
 
 - la logique `/batches/*`
 - les reliquats `/assets/{uuid}/decision` s'ils reapparaissent hors des flows deja realignes
-- les tests BDD `@legacy-ui` comme suite de validation
+- les gates qui resteraient figees sur un runtime smoke trop etroit sans plan d'elargissement
 - les baselines visuelles de l'ancienne UI
 - les reliquats de scaffolds encore exposes comme pages runtime finales
 

@@ -1,6 +1,6 @@
 # language: fr
 
-@legacy-ui
+@canonical-ui
 
 Fonctionnalité: Edge cases fonctionnels review desktop-like
   En tant qu'utilisateur desktop

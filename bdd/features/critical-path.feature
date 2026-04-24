@@ -1,4 +1,4 @@
-@legacy-ui
+@canonical-ui
 @critical
 Feature: Parcours critiques de review
   En tant qu'utilisateur

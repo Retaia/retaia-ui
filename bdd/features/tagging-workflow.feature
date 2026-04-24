@@ -1,4 +1,4 @@
-@legacy-ui
+@canonical-ui
 Feature: Workflow tagging v1
   En tant qu'utilisateur de review
   Je veux éditer tags et notes depuis le détail asset
