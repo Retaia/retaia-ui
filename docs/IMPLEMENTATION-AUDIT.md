@@ -2,7 +2,7 @@
 
 > Statut : document de travail local.
 > Reference normative unique : `specs/`.
-> Baseline auditée : repo courant en phase `UI reset`.
+> Baseline auditée : ce document decrit l'audit initial pre-refonte et n'est plus la photographie courante du runtime.
 
 ## Objectif
 
@@ -35,7 +35,13 @@ Le but n'est pas de redefinir le produit, mais de preparer l'implementation des 
 
 ## Resume executif
 
-Le repo contient encore beaucoup de briques de l'ancienne UI, mais l'interface effectivement servie est un reset partiel base sur placeholders.
+Note de statut:
+
+- ce document conserve l'audit initial qui a servi a lancer la refonte
+- plusieurs constats ci-dessous ne sont plus vrais dans l'etat courant du repo
+- pour l'etat courant, utiliser en priorite `docs/ui-audit.md`, `docs/ui-gap-analysis.md` et `docs/ui-implementation-plan.md`
+
+Au moment de cet audit initial, le repo contenait encore beaucoup de briques de l'ancienne UI et l'interface effectivement servie etait un reset partiel base sur placeholders.
 
 Constat principal:
 
@@ -49,6 +55,23 @@ Conclusion d'audit:
 - ne pas repartir de zero sur tout le repo
 - ne pas considerer non plus le code courant comme deja conforme
 - repartir d'un plan mixte `reuse + refactor + suppression + creation`
+
+## Statut d'obsolescence
+
+Les points suivants ont ete majoritairement traites depuis cet audit initial:
+
+- routes canoniques et details standalone
+- shell authentifie
+- workspaces `Review`, `Library`, `Rejects`
+- surfaces `Account` et `Settings`
+- injection `Accept-Language`
+
+Les points encore pertinents dans ce document sont surtout:
+
+- la dette batch/apply hors contrat
+- `REVIEW_PENDING_PROFILE`
+- `Activity`
+- la reecriture BDD/E2E legacy
 
 ## Ecarts normatifs prioritaires
 

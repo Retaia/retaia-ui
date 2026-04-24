@@ -2,7 +2,7 @@
 
 > Statut: non normatif.
 > Source de verite produit: `specs/`.
-> Standard cible pour la future implementation apres `UI reset`.
+> Standard cible pour les tranches restantes et les refactors incrementaux.
 
 ## Objectif
 
