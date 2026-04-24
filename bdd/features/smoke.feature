@@ -13,3 +13,8 @@ Feature: Chargement de l'interface reset
     Given je suis sur la page "/auth"
     Then le titre principal "Authentification et récupération" est visible
     And le message "Surface publique pour connexion" est visible
+
+  Scenario: Afficher le workspace activity borne
+    Given je suis sur la page "/activity"
+    Then le titre principal "Activité" est visible
+    And le message "Journal local uniquement" est visible

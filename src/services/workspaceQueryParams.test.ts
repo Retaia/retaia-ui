@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  readActivityFilterParams,
   readLibraryFilterParams,
   readReviewFilterParams,
+  writeActivityFilterParams,
   writeLibraryFilterParams,
   writeReviewFilterParams,
 } from './workspaceQueryParams'
@@ -71,5 +73,29 @@ describe('workspaceQueryParams', () => {
     params = new URLSearchParams(window.location.search)
     expect(params.get('q')).toBeNull()
     expect(params.get('sort')).toBeNull()
+  })
+
+  it('reads and writes activity params with explicit local filters', () => {
+    window.history.replaceState({}, '', '/activity?foo=bar')
+
+    writeActivityFilterParams(' decision ', 'library', true)
+
+    let params = new URLSearchParams(window.location.search)
+    expect(params.get('q')).toBe('decision')
+    expect(params.get('scope')).toBe('library')
+    expect(params.get('linked')).toBe('1')
+    expect(params.get('foo')).toBe('bar')
+    expect(params.get('sort')).toBeNull()
+
+    const parsed = readActivityFilterParams()
+    expect(parsed.search).toBe('decision')
+    expect(parsed.scope).toBe('library')
+    expect(parsed.linkedOnly).toBe(true)
+
+    writeActivityFilterParams('', 'ALL', false)
+    params = new URLSearchParams(window.location.search)
+    expect(params.get('q')).toBeNull()
+    expect(params.get('scope')).toBeNull()
+    expect(params.get('linked')).toBeNull()
   })
 })

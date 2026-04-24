@@ -35,12 +35,7 @@ Etat au 2026-04-24 :
 
 ### Priorite basse
 
-1. `Activity` en workspace borne.
-   - journal operateur local
-   - resultats et correlation ids
-   - liens de retour vers asset
-
-2. Polish visuel TailAdmin-aligned.
+1. Polish visuel TailAdmin-aligned.
    - tokens
    - densite
    - modes table/grille
@@ -106,7 +101,7 @@ Statut : execute en grande partie.
 
 Statut : ouverte.
 
-- workspace activity borne
+- densification du workspace activity borne
 - raccourcis
 - a11y
 - BDD/E2E

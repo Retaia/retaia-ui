@@ -30,7 +30,7 @@ Le repository n'est plus en phase `UI reset` pure.
 La prochaine etape n'est plus de produire le premier audit, mais de terminer la refonte sur les gaps encore ouverts:
 
 - nettoyage contractuel des flows batch/apply
-- finalisation du workspace `Activity`
+- densification et validation du workspace `Activity`
 - poursuite de la reecriture BDD/E2E et des garde-fous visuels
 
 Les audits et plans de reference a jour sont:

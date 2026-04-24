@@ -2,14 +2,14 @@
 
 ## 1. Resume executif
 
-Le repo n'est plus en phase `UI reset` pure. Le runtime principal sert maintenant un shell canonique avec de vrais workspaces `Review`, `Library`, `Rejects`, `Account` et `Settings`. En revanche, la refonte reste inachevee : plusieurs ecarts contractuels ont ete fermes, mais `Activity` et une partie de la stabilisation batch/apply restent incomplets ou encore branches sur du legacy.
+Le repo n'est plus en phase `UI reset` pure. Le runtime principal sert maintenant un shell canonique avec de vrais workspaces `Review`, `Library`, `Rejects`, `Activity`, `Account` et `Settings`. En revanche, la refonte reste inachevee : plusieurs ecarts contractuels ont ete fermes, mais une partie de la stabilisation batch/apply et du durcissement UX reste encore ouverte.
 
 Constats majeurs :
 
 - la vision produit est coherente : outil de revue et de decision humaine, pas media server, pas DAM generique
 - les contraintes normatives sont strictes : machine a etats fermees, review via derives uniquement, bulk purement UI, mutations unitaires cote Core
 - une partie importante de l'UI est maintenant alignee : routes canoniques, shell connecte, workspaces principaux, compte, settings, details standalone, i18n/theme et sessions
-- les ecarts restants sont concentres sur les flows critiques encore incomplets ou partiellement legacy : stabilisation de l'apply groupé contractuel, `Activity`, et durcissement des parcours critiques
+- les ecarts restants sont concentres sur les flows critiques encore incomplets ou partiellement legacy : stabilisation de l'apply groupé contractuel, durcissement des parcours critiques, et quelques surfaces admin encore bornees
 
 Verdict :
 
@@ -144,23 +144,22 @@ La cartographie cible est detaillee dans `docs/ui-information-architecture.md`.
 - les reliquats `/assets/{uuid}/decision` s'ils reapparaissent hors des flows deja realignes
 - les tests BDD `@legacy-ui` comme suite de validation
 - les baselines visuelles de l'ancienne UI
-- les scaffolds encore exposes comme pages runtime finales, en particulier `Activity`
+- les reliquats de scaffolds encore exposes comme pages runtime finales
 
 ### A refondre de fond en comble
 
 - orchestration review / apply / purge groupé
-- workspace activity
 - nettoyage contractuel des flows batch
 - integration stricte des preconditions `If-Match`
 
 ### Constats critiques sur le code courant
 
 1. `src/routes/AppRoutes.tsx` est maintenant largement aligne : routes canoniques presentes pour `review/library/rejects/activity/settings/account`, sous-routes `auth/*`, et details standalone `/asset/:assetId`. Les redirects legacy `detail/:assetId` subsistent a juste titre comme compatibilite.
-2. `src/pages/*` ne servent plus majoritairement `UiResetPage`. `Review`, `Library`, `Rejects`, `Account` et `Settings` ont une vraie surface. `Activity` reste le principal scaffold visible.
+2. `src/pages/*` ne servent plus majoritairement `UiResetPage`. `Review`, `Library`, `Rejects`, `Activity`, `Account` et `Settings` ont une vraie surface.
 3. `src/domain/assets.ts` a recupere une machine a etats bien plus proche du contrat, incluant notamment `READY`, `PROCESSING_REVIEW`, `REVIEW_PENDING_PROFILE`, `DECISION_PENDING`, `DECIDED_*`, `ARCHIVED`, `REJECTED`, `PURGED`. Le gap porte moins sur le modele que sur certains flows qui n'exploitent pas encore tous les etats.
 4. `src/api/transport.ts` injecte maintenant `Accept-Language`, et les mutations critiques passent desormais par les endpoints unitaires normatifs. Le reliquat `/batches/moves/*` a ete retire ; le batch reste un concept UI avec application asset par asset.
 5. Le mapping `REJECTED` vs `PURGED` a ete corrige. `Library` et `Rejects` sont maintenant separes correctement au runtime.
 6. `src/pages/AccountPage.tsx` et `src/pages/SettingsPage.tsx` respectent maintenant la separation cible : identite/sessions/MFA d'un cote, runtime/preferences/admin de l'autre.
 7. Le workspace `Review` couvre maintenant le cas bloquant `REVIEW_PENDING_PROFILE` avec choix explicite de `processing_profile` et blocage des decisions tant que la qualification n'est pas terminee. Le reste du travail porte surtout sur le durcissement des conflits, etats limites et signaux de chargement.
-8. `src/pages/ActivityPage.tsx` reste un scaffold. L'audit ne doit plus le traiter comme une simple absence de route, mais comme un workspace encore non refondu.
+8. `src/pages/ActivityPage.tsx` sert maintenant un journal local borne avec filtres explicites, query params et liens retour vers les assets. Le gap restant n'est plus structurel, mais porte sur le polish, la densite d'information et la couverture de validation.
 9. Le socle batch/apply a ete nettoye de ses endpoints historiques. Le chantier restant porte davantage sur la stabilisation UX, les rapports agreges et les garde-fous de validation.
