@@ -14,6 +14,9 @@ describe('ReviewStatusAlerts', () => {
         assetsLoadState="loading"
         policyLoadState="loading"
         bulkDecisionsEnabled={true}
+        policySummary={null}
+        refreshingPolicy={false}
+        onRefreshPolicy={async () => {}}
       />,
     )
 
@@ -28,6 +31,9 @@ describe('ReviewStatusAlerts', () => {
         assetsLoadState="error"
         policyLoadState="loading"
         bulkDecisionsEnabled={true}
+        policySummary={null}
+        refreshingPolicy={false}
+        onRefreshPolicy={async () => {}}
       />,
     )
 
@@ -43,9 +49,37 @@ describe('ReviewStatusAlerts', () => {
         assetsLoadState="ready"
         policyLoadState="ready"
         bulkDecisionsEnabled={false}
+        policySummary={null}
+        refreshingPolicy={false}
+        onRefreshPolicy={async () => {}}
       />,
     )
 
     expect(screen.getByTestId('policy-bulk-disabled-status')).toBeInTheDocument()
+  })
+
+  it('renders runtime policy summary and refresh action when policy is available', () => {
+    render(
+      <ReviewStatusAlerts
+        t={t}
+        isApiAssetSource={true}
+        assetsLoadState="ready"
+        policyLoadState="ready"
+        bulkDecisionsEnabled={true}
+        policySummary={{
+          featureFlagsCount: 3,
+          contractVersion: '1.2.0',
+          pollIntervalSeconds: 30,
+        }}
+        refreshingPolicy={false}
+        onRefreshPolicy={async () => {}}
+      />,
+    )
+
+    expect(screen.getByTestId('policy-runtime-summary')).toBeInTheDocument()
+    expect(screen.getByTestId('policy-contract-version')).toHaveTextContent('1.2.0')
+    expect(screen.getByTestId('policy-flag-count')).toHaveTextContent('app.policyFlagCountValue')
+    expect(screen.getByTestId('policy-poll-interval')).toHaveTextContent('app.policyPollIntervalValue')
+    expect(screen.getByTestId('policy-refresh-action')).toBeInTheDocument()
   })
 })

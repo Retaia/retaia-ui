@@ -166,6 +166,17 @@ export function useReviewDataController({
     : policyLoadState === 'ready' &&
       policyQuery.data?.server_policy?.feature_flags?.['features.decisions.bulk'] === true
 
+  const policySummary = !isApiAssetSource || !policyQuery.data
+    ? null
+    : {
+        featureFlagsCount: Object.keys(policyQuery.data.server_policy?.feature_flags ?? {}).length,
+        contractVersion:
+          policyQuery.data.server_policy?.effective_feature_flags_contract_version ??
+          policyQuery.data.server_policy?.feature_flags_contract_version ??
+          null,
+        pollIntervalSeconds: Math.round(resolvePolicyPollingIntervalMs(policyQuery.data) / 1_000),
+      }
+
   useEffect(() => {
     if (!isApiAssetSource || !selectedAssetId) {
       return
@@ -203,6 +214,11 @@ export function useReviewDataController({
     assetsLoadState,
     policyLoadState,
     bulkDecisionsEnabled,
+    policySummary,
+    refreshingPolicy: policyQuery.isRefetching,
+    refreshPolicy: async () => {
+      await policyQuery.refetch()
+    },
     assetDetailLoadState: isApiAssetSource && selectedAssetId ? assetDetailLoadState : 'idle',
     hasMoreAssets: isApiAssetSource && Boolean(nextCursor),
     loadingMoreAssets,
