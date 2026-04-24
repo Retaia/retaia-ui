@@ -621,15 +621,12 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
             action: getDecisionActionLabel(t, action),
             count: successIds.length,
           }),
-          onSuccess: () => {
-            setBatchIds(batchIds.filter((id) => !successIds.includes(id)))
-          },
         })
       }
 
       void run()
     },
-    [assets, batchIds, bulkDecisionsEnabled, finalizeBulkDecision, isApiAssetSource, setBatchIds, setDecisionStatus, submitDecisionsForIds, t],
+    [assets, batchIds, bulkDecisionsEnabled, finalizeBulkDecision, isApiAssetSource, setDecisionStatus, submitDecisionsForIds, t],
   )
 
   const clearBatch = useCallback(() => {

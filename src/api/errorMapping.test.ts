@@ -6,6 +6,8 @@ const t = (key: string, params?: Record<string, string | number>) => {
   const templates: Record<string, string> = {
     'error.scope': 'scope',
     'error.stateConflict': 'state',
+    'error.preconditionRequired': 'precondition-required',
+    'error.preconditionFailed': 'precondition-failed',
     'error.idempotency': 'idempotency',
     'error.validation': 'validation',
     'error.lock': 'lock',
@@ -26,7 +28,7 @@ describe('mapApiErrorToMessage', () => {
     expect(mapApiErrorToMessage(error, t)).toBe('scope')
   })
 
-  it('maps state and idempotency conflicts', () => {
+  it('maps state, precondition and idempotency conflicts', () => {
     const state = new ApiError(409, 'state', {
       code: 'STATE_CONFLICT',
       message: 'state',
@@ -45,9 +47,16 @@ describe('mapApiErrorToMessage', () => {
       retryable: false,
       correlation_id: 'c4',
     })
+    const preconditionRequired = new ApiError(428, 'missing if-match', {
+      code: 'PRECONDITION_REQUIRED',
+      message: 'missing if-match',
+      retryable: false,
+      correlation_id: 'c5',
+    })
     expect(mapApiErrorToMessage(state, t)).toBe('state')
     expect(mapApiErrorToMessage(idem, t)).toBe('idempotency')
-    expect(mapApiErrorToMessage(precondition, t)).toBe('state')
+    expect(mapApiErrorToMessage(precondition, t)).toBe('precondition-failed')
+    expect(mapApiErrorToMessage(preconditionRequired, t)).toBe('precondition-required')
   })
 
   it('maps lock-related conflicts', () => {

@@ -21,7 +21,10 @@ async function openQuickActionsMenuIfNeeded() {
 async function clickAssetRow(assetName: string, modifiers?: Array<'Shift'>) {
   const page = getPage()
   const assetsPanel = page.locator('section[aria-label="Liste des assets"]')
-  const row = assetsPanel.locator('[data-asset-id]', { hasText: assetName }).first()
+  const exactRow = assetsPanel.locator(`[data-asset-id="${assetName}"]`).first()
+  const row = await exactRow.count()
+    ? exactRow
+    : assetsPanel.locator('[data-asset-id]', { hasText: assetName }).first()
   const openButton = row.locator('[data-asset-open="true"]').first()
   await expect(row).toBeVisible({ timeout: 5000 })
   await row.scrollIntoViewIfNeeded()
@@ -128,6 +131,8 @@ Given('je suis sur la page {string}', async (path: string) => {
 
 Given("je suis sur la page d'accueil en mode source API", async () => {
   await getPage().goto(`${APP_URL}/review?source=api`, { waitUntil: 'domcontentloaded' })
+  const assetsPanel = getPage().locator('section[aria-label="Liste des assets"]')
+  await expect(assetsPanel.locator('[data-asset-id]').first()).toBeVisible({ timeout: 10000 })
 })
 
 Then('le titre principal {string} est visible', async (title: string) => {

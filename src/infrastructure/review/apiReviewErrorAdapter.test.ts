@@ -12,6 +12,23 @@ describe('apiReviewErrorAdapter', () => {
     ).toBe(true)
   })
 
+  it('detects optimistic concurrency precondition payloads', () => {
+    expect(
+      isStateConflictApiError({
+        payload: {
+          code: 'PRECONDITION_FAILED',
+        },
+      }),
+    ).toBe(true)
+    expect(
+      isStateConflictApiError({
+        payload: {
+          code: 'PRECONDITION_REQUIRED',
+        },
+      }),
+    ).toBe(true)
+  })
+
   it('returns false for non-matching payloads', () => {
     expect(isStateConflictApiError(new Error('boom'))).toBe(false)
   })

@@ -8,6 +8,7 @@ export type MockApiState = {
   purgePreviewShouldFailScope: boolean
   purgeExecuteShouldFailStateConflict: boolean
   assetPatchShouldFailScope: boolean
+  assetPatchShouldFailPreconditionFailedOnce: boolean
   decisionShouldFailScope: boolean
   decisionShouldFailStateConflict: boolean
   decisionShouldFailStateConflictOnce: boolean
@@ -32,6 +33,7 @@ export const createMockApiState = (): MockApiState => ({
   purgePreviewShouldFailScope: false,
   purgeExecuteShouldFailStateConflict: false,
   assetPatchShouldFailScope: false,
+  assetPatchShouldFailPreconditionFailedOnce: false,
   decisionShouldFailScope: false,
   decisionShouldFailStateConflict: false,
   decisionShouldFailStateConflictOnce: false,
@@ -52,6 +54,7 @@ export const resetMockApiState = (state: MockApiState) => {
   state.purgePreviewShouldFailScope = false
   state.purgeExecuteShouldFailStateConflict = false
   state.assetPatchShouldFailScope = false
+  state.assetPatchShouldFailPreconditionFailedOnce = false
   state.decisionShouldFailScope = false
   state.decisionShouldFailStateConflict = false
   state.decisionShouldFailStateConflictOnce = false
@@ -280,6 +283,57 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
       state.lastPatchedPayload = body
         ? (JSON.parse(body) as MockApiState['lastPatchedPayload'])
         : null
+      const requestedState =
+        typeof state.lastPatchedPayload?.fields?.state === 'string'
+          ? state.lastPatchedPayload.fields.state
+          : typeof (state.lastPatchedPayload as { state?: unknown } | null)?.state === 'string'
+            ? (state.lastPatchedPayload as { state: string }).state
+            : null
+      const isDecisionPatch = requestedState === 'DECIDED_KEEP' || requestedState === 'DECIDED_REJECT'
+
+      if (isDecisionPatch) {
+        state.decisionCalls += 1
+        if (state.decisionShouldFailScope) {
+          await route.fulfill({
+            status: 403,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              code: 'FORBIDDEN_SCOPE',
+              message: 'forbidden',
+              retryable: false,
+              correlation_id: 'bdd-corr-decision-1',
+            }),
+          })
+          return
+        }
+        if (state.decisionShouldFailStateConflict) {
+          await route.fulfill({
+            status: 409,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              code: 'STATE_CONFLICT',
+              message: 'state conflict',
+              retryable: false,
+              correlation_id: 'bdd-corr-decision-2',
+            }),
+          })
+          return
+        }
+        if (state.decisionShouldFailStateConflictOnce) {
+          state.decisionShouldFailStateConflictOnce = false
+          await route.fulfill({
+            status: 409,
+            contentType: 'application/json',
+            body: JSON.stringify({
+              code: 'STATE_CONFLICT',
+              message: 'state conflict',
+              retryable: false,
+              correlation_id: 'bdd-corr-decision-once',
+            }),
+          })
+          return
+        }
+      }
 
       if (state.assetPatchShouldFailScope) {
         await route.fulfill({
@@ -290,6 +344,21 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
             message: 'forbidden',
             retryable: false,
             correlation_id: 'bdd-corr-tagging-1',
+          }),
+        })
+        return
+      }
+
+      if (!isDecisionPatch && state.assetPatchShouldFailPreconditionFailedOnce) {
+        state.assetPatchShouldFailPreconditionFailedOnce = false
+        await route.fulfill({
+          status: 412,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            code: 'PRECONDITION_FAILED',
+            message: 'stale revision',
+            retryable: false,
+            correlation_id: 'bdd-corr-patch-precondition-once',
           }),
         })
         return
@@ -333,25 +402,31 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
             },
           ]
           : [
-            [
-              {
-                uuid: 'A-001',
-                media_type: 'VIDEO',
-                state: 'DECISION_PENDING',
-                created_at: new Date().toISOString(),
-                captured_at: new Date().toISOString(),
-                tags: ['baseline'],
-              },
-              {
-                uuid: 'A-003',
-                media_type: 'PHOTO',
-                state: 'REJECTED',
-                created_at: new Date().toISOString(),
-                captured_at: new Date().toISOString(),
-                tags: ['photo'],
-              },
-            ].filter((item) => !requestedState || item.state === requestedState),
-          ],
+            {
+              uuid: 'A-001',
+              media_type: 'VIDEO',
+              state: 'DECISION_PENDING',
+              created_at: new Date().toISOString(),
+              captured_at: new Date().toISOString(),
+              tags: ['baseline'],
+            },
+            {
+              uuid: 'A-003',
+              media_type: 'PHOTO',
+              state: 'DECISION_PENDING',
+              created_at: new Date().toISOString(),
+              captured_at: new Date().toISOString(),
+              tags: ['photo'],
+            },
+            {
+              uuid: 'A-004',
+              media_type: 'PHOTO',
+              state: 'REJECTED',
+              created_at: new Date().toISOString(),
+              captured_at: new Date().toISOString(),
+              tags: ['photo'],
+            },
+          ].filter((item) => !requestedState || item.state === requestedState),
         next_cursor: null,
       }),
     })

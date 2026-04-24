@@ -35,6 +35,22 @@ export function buildExecuteSuccessStatus(t: Translate): BatchExecutionStatus {
   }
 }
 
+export function buildExecutePartialStatus(
+  t: Translate,
+  successCount: number,
+  failedCount: number,
+  firstErrorMessage: string,
+): BatchExecutionStatus {
+  return {
+    kind: 'error',
+    message: t('actions.executePartial', {
+      success: successCount,
+      failed: failedCount,
+      message: firstErrorMessage,
+    }),
+  }
+}
+
 export function buildExecuteErrorStatus(
   t: Translate,
   mapErrorToMessage: (error: unknown) => string,

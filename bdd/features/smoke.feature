@@ -18,3 +18,14 @@ Feature: Chargement de l'interface reset
     Given je suis sur la page "/activity"
     Then le titre principal "Activité" est visible
     And le message "Journal local uniquement" est visible
+
+  Scenario: Signaler une exécution batch partielle sur révision obsolète
+    Given le mock API retourne PRECONDITION_FAILED une seule fois sur le patch asset
+    And je suis sur la page d'accueil en mode source API
+    When je fais Maj+clic sur l'asset "A-001"
+    And je fais Maj+clic sur l'asset "A-003"
+    And je clique sur le bouton "Conserver batch"
+    And je clique sur le bouton "Exécuter batch"
+    And je clique sur le bouton "Exécuter maintenant"
+    Then le statut d'exécution contient "partielle"
+    And le statut d'exécution contient "Révision obsolète"

@@ -36,6 +36,11 @@ Given('le mock API retourne FORBIDDEN_SCOPE sur le patch asset', async () => {
   mockApiState.assetPatchShouldFailScope = true
 })
 
+Given('le mock API retourne PRECONDITION_FAILED une seule fois sur le patch asset', async () => {
+  ensureMockMode('le mock API retourne PRECONDITION_FAILED une seule fois sur le patch asset')
+  mockApiState.assetPatchShouldFailPreconditionFailedOnce = true
+})
+
 Given('le mock API retourne FORBIDDEN_SCOPE sur la décision asset', async () => {
   ensureMockMode('le mock API retourne FORBIDDEN_SCOPE sur la décision asset')
   mockApiState.decisionShouldFailScope = true
