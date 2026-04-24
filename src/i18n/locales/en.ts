@@ -223,6 +223,18 @@ export const enTranslation = {
   'page.settings.body':
     'This page groups interface preferences and useful runtime connectivity settings without mixing them with account operations.',
   'page.settings.preferences': 'Local preferences',
+  'settings.preferencesBody':
+    'Theme and language stay local to the operator UI and must not create hidden divergence from server state.',
+  'settings.currentTheme': 'Current theme: {value}',
+  'settings.currentLanguage': 'Current language: {value}',
+  'settings.runtimeTitle': 'Runtime connectivity',
+  'settings.runtimeBody':
+    'Runtime configuration stays explicit: what is locked by environment remains visible, and admin governance stays separate from operator account actions.',
+  'settings.runtimeConnectionBody':
+    'Configure the UI connection to Core and verify reachability without inventing a parallel runtime state machine.',
+  'settings.runtimeAdminTitle': 'Admin runtime governance',
+  'settings.runtimeAdminBody':
+    'Admin-only runtime toggles belong here because they affect server-side availability, not the operator account itself.',
   'page.settings.theme.system': 'System',
   'page.settings.theme.light': 'Light',
   'page.settings.theme.dark': 'Dark',
@@ -230,6 +242,28 @@ export const enTranslation = {
   'page.account.title': 'Account and security',
   'page.account.body':
     'Dedicated surface for the user account, security operations, and MFA flows already wired in the current foundation.',
+  'account.identityEyebrow': 'Identity',
+  'account.identityTitle': 'Operator identity',
+  'account.identityBody':
+    'This surface keeps account identity explicit and separate from runtime configuration or public auth recovery flows.',
+  'account.identityNameLabel': 'Display name',
+  'account.identityNameFallback': 'No display name',
+  'account.identityEmailLabel': 'Email',
+  'account.identityRoleLabel': 'Role',
+  'account.identityRoleAdmin': 'Administrator',
+  'account.identityRoleOperator': 'Operator',
+  'account.identityMfaLabel': '2FA',
+  'account.identityMfaOn': 'Enabled',
+  'account.identityMfaOff': 'Disabled',
+  'account.identitySignedOut':
+    'This account surface requires an authenticated operator session before security actions can be performed.',
+  'account.identityOpenAuth': 'Open auth surface',
+  'account.securityEyebrow': 'Security',
+  'account.securityTitle': '2FA and user security controls',
+  'account.securityBody':
+    'MFA setup and user-level feature opt-in remain explicit account decisions and must not be buried inside runtime settings.',
+  'account.securityUnavailable':
+    'This account is authenticated, but no user-manageable MFA feature is currently exposed by the runtime.',
   'account.sessionsTitle': 'Interactive sessions',
   'account.sessionsBody': 'Lists active sessions for this account and allows explicit revocation without silent self-revocation.',
   'account.sessionsRefresh': 'Refresh sessions',
