@@ -554,6 +554,8 @@ export const frTranslation = {
   'detail.id': 'Identifiant: {id}',
   'detail.state': 'État: {state}',
   'detail.processingProfileCurrent': 'Profil de processing: {profile}',
+  'detail.projectsTitle': 'Projets liés',
+  'detail.projectId': 'ID projet : {id}',
   'detail.processingProfileTitle': 'Qualification audio requise',
   'detail.processingProfileBody':
     "Cet asset a des dérivés minimums de review, mais le processing complet reste bloqué tant qu'un humain n'a pas choisi le profil audio final.",

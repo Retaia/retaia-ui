@@ -1,4 +1,10 @@
-import type { Asset, AssetMediaType, AssetState, ProcessingProfile } from '../domain/assets'
+import type {
+  Asset,
+  AssetMediaType,
+  AssetProjectRef,
+  AssetState,
+  ProcessingProfile,
+} from '../domain/assets'
 import type { AssetSummary } from './contracts'
 
 type ApiAssetSummary = AssetSummary
@@ -50,6 +56,28 @@ function mapProcessingProfile(
   return null
 }
 
+function mapProjects(projects: ApiAssetSummary['projects'] | undefined): AssetProjectRef[] | undefined {
+  if (!Array.isArray(projects)) {
+    return undefined
+  }
+
+  const normalized = projects.flatMap((project): AssetProjectRef[] => {
+    if (!project || typeof project !== 'object') {
+      return []
+    }
+
+    const id = typeof project.project_id === 'string' ? project.project_id.trim() : ''
+    const name = typeof project.project_name === 'string' ? project.project_name.trim() : ''
+    if (id === '' || name === '') {
+      return []
+    }
+
+    return [{ id, name }]
+  })
+
+  return normalized.length > 0 ? normalized : undefined
+}
+
 export function mapApiSummaryToAsset(
   summary: Partial<ApiAssetSummary>,
   fallbackIndex = 0,
@@ -67,6 +95,7 @@ export function mapApiSummaryToAsset(
   const tags = Array.isArray(summary.tags)
     ? summary.tags.filter((tag): tag is string => typeof tag === 'string')
     : undefined
+  const projects = mapProjects(summary.projects)
 
   return {
     id,
@@ -81,5 +110,6 @@ export function mapApiSummaryToAsset(
     processingProfile: mapProcessingProfile(summary.processing_profile),
     ...(typeof summary.thumb_url === 'string' ? { thumbUrls: [summary.thumb_url] } : {}),
     ...(tags ? { tags } : {}),
+    ...(projects ? { projects } : {}),
   }
 }

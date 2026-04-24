@@ -554,6 +554,8 @@ export const enTranslation = {
   'detail.id': 'Identifier: {id}',
   'detail.state': 'State: {state}',
   'detail.processingProfileCurrent': 'Processing profile: {profile}',
+  'detail.projectsTitle': 'Linked projects',
+  'detail.projectId': 'Project id: {id}',
   'detail.processingProfileTitle': 'Audio qualification required',
   'detail.processingProfileBody':
     'This asset has the minimum review derivatives, but complete processing remains blocked until a human chooses the final audio profile.',

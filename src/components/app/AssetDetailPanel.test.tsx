@@ -178,6 +178,23 @@ describe('AssetDetailPanel media preview', () => {
     expect(screen.getByText('detail.transcriptTitle')).toBeInTheDocument()
   })
 
+  it('renders linked projects when available on the asset', () => {
+    renderPanel({
+      id: 'A-007',
+      name: 'project-linked.mov',
+      state: 'DECISION_PENDING',
+      mediaType: 'VIDEO',
+      projects: [
+        { id: 'P-001', name: 'Campaign Alpha' },
+        { id: 'P-002', name: 'Event Beta' },
+      ],
+    })
+
+    expect(screen.getByText('detail.projectsTitle')).toBeInTheDocument()
+    expect(screen.getByTestId('asset-project-list')).toHaveTextContent('Campaign Alpha')
+    expect(screen.getByTestId('asset-project-list')).toHaveTextContent('Event Beta')
+  })
+
   it('adds a tag and submits metadata payload', async () => {
     const user = userEvent.setup()
     const onSaveMetadata = vi.fn(async () => {})

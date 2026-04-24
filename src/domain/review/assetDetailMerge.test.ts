@@ -16,6 +16,10 @@ describe('mergeAssetWithDetail', () => {
       summary: {
         state: 'DECIDED_KEEP',
         tags: ['a', 10, 'b'],
+        projects: [
+          { project_id: 'P-001', project_name: 'Campaign Alpha' },
+          { project_id: '', project_name: 'invalid' },
+        ],
       },
       derived: {
         preview_video_url: '/video.mp4',
@@ -28,6 +32,7 @@ describe('mergeAssetWithDetail', () => {
 
     expect(merged.state).toBe('DECISION_PENDING')
     expect(merged.tags).toEqual(['a', 'b'])
+    expect(merged.projects).toEqual([{ id: 'P-001', name: 'Campaign Alpha' }])
     expect(merged.previewVideoUrl).toBe('/video.mp4')
     expect(merged.transcriptPreview).toBe('preview')
     expect(merged.transcriptStatus).toBe('DONE')
