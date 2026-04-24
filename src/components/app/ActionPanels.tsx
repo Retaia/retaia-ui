@@ -5,6 +5,7 @@ import {
 import { ActionBatchSection } from './ActionBatchSection'
 import { ActionQuickPanelSection } from './ActionQuickPanelSection'
 import { ActionReportSection } from './ActionReportSection'
+import { ActionShortcutsSection } from './ActionShortcutsSection'
 import { BatchExecutionStatusAlerts } from '../review/BatchExecutionStatusAlerts'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import { useQuickFilters } from '../../hooks/useQuickFilters'
@@ -157,6 +158,7 @@ export function ActionPanels({
             {t('actions.history', { count: undoStackLength })}
           </p>
         </div>
+        <ActionShortcutsSection t={t} />
       </section>
 
       <div
