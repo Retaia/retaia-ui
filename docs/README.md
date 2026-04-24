@@ -6,7 +6,6 @@
 ## Contenu
 
 - `docs/DEVELOPMENT-BEST-PRACTICES.md`
-- `docs/IMPLEMENTATION-AUDIT.md`
 - `docs/UI-DESIGN-SYSTEM.md`
 - `docs/UI-ARCHITECTURE.md`
 - `docs/PAGE-CONTROLLER-SECTIONS-STANDARD.md`
@@ -65,7 +64,7 @@ Le cadrage produit/UI a lire pour cette implementation est dans `specs/ui/`:
 ## Architecture UI/DDD
 
 - Source détaillée (etat courant + cible structurelle, couches DDD, garde-fous d'import, tests): `docs/UI-ARCHITECTURE.md`
-- Audit d'ecart code/spec avant implementation: `docs/IMPLEMENTATION-AUDIT.md`
+- Audit d'ecart et plan d'implementation a jour: `docs/ui-audit.md`, `docs/ui-gap-analysis.md`, `docs/ui-implementation-plan.md`
 - Conventions UI visuelles et Tailwind: `docs/UI-DESIGN-SYSTEM.md`
 - Bonnes pratiques de développement/PR: `docs/DEVELOPMENT-BEST-PRACTICES.md`
 - Les regles produit/UI globales doivent etre lues dans `specs/ui/*`, pas redefinies localement.
