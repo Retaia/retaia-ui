@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { BsFlagFill, BsGlobe2 } from 'react-icons/bs'
-import { ApiConnectionSettingsSection } from '../components/auth/ApiConnectionSettingsSection'
 import { AuthenticatedShell } from '../components/layout/AuthenticatedShell'
+import { RuntimeSettingsSection } from '../components/settings/RuntimeSettingsSection'
 import { useAuthPageController } from '../hooks/useAuthPageController'
 import { useTailadminTheme } from '../ui/tailadmin-theme'
 
@@ -30,6 +30,9 @@ export function SettingsPage() {
             <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
               {t('page.settings.preferences')}
             </h2>
+            <p className="mt-2 text-sm leading-7 text-gray-600 dark:text-gray-300">
+              {t('settings.preferencesBody')}
+            </p>
 
             <div className="mt-5 space-y-5">
               <div>
@@ -53,6 +56,9 @@ export function SettingsPage() {
                     </button>
                   ))}
                 </div>
+                <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                  {t('settings.currentTheme', { value: t(`page.settings.theme.${mode}`) })}
+                </p>
               </div>
 
               <div>
@@ -77,21 +83,16 @@ export function SettingsPage() {
                     {t('app.language.en')}
                   </button>
                 </div>
+                <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                  {t('settings.currentLanguage', {
+                    value: i18n.resolvedLanguage === 'en' ? t('app.language.en') : t('app.language.fr'),
+                  })}
+                </p>
               </div>
             </div>
           </section>
 
-          <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-sm dark:border-gray-800 dark:bg-gray-900">
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-              {t('app.apiConnectionTitle')}
-            </h2>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-              {t('app.apiConnectionSubtitle')}
-            </p>
-            <div className="mt-4">
-              <ApiConnectionSettingsSection t={t} controller={controller} />
-            </div>
-          </section>
+          <RuntimeSettingsSection t={t} controller={controller} />
         </div>
       </div>
     </AuthenticatedShell>

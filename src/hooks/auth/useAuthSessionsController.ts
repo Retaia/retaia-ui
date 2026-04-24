@@ -55,12 +55,11 @@ export function useAuthSessionsController(args: {
   const [revokingOthers, setRevokingOthers] = useState(false)
   const [status, setStatus] = useState<Status | null>(null)
 
-  const loadSessions = useCallback(async () => {
+  const fetchSessions = useCallback(async () => {
     if (!enabled) {
       setSessions([])
       return
     }
-    setLoading(true)
     try {
       const result = await apiClient.listAuthSessions()
       setSessions(normalizeSessions(result.items))
@@ -71,14 +70,61 @@ export function useAuthSessionsController(args: {
           message: mapReviewApiErrorToMessage(error, t),
         }),
       })
-    } finally {
-      setLoading(false)
     }
   }, [apiClient, enabled, t])
 
   useEffect(() => {
-    void loadSessions()
-  }, [loadSessions])
+    let cancelled = false
+
+    const loadOnMount = async () => {
+      await Promise.resolve()
+      if (cancelled) {
+        return
+      }
+
+      if (!enabled) {
+        setSessions([])
+        setLoading(false)
+        return
+      }
+
+      setLoading(true)
+      try {
+        const result = await apiClient.listAuthSessions()
+        if (!cancelled) {
+          setSessions(normalizeSessions(result.items))
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setStatus({
+            kind: 'error',
+            message: t('account.sessionsLoadError', {
+              message: mapReviewApiErrorToMessage(error, t),
+            }),
+          })
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void loadOnMount()
+
+    return () => {
+      cancelled = true
+    }
+  }, [apiClient, enabled, t])
+
+  const loadSessions = useCallback(async () => {
+    setLoading(true)
+    try {
+      await fetchSessions()
+    } finally {
+      setLoading(false)
+    }
+  }, [fetchSessions])
 
   const revokeSession = useCallback(async (sessionId: string) => {
     setBusySessionId(sessionId)

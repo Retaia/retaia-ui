@@ -223,6 +223,18 @@ export const frTranslation = {
   'page.settings.body':
     'Cette page regroupe les préférences d’interface et la configuration runtime utile sans mélanger les opérations de compte.',
   'page.settings.preferences': 'Préférences locales',
+  'settings.preferencesBody':
+    'Le thème et la langue restent des préférences locales de l’UI opérateur et ne doivent pas créer une divergence cachée avec l’état serveur.',
+  'settings.currentTheme': 'Thème courant : {value}',
+  'settings.currentLanguage': 'Langue courante : {value}',
+  'settings.runtimeTitle': 'Connectivité runtime',
+  'settings.runtimeBody':
+    'La configuration runtime doit rester explicite : ce qui est verrouillé par l’environnement reste visible, et la gouvernance admin reste séparée du compte opérateur.',
+  'settings.runtimeConnectionBody':
+    'Configure la connexion UI vers Core et vérifie l’accessibilité sans inventer une machine à états runtime parallèle.',
+  'settings.runtimeAdminTitle': 'Gouvernance runtime admin',
+  'settings.runtimeAdminBody':
+    'Les toggles runtime réservés aux admins vivent ici parce qu’ils affectent la disponibilité côté serveur, pas le compte opérateur.',
   'page.settings.theme.system': 'Système',
   'page.settings.theme.light': 'Clair',
   'page.settings.theme.dark': 'Sombre',
@@ -230,6 +242,28 @@ export const frTranslation = {
   'page.account.title': 'Compte et sécurité',
   'page.account.body':
     'Surface dédiée au compte utilisateur, aux opérations de sécurité et aux flows MFA déjà câblés dans le socle existant.',
+  'account.identityEyebrow': 'Identité',
+  'account.identityTitle': 'Identité opérateur',
+  'account.identityBody':
+    'Cette surface garde l’identité du compte explicite et séparée de la configuration runtime ou des parcours publics de récupération.',
+  'account.identityNameLabel': 'Nom affiché',
+  'account.identityNameFallback': 'Aucun nom affiché',
+  'account.identityEmailLabel': 'Email',
+  'account.identityRoleLabel': 'Rôle',
+  'account.identityRoleAdmin': 'Administrateur',
+  'account.identityRoleOperator': 'Opérateur',
+  'account.identityMfaLabel': '2FA',
+  'account.identityMfaOn': 'Activée',
+  'account.identityMfaOff': 'Désactivée',
+  'account.identitySignedOut':
+    'Cette surface de compte exige une session opérateur authentifiée avant toute action de sécurité.',
+  'account.identityOpenAuth': 'Ouvrir la surface auth',
+  'account.securityEyebrow': 'Sécurité',
+  'account.securityTitle': '2FA et contrôles de sécurité utilisateur',
+  'account.securityBody':
+    'Le setup MFA et l’opt-in de feature utilisateur restent des décisions explicites de compte et ne doivent pas être enfouis dans les réglages runtime.',
+  'account.securityUnavailable':
+    'Ce compte est authentifié, mais aucune feature MFA pilotable par l’utilisateur n’est actuellement exposée par le runtime.',
   'account.sessionsTitle': 'Sessions interactives',
   'account.sessionsBody': 'Liste les sessions actives de ce compte et permet une révocation explicite, sans auto-révocation silencieuse.',
   'account.sessionsRefresh': 'Rafraîchir sessions',
