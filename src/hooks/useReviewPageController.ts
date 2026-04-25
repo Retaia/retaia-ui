@@ -1124,7 +1124,6 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     hasMoreAssets,
     loadingMoreAssets,
     loadMoreAssets,
-    refreshAssetsAfterBatchConflict,
     policyLoadState,
     bulkDecisionsEnabled,
     policySummary,
