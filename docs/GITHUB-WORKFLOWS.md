@@ -26,7 +26,8 @@ Jobs:
 9. `performance-budget`
 10. `e2e-bdd`
 11. `e2e-bdd-batch-preview-execute`
-12. `ci-required` (gate final, recommande en check obligatoire unique)
+12. `e2e-bdd-decision-api`
+13. `ci-required` (gate final, recommande en check obligatoire unique)
 
 ## Gates bloquants
 
@@ -45,6 +46,8 @@ Jobs:
   (suite BDD mock, contract-first)
 - `APP_URL=http://127.0.0.1:4173 BDD_API_MODE=mock npm run e2e:bdd:batch-preview-execute:ci`
   (premier feature canonique non-smoke promu en gate dedie)
+- `APP_URL=http://127.0.0.1:4173 BDD_API_MODE=mock npm run e2e:bdd:decision-api:ci`
+  (deuxieme feature canonique non-smoke promu sur les decisions API et conflits d'etat)
 - si `E2E_TEST_ENV_URL` est défini:
   - `APP_URL=$E2E_TEST_ENV_URL BDD_API_MODE=real-api npm run bdd:test:real-api:ci`
   (suite smoke réelle sans interception mock)
@@ -79,6 +82,7 @@ Dans la refonte en cours, la CI sert aussi a proteger:
 - `performance-budget`
 - `e2e-bdd`
 - `e2e-bdd-batch-preview-execute`
+- `e2e-bdd-decision-api`
 - `ci-required` (si vous préférez un seul check bloquant côté règle GitHub)
 
 Historique Git requis:
