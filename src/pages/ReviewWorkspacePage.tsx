@@ -42,6 +42,9 @@ export default function ReviewWorkspacePage() {
           assetsLoadState={controller.assetsLoadState}
           policyLoadState={controller.policyLoadState}
           bulkDecisionsEnabled={controller.bulkDecisionsEnabled}
+          policySummary={controller.policySummary}
+          refreshingPolicy={controller.refreshingPolicy}
+          onRefreshPolicy={controller.refreshPolicy}
           onFilterChange={controller.setFilter}
           onMediaTypeFilterChange={controller.setMediaTypeFilter}
           onDateFilterChange={controller.setDateFilter}

@@ -24,6 +24,13 @@ type Props = {
   assetsLoadState: 'idle' | 'loading' | 'ready' | 'error'
   policyLoadState: 'idle' | 'loading' | 'ready' | 'error'
   bulkDecisionsEnabled: boolean
+  policySummary: {
+    featureFlagsCount: number
+    contractVersion: string | null
+    pollIntervalSeconds: number
+  } | null
+  refreshingPolicy: boolean
+  onRefreshPolicy: () => Promise<void> | void
   onFilterChange: (value: AssetFilter) => void
   onMediaTypeFilterChange: (value: AssetMediaTypeFilter) => void
   onDateFilterChange: (value: AssetDateFilter) => void
@@ -44,6 +51,9 @@ export function ReviewOverviewSection({
   assetsLoadState,
   policyLoadState,
   bulkDecisionsEnabled,
+  policySummary,
+  refreshingPolicy,
+  onRefreshPolicy,
   onFilterChange,
   onMediaTypeFilterChange,
   onDateFilterChange,
@@ -103,6 +113,9 @@ export function ReviewOverviewSection({
         assetsLoadState={assetsLoadState}
         policyLoadState={policyLoadState}
         bulkDecisionsEnabled={bulkDecisionsEnabled}
+        policySummary={policySummary}
+        refreshingPolicy={refreshingPolicy}
+        onRefreshPolicy={onRefreshPolicy}
       />
     </>
   )
