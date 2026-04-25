@@ -71,3 +71,6 @@ done
 
 echo "[pre-push] e2e:bdd:batch-preview-execute:ci (chromium)"
 PW_BROWSER="chromium" APP_URL="${app_url}" BDD_API_MODE="${bdd_api_mode}" npm run e2e:bdd:batch-preview-execute:ci
+
+echo "[pre-push] e2e:bdd:decision-api:ci (chromium)"
+PW_BROWSER="chromium" APP_URL="${app_url}" BDD_API_MODE="${bdd_api_mode}" npm run e2e:bdd:decision-api:ci

@@ -33,6 +33,7 @@ Garantir des PR petites, testées, et mergeables sur `master` avec un niveau de 
 - `npm run api:governance:check` (utile en CI PR; skip en local hors contexte PR)
 - `npm run e2e:bdd:ci` pour les changements de comportement utilisateur.
 - `npm run e2e:bdd:batch-preview-execute:ci` pour les tranches qui touchent le flow batch canonique hors smoke.
+- `npm run e2e:bdd:decision-api:ci` pour les tranches qui touchent les decisions API, conflits d'etat et refresh explicite.
 - `npm run visual:test` pour les changements UI visibles.
 
 ## Gate go/no-go v1 (pré-release)
@@ -86,6 +87,7 @@ Toute PR qui modifie la source OpenAPI (`specs/api/openapi/v1.yaml` via mise a j
 - Exécution CI-friendly avec rapports:
   - `BDD_API_MODE=mock npm run bdd:test:ci`
   - `BDD_API_MODE=mock npm run bdd:test:batch-preview-execute:ci`
+  - `BDD_API_MODE=mock npm run bdd:test:decision-api:ci`
   - `BDD_API_MODE=real-api npm run bdd:test:real-api:ci` (suite smoke contre API réelle)
   - `npm run bdd:test:critical:ci` (suite smoke `@critical`)
   - `npm run bdd:coverage` (couverture navigateur sur suite mock)
@@ -94,6 +96,8 @@ Toute PR qui modifie la source OpenAPI (`specs/api/openapi/v1.yaml` via mise a j
   - `test-results/bdd-report.html`
   - `test-results/bdd-batch-preview-execute-report.json`
   - `test-results/bdd-batch-preview-execute-report.html`
+  - `test-results/bdd-decision-api-report.json`
+  - `test-results/bdd-decision-api-report.html`
   - `test-results/bdd-real-api-report.json`
   - `test-results/bdd-real-api-report.html`
   - `test-results/bdd-critical-report.json`
