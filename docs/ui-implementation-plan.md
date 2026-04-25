@@ -2,179 +2,93 @@
 
 ## 9. Plan d'actions priorise
 
-Etat au 2026-04-24 :
+Etat au 2026-04-25 :
 
-- phases 0 a 4 : majoritairement executees
-- phase 5 : largement executee sur auth/account/settings, mais reste a stabiliser
-- phase 6 : encore ouverte
+- le shell, les workspaces principaux, le contrat API critique et une partie des gates BDD sont deja en place
+- ce plan ne garde que les actions encore ouvertes
 
 ### Priorite haute
 
-1. Stabiliser la validation automatique.
-   - continuer la reecriture des BDD critiques selon les specs
-   - remplacer les snapshots visuels legacy encore utiles comme garde-fous
+1. Stabiliser les flows review/apply critiques.
+   - resultat agrege batch plus fiable
+   - messages de succes/partiel/echec plus explicites
+   - refresh/retry coherents sur `409` / `412` / `428`
+
+2. Continuer l'elargissement des gates automatiques.
+   - promouvoir d'autres features canoniques stables hors smoke
+   - retirer les derniers reliquats legacy des BDD et snapshots
+   - garder le miroir `pre-push` strictement aligne sur la CI
 
 ### Priorite moyenne
 
-1. Stabiliser `Account` et `Settings`.
-   - consolider les etats de chargement/erreur
-   - verifier toute la separation compte vs runtime
-   - cadrer l'eventuelle extension admin
+1. Densifier `Activity`.
+   - meilleure segmentation de lecture
+   - validation dediee plus abondante
+   - clarification continue du statut "journal local" non backend
 
-2. Introduire le systeme clavier final.
-   - registry d'aide
-   - raccourcis non destructifs priorises
-   - garde de focus sur champs de saisie
+2. Arbitrer la suite de `Settings` / surfaces admin.
+   - soit exposer un sous-ensemble runtime utile
+   - soit figer explicitement le perimetre v1 et retirer les attentes implicites
 
-3. Stabiliser les etats UX.
+3. Homogeneiser les etats UX restants.
    - loading
    - empty states
-   - `412` / `428`
-   - `403` / `401`
-   - retry / refetch
+   - erreurs d'autorisation
+   - indisponibilite temporaire
 
 ### Priorite basse
 
 1. Polish visuel TailAdmin-aligned.
-   - tokens
    - densite
-   - modes table/grille
-   - cohérence fine des panneaux
+   - cohérence des panneaux
+   - reductions des patterns trop generiques
 
 ## 10. Sequencement d'implementation
 
-### Phase 0 - Assainissement contractuel
+### Tranche A - Flows critiques restants
 
-Statut : execute en grande partie.
+- durcir review/apply
+- uniformiser les preconditions
+- verifier les refreshs apres conflit
 
-- corriger le modele asset, le mapper et le client API
-- sortir les endpoints legacy du chemin critique
-- fiabiliser le mock API pour qu'il mime le contrat v1 reel
+### Tranche B - Validation canonique
 
-### Phase 1 - Shell et routing
+- promouvoir un feature BDD stable a la fois
+- garder les checks locaux et CI strictement miroirs
 
-Statut : execute.
+### Tranche C - Surfaces secondaires
 
-- creer le shell connecte
-- poser les routes canoniques
-- poser le decoupage public/authentifie
-- garder le wiring theme/i18n/persistance
+- densifier `Activity`
+- arbitrer `Settings` / ops admin
 
-### Phase 2 - Review workspace
+### Tranche D - Polish
 
-Statut : execute en grande partie.
-
-- liste + detail
-- qualification `REVIEW_PENDING_PROFILE`
-- decisions humaines
-- edition metadata
-- etats d'erreur et conflits
-
-### Phase 3 - Apply decisions et Rejects
-
-Statut : execute en grande partie.
-
-- rail de selection multiple
-- preview/confirmation/resultat pour actions groupees
-- workspace `Rejects`
-- purge unitaire et groupee explicite
-
-### Phase 4 - Library
-
-Statut : execute.
-
-- recherche/filtres/tri par contrat API
-- detail standalone et requalification
-- reopen / reprocess
-
-### Phase 5 - Auth, Account, Settings
-
-Statut : execute en grande partie.
-
-- auth publique
-- sessions
-- MFA
-- features user/admin
-- configuration runtime
-
-### Phase 6 - Activity, a11y, tests, polish
-
-Statut : ouverte.
-
-- densification du workspace activity borne
-- raccourcis
-- a11y
-- BDD/E2E
-- visual regression
+- a11y complementaire
+- raffinement visuel
+- reductions des dettes ergonomiques non bloquantes
 
 ## 11. Impact code
 
-### Fichiers/dossiers a modifier en priorite
+### Zones encore susceptibles de bouger
 
-- `src/routes/AppRoutes.tsx`
-- `src/pages/*`
 - `src/hooks/useReviewPageController.ts`
-- `src/hooks/useLibraryPageController.ts`
-- `src/hooks/useStandaloneAssetDetailController.ts`
 - `src/hooks/useReviewDataController.ts`
-- `src/hooks/useAuthPageController.ts`
-- `src/hooks/auth/*`
+- `src/hooks/useLibraryPageController.ts`
+- `src/hooks/useRejectsPageController.ts`
 - `src/components/app/*`
 - `src/components/review/*`
-- `src/components/library/*`
-- `src/components/auth/*`
-- `src/components/ui/*`
-- `src/api/client.ts`
-- `src/api/contracts.ts`
-- `src/api/transport.ts`
-- `src/api/assetMapper.ts`
-- `src/api/mockDb.ts`
-- `src/domain/assets.ts`
-- `src/domain/review/*`
+- `src/components/settings/*`
 - `src/application/review/*`
-- `src/store/slices/*`
-- `src/store/thunks/*`
 - `src/services/workspaceQueryParams.ts`
-- `src/services/workspaceContextPersistence.ts`
 - `src/i18n/locales/*`
 - `bdd/features/*`
 - `bdd/step-definitions/*`
 - `tests/visual/ui.visual.spec.ts`
-
-### Fichiers/dossiers probablement conserves comme base
-
-- `src/ui/tailadmin-theme.tsx`
-- `src/i18n/index.ts`
-- `src/store/index.ts`
-- `src/queryClient.ts`
-- `src/components/ui/AppButton.tsx` apres nettoyage si besoin
-
-### Composants a creer ou isoler explicitement
-
-- `AuthenticatedShell`
-- `PublicAuthLayout`
-- `ReviewWorkspacePage`
-- `LibraryWorkspacePage`
-- `RejectsWorkspacePage`
-- `ActivityPage`
-- `AccountPage`
-- `SettingsPage`
-- `AssetListSection`
-- `AssetDetailSection`
-- `DecisionPanel`
-- `ApplyDecisionPanel`
-- `PurgePanel`
-- `AudioProfileSelectionPanel`
-- `AssetStateBadge`
-- `FeatureAvailabilityBanner`
-- `ApiConflictBanner`
+- `.github/workflows/ci.yml`
+- `scripts/hooks/run-pre-push-ci.sh`
 
 ### Regle de mise en oeuvre
 
-- structure d'abord
-- contrat API ensuite
-- parcours critiques ensuite
-- ecrans secondaires ensuite
-- polish en dernier
-
-Le repo ne doit pas etre modifie massivement d'un seul bloc. Il faut decouper la refonte en PRs petites, chacune alignee sur une phase ci-dessus.
+- une PR = un ecart ferme ou une gate promue
+- pas de refonte massive transversale
+- pas de reouverture des zones deja alignees sans raison contractuelle claire

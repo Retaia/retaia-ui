@@ -27,11 +27,12 @@ Le repository n'est plus en phase `UI reset` pure.
 
 ## Prochaines etapes
 
-La prochaine etape n'est plus de produire le premier audit, mais de terminer la refonte sur les gaps encore ouverts:
+Les prochaines etapes encore ouvertes sont:
 
-- nettoyage contractuel des flows batch/apply
-- densification et validation du workspace `Activity`
-- poursuite de la reecriture BDD/E2E et des garde-fous visuels
+- stabilisation review/apply et conflits optimistic
+- densification de `Activity`
+- arbitrage du perimetre runtime admin restant
+- poursuite de l'elargissement des gates BDD/E2E
 
 Les audits et plans de reference a jour sont:
 
