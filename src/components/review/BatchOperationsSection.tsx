@@ -15,12 +15,14 @@ type Props = {
   executingBatch: boolean
   previewStatus: { kind: 'success' | 'error'; message: string } | null
   executeStatus: { kind: 'success' | 'error'; message: string } | null
+  shouldRefreshAssetsAfterConflict: boolean
   retryStatus: string | null
   onApplyDecisionToBatch: (action: 'KEEP' | 'REJECT') => void
   onClearBatch: () => void
   onPreviewBatchMove: () => Promise<void>
   onExecuteBatchMove: () => Promise<void>
   onCancelPendingBatchExecution: () => void
+  onRefreshAssetsAfterBatchConflict: () => Promise<void>
 }
 
 export function BatchOperationsSection({
@@ -35,12 +37,14 @@ export function BatchOperationsSection({
   executingBatch,
   previewStatus,
   executeStatus,
+  shouldRefreshAssetsAfterConflict,
   retryStatus,
   onApplyDecisionToBatch,
   onClearBatch,
   onPreviewBatchMove,
   onExecuteBatchMove,
   onCancelPendingBatchExecution,
+  onRefreshAssetsAfterBatchConflict,
 }: Props) {
   return (
     <section className="mt-3 rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm">
@@ -67,6 +71,9 @@ export function BatchOperationsSection({
         <BatchExecutionStatusAlerts
           previewStatus={previewStatus}
           executeStatus={executeStatus}
+          shouldRefreshAssetsAfterConflict={shouldRefreshAssetsAfterConflict}
+          onRefreshAssetsAfterConflict={onRefreshAssetsAfterBatchConflict}
+          refreshAssetsLabel={t('actions.refreshAssets')}
           retryStatus={retryStatus}
         />
     </section>

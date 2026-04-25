@@ -461,6 +461,7 @@ export const frTranslation = {
     'Exécution batch partielle ({success} ok, {failed} en échec): {message}. Les assets en échec restent sélectionnés.',
   'actions.executeNoEligible': 'Aucune décision batch éligible à appliquer.',
   'actions.executeError': 'Exécution en échec: {message}',
+  'actions.refreshAssets': 'Rafraîchir la liste des assets',
   'actions.retrying': 'Nouvelle tentative ({attempt}/{total})...',
   'actions.reportFetch': 'Rafraîchir rapport',
   'actions.reportFetchCta': 'Rafraîchir maintenant',

@@ -49,6 +49,7 @@ type Params = {
   t: Translate
   setRetryStatus: (value: string | null) => void
   mapErrorToMessage: (error: unknown) => string
+  isRefreshRecommendedError: (error: unknown) => boolean
   onBatchExecutionApplied: (
     successIds: string[],
     nextStatesById: Record<string, 'ARCHIVED' | 'REJECTED'>,
@@ -83,6 +84,7 @@ export function useBatchExecution({
   t,
   setRetryStatus,
   mapErrorToMessage,
+  isRefreshRecommendedError,
   onBatchExecutionApplied,
 }: Params) {
   const [previewingBatch, setPreviewingBatch] = useState(false)
@@ -93,6 +95,7 @@ export function useBatchExecution({
   } | null>(null)
   const [previewStatus, setPreviewStatus] = useState<StatusMessage | null>(null)
   const [executeStatus, setExecuteStatus] = useState<StatusMessage | null>(null)
+  const [shouldRefreshAssetsAfterConflict, setShouldRefreshAssetsAfterConflict] = useState(false)
   const [reportBatchId, setReportBatchId] = useState<string | null>(null)
   const [reportLoading, setReportLoading] = useState(false)
   const [reportStatus, setReportStatus] = useState<string | null>(null)
@@ -145,6 +148,7 @@ export function useBatchExecution({
 
     setPreviewingBatch(true)
     setPreviewStatus(null)
+    setShouldRefreshAssetsAfterConflict(false)
     setRetryStatus(null)
 
     try {
@@ -186,6 +190,7 @@ export function useBatchExecution({
 
       setExecutingBatch(true)
       setExecuteStatus(null)
+      setShouldRefreshAssetsAfterConflict(false)
       setReportStatus(null)
       setReportExportStatus(null)
       setRetryStatus(null)
@@ -193,6 +198,7 @@ export function useBatchExecution({
       const successIds: string[] = []
       const nextStatesById: Record<string, 'ARCHIVED' | 'REJECTED'> = {}
       const errors: Array<{ asset_id: string; reason: string }> = []
+      let refreshRecommended = false
 
       try {
         for (const target of targets) {
@@ -208,12 +214,16 @@ export function useBatchExecution({
             successIds.push(target.assetId)
             nextStatesById[target.assetId] = target.nextState
           } catch (error) {
+            if (isRefreshRecommendedError(error)) {
+              refreshRecommended = true
+            }
             errors.push({
               asset_id: target.assetId,
               reason: mapErrorToMessage(error),
             })
           }
         }
+        setShouldRefreshAssetsAfterConflict(refreshRecommended)
 
         const reportReference = buildLocalReportReference()
         const report = {
@@ -257,7 +267,7 @@ export function useBatchExecution({
         setRetryStatus(null)
       }
     },
-    [apiClient, assets, executingBatch, isApiAssetSource, mapErrorToMessage, onBatchExecutionApplied, setRetryStatus, t],
+    [apiClient, assets, executingBatch, isApiAssetSource, isRefreshRecommendedError, mapErrorToMessage, onBatchExecutionApplied, setRetryStatus, t],
   )
 
   const cancelPendingBatchExecution = useCallback(() => {
@@ -286,6 +296,7 @@ export function useBatchExecution({
       return
     }
 
+    setShouldRefreshAssetsAfterConflict(false)
     const plan = planBatchExecution({
       executingBatch,
       pendingBatchExecution,
@@ -369,6 +380,7 @@ export function useBatchExecution({
     pendingBatchExecution,
     previewStatus,
     executeStatus,
+    shouldRefreshAssetsAfterConflict,
     reportBatchId,
     reportLoading,
     reportStatus,
@@ -380,6 +392,7 @@ export function useBatchExecution({
     previewBatchMove,
     executeBatchMove,
     cancelPendingBatchExecution,
+    acknowledgeBatchRefreshRecommendation: () => setShouldRefreshAssetsAfterConflict(false),
     refreshBatchReport,
     exportBatchReport,
   } as const

@@ -18,6 +18,7 @@ type Props = {
   executingBatch: boolean
   previewStatus: { kind: 'success' | 'error'; message: string } | null
   executeStatus: { kind: 'success' | 'error'; message: string } | null
+  shouldRefreshAssetsAfterConflict: boolean
   retryStatus: string | null
   reportBatchId: string | null
   reportStatus: string | null
@@ -42,6 +43,7 @@ type Props = {
   onPreviewBatchMove: () => Promise<void>
   onExecuteBatchMove: () => Promise<void>
   onCancelPendingBatchExecution: () => void
+  onRefreshAssetsAfterBatchConflict: () => Promise<void>
   onRefreshBatchReport: () => Promise<void>
   onExportBatchReport: (format: 'json' | 'csv') => void
   onUndoLastAction: () => void
@@ -63,6 +65,7 @@ export function ReviewWorkspaceSection(props: Props) {
     executingBatch,
     previewStatus,
     executeStatus,
+    shouldRefreshAssetsAfterConflict,
     retryStatus,
     reportBatchId,
     reportStatus,
@@ -87,6 +90,7 @@ export function ReviewWorkspaceSection(props: Props) {
     onPreviewBatchMove,
     onExecuteBatchMove,
     onCancelPendingBatchExecution,
+    onRefreshAssetsAfterBatchConflict,
     onRefreshBatchReport,
     onExportBatchReport,
     onUndoLastAction,
@@ -109,6 +113,7 @@ export function ReviewWorkspaceSection(props: Props) {
         executingBatch={executingBatch}
         previewStatus={previewStatus}
         executeStatus={executeStatus}
+        shouldRefreshAssetsAfterConflict={shouldRefreshAssetsAfterConflict}
         retryStatus={retryStatus}
         reportBatchId={reportBatchId}
         reportStatus={reportStatus}
@@ -131,6 +136,7 @@ export function ReviewWorkspaceSection(props: Props) {
         onPreviewBatchMove={onPreviewBatchMove}
         onExecuteBatchMove={onExecuteBatchMove}
         onCancelPendingBatchExecution={onCancelPendingBatchExecution}
+        onRefreshAssetsAfterBatchConflict={onRefreshAssetsAfterBatchConflict}
         onRefreshBatchReport={onRefreshBatchReport}
         onExportBatchReport={onExportBatchReport}
         onUndoLastAction={onUndoLastAction}
