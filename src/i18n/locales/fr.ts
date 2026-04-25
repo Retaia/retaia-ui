@@ -306,6 +306,8 @@ export const frTranslation = {
   'account.sessionsRefresh': 'Rafraîchir sessions',
   'account.sessionsLoading': 'Chargement des sessions...',
   'account.sessionsEmpty': 'Aucune session interactive visible.',
+  'account.sessionsUnavailable':
+    'Reconnecte-toi pour lire ou révoquer les sessions interactives de ce compte.',
   'account.sessionsLoadError': 'Chargement sessions en échec: {message}',
   'account.sessionCurrent': 'Session courante',
   'account.sessionMetaFallback': 'Métadonnées client indisponibles',

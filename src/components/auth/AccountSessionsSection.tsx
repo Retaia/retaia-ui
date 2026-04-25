@@ -17,6 +17,7 @@ type Props = {
   t: TFunction
   sessions: Session[]
   loading: boolean
+  availability: 'signed_out' | 'loading' | 'ready'
   busySessionId: string | null
   revokingOthers: boolean
   status: { kind: 'success' | 'error'; message: string } | null
@@ -40,6 +41,7 @@ export function AccountSessionsSection({
   t,
   sessions,
   loading,
+  availability,
   busySessionId,
   revokingOthers,
   status,
@@ -63,7 +65,7 @@ export function AccountSessionsSection({
             type="button"
             className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
             onClick={() => void onRefresh()}
-            disabled={loading}
+            disabled={loading || availability === 'signed_out'}
             data-testid="account-sessions-refresh"
           >
             {t('account.sessionsRefresh')}
@@ -72,7 +74,7 @@ export function AccountSessionsSection({
             type="button"
             className="inline-flex items-center justify-center rounded-lg border border-error-500 bg-error-500 px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-error-600 disabled:cursor-not-allowed disabled:opacity-50"
             onClick={() => void onRevokeOthers()}
-            disabled={revokingOthers}
+            disabled={revokingOthers || availability === 'signed_out'}
             data-testid="account-sessions-revoke-others"
           >
             {revokingOthers ? t('account.revokeOthersBusy') : t('account.revokeOthers')}
@@ -81,7 +83,11 @@ export function AccountSessionsSection({
       </div>
 
       <div className="mt-5 space-y-3">
-        {loading ? (
+        {availability === 'signed_out' ? (
+          <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-4 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-300">
+            <p data-testid="account-sessions-unavailable">{t('account.sessionsUnavailable')}</p>
+          </div>
+        ) : loading ? (
           <p className="text-sm text-gray-500">{t('account.sessionsLoading')}</p>
         ) : sessions.length === 0 ? (
           <p className="text-sm text-gray-500">{t('account.sessionsEmpty')}</p>

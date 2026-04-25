@@ -37,6 +37,7 @@ describe('useAuthSessionsController', () => {
     await waitFor(() => {
       expect(result.current.sessions[0]?.sessionId).toBe('sess-1')
     })
+    expect(result.current.availability).toBe('ready')
   })
 
   it('removes one session after revoke', async () => {
@@ -72,5 +73,34 @@ describe('useAuthSessionsController', () => {
     })
 
     expect(result.current.sessions).toHaveLength(0)
+  })
+
+  it('stays unavailable and blocks actions when disabled', async () => {
+    const apiClient = createApiClientMock()
+    const t = vi.fn((key: string) => key)
+
+    const { result } = renderHook(() =>
+      useAuthSessionsController({
+        apiClient,
+        t,
+        enabled: false,
+      }),
+    )
+
+    expect(result.current.availability).toBe('signed_out')
+
+    await act(async () => {
+      await result.current.loadSessions()
+      await result.current.revokeSession('sess-1')
+      await result.current.revokeOthers()
+    })
+
+    expect(apiClient.listAuthSessions).not.toHaveBeenCalled()
+    expect(apiClient.revokeAuthSession).not.toHaveBeenCalled()
+    expect(apiClient.revokeOtherAuthSessions).not.toHaveBeenCalled()
+    expect(result.current.status).toEqual({
+      kind: 'error',
+      message: 'account.sessionsUnavailable',
+    })
   })
 })
