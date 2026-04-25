@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { type Dispatch, type SetStateAction, useEffect, useRef, useState } from 'react'
+import { type Dispatch, type SetStateAction, useCallback, useEffect, useRef, useState } from 'react'
 import { mapApiSummaryToAsset } from '../api/assetMapper'
 import { ApiError, type ApiClient } from '../api/client'
 import type { ListAssetsQuery } from '../api/contracts'
@@ -56,6 +56,28 @@ export function useReviewDataController({
   const [nextCursor, setNextCursor] = useState<string | null>(null)
   const [loadingMoreAssets, setLoadingMoreAssets] = useState(false)
   const consecutive429ErrorsRef = useRef(0)
+
+  const refreshAssets = useCallback(async () => {
+    if (!isApiAssetSource) {
+      return false
+    }
+    setAssetsLoadState('loading')
+    try {
+      const response = await apiClient.listAssets({
+        ...listQuery,
+        limit: DEFAULT_ASSET_LIST_PAGE_SIZE,
+      })
+      const items = response.items ?? []
+      setAssets(items.map((summary, index) => mapApiSummaryToAsset(summary, index)))
+      setNextCursor(response.next_cursor ?? null)
+      setAssetsLoadState('idle')
+      return true
+    } catch {
+      setAssetsLoadState('error')
+      setNextCursor(null)
+      return false
+    }
+  }, [apiClient, isApiAssetSource, listQuery, setAssets])
 
   useEffect(() => {
     if (!isApiAssetSource) {
@@ -223,5 +245,6 @@ export function useReviewDataController({
     hasMoreAssets: isApiAssetSource && Boolean(nextCursor),
     loadingMoreAssets,
     loadMoreAssets,
+    refreshAssets,
   }
 }

@@ -66,6 +66,7 @@ export default function ReviewWorkspacePage() {
           executingBatch={controller.executingBatch}
           previewStatus={controller.previewStatus}
           executeStatus={controller.executeStatus}
+          shouldRefreshAssetsAfterConflict={controller.shouldRefreshAssetsAfterConflict}
           retryStatus={controller.retryStatus}
           reportBatchId={controller.reportBatchId}
           reportStatus={controller.reportStatus}
@@ -90,6 +91,7 @@ export default function ReviewWorkspacePage() {
           onPreviewBatchMove={controller.previewBatchMove}
           onExecuteBatchMove={controller.executeBatchMove}
           onCancelPendingBatchExecution={controller.cancelPendingBatchExecution}
+          onRefreshAssetsAfterBatchConflict={controller.refreshAssetsAfterBatchConflict}
           onRefreshBatchReport={controller.refreshBatchReport}
           onExportBatchReport={controller.exportBatchReport}
           onUndoLastAction={controller.undoLastAction}

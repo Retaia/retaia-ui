@@ -44,6 +44,7 @@ type Props = {
   executingBatch: boolean
   previewStatus: StatusMessage | null
   executeStatus: StatusMessage | null
+  shouldRefreshAssetsAfterConflict: boolean
   retryStatus: string | null
   reportBatchId: string | null
   reportStatus: string | null
@@ -66,6 +67,7 @@ type Props = {
   onPreviewBatchMove: () => Promise<void>
   onExecuteBatchMove: () => Promise<void>
   onCancelPendingBatchExecution: () => void
+  onRefreshAssetsAfterBatchConflict: () => Promise<void>
   onRefreshBatchReport: () => Promise<void>
   onExportBatchReport: (format: 'json' | 'csv') => void
   onUndoLastAction: () => void
@@ -85,6 +87,7 @@ export function ActionPanels({
   executingBatch,
   previewStatus,
   executeStatus,
+  shouldRefreshAssetsAfterConflict,
   retryStatus,
   reportBatchId,
   reportStatus,
@@ -107,6 +110,7 @@ export function ActionPanels({
   onPreviewBatchMove,
   onExecuteBatchMove,
   onCancelPendingBatchExecution,
+  onRefreshAssetsAfterBatchConflict,
   onRefreshBatchReport,
   onExportBatchReport,
   onUndoLastAction,
@@ -202,6 +206,9 @@ export function ActionPanels({
               <BatchExecutionStatusAlerts
                 previewStatus={previewStatus}
                 executeStatus={executeStatus}
+                shouldRefreshAssetsAfterConflict={shouldRefreshAssetsAfterConflict}
+                onRefreshAssetsAfterConflict={onRefreshAssetsAfterBatchConflict}
+                refreshAssetsLabel={t('actions.refreshAssets')}
                 retryStatus={retryStatus}
               />
               <ActionReportSection

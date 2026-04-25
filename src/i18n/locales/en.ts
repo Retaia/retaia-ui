@@ -460,6 +460,7 @@ export const enTranslation = {
     'Batch execution partially completed ({success} ok, {failed} failed): {message}. Failed assets remain selected.',
   'actions.executeNoEligible': 'No eligible batch decisions to apply.',
   'actions.executeError': 'Execution failed: {message}',
+  'actions.refreshAssets': 'Refresh asset list',
   'actions.retrying': 'Retrying request ({attempt}/{total})...',
   'actions.reportFetch': 'Refresh report',
   'actions.reportFetchCta': 'Refresh now',

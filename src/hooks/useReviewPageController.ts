@@ -226,6 +226,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     hasMoreAssets,
     loadingMoreAssets,
     loadMoreAssets,
+    refreshAssets,
   } =
     useReviewDataController({
       apiClient,
@@ -349,6 +350,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     pendingBatchExecution,
     previewStatus,
     executeStatus,
+    shouldRefreshAssetsAfterConflict,
     reportBatchId,
     reportLoading,
     reportStatus,
@@ -360,6 +362,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     previewBatchMove,
     executeBatchMove,
     cancelPendingBatchExecution,
+    acknowledgeBatchRefreshRecommendation,
     refreshBatchReport,
     exportBatchReport,
   } = useBatchExecution({
@@ -370,6 +373,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     t,
     setRetryStatus,
     mapErrorToMessage: mapBatchErrorToMessage,
+    isRefreshRecommendedError: isStateConflictApiError,
     onBatchExecutionApplied: (successIds, nextStatesById) => {
       setAssets((current) =>
         current.map((asset) => {
@@ -1026,6 +1030,12 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   const executeBatchMoveNow = useCallback(() => {
     void executeBatchMove()
   }, [executeBatchMove])
+  const refreshAssetsAfterBatchConflict = useCallback(async () => {
+    const didRefresh = await refreshAssets()
+    if (didRefresh) {
+      acknowledgeBatchRefreshRecommendation()
+    }
+  }, [acknowledgeBatchRefreshRecommendation, refreshAssets])
 
   const applyDecisionKeepToSelected = useCallback(() => {
     applyDecisionToSelected('KEEP')
@@ -1132,6 +1142,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     executingBatch,
     previewStatus,
     executeStatus,
+    shouldRefreshAssetsAfterConflict,
     retryStatus,
     reportBatchId,
     reportStatus,
@@ -1158,6 +1169,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     previewBatchMove,
     executeBatchMove,
     cancelPendingBatchExecution,
+    refreshAssetsAfterBatchConflict,
     refreshBatchReport,
     exportBatchReport,
     undoLastAction,
