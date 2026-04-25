@@ -87,7 +87,7 @@ Feature: Workflow de review desktop-like
     Given je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je clique sur le bouton "Exécuter batch"
-    Then le message "Fenêtre d'annulation" est visible
+    Then le bouton "Annuler exécution" est visible
     When je clique sur le bouton "Annuler exécution"
     Then le message "annulée avant l'appel API" est visible
 
