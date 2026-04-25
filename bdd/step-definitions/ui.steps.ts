@@ -287,7 +287,16 @@ Then('le bouton {string} est visible', async (buttonLabel: string) => {
   ) {
     await openQuickActionsMenuIfNeeded()
   }
-  await expect(getPage().getByRole('button', { name: buttonLabel })).toBeVisible()
+
+  const exactButton = getPage().getByRole('button', { name: buttonLabel, exact: true })
+  if (await exactButton.isVisible().catch(() => false)) {
+    await expect(exactButton).toBeVisible()
+    return
+  }
+
+  await expect(
+    getPage().getByRole('button', { name: new RegExp(escapeRegExp(buttonLabel), 'i') }).first(),
+  ).toBeVisible()
 })
 
 Then('le rapport de batch contient {string}', async (text: string) => {

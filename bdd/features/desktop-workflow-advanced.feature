@@ -24,7 +24,7 @@ Feature: Workflow desktop avancé
     Given je suis sur la page d'accueil
     When je fais Maj+clic sur l'asset "interview-camera-a.mov"
     And je clique sur le bouton "Exécuter batch"
-    Then le message "Fenêtre d'annulation" est visible
+    Then le bouton "Annuler exécution" est visible
     When j'appuie sur la touche "Shift+Enter"
     Then le message "Exécution du batch acceptée" est visible
 

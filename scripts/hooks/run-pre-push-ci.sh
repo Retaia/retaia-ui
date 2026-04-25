@@ -68,3 +68,6 @@ for browser in chromium firefox webkit; do
     PW_BROWSER="${browser}" APP_URL="${E2E_TEST_ENV_URL}" BDD_API_MODE=real-api npm run bdd:test:real-api:ci
   fi
 done
+
+echo "[pre-push] e2e:bdd:batch-preview-execute:ci (chromium)"
+PW_BROWSER="chromium" APP_URL="${app_url}" BDD_API_MODE="${bdd_api_mode}" npm run e2e:bdd:batch-preview-execute:ci
