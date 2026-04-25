@@ -249,12 +249,16 @@ export const frTranslation = {
   'settings.runtimeDiagnosticsSignedOut':
     'Connecte un compte opérateur pour lire le readiness et la policy runtime du serveur.',
   'settings.runtimeDiagnosticsLoaded': 'Diagnostics runtime chargés ({status}).',
+  'settings.runtimeDiagnosticsPartial':
+    '{scope} indisponible alors que le reste des diagnostics runtime reste lisible : {message}',
   'settings.runtimeDiagnosticsError': 'Chargement diagnostics runtime en échec: {message}',
   'settings.runtimeDiagnosticsUnknown': 'Inconnu',
   'settings.runtimeReadinessLabel': 'Readiness',
+  'settings.runtimePolicyLabel': 'Policy runtime',
   'settings.runtimeReadinessStatus.ok': 'OK',
   'settings.runtimeReadinessStatus.degraded': 'Dégradé',
   'settings.runtimeReadinessStatus.down': 'Indisponible',
+  'settings.runtimeReadinessUnavailable': 'Readiness indisponible : {message}',
   'settings.runtimeSelfHealingLabel': 'Self-healing',
   'settings.runtimeSelfHealingActive': 'Actif',
   'settings.runtimeSelfHealingInactive': 'Inactif',
@@ -264,6 +268,7 @@ export const frTranslation = {
   'settings.runtimeFlagEnabled': 'actif',
   'settings.runtimeFlagDisabled': 'inactif',
   'settings.runtimeFeatureFlagsEmpty': 'Aucun flag runtime visible dans la policy courante.',
+  'settings.runtimePolicyUnavailable': 'Policy runtime indisponible : {message}',
   'settings.runtimeAdminTitle': 'Gouvernance runtime admin',
   'settings.runtimeAdminBody':
     'Les toggles runtime réservés aux admins vivent ici parce qu’ils affectent la disponibilité côté serveur, pas le compte opérateur.',

@@ -249,12 +249,15 @@ export const enTranslation = {
   'settings.runtimeDiagnosticsSignedOut':
     'Sign in with an operator account to read server readiness and runtime policy.',
   'settings.runtimeDiagnosticsLoaded': 'Runtime diagnostics loaded ({status}).',
+  'settings.runtimeDiagnosticsPartial': '{scope} is unavailable while the rest of runtime diagnostics remain readable: {message}',
   'settings.runtimeDiagnosticsError': 'Runtime diagnostics failed to load: {message}',
   'settings.runtimeDiagnosticsUnknown': 'Unknown',
   'settings.runtimeReadinessLabel': 'Readiness',
+  'settings.runtimePolicyLabel': 'Runtime policy',
   'settings.runtimeReadinessStatus.ok': 'OK',
   'settings.runtimeReadinessStatus.degraded': 'Degraded',
   'settings.runtimeReadinessStatus.down': 'Unavailable',
+  'settings.runtimeReadinessUnavailable': 'Readiness unavailable: {message}',
   'settings.runtimeSelfHealingLabel': 'Self-healing',
   'settings.runtimeSelfHealingActive': 'Active',
   'settings.runtimeSelfHealingInactive': 'Inactive',
@@ -264,6 +267,7 @@ export const enTranslation = {
   'settings.runtimeFlagEnabled': 'enabled',
   'settings.runtimeFlagDisabled': 'disabled',
   'settings.runtimeFeatureFlagsEmpty': 'No runtime feature flags are exposed by the current policy.',
+  'settings.runtimePolicyUnavailable': 'Runtime policy unavailable: {message}',
   'settings.runtimeAdminTitle': 'Admin runtime governance',
   'settings.runtimeAdminBody':
     'Admin-only runtime toggles belong here because they affect server-side availability, not the operator account itself.',
