@@ -34,7 +34,6 @@ Le repository sert deja:
 
 Les audits de pilotage deja produits et mis a jour sont:
 
-- `docs/ui-audit.md`
 - `docs/ui-gap-analysis.md`
 - `docs/ui-implementation-plan.md`
 

@@ -2,50 +2,49 @@
 
 ## 7. Gap analysis
 
+Ce document ne liste plus les chantiers deja executes. Il ne garde que les ecarts encore ouverts.
+
 ### Ecarts critiques
 
-| Priorite | Ecart | Existant | Attendu | Risque |
+| Priorite | Ecart | Situation actuelle | Attendu | Risque |
 | --- | --- | --- | --- | --- |
-| Haute | Apply groupé encore a stabiliser | selection et rails UI existent, et l'execution est redevenue unitaire, mais le resultat agrege et certains etats UX restent fragiles | previsualisation, confirmation, execution unitaire, resultat agrege robuste sans endpoint invente | faux positifs UX ou perte de lisibilite sur les actions critiques |
+| Haute | Apply groupé encore a stabiliser | la selection, la previsualisation et l'execution unitaire existent, mais le resultat agrege et plusieurs etats UX restent fragiles | apply robuste, lisible, sans faux succes ni heuristique locale | incomprehension operateur sur une action critique |
+| Haute | Concurrence optimistic encore heterogene | certains flows passent `If-Match` et exposent un refresh explicite, mais le traitement `412` / `428` / `409` n'est pas uniforme | gestion coherente des conflits sur review/apply/reprocess/purge | retries opaques ou etats obsoletes affiches comme fiables |
+
 ### Ecarts importants
 
-| Priorite | Ecart | Existant | Attendu | Risque |
+| Priorite | Ecart | Situation actuelle | Attendu | Risque |
 | --- | --- | --- | --- | --- |
-| Haute | Elargissement progressif des gates de validation | le smoke BDD, les visuels et deux features canoniques non-smoke dedies batch preview/execute et decision API sont maintenant gates, mais la suite BDD canonique complete revele encore des casses hors gate standard | continuer a promouvoir les features canoniques stables au-dela du smoke sans remettre de legacy ni casser la CI | zones de regression encore hors gate bloquante |
-| Moyenne/haute | Concurrence optimistic encore heterogene | une partie des flows unitaires passe `If-Match`, mais le nettoyage n'est pas uniforme sur tout le parcours review/apply/reprocess/purge | toute mutation asset partagee branchee sur `revision_etag` | `428` et `412` geres de facon incomplete |
-| Moyenne | Activity encore a densifier | route canonique servie avec journal local borne, filtres et liens retour, mais sans segmentation plus fine ni validation dediee abondante | journal local lisible, robuste et clairement distinct d'un audit backend | valeur percue encore trop faible ou trop generique |
-| Moyenne | Settings admin encore borne a un sous-ensemble | config runtime et feature MFA globale presentes, pas de surface ops admin plus large | exposition admin minimale si retenue | runtime admin incomplet mais non bloquant v1 |
-| Moyenne | Ops admin non integres | endpoints presents dans OpenAPI, UI locale absente | exposition admin minimale si retenue | manque de diagnosique operateur |
+| Haute | Elargissement progressif des gates de validation | le smoke BDD, les visuels et deux features canoniques non-smoke (`batch preview/execute`, `decision API`) sont gates | continuer a promouvoir les parcours canoniques stables sans ouvrir toute la suite BDD d'un bloc | regressions encore hors gate bloquante |
+| Moyenne | Activity encore a densifier | le workspace existe et reste borne, mais sa densite d'information et sa validation sont encore faibles | journal local plus lisible, plus robuste, clairement non confondu avec un audit backend | surface percue comme accessoire ou generique |
+| Moyenne | Settings admin encore borne a un sous-ensemble | diagnostics runtime et flags exposes, mais pas de surface ops admin plus large | exposition admin minimale seulement si elle est retenue produit/specs | frustration operateur sur des diagnostics absents |
+| Moyenne | Ops admin non integres | des endpoints existent au contrat, pas d'UI locale dediee | arbitrage explicite: exposer un sous-ensemble utile ou assumer l'absence en v1 | dette produit/documentaire persistante |
 
 ### Ecarts secondaires
 
-| Priorite | Ecart | Existant | Attendu | Risque |
+| Priorite | Ecart | Situation actuelle | Attendu | Risque |
 | --- | --- | --- | --- | --- |
-| Basse/moyenne | Persistance locale encore inegale | review/library/rejects sont mieux servis, `activity` reste borne | review/library/rejects/activity selon besoin | experience fragile sur les surfaces secondaires |
-| Basse | Design system encore generic TailAdmin | primitives presentes, pas d'identite produit | rendu d'outil operateur sobre et robuste | dette cosmétique, pas blocage contractuel |
+| Basse/moyenne | Persistance locale encore inegale | `review`, `library` et `rejects` sont mieux servis que `activity` | persistance coherent par workspace selon utilite reelle | perte de contexte sur les surfaces secondaires |
+| Basse | Design system encore generic TailAdmin | la base est utilisable mais l'identite reste neutre | rendu plus operateur, plus sobre, moins template | dette visuelle, sans blocage contractuel |
 
-## Points de suppression/refonte prioritaires
+## Suppressions / refontes restantes
 
 ### Supprimer
 
-- reliquats de tags/scripts/snapshots lies au vocabulaire legacy
+- reliquats de scripts, tags, snapshots ou wording legacy encore presents dans les gates
 
 ### Refondre
 
-- `src/domain/assets.ts`
-- `src/api/contracts.ts`
-- `src/api/assetMapper.ts`
-- `src/api/mockDb.ts`
-- `src/hooks/useReviewPageController.ts`
-- `src/hooks/useAuthPageController.ts`
-- `src/hooks/auth/useAuthSessionsController.ts`
-- tous les composants legacy app/review qui portent l'ancien flux batch/proxy
+- `src/hooks/useReviewPageController.ts` pour les etats limites review/apply
+- `src/hooks/useReviewDataController.ts` pour les refreshs et conflits
+- `src/hooks/useLibraryPageController.ts` et `src/hooks/useRejectsPageController.ts` pour l'homogeneite des preconditions
+- `src/hooks/useAuthPageController.ts` si l'extension admin/settings devient necessaire
+- composants review/apply encore trop lies a l'ancien flux batch
 
-## Ce qui peut servir de base sans imposer l'ancienne UX
+## Base exploitable sans refonte lourde
 
-- gestion du theme
-- infrastructure i18n
-- persistance query params
-- persistance du contexte de navigation
-- une partie du socle auth
-- quelques helpers de selection/focus/statut apres requalification unitaire
+- theme et primitives UI existantes
+- socle i18n
+- persistance query params / contexte de navigation
+- auth publique et compte
+- workspaces canoniques deja en place

@@ -27,15 +27,15 @@ Le repository n'est plus en phase `UI reset` pure.
 
 ## Prochaines etapes
 
-La prochaine etape n'est plus de produire le premier audit, mais de terminer la refonte sur les gaps encore ouverts:
+Les prochaines etapes encore ouvertes sont:
 
-- nettoyage contractuel des flows batch/apply
-- densification et validation du workspace `Activity`
-- poursuite de la reecriture BDD/E2E et des garde-fous visuels
+- stabilisation review/apply et conflits optimistic
+- densification de `Activity`
+- arbitrage du perimetre runtime admin restant
+- poursuite de l'elargissement des gates BDD/E2E
 
 Les audits et plans de reference a jour sont:
 
-- `docs/ui-audit.md`
 - `docs/ui-gap-analysis.md`
 - `docs/ui-implementation-plan.md`
 - `docs/ui-information-architecture.md`
@@ -63,7 +63,7 @@ Le cadrage produit/UI a lire pour cette implementation est dans `specs/ui/`:
 ## Architecture UI/DDD
 
 - Source détaillée (etat courant + cible structurelle, couches DDD, garde-fous d'import, tests): `docs/UI-ARCHITECTURE.md`
-- Audit d'ecart et plan d'implementation a jour: `docs/ui-audit.md`, `docs/ui-gap-analysis.md`, `docs/ui-implementation-plan.md`
+- Audit d'ecart et plan d'implementation a jour: `docs/ui-gap-analysis.md`, `docs/ui-implementation-plan.md`
 - Conventions UI visuelles et Tailwind: `docs/UI-DESIGN-SYSTEM.md`
 - Bonnes pratiques de développement/PR: `docs/DEVELOPMENT-BEST-PRACTICES.md`
 - Les regles produit/UI globales doivent etre lues dans `specs/ui/*`, pas redefinies localement.
