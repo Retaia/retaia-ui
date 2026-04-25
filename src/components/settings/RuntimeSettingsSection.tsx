@@ -85,6 +85,13 @@ export function RuntimeSettingsSection({ t, controller }: RuntimeSettingsSection
                     ? t(`settings.runtimeReadinessStatus.${runtimeDiagnostics.health.status}`)
                     : t('settings.runtimeDiagnosticsUnknown')}
                 </dd>
+                {runtimeDiagnostics.healthError ? (
+                  <p className="mt-1 text-xs text-error-700 dark:text-error-400" data-testid="runtime-readiness-error">
+                    {t('settings.runtimeReadinessUnavailable', {
+                      message: runtimeDiagnostics.healthError,
+                    })}
+                  </p>
+                ) : null}
               </div>
 
               <div className="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900">
@@ -92,9 +99,13 @@ export function RuntimeSettingsSection({ t, controller }: RuntimeSettingsSection
                   {t('settings.runtimeSelfHealingLabel')}
                 </dt>
                 <dd className="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100" data-testid="runtime-self-healing-status">
-                  {runtimeDiagnostics.health?.self_healing.active
-                    ? t('settings.runtimeSelfHealingActive')
-                    : t('settings.runtimeSelfHealingInactive')}
+                  {runtimeDiagnostics.health
+                    ? (
+                        runtimeDiagnostics.health.self_healing.active
+                          ? t('settings.runtimeSelfHealingActive')
+                          : t('settings.runtimeSelfHealingInactive')
+                      )
+                    : t('settings.runtimeDiagnosticsUnknown')}
                 </dd>
                 {runtimeDiagnostics.health?.self_healing.max_self_healing_seconds ? (
                   <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
@@ -112,9 +123,11 @@ export function RuntimeSettingsSection({ t, controller }: RuntimeSettingsSection
                   {t('settings.runtimeFeatureFlagsLabel')}
                 </p>
                 <p className="mb-0 text-xs text-gray-500 dark:text-gray-400" data-testid="runtime-feature-flags-count">
-                  {t('settings.runtimeFeatureFlagsCount', {
-                    count: runtimeDiagnostics.featureFlags.length,
-                  })}
+                  {runtimeDiagnostics.policy
+                    ? t('settings.runtimeFeatureFlagsCount', {
+                        count: runtimeDiagnostics.featureFlags.length,
+                      })
+                    : t('settings.runtimeDiagnosticsUnknown')}
                 </p>
               </div>
               {runtimeDiagnostics.featureFlags.length > 0 ? (
@@ -133,9 +146,19 @@ export function RuntimeSettingsSection({ t, controller }: RuntimeSettingsSection
                     </span>
                   ))}
                 </div>
-              ) : (
+              ) : runtimeDiagnostics.policyError ? (
+                <p className="mt-3 text-sm text-error-700 dark:text-error-400" data-testid="runtime-feature-flags-error">
+                  {t('settings.runtimePolicyUnavailable', {
+                    message: runtimeDiagnostics.policyError,
+                  })}
+                </p>
+              ) : runtimeDiagnostics.policy ? (
                 <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
                   {t('settings.runtimeFeatureFlagsEmpty')}
+                </p>
+              ) : (
+                <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
+                  {t('settings.runtimeDiagnosticsUnknown')}
                 </p>
               )}
             </div>
