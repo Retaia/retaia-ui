@@ -80,6 +80,7 @@ export function AccountPage() {
           t={t}
           sessions={sessionsController.sessions}
           loading={sessionsController.loading}
+          availability={sessionsController.availability}
           busySessionId={sessionsController.busySessionId}
           revokingOthers={sessionsController.revokingOthers}
           status={sessionsController.status}

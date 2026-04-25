@@ -54,16 +54,23 @@ export function useAuthSessionsController(args: {
   const [busySessionId, setBusySessionId] = useState<string | null>(null)
   const [revokingOthers, setRevokingOthers] = useState(false)
   const [status, setStatus] = useState<Status | null>(null)
+  const [availability, setAvailability] = useState<'signed_out' | 'loading' | 'ready'>(
+    enabled ? 'loading' : 'signed_out',
+  )
 
   const fetchSessions = useCallback(async () => {
     if (!enabled) {
       setSessions([])
+      setAvailability('signed_out')
+      setStatus(null)
       return
     }
     try {
       const result = await apiClient.listAuthSessions()
       setSessions(normalizeSessions(result.items))
+      setAvailability('ready')
     } catch (error) {
+      setAvailability('ready')
       setStatus({
         kind: 'error',
         message: t('account.sessionsLoadError', {
@@ -85,17 +92,22 @@ export function useAuthSessionsController(args: {
       if (!enabled) {
         setSessions([])
         setLoading(false)
+        setAvailability('signed_out')
+        setStatus(null)
         return
       }
 
       setLoading(true)
+      setAvailability('loading')
       try {
         const result = await apiClient.listAuthSessions()
         if (!cancelled) {
           setSessions(normalizeSessions(result.items))
+          setAvailability('ready')
         }
       } catch (error) {
         if (!cancelled) {
+          setAvailability('ready')
           setStatus({
             kind: 'error',
             message: t('account.sessionsLoadError', {
@@ -118,15 +130,33 @@ export function useAuthSessionsController(args: {
   }, [apiClient, enabled, t])
 
   const loadSessions = useCallback(async () => {
+    if (!enabled) {
+      setSessions([])
+      setAvailability('signed_out')
+      setStatus({
+        kind: 'error',
+        message: t('account.sessionsUnavailable'),
+      })
+      return
+    }
     setLoading(true)
+    setStatus(null)
+    setAvailability('loading')
     try {
       await fetchSessions()
     } finally {
       setLoading(false)
     }
-  }, [fetchSessions])
+  }, [enabled, fetchSessions, t])
 
   const revokeSession = useCallback(async (sessionId: string) => {
+    if (!enabled) {
+      setStatus({
+        kind: 'error',
+        message: t('account.sessionsUnavailable'),
+      })
+      return
+    }
     setBusySessionId(sessionId)
     setStatus(null)
     try {
@@ -146,9 +176,16 @@ export function useAuthSessionsController(args: {
     } finally {
       setBusySessionId(null)
     }
-  }, [apiClient, t])
+  }, [apiClient, enabled, t])
 
   const revokeOthers = useCallback(async () => {
+    if (!enabled) {
+      setStatus({
+        kind: 'error',
+        message: t('account.sessionsUnavailable'),
+      })
+      return
+    }
     setRevokingOthers(true)
     setStatus(null)
     try {
@@ -168,11 +205,12 @@ export function useAuthSessionsController(args: {
     } finally {
       setRevokingOthers(false)
     }
-  }, [apiClient, t])
+  }, [apiClient, enabled, t])
 
   return {
     sessions,
     loading,
+    availability,
     busySessionId,
     revokingOthers,
     status,

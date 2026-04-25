@@ -305,6 +305,8 @@ export const enTranslation = {
   'account.sessionsRefresh': 'Refresh sessions',
   'account.sessionsLoading': 'Loading sessions...',
   'account.sessionsEmpty': 'No interactive session is visible.',
+  'account.sessionsUnavailable':
+    'Sign in again to read or revoke interactive sessions for this account.',
   'account.sessionsLoadError': 'Sessions load failed: {message}',
   'account.sessionCurrent': 'Current session',
   'account.sessionMetaFallback': 'Client metadata unavailable',

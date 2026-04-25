@@ -26,6 +26,7 @@ describe('AccountSessionsSection', () => {
           },
         ]}
         loading={false}
+        availability="ready"
         busySessionId={null}
         revokingOthers={false}
         status={null}
@@ -49,6 +50,7 @@ describe('AccountSessionsSection', () => {
         t={t}
         sessions={[]}
         loading={false}
+        availability="ready"
         busySessionId={null}
         revokingOthers={false}
         status={{ kind: 'success', message: 'done' }}
@@ -61,5 +63,28 @@ describe('AccountSessionsSection', () => {
     await user.click(screen.getByTestId('account-sessions-revoke-others'))
     expect(onRevokeOthers).toHaveBeenCalled()
     expect(screen.getByTestId('account-sessions-status')).toHaveTextContent('done')
+  })
+
+  it('renders a signed-out sessions state and disables actions', () => {
+    render(
+      <AccountSessionsSection
+        t={t}
+        sessions={[]}
+        loading={false}
+        availability="signed_out"
+        busySessionId={null}
+        revokingOthers={false}
+        status={null}
+        onRefresh={vi.fn(async () => {})}
+        onRevokeSession={vi.fn(async () => {})}
+        onRevokeOthers={vi.fn(async () => {})}
+      />,
+    )
+
+    expect(screen.getByTestId('account-sessions-unavailable')).toHaveTextContent(
+      'account.sessionsUnavailable',
+    )
+    expect(screen.getByTestId('account-sessions-refresh')).toBeDisabled()
+    expect(screen.getByTestId('account-sessions-revoke-others')).toBeDisabled()
   })
 })
