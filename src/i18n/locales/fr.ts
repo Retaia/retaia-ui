@@ -592,7 +592,7 @@ export const frTranslation = {
   'detail.previewTitle': 'Aperçu média',
   'detail.previewUnavailable': 'Aperçu indisponible pour cet asset.',
   'detail.waveformImageAlt': 'Aperçu waveform pour {id}',
-  'detail.waveformFallbackLabel': 'Aperçu waveform local',
+  'detail.waveformUnavailable': 'Waveform indisponible pour cet asset.',
   'detail.transcriptTitle': 'Transcription',
   'detail.transcriptStatus': 'Statut: {status}',
   'detail.transcriptStatusDone': 'Terminé',
