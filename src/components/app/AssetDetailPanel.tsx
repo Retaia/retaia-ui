@@ -48,6 +48,42 @@ function getProcessingProfileLabel(
   return t('detail.processingProfilePhotoStandard')
 }
 
+function formatCapturedAt(
+  value: string | undefined,
+  t: (key: string, values?: Record<string, string>) => string,
+) {
+  if (!value) {
+    return t('detail.dateUnknown')
+  }
+  const timestamp = Date.parse(value)
+  if (!Number.isFinite(timestamp)) {
+    return t('detail.dateUnknown')
+  }
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(timestamp))
+}
+
+function formatAssetAge(
+  value: string | undefined,
+  t: (key: string, values?: Record<string, string>) => string,
+) {
+  if (!value) {
+    return t('detail.ageUnknown')
+  }
+  const timestamp = Date.parse(value)
+  if (!Number.isFinite(timestamp)) {
+    return t('detail.ageUnknown')
+  }
+  const diffMs = Math.max(0, Date.now() - timestamp)
+  const diffDays = Math.floor(diffMs / (24 * 60 * 60 * 1000))
+  if (diffDays === 0) {
+    return t('detail.ageToday')
+  }
+  return t('detail.ageDays', { count: String(diffDays) })
+}
+
 type PurgeStatus = {
   kind: 'success' | 'error'
   message: string
@@ -307,6 +343,8 @@ export function AssetDetailPanel({
   const keepDisabled = selectedAsset ? getStateFromDecision('KEEP', selectedAsset.state) === selectedAsset.state : true
   const rejectDisabled = selectedAsset ? getStateFromDecision('REJECT', selectedAsset.state) === selectedAsset.state : true
   const clearDisabled = selectedAsset ? getStateFromDecision('CLEAR', selectedAsset.state) === selectedAsset.state : true
+  const capturedAtLabel = selectedAsset ? formatCapturedAt(selectedAsset.capturedAt, t) : null
+  const assetAgeLabel = selectedAsset ? formatAssetAge(selectedAsset.capturedAt, t) : null
 
   useEffect(() => {
     if (!selectedAsset) {
@@ -348,6 +386,10 @@ export function AssetDetailPanel({
               <p className="text-gray-500 mb-3">
                 {t('detail.state', { state: t(ASSET_STATE_LABEL_KEYS[selectedAsset.state]) })}
               </p>
+              <div className="mb-3 space-y-1 text-sm text-gray-500">
+                <p>{t('detail.capturedAt', { value: capturedAtLabel ?? t('detail.dateUnknown') })}</p>
+                <p>{t('detail.assetAge', { value: assetAgeLabel ?? t('detail.ageUnknown') })}</p>
+              </div>
               {selectedAsset.processingProfile ? (
                 <p className="text-gray-500 mb-3">
                   {t('detail.processingProfileCurrent', {
@@ -518,6 +560,11 @@ export function AssetDetailPanel({
                 <section className="border border-2 border-error-200 rounded p-3 mt-3">
                   <h3 className="mb-2 text-sm font-semibold text-gray-900">{t('actions.purgeTitle')}</h3>
                   <p className="text-xs text-gray-500 mb-2">{t('actions.purgeHelp')}</p>
+                  <p className="mb-3 rounded-lg bg-error-50 px-3 py-2 text-xs text-error-800 dark:bg-error-950/20 dark:text-error-200">
+                    {t('actions.purgeRisk', {
+                      age: assetAgeLabel ?? t('detail.ageUnknown'),
+                    })}
+                  </p>
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
