@@ -105,7 +105,7 @@ type Props = {
   standaloneHref?: string
   onKeywordClick?: (keyword: string) => void
   onMetadataDirtyChange?: (dirty: boolean) => void
-  layoutMode?: 'inline' | 'sidebar'
+  layoutMode?: 'inline' | 'sidebar' | 'standalone'
   onClose?: () => void
 }
 
@@ -315,7 +315,10 @@ export function AssetDetailPanel({
   }, [onMetadataDirtyChange, selectedAsset])
 
   return (
-    <section className={layoutMode === 'sidebar' ? 'w-full' : 'w-full xl:w-4/12'} aria-label={t('detail.region')}>
+    <section
+      className={layoutMode === 'inline' ? 'w-full xl:w-4/12' : 'w-full'}
+      aria-label={t('detail.region')}
+    >
       <div
         className={[
           'h-full rounded-xl border border-gray-200 bg-white p-4 shadow-theme-sm',
