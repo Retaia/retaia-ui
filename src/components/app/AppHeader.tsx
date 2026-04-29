@@ -26,6 +26,11 @@ type Props = {
   onOpenLibrary: () => void
   onOpenRejects: () => void
   currentView?: 'review' | 'library' | 'rejects' | 'activity' | 'settings' | 'account'
+  contextEyebrow?: string
+  contextTitle?: string
+  contextDescription?: string
+  contextMeta?: string[]
+  contextActions?: ReactNode
   children?: ReactNode
 }
 
@@ -40,6 +45,11 @@ export function AppHeader({
   onOpenLibrary,
   onOpenRejects,
   currentView = 'review',
+  contextEyebrow,
+  contextTitle,
+  contextDescription,
+  contextMeta = [],
+  contextActions,
   children,
 }: Props) {
   const trackNavigationAction = (origin: string, pathname: string, run: () => void) => {
@@ -95,23 +105,25 @@ export function AppHeader({
   ] as const
 
   return (
-    <div className="grid min-h-screen grid-cols-1 bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 lg:grid-cols-[272px_minmax(0,1fr)]">
+    <div className="grid min-h-screen grid-cols-1 bg-gray-100 text-gray-900 dark:bg-gray-950 dark:text-gray-100 lg:grid-cols-[288px_minmax(0,1fr)]">
       <aside
-        className="flex flex-col gap-4 border-b border-gray-200 bg-white/90 p-4 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/95 lg:sticky lg:top-0 lg:min-h-screen lg:border-b-0 lg:border-r"
+        className="flex flex-col gap-6 border-b border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900 lg:sticky lg:top-0 lg:min-h-screen lg:border-b-0 lg:border-r"
         aria-label={t('app.navigation')}
       >
-        <div className="flex items-center gap-3">
-          <img
-            src="/retaia-logo-512.png"
-            width={28}
-            height={28}
-            className="rounded-md align-text-top"
-            alt=""
-            aria-hidden="true"
-          />
-          <div>
-            <h1 className="text-lg font-bold leading-tight text-gray-900 dark:text-gray-100">{t('app.title')}</h1>
-            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{t('app.subtitle')}</p>
+        <div className="rounded-2xl border border-gray-200 bg-gray-50/80 p-4 dark:border-gray-800 dark:bg-gray-950/60">
+          <div className="flex items-center gap-3">
+            <img
+              src="/retaia-logo-512.png"
+              width={28}
+              height={28}
+              className="rounded-md align-text-top"
+              alt=""
+              aria-hidden="true"
+            />
+            <div>
+              <h1 className="text-lg font-bold leading-tight text-gray-900 dark:text-gray-100">{t('app.title')}</h1>
+              <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{t('app.subtitle')}</p>
+            </div>
           </div>
         </div>
 
@@ -131,7 +143,9 @@ export function AppHeader({
         </nav>
 
         <div className="flex flex-wrap gap-2 lg:mt-auto lg:flex-col">
-          <div className="w-full text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">{t('app.adminMenu')}</div>
+          <div className="w-full text-xs font-bold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
+            {t('app.adminMenu')}
+          </div>
           <button
             type="button"
             className={currentView === 'settings' ? navButtonClass(true) : adminButtonClass}
@@ -181,7 +195,46 @@ export function AppHeader({
       </aside>
 
       <main className="min-w-0 dark:bg-gray-950">
-        <div className="mx-auto max-w-[1440px] p-4 lg:px-6 lg:py-5">{children}</div>
+        <div className="sticky top-0 z-20 border-b border-gray-200 bg-white/95 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/92">
+          <div className="mx-auto flex max-w-[1600px] flex-col gap-4 px-4 py-4 lg:px-8">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+              <div className="min-w-0">
+                {contextEyebrow ? (
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-600 dark:text-brand-300">
+                    {contextEyebrow}
+                  </p>
+                ) : null}
+                {contextTitle ? (
+                  <h1 className="mt-2 text-2xl font-bold tracking-tight text-gray-950 dark:text-white lg:text-[2rem]">
+                    {contextTitle}
+                  </h1>
+                ) : null}
+                {contextDescription ? (
+                  <p className="mt-2 max-w-4xl text-sm leading-6 text-gray-600 dark:text-gray-300">
+                    {contextDescription}
+                  </p>
+                ) : null}
+              </div>
+
+              {contextActions ? <div className="shrink-0">{contextActions}</div> : null}
+            </div>
+
+            {contextMeta.length > 0 ? (
+              <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+                {contextMeta.map((item) => (
+                  <span
+                    key={item}
+                    className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-3 py-1 dark:border-gray-800 dark:bg-gray-900"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="mx-auto max-w-[1600px] px-4 py-4 lg:px-8 lg:py-6">{children}</div>
       </main>
     </div>
   )

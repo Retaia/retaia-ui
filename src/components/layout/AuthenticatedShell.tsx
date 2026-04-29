@@ -8,10 +8,23 @@ type AuthenticatedView = 'review' | 'library' | 'rejects' | 'activity' | 'settin
 
 type Props = {
   currentView: AuthenticatedView
+  contextEyebrow?: string
+  contextTitle?: string
+  contextDescription?: string
+  contextMeta?: string[]
+  contextActions?: ReactNode
   children: ReactNode
 }
 
-export function AuthenticatedShell({ currentView, children }: Props) {
+export function AuthenticatedShell({
+  currentView,
+  contextEyebrow,
+  contextTitle,
+  contextDescription,
+  contextMeta,
+  contextActions,
+  children,
+}: Props) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const locale = (i18n.resolvedLanguage ?? 'fr') as Locale
@@ -21,6 +34,11 @@ export function AuthenticatedShell({ currentView, children }: Props) {
       locale={locale}
       t={t}
       currentView={currentView}
+      contextEyebrow={contextEyebrow}
+      contextTitle={contextTitle}
+      contextDescription={contextDescription}
+      contextMeta={contextMeta}
+      contextActions={contextActions}
       onChangeLanguage={(nextLocale) => {
         void i18n.changeLanguage(nextLocale)
       }}

@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { AssetDetailPanel } from '../components/app/AssetDetailPanel'
 import { AssetListSection } from '../components/app/AssetListSection'
 import { AuthenticatedShell } from '../components/layout/AuthenticatedShell'
+import { WorkspaceScaffold } from '../components/layout/WorkspaceScaffold'
 import { useLibraryPageController } from '../hooks/useLibraryPageController'
 
 const SORT_OPTIONS = [
@@ -23,21 +24,19 @@ export function LibraryPage() {
     : undefined
 
   return (
-    <AuthenticatedShell currentView="library">
-      <div className="space-y-6">
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-theme-sm dark:border-gray-800 dark:bg-gray-900">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-600 dark:text-brand-300">
-            {controller.t('page.library.eyebrow')}
-          </p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-gray-950 dark:text-white">
-            {controller.t('page.library.title')}
-          </h1>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-300">
-            {controller.t('library.subtitle')}
-          </p>
-        </section>
-
-        <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm dark:border-gray-800 dark:bg-gray-900">
+    <AuthenticatedShell
+      currentView="library"
+      contextEyebrow={controller.t('page.library.eyebrow')}
+      contextTitle={controller.t('page.library.title')}
+      contextDescription={controller.t('library.subtitle')}
+      contextMeta={[
+        controller.t('library.scopeSummary', { count: controller.visibleAssets.length }),
+        controller.t('page.library.constraint1'),
+        controller.t('page.library.constraint3'),
+      ]}
+    >
+      <WorkspaceScaffold
+        toolbar={
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
             <label className="flex flex-col gap-2">
               <span className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-500 dark:text-gray-400">
@@ -69,15 +68,8 @@ export function LibraryPage() {
               </select>
             </label>
           </div>
-
-          <div className="mt-4 flex flex-wrap gap-3 text-xs text-gray-500 dark:text-gray-400">
-            <span>{controller.t('library.scopeSummary', { count: controller.visibleAssets.length })}</span>
-            <span>{controller.t('page.library.constraint1')}</span>
-            <span>{controller.t('page.library.constraint3')}</span>
-          </div>
-        </section>
-
-        <section className="mt-1 flex flex-wrap gap-4">
+        }
+        main={
           <AssetListSection
             t={controller.t}
             visibleAssets={controller.visibleAssets}
@@ -101,43 +93,33 @@ export function LibraryPage() {
             assetListRegionRef={{ current: null }}
             onLoadMoreAssets={controller.loadMoreAssets}
           />
-        </section>
-
-        <aside
-          data-testid="library-detail-sidebar"
-          className={[
-            'fixed right-0 top-0 z-40 h-screen w-full max-w-2xl border-l border-gray-200 bg-gray-50/90 p-4 backdrop-blur-sm transition-transform duration-300 dark:border-gray-700 dark:bg-gray-900/90',
-            controller.selectedAsset ? 'translate-x-0' : 'translate-x-full',
-          ].join(' ')}
-          aria-hidden={!controller.selectedAsset}
-        >
-          <div className="h-full overflow-y-auto">
-            <AssetDetailPanel
-              selectedAsset={controller.selectedAsset}
-              decisionStatus={null}
-              savingMetadata={controller.savingMetadata}
-              metadataStatus={controller.metadataStatus}
-              t={controller.t}
-              onSaveMetadata={controller.onSaveMetadata}
-              showDecisionActions={false}
-              showPurgeActions={false}
-              showLibraryActions
-              onReopenAsset={controller.onReopenAsset}
-              onReprocessAsset={controller.onReprocessAsset}
-              reopeningAsset={controller.reopeningAsset}
-              reprocessingAsset={controller.reprocessingAsset}
-              transitionStatus={controller.transitionStatus}
-              onOpenStandaloneDetail={(assetId) =>
-                navigate(`/library/asset/${assetId}?from=${encodeURIComponent(from)}`)
-              }
-              standaloneHref={standaloneHref}
-              onKeywordClick={controller.onKeywordClick}
-              layoutMode="sidebar"
-              onClose={() => controller.openAsset(null)}
-            />
-          </div>
-        </aside>
-      </div>
+        }
+        inspector={
+          <AssetDetailPanel
+            selectedAsset={controller.selectedAsset}
+            decisionStatus={null}
+            savingMetadata={controller.savingMetadata}
+            metadataStatus={controller.metadataStatus}
+            t={controller.t}
+            onSaveMetadata={controller.onSaveMetadata}
+            showDecisionActions={false}
+            showPurgeActions={false}
+            showLibraryActions
+            onReopenAsset={controller.onReopenAsset}
+            onReprocessAsset={controller.onReprocessAsset}
+            reopeningAsset={controller.reopeningAsset}
+            reprocessingAsset={controller.reprocessingAsset}
+            transitionStatus={controller.transitionStatus}
+            onOpenStandaloneDetail={(assetId) =>
+              navigate(`/library/asset/${assetId}?from=${encodeURIComponent(from)}`)
+            }
+            standaloneHref={standaloneHref}
+            onKeywordClick={controller.onKeywordClick}
+            layoutMode="sidebar"
+            onClose={() => controller.openAsset(null)}
+          />
+        }
+      />
     </AuthenticatedShell>
   )
 }
