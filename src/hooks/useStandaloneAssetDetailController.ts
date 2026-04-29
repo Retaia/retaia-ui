@@ -84,9 +84,12 @@ export function useStandaloneAssetDetailController(context: Context) {
   const { t } = useTranslation()
   const { assetId } = useParams<{ assetId: string }>()
   const { apiClient, isApiAssetSource, retryStatus, setRetryStatus } = useReviewApiRuntime()
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(() =>
-    resolveLocalStandaloneAsset(context, assetId),
+  const localSelectedAsset = useMemo(
+    () => resolveLocalStandaloneAsset(context, assetId),
+    [assetId, context],
   )
+  const [apiSelectedAsset, setApiSelectedAsset] = useState<Asset | null>(null)
+  const [localSelectedAssetOverride, setLocalSelectedAssetOverride] = useState<Asset | null>(null)
   const [loadingState, setLoadingState] = useState<'idle' | 'loading' | 'error'>('idle')
   const [savingMetadata, setSavingMetadata] = useState(false)
   const [metadataStatus, setMetadataStatus] = useState<{
@@ -109,10 +112,6 @@ export function useStandaloneAssetDetailController(context: Context) {
   const [reopeningAsset, setReopeningAsset] = useState(false)
   const [reprocessingAsset, setReprocessingAsset] = useState(false)
   const [refreshingAsset, setRefreshingAsset] = useState(false)
-
-  useEffect(() => {
-    setSelectedAsset(resolveLocalStandaloneAsset(context, assetId))
-  }, [assetId, context])
 
   useEffect(() => {
     if (!assetId || !isApiAssetSource) {
@@ -140,13 +139,13 @@ export function useStandaloneAssetDetailController(context: Context) {
         const merged = mergeAssetWithDetail(summaryAsset ?? fallbackAsset, detail, {
           includeDecisionState: true,
         })
-        setSelectedAsset(merged)
+        setApiSelectedAsset(merged)
         setLoadingState('idle')
       } catch {
         if (canceled) {
           return
         }
-        setSelectedAsset(null)
+        setApiSelectedAsset(null)
         setLoadingState('error')
       }
     }
@@ -156,6 +155,12 @@ export function useStandaloneAssetDetailController(context: Context) {
       canceled = true
     }
   }, [apiClient, assetId, context, isApiAssetSource])
+
+  const selectedAsset = isApiAssetSource
+    ? apiSelectedAsset
+    : localSelectedAssetOverride?.id === assetId
+      ? localSelectedAssetOverride
+      : localSelectedAsset
 
   const refreshSelectedAsset = useCallback(async () => {
     if (!assetId || !isApiAssetSource || refreshingAsset) {
@@ -167,7 +172,7 @@ export function useStandaloneAssetDetailController(context: Context) {
     setDecisionStatus(null)
     try {
       const detail = await apiClient.getAssetDetail(assetId)
-      setSelectedAsset((current) =>
+      setApiSelectedAsset((current) =>
         mergeAssetWithDetail(current ?? mapApiSummaryToAsset(detail.summary, 0), detail, {
           includeDecisionState: true,
         }),
@@ -197,11 +202,15 @@ export function useStandaloneAssetDetailController(context: Context) {
         if (isApiAssetSource) {
           await apiClient.updateAssetMetadata(targetAssetId, payload, selectedAsset?.revisionEtag)
         }
-        setSelectedAsset((current) =>
+        const updateAsset = (current: Asset | null) =>
           current && current.id === targetAssetId
             ? { ...current, tags: payload.tags, notes: payload.notes }
-            : current,
-        )
+            : current
+        if (isApiAssetSource) {
+          setApiSelectedAsset(updateAsset)
+        } else {
+          setLocalSelectedAssetOverride(updateAsset)
+        }
         setMetadataStatus({
           kind: 'success',
           message: t('detail.taggingSaved', { id: targetAssetId }),
@@ -217,7 +226,7 @@ export function useStandaloneAssetDetailController(context: Context) {
         setSavingMetadata(false)
       }
     },
-    [apiClient, isApiAssetSource, selectedAsset?.revisionEtag, t],
+    [apiClient, isApiAssetSource, selectedAsset, t],
   )
 
   const handleDecision = useCallback(
@@ -248,9 +257,13 @@ export function useStandaloneAssetDetailController(context: Context) {
             targetAsset.revisionEtag,
           )
         }
-        setSelectedAsset((current) =>
-          current && current.id === targetAssetId ? { ...current, state: nextState } : current,
-        )
+        const updateAsset = (current: Asset | null): Asset | null =>
+          current && current.id === targetAssetId ? { ...current, state: nextState } : current
+        if (isApiAssetSource) {
+          setApiSelectedAsset(updateAsset)
+        } else {
+          setLocalSelectedAssetOverride(updateAsset)
+        }
         setDecisionStatus({
           kind: 'success',
           message: t('detail.decisionSaved', {
@@ -291,18 +304,22 @@ export function useStandaloneAssetDetailController(context: Context) {
             selectedAsset.revisionEtag,
           )
         }
-        setSelectedAsset((current) =>
+        const updateAsset = (current: Asset | null): Asset | null =>
           current
             ? {
                 ...current,
                 processingProfile,
                 state: resolveLocalProcessingProfileState(processingProfile),
               }
-            : current,
-        )
+            : current
+        if (isApiAssetSource) {
+          setApiSelectedAsset(updateAsset)
+        } else {
+          setLocalSelectedAssetOverride(updateAsset)
+        }
         if (isApiAssetSource) {
           const detail = await apiClient.getAssetDetail(selectedAsset.id)
-          setSelectedAsset((current) =>
+          setApiSelectedAsset((current) =>
             mergeAssetWithDetail(current ?? mapApiSummaryToAsset(detail.summary, 0), detail, {
               includeDecisionState: true,
             }),
@@ -347,7 +364,13 @@ export function useStandaloneAssetDetailController(context: Context) {
       if (isApiAssetSource) {
         await apiClient.reopenAsset(selectedAsset.id, selectedAsset.revisionEtag)
       }
-      setSelectedAsset((current) => (current ? { ...current, state: 'DECISION_PENDING' } : current))
+      const updateAsset = (current: Asset | null): Asset | null =>
+        current ? { ...current, state: 'DECISION_PENDING' as const } : current
+      if (isApiAssetSource) {
+        setApiSelectedAsset(updateAsset)
+      } else {
+        setLocalSelectedAssetOverride(updateAsset)
+      }
       setTransitionStatus({
         kind: 'success',
         message: t('actions.reopenDone', { id: selectedAsset.id }),
@@ -378,7 +401,13 @@ export function useStandaloneAssetDetailController(context: Context) {
           selectedAsset.revisionEtag,
         )
       }
-      setSelectedAsset((current) => (current ? { ...current, state: 'READY' } : current))
+      const updateAsset = (current: Asset | null): Asset | null =>
+        current ? { ...current, state: 'READY' as const } : current
+      if (isApiAssetSource) {
+        setApiSelectedAsset(updateAsset)
+      } else {
+        setLocalSelectedAssetOverride(updateAsset)
+      }
       setTransitionStatus({
         kind: 'success',
         message: t('actions.reprocessDone', { id: selectedAsset.id }),
@@ -396,10 +425,14 @@ export function useStandaloneAssetDetailController(context: Context) {
   }, [apiClient, isApiAssetSource, reopeningAsset, reprocessingAsset, selectedAsset, t])
 
   const onPurgeSuccess = useCallback((purgedAssetId: string) => {
-    setSelectedAsset((current) =>
-      current && current.id === purgedAssetId ? { ...current, state: 'PURGED' } : current,
-    )
-  }, [])
+    const updateAsset = (current: Asset | null): Asset | null =>
+      current && current.id === purgedAssetId ? { ...current, state: 'PURGED' as const } : current
+    if (isApiAssetSource) {
+      setApiSelectedAsset(updateAsset)
+    } else {
+      setLocalSelectedAssetOverride(updateAsset)
+    }
+  }, [isApiAssetSource])
 
   const {
     previewingPurge,
