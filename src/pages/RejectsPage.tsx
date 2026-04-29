@@ -106,6 +106,12 @@ export function RejectsPage() {
             metadataStatus={controller.metadataStatus}
             t={controller.t}
             onSaveMetadata={controller.onSaveMetadata}
+            showLibraryActions
+            onReopenAsset={controller.onReopenAsset}
+            onReprocessAsset={controller.onReprocessAsset}
+            reopeningAsset={controller.reopeningAsset}
+            reprocessingAsset={controller.reprocessingAsset}
+            transitionStatus={controller.transitionStatus}
             onPreviewPurge={controller.onPreviewPurge}
             onExecutePurge={controller.onExecutePurge}
             showDecisionActions={false}
