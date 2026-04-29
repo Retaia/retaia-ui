@@ -21,7 +21,7 @@ export type QuickFilterState = {
 }
 
 export const DEFAULT_QUICK_FILTER_STATE: QuickFilterState = {
-  filter: 'DECISION_PENDING',
+  filter: 'ALL',
   mediaTypeFilter: 'ALL',
   dateFilter: 'ALL',
   search: '',

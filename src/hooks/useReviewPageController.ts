@@ -280,7 +280,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       const next = readReviewFilterParams()
       dispatch(
         hydrateReviewWorkspace({
-          filter: next.filter ?? 'DECISION_PENDING',
+          filter: next.filter ?? 'ALL',
           mediaTypeFilter: next.mediaTypeFilter ?? 'ALL',
           dateFilter: next.dateFilter ?? 'ALL',
           sort: next.sort ?? '-created_at',

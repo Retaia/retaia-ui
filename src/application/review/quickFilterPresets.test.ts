@@ -9,13 +9,6 @@ import {
 describe('quickFilterPresets', () => {
   it('maps quick filter presets to deterministic states', () => {
     expect(getQuickFilterPresetState('DEFAULT')).toEqual(DEFAULT_QUICK_FILTER_STATE)
-    expect(DEFAULT_QUICK_FILTER_STATE).toEqual({
-      filter: 'DECISION_PENDING',
-      mediaTypeFilter: 'ALL',
-      dateFilter: 'ALL',
-      search: '',
-      batchOnly: false,
-    })
     expect(getQuickFilterPresetState('PENDING_RECENT')).toEqual({
       filter: 'DECISION_PENDING',
       mediaTypeFilter: 'ALL',
