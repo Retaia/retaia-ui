@@ -1,13 +1,14 @@
-# Docs Locales — retaia-ui
+# Docs Locales - retaia-ui
 
 > Statut : non normatif.
-> Source de vérité produit : `specs/`.
+> Source de verite produit : `specs/`.
 
 ## Contenu
 
 - `docs/DEVELOPMENT-BEST-PRACTICES.md`
 - `docs/UI-DESIGN-SYSTEM.md`
 - `docs/UI-ARCHITECTURE.md`
+- `docs/ui-audit.md`
 - `docs/PAGE-CONTROLLER-SECTIONS-STANDARD.md`
 - `docs/GITHUB-WORKFLOWS.md`
 - `docs/DOCKER-DEVELOPMENT.md`
@@ -36,6 +37,8 @@ Les prochaines etapes encore ouvertes sont:
 
 Les audits et plans de reference a jour sont:
 
+- `docs/ui-audit.md`
+- `docs/UI-ARCHITECTURE.md`
 - `docs/ui-gap-analysis.md`
 - `docs/ui-implementation-plan.md`
 - `docs/ui-information-architecture.md`
@@ -62,10 +65,10 @@ Le cadrage produit/UI a lire pour cette implementation est dans `specs/ui/`:
 
 ## Architecture UI/DDD
 
-- Source détaillée (etat courant + cible structurelle, couches DDD, garde-fous d'import, tests): `docs/UI-ARCHITECTURE.md`
+- Source detaillee (etat courant + cible structurelle, couches DDD, garde-fous d'import, tests): `docs/UI-ARCHITECTURE.md`
 - Audit d'ecart et plan d'implementation a jour: `docs/ui-gap-analysis.md`, `docs/ui-implementation-plan.md`
 - Conventions UI visuelles et Tailwind: `docs/UI-DESIGN-SYSTEM.md`
-- Bonnes pratiques de développement/PR: `docs/DEVELOPMENT-BEST-PRACTICES.md`
+- Bonnes pratiques de developpement/PR: `docs/DEVELOPMENT-BEST-PRACTICES.md`
 - Les regles produit/UI globales doivent etre lues dans `specs/ui/*`, pas redefinies localement.
 
 ## Commandes BDD/E2E locales
