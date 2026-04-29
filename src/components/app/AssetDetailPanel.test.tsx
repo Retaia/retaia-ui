@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AssetDetailPanel } from './AssetDetailPanel'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import type { Asset, ProcessingProfile } from '../../domain/assets'
@@ -13,6 +13,10 @@ const reactPlayerMock = vi.fn((props?: unknown) => {
 vi.mock('react-player', () => ({
   default: (props: unknown) => reactPlayerMock(props),
 }))
+
+afterEach(() => {
+  vi.useRealTimers()
+})
 
 const t = (key: string, values?: Record<string, string>) =>
   values ? `${key}:${JSON.stringify(values)}` : key
@@ -195,6 +199,41 @@ describe('AssetDetailPanel media preview', () => {
     expect(screen.getByText('detail.projectsTitle')).toBeInTheDocument()
     expect(screen.getByTestId('asset-project-list')).toHaveTextContent('Campaign Alpha')
     expect(screen.getByTestId('asset-project-list')).toHaveTextContent('Event Beta')
+  })
+
+  it('renders captured date and asset age metadata when available', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-04-30T12:00:00.000Z'))
+
+    renderPanel({
+      id: 'A-008',
+      name: 'aged-reject.jpg',
+      state: 'REJECTED',
+      mediaType: 'IMAGE',
+      capturedAt: '2026-04-27T12:00:00.000Z',
+      previewPhotoUrl: '/mock-media/image.jpg',
+    })
+
+    expect(screen.getByText(/detail\.capturedAt/)).toBeInTheDocument()
+    expect(screen.getByText(/detail\.assetAge/)).toHaveTextContent(/detail\.ageDays/)
+    expect(screen.getByText(/detail\.assetAge/)).toHaveTextContent('3')
+  })
+
+  it('surfaces purge risk framing with visible asset age', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-04-30T12:00:00.000Z'))
+
+    renderPanel({
+      id: 'A-009',
+      name: 'purge-target.jpg',
+      state: 'REJECTED',
+      mediaType: 'IMAGE',
+      capturedAt: '2026-04-20T12:00:00.000Z',
+      previewPhotoUrl: '/mock-media/image.jpg',
+    })
+
+    expect(screen.getByText(/actions\.purgeRisk/)).toHaveTextContent(/detail\.ageDays/)
+    expect(screen.getByText(/actions\.purgeRisk/)).toHaveTextContent('10')
   })
 
   it('adds a tag and submits metadata payload', async () => {
