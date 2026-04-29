@@ -2,6 +2,14 @@
 
 Audit realise le 25 avril 2026.
 
+Mise a jour documentaire le 30 avril 2026:
+
+- shell structurel Phase 1 pose
+- details standalone `review`, `library`, `rejects` implementes
+- `Rejects` couvre maintenant `reopen`, `reprocess` et `purge`
+- fallback waveform synthetique retire
+- purge cadree avec anciennete visible dans le detail
+
 ## 1. Resume executif
 
 Retaia-UI n'est pas un shell vide. Le repo livre deja un shell authentifie, un workspace review dense, des surfaces `Library`, `Rejects`, `Activity`, `Account`, `Settings`, un client API type, de l'i18n, des hooks de sync et des suites BDD/visuelles. La refonte a donc deux enjeux distincts:
@@ -16,12 +24,11 @@ Constat principal:
 - plusieurs flux critiques restent incomplets ou trop implicites
 - la documentation du repo se contredit sur l'etat reel de l'existant
 
-Bloqueurs les plus importants avant implementation UI cible:
+Bloqueurs restants les plus importants avant implementation UI cible:
 
 1. clarifier la source documentaire et le statut reel du repo
-2. remplacer les pages detail standalone placeholder par de vraies surfaces
-3. remettre `Rejects` au niveau des workflows normatifs (`reopen`, `reprocess`, `purge`)
-4. corriger les ecarts runtime autour des feature flags et du contrat `GET /app/policy`
+2. corriger les ecarts runtime autour des feature flags et du contrat `GET /app/policy`
+3. remettre `Review` sur une logique de file de travail plus explicite sans casser les parcours batch
 
 ## 2. Vision produit vs contraintes specs (separees clairement)
 
@@ -139,11 +146,9 @@ Ils ne peuvent pas:
 - `src/pages/LibraryPage.tsx`
   - utile comme wiring, mais pas encore au niveau d'un vrai workspace de recherche/requalification
 - `src/pages/RejectsPage.tsx`
-  - flux incomplet par rapport a `REJECTED`
-- `src/pages/StandaloneAssetDetailPage.tsx`
-  - aujourd'hui simple scaffold, donc insuffisant
+  - surface plus sure qu'au depart, mais encore incomplete pour une requalification longue duree
 - `src/components/app/AssetMediaPreview.tsx`
-  - preview utile, mais fallback waveform synthetique trop suggestif
+  - preview utile, mais reste a consolider autour des derives reellement exposes par Core
 - `src/components/app/AppHeader.tsx`
   - shell fonctionnel, mais encore trop "template admin" et pas assez "poste operateur"
 
