@@ -8,11 +8,23 @@ Regle de base:
 - preservation maximale du wiring API deja livre
 - aucune modification dans `specs/`
 
+### Tranches deja fermees
+
+- shell structurel `AuthenticatedShell` / `WorkspaceScaffold` consolide
+- details standalone `review`, `library`, `rejects` implementes et relies au wiring existant
+- `Rejects` couvre `reopen`, `reprocess`, `purge` en workspace et en standalone
+- sortie de scope locale geree dans `Rejects` apres `reopen`, `reprocess`, `purge`
+- faux fallback waveform remplace par un etat explicite
+- anciennete asset visible avant purge
+
+Regle de suivi:
+
+- ne pas replanifier ces sujets comme s'ils etaient encore ouverts
+- si une tranche revient dessus, elle doit annoncer explicitement qu'il s'agit d'un approfondissement et non d'une premiere implementation
+
 ### Priorite haute
 
 1. Corriger les flux critiques et les trous de navigation.
-   - implementer les vrais details standalone
-   - rendre `Rejects` complet (`reopen`, `reprocess`, `purge`)
    - remettre `Review` sur une logique de file de travail claire
 
 2. Corriger les ecarts de conformite runtime.
@@ -22,8 +34,8 @@ Regle de base:
 
 3. Stabiliser les actions critiques.
    - rendre `apply decisions` plus lisible
-   - rendre la purge plus explicite
-   - supprimer les faux signaux visuels sur les derives manquants
+   - pousser plus loin le cadrage des actions destructives restantes
+   - conserver la suppression des faux signaux visuels sur les derives manquants
 
 ### Priorite moyenne
 
