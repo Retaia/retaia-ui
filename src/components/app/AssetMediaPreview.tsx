@@ -6,21 +6,6 @@ type Props = {
   t: (key: string, values?: Record<string, string>) => string
 }
 
-function buildWaveformBars(seed: string, count = 48): number[] {
-  let value = 0
-  for (let index = 0; index < seed.length; index += 1) {
-    value = (value * 31 + seed.charCodeAt(index)) >>> 0
-  }
-
-  const bars: number[] = []
-  for (let index = 0; index < count; index += 1) {
-    value = (value * 1664525 + 1013904223) >>> 0
-    const normalized = value / 0xffffffff
-    bars.push(Math.round(20 + normalized * 80))
-  }
-  return bars
-}
-
 export function AssetMediaPreview({ selectedAsset, t }: Props) {
   const mediaUrl =
     selectedAsset.mediaType === 'VIDEO'
@@ -56,19 +41,10 @@ export function AssetMediaPreview({ selectedAsset, t }: Props) {
           />
         ) : (
           <div
-            className="audio-waveform-fallback mt-2"
-            role="img"
-            aria-label={t('detail.waveformFallbackLabel')}
-            data-testid="asset-waveform-fallback"
+            className="mt-2 rounded border border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-600 dark:border-gray-700 dark:bg-gray-800/60 dark:text-gray-300"
+            data-testid="asset-waveform-unavailable"
           >
-            {buildWaveformBars(selectedAsset.id).map((height, index) => (
-              <span
-                // Deterministic local fallback: enough for simple timeline orientation without server waveform.
-                key={`${selectedAsset.id}-wave-${index}`}
-                className="audio-waveform-fallback__bar"
-                style={{ height: `${height}%` }}
-              />
-            ))}
+            {t('detail.waveformUnavailable')}
           </div>
         )}
       </div>

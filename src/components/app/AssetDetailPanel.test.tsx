@@ -121,7 +121,9 @@ describe('AssetDetailPanel media preview', () => {
         src: '/mock-media/audio.mp3',
       }),
     )
-    expect(screen.getByTestId('asset-waveform-fallback')).toBeInTheDocument()
+    expect(screen.getByTestId('asset-waveform-unavailable')).toHaveTextContent(
+      'detail.waveformUnavailable',
+    )
   })
 
   it('renders server waveform when url is available for audio assets', () => {
@@ -137,7 +139,7 @@ describe('AssetDetailPanel media preview', () => {
 
     const waveform = screen.getByTestId('asset-waveform-image')
     expect(waveform).toHaveAttribute('src', '/mock-media/waveform.png')
-    expect(screen.queryByTestId('asset-waveform-fallback')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('asset-waveform-unavailable')).not.toBeInTheDocument()
   })
 
   it('renders image preview for photo assets', () => {

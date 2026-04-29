@@ -591,7 +591,7 @@ export const enTranslation = {
   'detail.previewTitle': 'Media preview',
   'detail.previewUnavailable': 'Preview unavailable for this asset.',
   'detail.waveformImageAlt': 'Waveform preview for {id}',
-  'detail.waveformFallbackLabel': 'Local waveform preview',
+  'detail.waveformUnavailable': 'Waveform unavailable for this asset.',
   'detail.transcriptTitle': 'Transcript',
   'detail.transcriptStatus': 'Status: {status}',
   'detail.transcriptStatusDone': 'Done',
