@@ -49,6 +49,10 @@ export function useRejectsPageController() {
     kind: 'success' | 'error'
     message: string
   } | null>(null)
+  const [workspaceStatus, setWorkspaceStatus] = useState<{
+    kind: 'success' | 'error'
+    message: string
+  } | null>(null)
   const [reopeningAsset, setReopeningAsset] = useState(false)
   const [reprocessingAsset, setReprocessingAsset] = useState(false)
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(() => readSelectedAssetId('rejects'))
@@ -197,11 +201,18 @@ export function useRejectsPageController() {
     [assets, selectedAssetId],
   )
 
-  const onPurgeSuccess = useCallback((assetId: string) => {
-    setAssets((current) =>
-      current.map((asset) => (asset.id === assetId ? { ...asset, state: 'PURGED' as const } : asset)),
-    )
+  const removeAssetFromWorkspace = useCallback((assetId: string) => {
+    setAssets((current) => current.filter((asset) => asset.id !== assetId))
+    setSelectedAssetId((current) => (current === assetId ? null : current))
   }, [])
+
+  const onPurgeSuccess = useCallback((assetId: string) => {
+    removeAssetFromWorkspace(assetId)
+    setWorkspaceStatus({
+      kind: 'success',
+      message: t('actions.purgeSuccess', { id: assetId }),
+    })
+  }, [removeAssetFromWorkspace, t])
 
   const mapErrorToMessage = useCallback(
     (error: unknown) => mapReviewApiErrorToMessage(error, t),
@@ -250,6 +261,7 @@ export function useRejectsPageController() {
       setSavingMetadata(true)
       setMetadataStatus(null)
       setTransitionStatus(null)
+      setWorkspaceStatus(null)
       try {
         if (isApiAssetSource) {
           await dispatch(
@@ -288,20 +300,22 @@ export function useRejectsPageController() {
     if (!selectedAsset || reopeningAsset || reprocessingAsset) {
       return
     }
+    const targetAssetId = selectedAsset.id
     setReopeningAsset(true)
     setTransitionStatus(null)
+    setWorkspaceStatus(null)
     try {
       if (isApiAssetSource) {
-        await apiClient.reopenAsset(selectedAsset.id, selectedAsset.revisionEtag)
+        await apiClient.reopenAsset(targetAssetId, selectedAsset.revisionEtag)
       }
-      setAssets((current) =>
-        current.map((asset) =>
-          asset.id === selectedAsset.id ? { ...asset, state: 'DECISION_PENDING' as const } : asset,
-        ),
-      )
+      removeAssetFromWorkspace(targetAssetId)
       setTransitionStatus({
         kind: 'success',
-        message: t('actions.reopenDone', { id: selectedAsset.id }),
+        message: t('actions.reopenDone', { id: targetAssetId }),
+      })
+      setWorkspaceStatus({
+        kind: 'success',
+        message: t('actions.reopenDone', { id: targetAssetId }),
       })
     } catch (error) {
       setTransitionStatus({
@@ -313,30 +327,32 @@ export function useRejectsPageController() {
     } finally {
       setReopeningAsset(false)
     }
-  }, [apiClient, isApiAssetSource, reopeningAsset, reprocessingAsset, selectedAsset, t])
+  }, [apiClient, isApiAssetSource, removeAssetFromWorkspace, reopeningAsset, reprocessingAsset, selectedAsset, t])
 
   const reprocessSelectedAsset = useCallback(async () => {
     if (!selectedAsset || reopeningAsset || reprocessingAsset) {
       return
     }
+    const targetAssetId = selectedAsset.id
     setReprocessingAsset(true)
     setTransitionStatus(null)
+    setWorkspaceStatus(null)
     try {
       if (isApiAssetSource) {
         await apiClient.reprocessAsset(
-          selectedAsset.id,
+          targetAssetId,
           crypto.randomUUID(),
           selectedAsset.revisionEtag,
         )
       }
-      setAssets((current) =>
-        current.map((asset) =>
-          asset.id === selectedAsset.id ? { ...asset, state: 'READY' as const } : asset,
-        ),
-      )
+      removeAssetFromWorkspace(targetAssetId)
       setTransitionStatus({
         kind: 'success',
-        message: t('actions.reprocessDone', { id: selectedAsset.id }),
+        message: t('actions.reprocessDone', { id: targetAssetId }),
+      })
+      setWorkspaceStatus({
+        kind: 'success',
+        message: t('actions.reprocessDone', { id: targetAssetId }),
       })
     } catch (error) {
       setTransitionStatus({
@@ -348,7 +364,7 @@ export function useRejectsPageController() {
     } finally {
       setReprocessingAsset(false)
     }
-  }, [apiClient, isApiAssetSource, reopeningAsset, reprocessingAsset, selectedAsset, t])
+  }, [apiClient, isApiAssetSource, removeAssetFromWorkspace, reopeningAsset, reprocessingAsset, selectedAsset, t])
 
   const selectionStatusLabel = useMemo(
     () => resolveSelectionStatusLabel({ selectedAssetId, t }),
@@ -379,6 +395,7 @@ export function useRejectsPageController() {
     loadMoreAssets,
     savingMetadata,
     metadataStatus,
+    workspaceStatus,
     transitionStatus,
     reopeningAsset,
     reprocessingAsset,

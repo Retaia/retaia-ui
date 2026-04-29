@@ -37,36 +37,51 @@ export function RejectsPage() {
     >
       <WorkspaceScaffold
         toolbar={
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
-            <label className="flex flex-col gap-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-500 dark:text-gray-400">
-                {controller.t('toolbar.search')}
-              </span>
-              <input
-                type="search"
-                value={controller.search}
-                onChange={(event) => controller.setSearch(event.currentTarget.value)}
-                placeholder={controller.t('rejects.searchPlaceholder')}
-                className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-              />
-            </label>
+          <div className="space-y-4">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
+              <label className="flex flex-col gap-2">
+                <span className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-500 dark:text-gray-400">
+                  {controller.t('toolbar.search')}
+                </span>
+                <input
+                  type="search"
+                  value={controller.search}
+                  onChange={(event) => controller.setSearch(event.currentTarget.value)}
+                  placeholder={controller.t('rejects.searchPlaceholder')}
+                  className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                />
+              </label>
 
-            <label className="flex flex-col gap-2">
-              <span className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-500 dark:text-gray-400">
-                {controller.t('toolbar.sortBy')}
-              </span>
-              <select
-                value={controller.sort}
-                onChange={(event) => controller.setSort(event.currentTarget.value as typeof controller.sort)}
-                className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+              <label className="flex flex-col gap-2">
+                <span className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-500 dark:text-gray-400">
+                  {controller.t('toolbar.sortBy')}
+                </span>
+                <select
+                  value={controller.sort}
+                  onChange={(event) => controller.setSort(event.currentTarget.value as typeof controller.sort)}
+                  className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                >
+                  {SORT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {controller.t(option.labelKey)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            {controller.workspaceStatus ? (
+              <p
+                role="status"
+                aria-live="polite"
+                className={[
+                  'text-sm',
+                  controller.workspaceStatus.kind === 'success' ? 'text-success-700' : 'text-error-700',
+                ].join(' ')}
               >
-                {SORT_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {controller.t(option.labelKey)}
-                  </option>
-                ))}
-              </select>
-            </label>
+                {controller.workspaceStatus.message}
+              </p>
+            ) : null}
           </div>
         }
         main={
