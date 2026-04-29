@@ -45,6 +45,12 @@ export function useRejectsPageController() {
     kind: 'success' | 'error'
     message: string
   } | null>(null)
+  const [transitionStatus, setTransitionStatus] = useState<{
+    kind: 'success' | 'error'
+    message: string
+  } | null>(null)
+  const [reopeningAsset, setReopeningAsset] = useState(false)
+  const [reprocessingAsset, setReprocessingAsset] = useState(false)
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(() => readSelectedAssetId('rejects'))
   const { densityMode } = useDensityMode()
   const { displayType, setDisplayType } = useDisplayType('retaia_ui_rejects_asset_display_type')
@@ -243,6 +249,7 @@ export function useRejectsPageController() {
     async (assetId: string, payload: { tags: string[]; notes: string }) => {
       setSavingMetadata(true)
       setMetadataStatus(null)
+      setTransitionStatus(null)
       try {
         if (isApiAssetSource) {
           await dispatch(
@@ -277,6 +284,72 @@ export function useRejectsPageController() {
     [dispatch, isApiAssetSource, selectedAssetRevisionEtag, t],
   )
 
+  const reopenSelectedAsset = useCallback(async () => {
+    if (!selectedAsset || reopeningAsset || reprocessingAsset) {
+      return
+    }
+    setReopeningAsset(true)
+    setTransitionStatus(null)
+    try {
+      if (isApiAssetSource) {
+        await apiClient.reopenAsset(selectedAsset.id, selectedAsset.revisionEtag)
+      }
+      setAssets((current) =>
+        current.map((asset) =>
+          asset.id === selectedAsset.id ? { ...asset, state: 'DECISION_PENDING' as const } : asset,
+        ),
+      )
+      setTransitionStatus({
+        kind: 'success',
+        message: t('actions.reopenDone', { id: selectedAsset.id }),
+      })
+    } catch (error) {
+      setTransitionStatus({
+        kind: 'error',
+        message: t('actions.reopenError', {
+          message: mapReviewApiErrorToMessage(error, t),
+        }),
+      })
+    } finally {
+      setReopeningAsset(false)
+    }
+  }, [apiClient, isApiAssetSource, reopeningAsset, reprocessingAsset, selectedAsset, t])
+
+  const reprocessSelectedAsset = useCallback(async () => {
+    if (!selectedAsset || reopeningAsset || reprocessingAsset) {
+      return
+    }
+    setReprocessingAsset(true)
+    setTransitionStatus(null)
+    try {
+      if (isApiAssetSource) {
+        await apiClient.reprocessAsset(
+          selectedAsset.id,
+          crypto.randomUUID(),
+          selectedAsset.revisionEtag,
+        )
+      }
+      setAssets((current) =>
+        current.map((asset) =>
+          asset.id === selectedAsset.id ? { ...asset, state: 'READY' as const } : asset,
+        ),
+      )
+      setTransitionStatus({
+        kind: 'success',
+        message: t('actions.reprocessDone', { id: selectedAsset.id }),
+      })
+    } catch (error) {
+      setTransitionStatus({
+        kind: 'error',
+        message: t('actions.reprocessError', {
+          message: mapReviewApiErrorToMessage(error, t),
+        }),
+      })
+    } finally {
+      setReprocessingAsset(false)
+    }
+  }, [apiClient, isApiAssetSource, reopeningAsset, reprocessingAsset, selectedAsset, t])
+
   const selectionStatusLabel = useMemo(
     () => resolveSelectionStatusLabel({ selectedAssetId, t }),
     [selectedAssetId, t],
@@ -306,6 +379,9 @@ export function useRejectsPageController() {
     loadMoreAssets,
     savingMetadata,
     metadataStatus,
+    transitionStatus,
+    reopeningAsset,
+    reprocessingAsset,
     availability,
     previewingPurge,
     executingPurge,
@@ -317,6 +393,8 @@ export function useRejectsPageController() {
       setSelectedAssetId(assetId)
     },
     onSaveMetadata: saveSelectedAssetMetadata,
+    onReopenAsset: reopenSelectedAsset,
+    onReprocessAsset: reprocessSelectedAsset,
     onPreviewPurge: previewSelectedAssetPurge,
     onExecutePurge: executeSelectedAssetPurge,
     onKeywordClick: (keyword: string) => {
