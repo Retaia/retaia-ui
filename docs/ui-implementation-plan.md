@@ -19,6 +19,7 @@ Regle de base:
 - `GET /app/policy` envoie `client_feature_flags_contract_version`
 - `Review` ouvre par defaut sur une file de travail explicite plutot que sur `ALL`
 - la disponibilite bulk de `Review` derive maintenant du resultat effectif gouverne
+- `Library` expose maintenant des facettes utiles de recherche et de requalification
 
 Regle de suivi:
 
@@ -41,7 +42,6 @@ Regle de suivi:
 ### Priorite moyenne
 
 1. Refaire l'architecture des workspaces secondaires.
-   - `Library` comme espace de recherche/requalification
    - `Rejects` comme espace prudent de remise a decision et purge
    - `Activity` comme journal local mieux cadre
 

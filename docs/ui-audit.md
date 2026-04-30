@@ -12,6 +12,7 @@ Mise a jour documentaire le 30 avril 2026:
 - `GET /app/policy` annonce maintenant `client_feature_flags_contract_version`
 - `Review` ouvre maintenant par defaut sur une file de travail explicite plutot que sur `ALL`
 - la disponibilite bulk de `Review` est maintenant derivee du resultat effectif gouverne plutot que des flags bruts
+- `Library` expose maintenant des facettes utiles de recherche et de requalification
 
 ## 1. Resume executif
 
@@ -31,7 +32,7 @@ Bloqueurs restants les plus importants avant implementation UI cible:
 
 1. clarifier la source documentaire et le statut reel du repo
 2. continuer a clarifier `Review` sans casser les parcours batch
-3. densifier les workspaces secondaires sans reintroduire de logique implicite
+3. densifier `Rejects`, `Auth` et `Settings` sans reintroduire de logique implicite
 
 ## 2. Vision produit vs contraintes specs (separees clairement)
 
@@ -146,8 +147,6 @@ Ils ne peuvent pas:
 
 - `src/pages/ReviewWorkspacePage.tsx` et `src/hooks/useReviewPageController.ts`
   - trop de responsabilites concentrees; IA review encore melangee entre file de travail, batch, reporting et statuts secondaires
-- `src/pages/LibraryPage.tsx`
-  - utile comme wiring, mais pas encore au niveau d'un vrai workspace de recherche/requalification
 - `src/pages/RejectsPage.tsx`
   - surface plus sure qu'au depart, mais encore incomplete pour une requalification longue duree
 - `src/components/app/AssetMediaPreview.tsx`

@@ -18,7 +18,6 @@ Comparaison faite entre:
 
 | Priorite | Type d'ecart | Ecart | Situation actuelle | Attendu | Risque |
 | --- | --- | --- | --- | --- | --- |
-| Moyenne | Ecran incomplet | `Library` reste une recherche minimale | seulement recherche + tri + drawer detail | vrais facettes utiles et langage de requalification | `Library` trop pauvre pour un usage long |
 | Moyenne | Ecran incomplet | `Rejects` reste une requalification partielle | recherche + tri + actions unitaires; pas encore de langage ni d'outillage plus dense pour traitement long | espace prudent de remise a decision et purge differee, avec outillage plus complet | `Rejects` reste utilisable mais encore etroit pour un usage intensif |
 | Moyenne | Surface trop technique | `Settings` et `Auth` exposent les controles `API base URL` / `API token` | surfaces visibles dans le produit | ces controles restent secondaires et clairement environnement/dev | pollution de l'IA operateur |
 | Moyenne | Surface publique inachevee | `/auth` n'est pas traite comme une vraie route `public only` | pas de redirection explicite si deja connecte | auth publique exclusive hors shell | friction et confusion de navigation |
@@ -34,7 +33,6 @@ Comparaison faite entre:
 
 ### Ecrans manquants ou insuffisants
 
-- version mature de `library` avec filtres utiles et posture "recherche + requalification"
 - version plus dense de `rejects` pour usage long et requalification prudente
 
 ### Etats manquants ou mal exposes
@@ -43,8 +41,6 @@ Comparaison faite entre:
 - `PURGED` n'a pas de surface informative dediee si reference directe
 
 ### Flux incorrects
-
-- pilotage d'une disponibilite critique depuis les flags bruts
 
 ### Ambiguities UX
 
