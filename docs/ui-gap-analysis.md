@@ -13,7 +13,6 @@ Comparaison faite entre:
 
 | Priorite | Type d'ecart | Ecart | Situation actuelle | Attendu | Risque |
 | --- | --- | --- | --- | --- | --- |
-| Haute | Conformite runtime | `GET /app/policy` n'embarque pas `client_feature_flags_contract_version` | `src/api/client.ts` appelle `/app/policy` sans query contractuelle | negotiation de version explicite | divergence silencieuse avec le contrat flags |
 | Haute | Conformite runtime | disponibilite review pilotee sur `feature_flags` bruts | `useReviewDataController` lit directement `server_policy.feature_flags['features.decisions.bulk']` | decisions UI derivees du resultat effectif gouverne, pas d'heuristique locale | branchement UI faux si app/user gating diverge du flag brut |
 
 ### Ecarts importants
@@ -47,7 +46,7 @@ Comparaison faite entre:
 
 ### Flux incorrects
 
-- negotiation de version du contrat feature flags
+- pilotage d'une disponibilite critique depuis les flags bruts
 
 ### Ambiguities UX
 

@@ -657,7 +657,10 @@ describe('api client', () => {
 
     const policy = await api.getAppPolicy()
 
-    expect(fetchMock).toHaveBeenCalledWith('/api/v1/app/policy', expect.any(Object))
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/app/policy?client_feature_flags_contract_version=1.2.0',
+      expect.any(Object),
+    )
     expect(policy.server_policy.feature_flags['features.decisions.bulk']).toBe(true)
     expect(policy.server_policy.feature_flags['features.foo.bar']).toBe(false)
   })

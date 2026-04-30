@@ -16,6 +16,7 @@ Regle de base:
 - sortie de scope locale geree dans `Rejects` apres `reopen`, `reprocess`, `purge`
 - faux fallback waveform remplace par un etat explicite
 - anciennete asset visible avant purge
+- `GET /app/policy` envoie `client_feature_flags_contract_version`
 
 Regle de suivi:
 
@@ -28,7 +29,6 @@ Regle de suivi:
    - remettre `Review` sur une logique de file de travail claire
 
 2. Corriger les ecarts de conformite runtime.
-   - ajouter `client_feature_flags_contract_version` sur `GET /app/policy`
    - cesser de piloter une action critique depuis les flags bruts si un resultat effectif gouverne existe
    - uniformiser les UX `409` / `412` / `428` / `423`
 
