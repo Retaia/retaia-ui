@@ -185,11 +185,16 @@ export const frTranslation = {
   'library.scopeMediaSummary': 'Vidéo {video} · Audio {audio} · Image {image}',
   'library.requalificationBody':
     'Library reste strictement borné aux assets ARCHIVED, avec des facettes de recherche utiles avant toute action explicite de reopen ou reprocess.',
-  'rejects.subtitle': 'Liste des assets déjà déplacés vers rejects, avec détail, recherche et purge explicitement confirmée.',
+  'rejects.subtitle': 'Espace prudent de requalification et de purge différée pour les assets déjà déplacés vers rejects.',
   'rejects.searchPlaceholder': 'Nom, identifiant ou keyword rejeté',
   'rejects.empty': "Aucun asset en rejects pour les filtres en cours.",
-  'rejects.help': 'Clic: détail | Purge uniquement après preview explicite',
+  'rejects.help': 'Clic: détail | Reopen/reprocess disponibles | Purge uniquement après preview explicite',
   'rejects.scopeSummary': 'Assets en rejects visibles: {count}',
+  'rejects.scopeMediaSummary': 'Vidéo: {video} | Audio: {audio} | Image: {image}',
+  'rejects.retentionSummary': 'Assets avec capture > 30 jours: {count}',
+  'rejects.retentionOlderThan30Days': '> 30 jours',
+  'rejects.requalificationBody':
+    "Ce workspace sert à reprendre des assets déjà exclus du flux principal, à vérifier leur ancienneté, puis à choisir explicitement entre remise en traitement, réouverture ou purge confirmée.",
   'toolbar.filter': 'Filtrer par état',
   'toolbar.mediaType': 'Type',
   'toolbar.mediaTypeVideo': 'Vidéo',
@@ -354,9 +359,6 @@ export const frTranslation = {
   'page.rejects.constraint1': 'REJECTED et PURGED restent distincts en permanence.',
   'page.rejects.constraint2': 'Toute purge doit passer par preview puis exécution confirmée.',
   'page.rejects.constraint3': 'Aucune action destructive implicite ou groupée sans cadrage visible.',
-  'page.rejects.next1': 'Brancher la liste des assets REJECTED.',
-  'page.rejects.next2': 'Ajouter preview et exécution de purge unitaire puis groupée.',
-  'page.rejects.next3': 'Réintroduire reopen et reprocess depuis ce workspace.',
   'page.activity.eyebrow': 'Journal borne',
   'page.activity.title': 'Activité',
   'page.activity.body':

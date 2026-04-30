@@ -185,11 +185,16 @@ export const enTranslation = {
   'library.scopeMediaSummary': 'Video {video} · Audio {audio} · Image {image}',
   'library.requalificationBody':
     'Library stays strictly bounded to ARCHIVED assets, with useful research facets before any explicit reopen or reprocess action.',
-  'rejects.subtitle': 'List of assets already moved to rejects, with detail, search, and explicitly confirmed purge.',
+  'rejects.subtitle': 'Cautious requalification and deferred purge workspace for assets already moved to rejects.',
   'rejects.searchPlaceholder': 'Name, identifier, or rejected keyword',
   'rejects.empty': 'No rejects asset matches current filters.',
-  'rejects.help': 'Click: detail | Purge only after explicit preview',
+  'rejects.help': 'Click: detail | Reopen/reprocess available | Purge only after explicit preview',
   'rejects.scopeSummary': 'Visible rejects assets: {count}',
+  'rejects.scopeMediaSummary': 'Video: {video} | Audio: {audio} | Image: {image}',
+  'rejects.retentionSummary': 'Assets captured more than 30 days ago: {count}',
+  'rejects.retentionOlderThan30Days': '> 30 days',
+  'rejects.requalificationBody':
+    'This workspace is meant to revisit assets already excluded from the main flow, check their age, then explicitly choose between reprocessing, reopening, or confirmed purge.',
   'toolbar.filter': 'Filter by state',
   'toolbar.mediaType': 'Type',
   'toolbar.mediaTypeVideo': 'Video',
@@ -353,9 +358,6 @@ export const enTranslation = {
   'page.rejects.constraint1': 'REJECTED and PURGED remain distinct at all times.',
   'page.rejects.constraint2': 'Every purge must go through preview and confirmed execution.',
   'page.rejects.constraint3': 'No implicit or grouped destructive action without visible framing.',
-  'page.rejects.next1': 'Connect the REJECTED asset list.',
-  'page.rejects.next2': 'Add preview and execution for single then grouped purge.',
-  'page.rejects.next3': 'Reintroduce reopen and reprocess from this workspace.',
   'page.activity.eyebrow': 'Bounded journal',
   'page.activity.title': 'Activity',
   'page.activity.body':

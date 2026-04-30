@@ -1,9 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { libraryWorkspaceReducer } from './slices/libraryWorkspaceSlice'
+import { rejectsWorkspaceReducer } from './slices/rejectsWorkspaceSlice'
 import { reviewWorkspaceReducer } from './slices/reviewWorkspaceSlice'
 import { authUiReducer, createInitialAuthUiState } from './slices/authUiSlice'
 import { assetSyncReducer } from './slices/assetSyncSlice'
-import { readLibraryFilterParams, readReviewFilterParams } from '../services/workspaceQueryParams'
+import { readLibraryFilterParams, readRejectsFilterParams, readReviewFilterParams } from '../services/workspaceQueryParams'
 import { combineReducers } from 'redux'
 import {
   FLUSH,
@@ -21,6 +22,7 @@ import { assetSyncMiddleware } from './middleware/assetSyncMiddleware'
 const rootReducer = combineReducers({
   reviewWorkspace: reviewWorkspaceReducer,
   libraryWorkspace: libraryWorkspaceReducer,
+  rejectsWorkspace: rejectsWorkspaceReducer,
   authUi: authUiReducer,
   assetSync: assetSyncReducer,
 })
@@ -29,7 +31,7 @@ const persistedReducer = persistReducer(
   {
     key: 'retaia-ui',
     storage,
-    whitelist: ['reviewWorkspace', 'libraryWorkspace', 'authUi'],
+    whitelist: ['reviewWorkspace', 'libraryWorkspace', 'rejectsWorkspace', 'authUi'],
   },
   rootReducer,
 )
@@ -37,6 +39,7 @@ const persistedReducer = persistReducer(
 function resolvePreloadedState(): ReturnType<typeof rootReducer> {
   const queryReview = readReviewFilterParams()
   const queryLibrary = readLibraryFilterParams()
+  const queryRejects = readRejectsFilterParams()
 
   return {
     reviewWorkspace: {
@@ -53,6 +56,12 @@ function resolvePreloadedState(): ReturnType<typeof rootReducer> {
       mediaTypeFilter: queryLibrary.mediaTypeFilter ?? 'ALL',
       dateFilter: queryLibrary.dateFilter ?? 'ALL',
       sort: queryLibrary.sort ?? '-created_at',
+    },
+    rejectsWorkspace: {
+      search: queryRejects.search ?? '',
+      mediaTypeFilter: queryRejects.mediaTypeFilter ?? 'ALL',
+      dateFilter: queryRejects.dateFilter ?? 'ALL',
+      sort: queryRejects.sort ?? '-created_at',
     },
     authUi: createInitialAuthUiState(),
     assetSync: {

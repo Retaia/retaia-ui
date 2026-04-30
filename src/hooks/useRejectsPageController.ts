@@ -3,18 +3,32 @@ import { useTranslation } from 'react-i18next'
 import { mapApiSummaryToAsset } from '../api/assetMapper'
 import { INITIAL_ASSETS } from '../data/mockAssets'
 import { getActionAvailability } from '../domain/actionAvailability'
-import { sortAssets, type Asset, type AssetSort } from '../domain/assets'
+import {
+  sortAssets,
+  type Asset,
+  type AssetDateFilter,
+  type AssetMediaTypeFilter,
+  type AssetSort,
+} from '../domain/assets'
 import { mergeAssetWithDetail } from '../domain/review/assetDetailMerge'
 import { useDensityMode } from './useDensityMode'
 import { useDisplayType } from './useDisplayType'
 import { usePurgeFlow } from './usePurgeFlow'
 import { useReviewApiRuntime } from './useReviewApiRuntime'
 import { readRejectsFilterParams, writeRejectsFilterParams } from '../services/workspaceQueryParams'
-import { useAppDispatch } from '../store/hooks'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { syncAssetMetadataThunk } from '../store/thunks/assetSyncThunks'
 import { persistSelectedAssetId, readSelectedAssetId } from '../services/workspaceContextPersistence'
 import { mapReviewApiErrorToMessage } from '../infrastructure/review/apiReviewErrorAdapter'
 import { resolveSelectionStatusLabel } from '../application/review/reviewPagePresentation'
+import { selectRejectsWorkspaceQueryModel } from '../store/selectors/workspaceSelectors'
+import {
+  hydrateRejectsWorkspace,
+  setRejectsDateFilter,
+  setRejectsMediaTypeFilter,
+  setRejectsSearch,
+  setRejectsSort,
+} from '../store/slices/rejectsWorkspaceSlice'
 
 const INITIAL_REJECTED_ASSETS = INITIAL_ASSETS.flatMap((asset) => {
   if (asset.state === 'REJECTED') {
@@ -32,9 +46,20 @@ export function useRejectsPageController() {
   const assetListRegionRef = useRef<HTMLElement | null>(null)
   const { t } = useTranslation()
   const dispatch = useAppDispatch()
-  const initialQuery = useMemo(() => readRejectsFilterParams(), [])
-  const [search, setSearch] = useState(initialQuery.search ?? '')
-  const [sort, setSort] = useState<AssetSort>(initialQuery.sort ?? '-created_at')
+  const rejectsWorkspace = useAppSelector(selectRejectsWorkspaceQueryModel)
+  const { search, mediaTypeFilter, dateFilter, sort } = rejectsWorkspace
+  const setSearch = useCallback((value: string) => {
+    dispatch(setRejectsSearch(value))
+  }, [dispatch])
+  const setMediaTypeFilter = useCallback((value: AssetMediaTypeFilter) => {
+    dispatch(setRejectsMediaTypeFilter(value))
+  }, [dispatch])
+  const setDateFilter = useCallback((value: AssetDateFilter) => {
+    dispatch(setRejectsDateFilter(value))
+  }, [dispatch])
+  const setSort = useCallback((value: AssetSort) => {
+    dispatch(setRejectsSort(value))
+  }, [dispatch])
   const [assets, setAssets] = useState<Asset[]>(INITIAL_REJECTED_ASSETS)
   const [assetsLoadState, setAssetsLoadState] = useState<'idle' | 'loading' | 'error'>('idle')
   const [nextCursor, setNextCursor] = useState<string | null>(null)
@@ -53,6 +78,7 @@ export function useRejectsPageController() {
     kind: 'success' | 'error'
     message: string
   } | null>(null)
+  const [comparisonNow] = useState(() => Date.now())
   const [reopeningAsset, setReopeningAsset] = useState(false)
   const [reprocessingAsset, setReprocessingAsset] = useState(false)
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(() => readSelectedAssetId('rejects'))
@@ -60,13 +86,35 @@ export function useRejectsPageController() {
   const { displayType, setDisplayType } = useDisplayType('retaia_ui_rejects_asset_display_type')
   const { apiClient, isApiAssetSource, retryStatus, setRetryStatus } = useReviewApiRuntime()
 
+  const resolvedDateRange = useMemo(() => {
+    if (dateFilter === 'ALL') {
+      return null
+    }
+    const now = new Date()
+    const from = new Date(now)
+    if (dateFilter === 'LAST_7_DAYS') {
+      from.setDate(from.getDate() - 7)
+    } else {
+      from.setDate(from.getDate() - 30)
+    }
+    return {
+      captured_at_from: from.toISOString(),
+      captured_at_to: now.toISOString(),
+    }
+  }, [dateFilter])
+
   useEffect(() => {
     persistSelectedAssetId('rejects', selectedAssetId)
   }, [selectedAssetId])
 
   useEffect(() => {
-    writeRejectsFilterParams(search, sort, 'replace')
-  }, [search, sort])
+    writeRejectsFilterParams({
+      search,
+      mediaTypeFilter,
+      dateFilter,
+      sort,
+    }, 'replace')
+  }, [dateFilter, mediaTypeFilter, search, sort])
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -74,14 +122,18 @@ export function useRejectsPageController() {
     }
     const handlePopState = () => {
       const next = readRejectsFilterParams()
-      setSearch(next.search ?? '')
-      setSort(next.sort ?? '-created_at')
+      dispatch(hydrateRejectsWorkspace({
+        search: next.search ?? '',
+        mediaTypeFilter: next.mediaTypeFilter ?? 'ALL',
+        dateFilter: next.dateFilter ?? 'ALL',
+        sort: next.sort ?? '-created_at',
+      }))
     }
     window.addEventListener('popstate', handlePopState)
     return () => {
       window.removeEventListener('popstate', handlePopState)
     }
-  }, [])
+  }, [dispatch])
 
   useEffect(() => {
     if (!isApiAssetSource) {
@@ -95,6 +147,13 @@ export function useRejectsPageController() {
         const response = await apiClient.listAssets({
           state: 'REJECTED',
           q: search.trim().length > 0 ? search.trim() : undefined,
+          media_type:
+            mediaTypeFilter === 'IMAGE'
+              ? 'PHOTO'
+              : mediaTypeFilter === 'ALL' || mediaTypeFilter === 'OTHER'
+                ? undefined
+                : mediaTypeFilter,
+          ...(resolvedDateRange ?? {}),
           sort,
           limit: DEFAULT_REJECTS_PAGE_SIZE,
         })
@@ -118,7 +177,7 @@ export function useRejectsPageController() {
     return () => {
       canceled = true
     }
-  }, [apiClient, isApiAssetSource, search, sort])
+  }, [apiClient, dateFilter, isApiAssetSource, mediaTypeFilter, resolvedDateRange, search, sort])
 
   const loadMoreAssets = useCallback(async () => {
     if (!isApiAssetSource || !nextCursor || loadingMoreAssets) {
@@ -129,6 +188,13 @@ export function useRejectsPageController() {
       const response = await apiClient.listAssets({
         state: 'REJECTED',
         q: search.trim().length > 0 ? search.trim() : undefined,
+        media_type:
+          mediaTypeFilter === 'IMAGE'
+            ? 'PHOTO'
+            : mediaTypeFilter === 'ALL' || mediaTypeFilter === 'OTHER'
+              ? undefined
+              : mediaTypeFilter,
+        ...(resolvedDateRange ?? {}),
         sort,
         limit: DEFAULT_REJECTS_PAGE_SIZE,
         cursor: nextCursor,
@@ -143,7 +209,7 @@ export function useRejectsPageController() {
     } finally {
       setLoadingMoreAssets(false)
     }
-  }, [apiClient, isApiAssetSource, loadingMoreAssets, nextCursor, search, sort])
+  }, [apiClient, isApiAssetSource, loadingMoreAssets, mediaTypeFilter, nextCursor, resolvedDateRange, search, sort])
 
   useEffect(() => {
     if (!isApiAssetSource || !selectedAssetId) {
@@ -183,18 +249,58 @@ export function useRejectsPageController() {
       return rejectsOnly
     }
     const normalizedSearch = search.trim().toLowerCase()
-    const filtered = normalizedSearch.length === 0
-      ? rejectsOnly
-      : rejectsOnly.filter((asset) => {
-        const tags = asset.tags ?? []
-        return (
-          asset.name.toLowerCase().includes(normalizedSearch) ||
-          asset.id.toLowerCase().includes(normalizedSearch) ||
-          tags.some((tag) => tag.toLowerCase().includes(normalizedSearch))
-        )
-      })
+    const dateThreshold = dateFilter === 'LAST_7_DAYS'
+      ? comparisonNow - 7 * 24 * 60 * 60 * 1000
+      : dateFilter === 'LAST_30_DAYS'
+        ? comparisonNow - 30 * 24 * 60 * 60 * 1000
+        : null
+    const filtered = rejectsOnly.filter((asset) => {
+      const tags = asset.tags ?? []
+      const assetMediaType = asset.mediaType ?? 'OTHER'
+      const capturedAtValue = asset.capturedAt ? Date.parse(asset.capturedAt) : Number.NaN
+      const matchesSearch =
+        normalizedSearch.length === 0 ||
+        asset.name.toLowerCase().includes(normalizedSearch) ||
+        asset.id.toLowerCase().includes(normalizedSearch) ||
+        tags.some((tag) => tag.toLowerCase().includes(normalizedSearch))
+      const matchesMediaType =
+        mediaTypeFilter === 'ALL' || assetMediaType === mediaTypeFilter
+      const matchesDate =
+        dateThreshold === null ||
+        (Number.isFinite(capturedAtValue) && capturedAtValue >= dateThreshold)
+      return matchesSearch && matchesMediaType && matchesDate
+    })
     return sortAssets(filtered, sort)
-  }, [assets, isApiAssetSource, search, sort])
+  }, [assets, comparisonNow, dateFilter, isApiAssetSource, mediaTypeFilter, search, sort])
+
+  const visibleMediaTypeCounts = useMemo(
+    () =>
+      visibleAssets.reduce(
+        (accumulator, asset) => {
+          const assetMediaType = asset.mediaType ?? 'OTHER'
+          accumulator[assetMediaType] += 1
+          return accumulator
+        },
+        {
+          VIDEO: 0,
+          AUDIO: 0,
+          IMAGE: 0,
+          OTHER: 0,
+        },
+      ),
+    [visibleAssets],
+  )
+
+  const olderThan30DaysCount = useMemo(() => {
+    const threshold = comparisonNow - 30 * 24 * 60 * 60 * 1000
+    return visibleAssets.reduce((count, asset) => {
+      const capturedAtValue = asset.capturedAt ? Date.parse(asset.capturedAt) : Number.NaN
+      if (Number.isFinite(capturedAtValue) && capturedAtValue < threshold) {
+        return count + 1
+      }
+      return count
+    }, 0)
+  }, [comparisonNow, visibleAssets])
 
   const selectedAsset = useMemo(
     () => assets.find((asset) => asset.id === selectedAssetId) ?? null,
@@ -379,9 +485,15 @@ export function useRejectsPageController() {
     t,
     search,
     setSearch,
+    mediaTypeFilter,
+    setMediaTypeFilter,
+    dateFilter,
+    setDateFilter,
     sort,
     setSort,
-    assets: visibleAssets,
+    visibleAssets,
+    visibleMediaTypeCounts,
+    olderThan30DaysCount,
     selectedAsset,
     selectedAssetId,
     densityMode,
@@ -404,7 +516,10 @@ export function useRejectsPageController() {
     executingPurge,
     purgeStatus,
     retryStatus,
-    emptyAssetsMessage: t('rejects.empty'),
+    emptyAssetsMessage:
+      search.trim().length > 0 || mediaTypeFilter !== 'ALL' || dateFilter !== 'ALL'
+        ? t('assets.emptyFiltered')
+        : t('rejects.empty'),
     selectionStatusLabel,
     onAssetClick: (assetId: string) => {
       setSelectedAssetId(assetId)

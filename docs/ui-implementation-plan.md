@@ -20,6 +20,7 @@ Regle de base:
 - `Review` ouvre par defaut sur une file de travail explicite plutot que sur `ALL`
 - la disponibilite bulk de `Review` derive maintenant du resultat effectif gouverne
 - `Library` expose maintenant des facettes utiles de recherche et de requalification
+- `Rejects` expose maintenant des facettes utiles de recherche, retention et requalification prudente
 
 Regle de suivi:
 
@@ -42,7 +43,6 @@ Regle de suivi:
 ### Priorite moyenne
 
 1. Refaire l'architecture des workspaces secondaires.
-   - `Rejects` comme espace prudent de remise a decision et purge
    - `Activity` comme journal local mieux cadre
 
 2. Nettoyer les surfaces techniques.
