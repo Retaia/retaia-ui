@@ -446,6 +446,17 @@ export const enTranslation = {
   'actions.batchScopePending': 'Pending: {count}',
   'actions.batchScopeKeep': 'Kept: {count}',
   'actions.batchScopeReject': 'Rejected: {count}',
+  'actions.executionScopeTitle': 'Actual apply scope',
+  'actions.executionScopeSummary': '{eligible} executable asset(s) out of {selected} selected.',
+  'actions.executionScopeArchive': 'To library: {count}',
+  'actions.executionScopeRejects': 'To rejects: {count}',
+  'actions.executionScopePending': 'Without decision yet: {count}',
+  'actions.executionScopeAlreadyMoved': 'Already moved: {count}',
+  'actions.executionScopeOther': 'Other blocked states: {count}',
+  'actions.executionScopeHelp':
+    'Preview and execute only move assets currently in `DECIDED_KEEP` or `DECIDED_REJECT`. The rest stays visible but out of call scope.',
+  'actions.executionScopeNoneEligible':
+    'No selected asset is currently executable. Set an explicit decision first before preview or execution.',
   'actions.timelineTitle': 'Batch timeline',
   'actions.timelineQueued': 'Queued',
   'actions.timelineRunning': 'Running',

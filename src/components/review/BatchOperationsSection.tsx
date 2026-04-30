@@ -8,6 +8,16 @@ type Props = {
   availability: ReturnType<typeof getActionAvailability>
   batchIdsLength: number
   batchScope: { pending: number; keep: number; reject: number }
+  batchExecutionScope: {
+    selected: number
+    eligible: number
+    archived: number
+    rejected: number
+    pendingDecision: number
+    alreadyMoved: number
+    otherStates: number
+    ineligible: number
+  }
   batchTimeline: Array<{ key: string; active: boolean; done: boolean; error?: boolean; label: string }>
   pendingBatchExecution: { expiresAt: number } | null
   pendingBatchUndoSeconds: number
@@ -30,6 +40,7 @@ export function BatchOperationsSection({
   availability,
   batchIdsLength,
   batchScope,
+  batchExecutionScope,
   batchTimeline,
   pendingBatchExecution,
   pendingBatchUndoSeconds,
@@ -57,6 +68,7 @@ export function BatchOperationsSection({
           availability={availability}
           batchIdsLength={batchIdsLength}
           batchScope={batchScope}
+          batchExecutionScope={batchExecutionScope}
           batchTimeline={batchTimeline}
           pendingBatchExecution={pendingBatchExecution}
           pendingBatchUndoSeconds={pendingBatchUndoSeconds}

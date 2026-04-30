@@ -447,6 +447,17 @@ export const frTranslation = {
   'actions.batchScopePending': 'En attente: {count}',
   'actions.batchScopeKeep': 'Conservés: {count}',
   'actions.batchScopeReject': 'Rejetés: {count}',
+  'actions.executionScopeTitle': "Scope d'application réel",
+  'actions.executionScopeSummary': '{eligible} asset(s) exécutable(s) sur {selected} sélectionné(s).',
+  'actions.executionScopeArchive': 'Vers bibliothèque: {count}',
+  'actions.executionScopeRejects': 'Vers rejects: {count}',
+  'actions.executionScopePending': 'Sans décision posée: {count}',
+  'actions.executionScopeAlreadyMoved': 'Déjà déplacés: {count}',
+  'actions.executionScopeOther': 'Autres états bloqués: {count}',
+  'actions.executionScopeHelp':
+    "Preview et exécution ne déplacent que les assets en `DECIDED_KEEP` ou `DECIDED_REJECT`. Le reste reste visible mais hors scope d'appel.",
+  'actions.executionScopeNoneEligible':
+    "Aucun asset sélectionné n'est actuellement exécutable. Pose d'abord une décision explicite avant preview ou exécution.",
   'actions.timelineTitle': 'Timeline batch',
   'actions.timelineQueued': 'File d’attente',
   'actions.timelineRunning': 'En cours',

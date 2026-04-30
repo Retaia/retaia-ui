@@ -24,6 +24,7 @@ const t = (key: string, values?: Record<string, string>) =>
 const availability = getActionAvailability({
   visibleCount: 1,
   batchCount: 0,
+  eligibleBatchCount: 0,
   previewingBatch: false,
   executingBatch: false,
   schedulingBatchExecution: false,

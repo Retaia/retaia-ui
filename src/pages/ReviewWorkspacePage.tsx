@@ -60,6 +60,7 @@ export default function ReviewWorkspacePage() {
           availability={controller.effectiveAvailability}
           batchIdsLength={controller.batchIds.length}
           batchScope={controller.batchScope}
+          batchExecutionScope={controller.batchExecutionScope}
           batchTimeline={controller.batchTimeline}
           pendingBatchExecution={controller.pendingBatchExecution}
           pendingBatchUndoSeconds={controller.pendingBatchUndoSeconds}
