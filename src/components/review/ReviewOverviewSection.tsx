@@ -95,7 +95,12 @@ export function ReviewOverviewSection({
           all: t('toolbar.all'),
           date7d: t('toolbar.date7d'),
           date30d: t('toolbar.date30d'),
-          stateLabel: (value) => (value === 'ALL' ? t('toolbar.all') : t(ASSET_STATE_LABEL_KEYS[value])),
+          stateLabel: (value) =>
+            value === 'ALL'
+              ? t('toolbar.all')
+              : value === 'WORK_QUEUE'
+                ? t('toolbar.stateWorkQueue')
+                : t(ASSET_STATE_LABEL_KEYS[value]),
           mediaTypeVideo: t('toolbar.mediaTypeVideo'),
           mediaTypeAudio: t('toolbar.mediaTypeAudio'),
           mediaTypeImage: t('toolbar.mediaTypeImage'),

@@ -27,7 +27,11 @@ function isAssetFilter(value: string | null): value is AssetFilter {
   if (!value) {
     return false
   }
-  return value === 'ALL' || ASSET_STATES.includes(value as (typeof ASSET_STATES)[number])
+  return (
+    value === 'ALL' ||
+    value === 'WORK_QUEUE' ||
+    ASSET_STATES.includes(value as (typeof ASSET_STATES)[number])
+  )
 }
 
 function isAssetMediaTypeFilter(value: string | null): value is ApiMediaTypeParam {
@@ -182,6 +186,8 @@ export function writeReviewFilterParams(
     return
   }
   if (paramsState.filter === 'ALL') {
+    params.set('state', 'ALL')
+  } else if (paramsState.filter === 'WORK_QUEUE') {
     params.delete('state')
   } else {
     params.set('state', paramsState.filter)

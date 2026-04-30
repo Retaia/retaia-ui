@@ -6,7 +6,7 @@ describe('ReviewToolbar', () => {
   it('renders every normative asset state in the state filter', () => {
     render(
       <ReviewToolbar
-        filter="ALL"
+        filter="WORK_QUEUE"
         mediaTypeFilter="ALL"
         dateFilter="ALL"
         sort="-created_at"
@@ -45,6 +45,7 @@ describe('ReviewToolbar', () => {
     const optionValues = Array.from(stateFilter.querySelectorAll('option')).map((option) => option.getAttribute('value'))
 
     expect(optionValues).toEqual([
+      'WORK_QUEUE',
       'ALL',
       'DISCOVERED',
       'READY',

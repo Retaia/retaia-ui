@@ -206,6 +206,7 @@ export const frTranslation = {
   'toolbar.search': 'Recherche',
   'toolbar.placeholder': 'Nom ou identifiant',
   'toolbar.all': 'Tous',
+  'toolbar.stateWorkQueue': 'File de travail',
   'toolbar.stateDiscovered': 'Découvert',
   'toolbar.stateReady': 'Prêt',
   'toolbar.stateProcessingReview': 'Préparation review',

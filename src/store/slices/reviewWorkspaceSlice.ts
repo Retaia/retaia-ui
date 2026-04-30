@@ -17,7 +17,7 @@ export type ReviewWorkspaceState = {
 }
 
 const initialState: ReviewWorkspaceState = {
-  filter: 'ALL',
+  filter: 'WORK_QUEUE',
   mediaTypeFilter: 'ALL',
   dateFilter: 'ALL',
   sort: '-created_at',

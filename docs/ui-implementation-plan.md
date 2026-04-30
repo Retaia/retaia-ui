@@ -17,6 +17,7 @@ Regle de base:
 - faux fallback waveform remplace par un etat explicite
 - anciennete asset visible avant purge
 - `GET /app/policy` envoie `client_feature_flags_contract_version`
+- `Review` ouvre par defaut sur une file de travail explicite plutot que sur `ALL`
 
 Regle de suivi:
 

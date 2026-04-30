@@ -25,6 +25,13 @@ describe('createAppStore', () => {
     expect(state.batchIds).toEqual([])
   })
 
+  it('defaults review workspace to work queue when no state is provided', () => {
+    const store = createAppStore()
+    const state = store.getState().reviewWorkspace
+
+    expect(state.filter).toBe('WORK_QUEUE')
+  })
+
   it('hydrates library workspace from query params over persisted state', () => {
     window.history.replaceState(window.history.state, '', '/library?q=archive&sort=name')
 

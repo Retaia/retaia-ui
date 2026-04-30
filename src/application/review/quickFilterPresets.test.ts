@@ -24,7 +24,7 @@ describe('quickFilterPresets', () => {
       batchOnly: false,
     })
     expect(getQuickFilterPresetState('MEDIA_REVIEW')).toEqual({
-      filter: 'ALL',
+      filter: 'WORK_QUEUE',
       mediaTypeFilter: 'VIDEO',
       dateFilter: 'LAST_30_DAYS',
       search: '',
@@ -42,7 +42,7 @@ describe('quickFilterPresets', () => {
       batchOnly: false,
     })
     expect(getSavedViewState('BATCH')).toEqual({
-      filter: 'ALL',
+      filter: 'WORK_QUEUE',
       mediaTypeFilter: 'ALL',
       dateFilter: 'ALL',
       search: '',

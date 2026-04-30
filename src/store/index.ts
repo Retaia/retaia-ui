@@ -40,7 +40,7 @@ function resolvePreloadedState(): ReturnType<typeof rootReducer> {
 
   return {
     reviewWorkspace: {
-      filter: queryReview.filter ?? 'ALL',
+      filter: queryReview.filter ?? 'WORK_QUEUE',
       mediaTypeFilter: queryReview.mediaTypeFilter ?? 'ALL',
       dateFilter: queryReview.dateFilter ?? 'ALL',
       sort: queryReview.sort ?? '-created_at',

@@ -206,6 +206,7 @@ export const enTranslation = {
   'toolbar.search': 'Search',
   'toolbar.placeholder': 'Name or identifier',
   'toolbar.all': 'All',
+  'toolbar.stateWorkQueue': 'Work queue',
   'toolbar.stateDiscovered': 'Discovered',
   'toolbar.stateReady': 'Ready',
   'toolbar.stateProcessingReview': 'Preparing review',
