@@ -1,5 +1,9 @@
 # UI Gap Analysis - Retaia-UI
 
+Mise a jour documentaire le 30 avril 2026:
+
+- l'UX `Review` pour les conflits et preconditions `409` / `412` / `428` / `423` est maintenant explicite et sort du backlog actif
+
 ## 7. Gap analysis
 
 Comparaison faite entre:

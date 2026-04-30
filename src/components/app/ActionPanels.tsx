@@ -10,6 +10,7 @@ import { BatchExecutionStatusAlerts } from '../review/BatchExecutionStatusAlerts
 import { getActionAvailability } from '../../domain/actionAvailability'
 import { useQuickFilters } from '../../hooks/useQuickFilters'
 import { useDensityMode } from '../../hooks/useDensityMode'
+import type { ReviewRefreshReason } from '../../infrastructure/review/apiReviewErrorAdapter'
 
 type BatchScope = {
   pending: number
@@ -57,6 +58,7 @@ type Props = {
   previewStatus: StatusMessage | null
   executeStatus: StatusMessage | null
   shouldRefreshAssetsAfterConflict: boolean
+  refreshRecommendationReason: ReviewRefreshReason | null
   retryStatus: string | null
   reportBatchId: string | null
   reportStatus: string | null
@@ -101,6 +103,7 @@ export function ActionPanels({
   previewStatus,
   executeStatus,
   shouldRefreshAssetsAfterConflict,
+  refreshRecommendationReason,
   retryStatus,
   reportBatchId,
   reportStatus,
@@ -218,11 +221,12 @@ export function ActionPanels({
                 onCancelPendingBatchExecution={onCancelPendingBatchExecution}
               />
               <BatchExecutionStatusAlerts
+                t={t}
                 previewStatus={previewStatus}
                 executeStatus={executeStatus}
                 shouldRefreshAssetsAfterConflict={shouldRefreshAssetsAfterConflict}
+                refreshRecommendationReason={refreshRecommendationReason}
                 onRefreshAssetsAfterConflict={onRefreshAssetsAfterBatchConflict}
-                refreshAssetsLabel={t('actions.refreshAssets')}
                 retryStatus={retryStatus}
               />
               <ActionReportSection

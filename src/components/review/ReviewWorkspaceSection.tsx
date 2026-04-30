@@ -3,6 +3,7 @@ import { ReviewTodoDonePanel } from '../app/ReviewTodoDonePanel'
 import type { Asset } from '../../domain/assets'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import type { DensityMode } from '../../hooks/useDensityMode'
+import type { ReviewRefreshReason } from '../../infrastructure/review/apiReviewErrorAdapter'
 
 type Props = {
   t: (key: string, values?: Record<string, string | number>) => string
@@ -29,6 +30,7 @@ type Props = {
   previewStatus: { kind: 'success' | 'error'; message: string } | null
   executeStatus: { kind: 'success' | 'error'; message: string } | null
   shouldRefreshAssetsAfterConflict: boolean
+  refreshRecommendationReason: ReviewRefreshReason | null
   retryStatus: string | null
   reportBatchId: string | null
   reportStatus: string | null
@@ -77,6 +79,7 @@ export function ReviewWorkspaceSection(props: Props) {
     previewStatus,
     executeStatus,
     shouldRefreshAssetsAfterConflict,
+    refreshRecommendationReason,
     retryStatus,
     reportBatchId,
     reportStatus,
@@ -126,6 +129,7 @@ export function ReviewWorkspaceSection(props: Props) {
         previewStatus={previewStatus}
         executeStatus={executeStatus}
         shouldRefreshAssetsAfterConflict={shouldRefreshAssetsAfterConflict}
+        refreshRecommendationReason={refreshRecommendationReason}
         retryStatus={retryStatus}
         reportBatchId={reportBatchId}
         reportStatus={reportStatus}

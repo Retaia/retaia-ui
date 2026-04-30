@@ -1,23 +1,28 @@
+import type { ReviewRefreshReason } from '../../infrastructure/review/apiReviewErrorAdapter'
+import { ReviewRefreshResolutionAlert } from './ReviewRefreshResolutionAlert'
+
 type StatusMessage = {
   kind: 'success' | 'error'
   message: string
 }
 
 type Props = {
+  t: (key: string, values?: Record<string, string | number>) => string
   previewStatus: StatusMessage | null
   executeStatus: StatusMessage | null
   shouldRefreshAssetsAfterConflict?: boolean
+  refreshRecommendationReason?: ReviewRefreshReason | null
   onRefreshAssetsAfterConflict?: () => Promise<void>
-  refreshAssetsLabel?: string
   retryStatus: string | null
 }
 
 export function BatchExecutionStatusAlerts({
+  t,
   previewStatus,
   executeStatus,
   shouldRefreshAssetsAfterConflict = false,
+  refreshRecommendationReason = null,
   onRefreshAssetsAfterConflict,
-  refreshAssetsLabel = 'Refresh asset list',
   retryStatus,
 }: Props) {
   return (
@@ -49,15 +54,17 @@ export function BatchExecutionStatusAlerts({
           >
             {executeStatus.message}
           </p>
-          {shouldRefreshAssetsAfterConflict && onRefreshAssetsAfterConflict ? (
-            <button
-              type="button"
-              className="mt-2 inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100"
-              data-testid="batch-refresh-assets-action"
-              onClick={() => void onRefreshAssetsAfterConflict()}
-            >
-              {refreshAssetsLabel}
-            </button>
+          {shouldRefreshAssetsAfterConflict && onRefreshAssetsAfterConflict && refreshRecommendationReason ? (
+            <ReviewRefreshResolutionAlert
+              t={t}
+              scope="asset_list"
+              reason={refreshRecommendationReason}
+              onRefresh={() => {
+                void onRefreshAssetsAfterConflict()
+              }}
+              testIdPrefix="batch-refresh-resolution"
+              className="mt-2"
+            />
           ) : null}
         </div>
       ) : null}

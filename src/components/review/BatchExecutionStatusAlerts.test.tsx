@@ -8,6 +8,7 @@ describe('BatchExecutionStatusAlerts', () => {
   it('renders all statuses when provided', () => {
     render(
       <BatchExecutionStatusAlerts
+        t={(key) => key}
         previewStatus={{ kind: 'success', message: 'preview ok' }}
         executeStatus={{ kind: 'error', message: 'execute failed' }}
         shouldRefreshAssetsAfterConflict={false}
@@ -23,6 +24,7 @@ describe('BatchExecutionStatusAlerts', () => {
   it('renders nothing when no status is provided', () => {
     const { container } = render(
       <BatchExecutionStatusAlerts
+        t={(key) => key}
         previewStatus={null}
         executeStatus={null}
         shouldRefreshAssetsAfterConflict={false}
@@ -39,16 +41,20 @@ describe('BatchExecutionStatusAlerts', () => {
 
     render(
       <BatchExecutionStatusAlerts
+        t={(key) => key}
         previewStatus={null}
         executeStatus={{ kind: 'error', message: 'stale revision' }}
         shouldRefreshAssetsAfterConflict
+        refreshRecommendationReason="precondition_failed"
         onRefreshAssetsAfterConflict={onRefreshAssetsAfterConflict}
-        refreshAssetsLabel="Refresh asset list"
         retryStatus={null}
       />,
     )
 
-    await user.click(screen.getByTestId('batch-refresh-assets-action'))
+    expect(screen.getByTestId('batch-refresh-resolution-message')).toHaveTextContent(
+      'reviewResolution.body',
+    )
+    await user.click(screen.getByTestId('batch-refresh-resolution-action'))
     expect(onRefreshAssetsAfterConflict).toHaveBeenCalled()
   })
 })

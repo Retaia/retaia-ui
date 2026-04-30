@@ -11,16 +11,19 @@ describe('resolveReviewApiError', () => {
       },
       {
         mapErrorToMessage: () => 'error.stateConflict',
-        isStateConflictError: (error) =>
+        resolveRefreshReason: (error) =>
           typeof error === 'object' &&
           error !== null &&
           typeof (error as { payload?: unknown }).payload === 'object' &&
-          (error as { payload: { code?: unknown } }).payload.code === 'STATE_CONFLICT',
+          (error as { payload: { code?: unknown } }).payload.code === 'STATE_CONFLICT'
+            ? 'state_conflict'
+            : null,
       },
     )
 
     expect(result).toEqual({
       message: 'error.stateConflict',
+      refreshReason: 'state_conflict',
       shouldRefreshSelectedAsset: true,
     })
   })
@@ -28,11 +31,12 @@ describe('resolveReviewApiError', () => {
   it('keeps refresh flag disabled for non-conflict errors', () => {
     const result = resolveReviewApiError(new Error('boom'), {
       mapErrorToMessage: () => 'error.fallback',
-      isStateConflictError: () => false,
+      resolveRefreshReason: () => null,
     })
 
     expect(result).toEqual({
       message: 'error.fallback',
+      refreshReason: null,
       shouldRefreshSelectedAsset: false,
     })
   })
@@ -46,13 +50,14 @@ describe('resolveReviewApiError', () => {
       },
       {
         mapErrorToMessage: () => 'error.stateConflict',
-        isStateConflictError: () => true,
-        flagStateConflictForRefresh: false,
+        resolveRefreshReason: () => 'state_conflict',
+        flagRefreshForResolution: false,
       },
     )
 
     expect(result).toEqual({
       message: 'error.stateConflict',
+      refreshReason: 'state_conflict',
       shouldRefreshSelectedAsset: false,
     })
   })

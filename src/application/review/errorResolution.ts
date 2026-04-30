@@ -1,20 +1,24 @@
 type ErrorMessageResolver = (error: unknown) => string
-type StateConflictDetector = (error: unknown) => boolean
+type RefreshReasonResolver = (
+  error: unknown,
+) => 'state_conflict' | 'precondition_required' | 'precondition_failed' | 'lock' | null
 
 export function resolveReviewApiError(
   error: unknown,
   options: {
     mapErrorToMessage: ErrorMessageResolver
-    isStateConflictError: StateConflictDetector
-    flagStateConflictForRefresh?: boolean
+    resolveRefreshReason: RefreshReasonResolver
+    flagRefreshForResolution?: boolean
   },
 ) {
+  const refreshReason = options.resolveRefreshReason(error)
   const shouldRefreshSelectedAsset =
-    options?.flagStateConflictForRefresh !== false &&
-    options.isStateConflictError(error)
+    options?.flagRefreshForResolution !== false &&
+    refreshReason !== null
 
   return {
     message: options.mapErrorToMessage(error),
     shouldRefreshSelectedAsset,
+    refreshReason,
   }
 }

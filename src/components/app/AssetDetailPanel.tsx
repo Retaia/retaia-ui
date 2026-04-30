@@ -12,9 +12,11 @@ import type { Asset, DecisionAction, ProcessingProfile } from '../../domain/asse
 import { ASSET_STATE_LABEL_KEYS, getStateFromDecision } from '../../domain/assets'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import { AssetMediaPreview } from './AssetMediaPreview'
+import type { ReviewRefreshReason } from '../../infrastructure/review/apiReviewErrorAdapter'
+import { ReviewRefreshResolutionAlert } from '../review/ReviewRefreshResolutionAlert'
 
 function getTranscriptStatusLabel(
-  t: (key: string, values?: Record<string, string>) => string,
+  t: (key: string, values?: Record<string, string | number>) => string,
   status: NonNullable<Asset['transcriptStatus']>,
 ) {
   if (status === 'DONE') {
@@ -30,7 +32,7 @@ function getTranscriptStatusLabel(
 }
 
 function getProcessingProfileLabel(
-  t: (key: string, values?: Record<string, string>) => string,
+  t: (key: string, values?: Record<string, string | number>) => string,
   processingProfile: ProcessingProfile,
 ) {
   if (processingProfile === 'audio_music') {
@@ -50,7 +52,7 @@ function getProcessingProfileLabel(
 
 function formatCapturedAt(
   value: string | undefined,
-  t: (key: string, values?: Record<string, string>) => string,
+  t: (key: string, values?: Record<string, string | number>) => string,
 ) {
   if (!value) {
     return t('detail.dateUnknown')
@@ -67,7 +69,7 @@ function formatCapturedAt(
 
 function formatAssetAge(
   value: string | undefined,
-  t: (key: string, values?: Record<string, string>) => string,
+  t: (key: string, values?: Record<string, string | number>) => string,
 ) {
   if (!value) {
     return t('detail.ageUnknown')
@@ -120,7 +122,7 @@ type Props = {
   savingMetadata: boolean
   savingProcessingProfile?: boolean
   metadataStatus: MetadataStatus | null
-  t: (key: string, values?: Record<string, string>) => string
+  t: (key: string, values?: Record<string, string | number>) => string
   onDecision?: (assetId: string, action: DecisionAction) => void
   onChooseProcessingProfile?: (processingProfile: ProcessingProfile) => Promise<void> | void
   onSaveMetadata: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
@@ -128,6 +130,7 @@ type Props = {
   onExecutePurge?: () => Promise<void>
   onRefreshAsset?: () => Promise<void>
   showRefreshAction?: boolean
+  refreshActionReason?: ReviewRefreshReason | null
   refreshingAsset?: boolean
   showDecisionActions?: boolean
   showPurgeActions?: boolean
@@ -148,7 +151,7 @@ type Props = {
 type MetadataEditorProps = {
   selectedAsset: Asset
   savingMetadata: boolean
-  t: (key: string, values?: Record<string, string>) => string
+  t: (key: string, values?: Record<string, string | number>) => string
   onSaveMetadata: (assetId: string, payload: { tags: string[]; notes: string }) => Promise<void>
   onKeywordClick?: (keyword: string) => void
   onMetadataDirtyChange?: (dirty: boolean) => void
@@ -310,6 +313,7 @@ export function AssetDetailPanel({
   onExecutePurge,
   onRefreshAsset,
   showRefreshAction = false,
+  refreshActionReason = null,
   refreshingAsset = false,
   showDecisionActions = true,
   showPurgeActions = true,
@@ -668,18 +672,18 @@ export function AssetDetailPanel({
               {metadataStatus.message}
             </p>
           ) : null}
-          {selectedAsset && showRefreshAction && onRefreshAsset ? (
-            <div className="mt-2">
-              <button
-                type="button"
-                className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
-                data-testid="asset-refresh-action"
-                onClick={() => void onRefreshAsset()}
-                disabled={refreshingAsset}
-              >
-                {refreshingAsset ? t('detail.refreshing') : t('detail.refreshAction')}
-              </button>
-            </div>
+          {selectedAsset && showRefreshAction && onRefreshAsset && refreshActionReason ? (
+            <ReviewRefreshResolutionAlert
+              t={t}
+              scope="selected_asset"
+              reason={refreshActionReason}
+              onRefresh={() => {
+                void onRefreshAsset()
+              }}
+              refreshing={refreshingAsset}
+              testIdPrefix="asset-refresh-resolution"
+              className="mt-2"
+            />
           ) : null}
       </div>
     </section>

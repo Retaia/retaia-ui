@@ -20,6 +20,7 @@ Regle de base:
 - `Review` ouvre par defaut sur une file de travail explicite plutot que sur `ALL`
 - la disponibilite bulk de `Review` derive maintenant du resultat effectif gouverne
 - `Review` rend maintenant le scope reel de `apply decisions` explicite avant preview et execution
+- `Review` unifie maintenant la resolution explicite des conflits et preconditions `409` / `412` / `428` / `423`
 - `Library` expose maintenant des facettes utiles de recherche et de requalification
 - `Rejects` expose maintenant des facettes utiles de recherche, retention et requalification prudente
 - `Auth` est maintenant traite comme une vraie surface publique `public only`
@@ -35,10 +36,7 @@ Regle de suivi:
 1. Corriger les flux critiques et les trous de navigation.
    - remettre `Review` sur une logique de file de travail claire
 
-2. Corriger les ecarts de conformite runtime.
-   - uniformiser les UX `409` / `412` / `428` / `423`
-
-3. Stabiliser les actions critiques.
+2. Stabiliser les actions critiques.
    - pousser plus loin le cadrage des actions destructives restantes
    - conserver la suppression des faux signaux visuels sur les derives manquants
 

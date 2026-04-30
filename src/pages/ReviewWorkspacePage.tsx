@@ -69,6 +69,7 @@ export default function ReviewWorkspacePage() {
           previewStatus={controller.previewStatus}
           executeStatus={controller.executeStatus}
           shouldRefreshAssetsAfterConflict={controller.shouldRefreshAssetsAfterConflict}
+          refreshRecommendationReason={controller.refreshRecommendationReason}
           retryStatus={controller.retryStatus}
           reportBatchId={controller.reportBatchId}
           reportStatus={controller.reportStatus}
@@ -122,6 +123,7 @@ export default function ReviewWorkspacePage() {
           savingMetadata={controller.savingMetadata}
           metadataStatus={controller.metadataStatus}
           showRefreshAction={controller.shouldRefreshSelectedAsset}
+          refreshActionReason={controller.selectedAssetRefreshReason}
           refreshingAsset={controller.refreshingSelectedAsset}
           assetListRegionRef={controller.assetListRegionRef}
           onDecision={controller.handleDecision}

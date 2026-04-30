@@ -17,6 +17,7 @@ Mise a jour documentaire le 30 avril 2026:
 - `Auth` est maintenant traite comme une surface publique stricte
 - les overrides runtime ne vivent plus dans `Auth` et restent secondaires dans `Settings`
 - `Review` rend maintenant le scope reel de `apply decisions` explicite avant preview et execution
+- `Review` unifie maintenant la resolution explicite des conflits et preconditions `409` / `412` / `428` / `423`
 
 ## 1. Resume executif
 

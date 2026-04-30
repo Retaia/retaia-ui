@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AssetDetailPanel } from './AssetDetailPanel'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import type { Asset, ProcessingProfile } from '../../domain/assets'
+import type { ReviewRefreshReason } from '../../infrastructure/review/apiReviewErrorAdapter'
 
 const reactPlayerMock = vi.fn((props?: unknown) => {
   void props
@@ -18,7 +19,7 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-const t = (key: string, values?: Record<string, string>) =>
+const t = (key: string, values?: Record<string, string | number>) =>
   values ? `${key}:${JSON.stringify(values)}` : key
 
 const availability = getActionAvailability({
@@ -53,6 +54,7 @@ function renderPanel(
     onReprocessAsset?: () => Promise<void>
     showLibraryActions?: boolean
     transitionStatus?: { kind: 'success' | 'error'; message: string } | null
+    refreshActionReason?: ReviewRefreshReason | null
   },
 ) {
   const onSaveMetadata = options?.onSaveMetadata ?? vi.fn(async () => {})
@@ -77,6 +79,7 @@ function renderPanel(
       onExecutePurge={async () => {}}
       onRefreshAsset={onRefreshAsset}
       showRefreshAction={options?.showRefreshAction ?? false}
+      refreshActionReason={options?.refreshActionReason ?? null}
       refreshingAsset={false}
       showLibraryActions={options?.showLibraryActions ?? false}
       onReopenAsset={options?.onReopenAsset}
@@ -277,10 +280,14 @@ describe('AssetDetailPanel media preview', () => {
         decisionStatus: { kind: 'error', message: 'state conflict' },
         onRefreshAsset,
         showRefreshAction: true,
+        refreshActionReason: 'precondition_failed',
       },
     )
 
-    await user.click(screen.getByTestId('asset-refresh-action'))
+    expect(screen.getByTestId('asset-refresh-resolution-message')).toHaveTextContent(
+      'reviewResolution.body',
+    )
+    await user.click(screen.getByTestId('asset-refresh-resolution-action'))
     expect(onRefreshAsset).toHaveBeenCalled()
   })
 
