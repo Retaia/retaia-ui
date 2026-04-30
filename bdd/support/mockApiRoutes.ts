@@ -232,7 +232,7 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
     })
   })
 
-  await page.route('**/app/policy', async (route) => {
+  const fulfillAppPolicy = async (route: Route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -244,7 +244,10 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
         },
       }),
     })
-  })
+  }
+
+  await page.route('**/app/policy', fulfillAppPolicy)
+  await page.route('**/app/policy?*', fulfillAppPolicy)
 
   await page.route('**/assets/*', async (route) => {
     const method = route.request().method()
