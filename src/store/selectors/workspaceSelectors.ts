@@ -21,6 +21,8 @@ export const selectLibraryWorkspaceQueryModel = createSelector(
   [selectLibraryWorkspaceState],
   (workspace) => ({
     search: workspace.search,
+    mediaTypeFilter: workspace.mediaTypeFilter,
+    dateFilter: workspace.dateFilter,
     sort: workspace.sort,
   }),
 )

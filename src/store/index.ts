@@ -50,6 +50,8 @@ function resolvePreloadedState(): ReturnType<typeof rootReducer> {
     },
     libraryWorkspace: {
       search: queryLibrary.search ?? '',
+      mediaTypeFilter: queryLibrary.mediaTypeFilter ?? 'ALL',
+      dateFilter: queryLibrary.dateFilter ?? 'ALL',
       sort: queryLibrary.sort ?? '-created_at',
     },
     authUi: createInitialAuthUiState(),

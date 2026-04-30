@@ -216,25 +216,60 @@ export function writeReviewFilterParams(
 
 export function readLibraryFilterParams(): {
   search?: string
+  mediaTypeFilter?: AssetMediaTypeFilter
+  dateFilter?: AssetDateFilter
   sort?: AssetSort
 } {
   const params = readCurrentSearchParams()
   if (!params) {
     return {}
   }
-  return readCommonListQueryParams(params)
+  const common = readCommonListQueryParams(params)
+  const queryMedia = params.get('media_type')
+  const dateFilter = resolveDateFilterFromRange({
+    captured_at_from: params.get('captured_at_from') ?? undefined,
+    captured_at_to: params.get('captured_at_to') ?? undefined,
+  })
+
+  return {
+    search: common.search,
+    mediaTypeFilter: isAssetMediaTypeFilter(queryMedia)
+      ? (queryMedia === 'PHOTO' ? 'IMAGE' : queryMedia)
+      : undefined,
+    dateFilter,
+    sort: common.sort,
+  }
 }
 
 export function writeLibraryFilterParams(
-  search: string,
-  sort: AssetSort,
+  args: {
+    search: string
+    mediaTypeFilter: AssetMediaTypeFilter
+    dateFilter: AssetDateFilter
+    sort: AssetSort
+  },
   mode: 'push' | 'replace' = 'push',
 ) {
   const params = readCurrentSearchParams()
   if (!params) {
     return
   }
-  writeCommonListQueryParams(params, { search, sort })
+  if (args.mediaTypeFilter === 'ALL' || args.mediaTypeFilter === 'OTHER') {
+    params.delete('media_type')
+  } else {
+    params.set('media_type', args.mediaTypeFilter === 'IMAGE' ? 'PHOTO' : args.mediaTypeFilter)
+  }
+  const dateRange = resolveDateRange(args.dateFilter)
+  if (!dateRange.captured_at_from) {
+    params.delete('captured_at_from')
+    params.delete('captured_at_to')
+  } else {
+    params.set('captured_at_from', dateRange.captured_at_from)
+    if (dateRange.captured_at_to) {
+      params.set('captured_at_to', dateRange.captured_at_to)
+    }
+  }
+  writeCommonListQueryParams(params, { search: args.search, sort: args.sort })
   updateCurrentSearch(params, mode)
 }
 

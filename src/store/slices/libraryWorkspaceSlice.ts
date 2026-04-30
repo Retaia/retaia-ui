@@ -1,13 +1,17 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type { AssetSort } from '../../domain/assets'
+import type { AssetDateFilter, AssetMediaTypeFilter, AssetSort } from '../../domain/assets'
 
 export type LibraryWorkspaceState = {
   search: string
+  mediaTypeFilter: AssetMediaTypeFilter
+  dateFilter: AssetDateFilter
   sort: AssetSort
 }
 
 const initialState: LibraryWorkspaceState = {
   search: '',
+  mediaTypeFilter: 'ALL',
+  dateFilter: 'ALL',
   sort: '-created_at',
 }
 
@@ -24,6 +28,12 @@ const libraryWorkspaceSlice = createSlice({
     setLibrarySearch: (state, action: PayloadAction<string>) => {
       state.search = action.payload
     },
+    setLibraryMediaTypeFilter: (state, action: PayloadAction<AssetMediaTypeFilter>) => {
+      state.mediaTypeFilter = action.payload
+    },
+    setLibraryDateFilter: (state, action: PayloadAction<AssetDateFilter>) => {
+      state.dateFilter = action.payload
+    },
     setLibrarySort: (state, action: PayloadAction<AssetSort>) => {
       state.sort = action.payload
     },
@@ -33,6 +43,8 @@ const libraryWorkspaceSlice = createSlice({
 export const {
   hydrateLibraryWorkspace,
   setLibrarySearch,
+  setLibraryMediaTypeFilter,
+  setLibraryDateFilter,
   setLibrarySort,
 } = libraryWorkspaceSlice.actions
 

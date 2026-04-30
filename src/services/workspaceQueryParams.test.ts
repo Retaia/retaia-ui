@@ -87,20 +87,38 @@ describe('workspaceQueryParams', () => {
 
   it('reads and writes library params with shared q/sort behavior', () => {
     window.history.replaceState({}, '', '/library?foo=bar')
-    writeLibraryFilterParams(' ambiance ', 'name')
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-02-26T12:00:00.000Z'))
+    writeLibraryFilterParams({
+      search: ' ambiance ',
+      mediaTypeFilter: 'IMAGE',
+      dateFilter: 'LAST_30_DAYS',
+      sort: 'name',
+    })
 
     let params = new URLSearchParams(window.location.search)
     expect(params.get('q')).toBe('ambiance')
+    expect(params.get('media_type')).toBe('PHOTO')
+    expect(params.get('captured_at_from')).not.toBeNull()
     expect(params.get('sort')).toBe('name')
     expect(params.get('foo')).toBe('bar')
 
     const parsed = readLibraryFilterParams()
     expect(parsed.search).toBe('ambiance')
+    expect(parsed.mediaTypeFilter).toBe('IMAGE')
+    expect(parsed.dateFilter).toBe('LAST_30_DAYS')
     expect(parsed.sort).toBe('name')
 
-    writeLibraryFilterParams('', '-created_at')
+    writeLibraryFilterParams({
+      search: '',
+      mediaTypeFilter: 'ALL',
+      dateFilter: 'ALL',
+      sort: '-created_at',
+    })
     params = new URLSearchParams(window.location.search)
     expect(params.get('q')).toBeNull()
+    expect(params.get('media_type')).toBeNull()
+    expect(params.get('captured_at_from')).toBeNull()
     expect(params.get('sort')).toBeNull()
   })
 

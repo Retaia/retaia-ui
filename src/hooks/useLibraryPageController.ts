@@ -2,7 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { mapApiSummaryToAsset } from '../api/assetMapper'
 import { INITIAL_ASSETS } from '../data/mockAssets'
-import { sortAssets, type Asset, type AssetSort } from '../domain/assets'
+import {
+  filterAssets,
+  sortAssets,
+  type Asset,
+  type AssetDateFilter,
+  type AssetMediaTypeFilter,
+  type AssetSort,
+} from '../domain/assets'
 import { mergeAssetWithDetail } from '../domain/review/assetDetailMerge'
 import { type Locale } from '../i18n/resources'
 import { mapReviewApiErrorToMessage } from '../infrastructure/review/apiReviewErrorAdapter'
@@ -13,6 +20,8 @@ import { readLibraryFilterParams, writeLibraryFilterParams } from '../services/w
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import {
   hydrateLibraryWorkspace,
+  setLibraryDateFilter,
+  setLibraryMediaTypeFilter,
   setLibrarySearch,
   setLibrarySort,
 } from '../store/slices/libraryWorkspaceSlice'
@@ -35,9 +44,15 @@ export function useLibraryPageController() {
   const dispatch = useAppDispatch()
   const libraryWorkspace = useAppSelector(selectLibraryWorkspaceQueryModel)
   const { t, i18n } = useTranslation()
-  const { search, sort } = libraryWorkspace
+  const { search, mediaTypeFilter, dateFilter, sort } = libraryWorkspace
   const setSearch = useCallback((value: string) => {
     dispatch(setLibrarySearch(value))
+  }, [dispatch])
+  const setMediaTypeFilter = useCallback((value: AssetMediaTypeFilter) => {
+    dispatch(setLibraryMediaTypeFilter(value))
+  }, [dispatch])
+  const setDateFilter = useCallback((value: AssetDateFilter) => {
+    dispatch(setLibraryDateFilter(value))
   }, [dispatch])
   const setSort = useCallback((value: AssetSort) => {
     dispatch(setLibrarySort(value))
@@ -62,6 +77,23 @@ export function useLibraryPageController() {
   const { displayType, setDisplayType } = useDisplayType('retaia_ui_library_asset_display_type')
   const { apiClient, isApiAssetSource } = useReviewApiRuntime()
 
+  const resolvedDateRange = useMemo(() => {
+    if (dateFilter === 'ALL') {
+      return null
+    }
+    const now = new Date()
+    const from = new Date(now)
+    if (dateFilter === 'LAST_7_DAYS') {
+      from.setDate(from.getDate() - 7)
+    } else {
+      from.setDate(from.getDate() - 30)
+    }
+    return {
+      captured_at_from: from.toISOString(),
+      captured_at_to: now.toISOString(),
+    }
+  }, [dateFilter])
+
   useEffect(() => {
     if (!isApiAssetSource) {
       return
@@ -74,6 +106,13 @@ export function useLibraryPageController() {
         const response = await apiClient.listAssets({
           state: 'ARCHIVED',
           q: search.trim().length > 0 ? search.trim() : undefined,
+          media_type:
+            mediaTypeFilter === 'IMAGE'
+              ? 'PHOTO'
+              : mediaTypeFilter === 'ALL' || mediaTypeFilter === 'OTHER'
+                ? undefined
+                : mediaTypeFilter,
+          ...(resolvedDateRange ?? {}),
           sort,
           limit: DEFAULT_LIBRARY_PAGE_SIZE,
         })
@@ -97,7 +136,7 @@ export function useLibraryPageController() {
     return () => {
       canceled = true
     }
-  }, [apiClient, isApiAssetSource, search, sort])
+  }, [apiClient, isApiAssetSource, mediaTypeFilter, resolvedDateRange, search, sort])
 
   const loadMoreAssets = useCallback(async () => {
     if (!isApiAssetSource || !nextCursor || loadingMoreAssets) {
@@ -108,6 +147,13 @@ export function useLibraryPageController() {
       const response = await apiClient.listAssets({
         state: 'ARCHIVED',
         q: search.trim().length > 0 ? search.trim() : undefined,
+        media_type:
+          mediaTypeFilter === 'IMAGE'
+            ? 'PHOTO'
+            : mediaTypeFilter === 'ALL' || mediaTypeFilter === 'OTHER'
+              ? undefined
+              : mediaTypeFilter,
+        ...(resolvedDateRange ?? {}),
         sort,
         limit: DEFAULT_LIBRARY_PAGE_SIZE,
         cursor: nextCursor,
@@ -122,7 +168,7 @@ export function useLibraryPageController() {
     } finally {
       setLoadingMoreAssets(false)
     }
-  }, [apiClient, isApiAssetSource, loadingMoreAssets, nextCursor, search, sort])
+  }, [apiClient, isApiAssetSource, loadingMoreAssets, mediaTypeFilter, nextCursor, resolvedDateRange, search, sort])
 
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(() => readSelectedAssetId('library'))
 
@@ -164,20 +210,32 @@ export function useLibraryPageController() {
 
   const visibleAssets = useMemo(() => {
     const archivedAssets = assets.filter((asset) => asset.state === 'ARCHIVED')
-    if (isApiAssetSource) {
-      return archivedAssets
-    }
-    const normalizedSearch = search.trim().toLowerCase()
-    const filtered = normalizedSearch.length === 0 ? archivedAssets : archivedAssets.filter((asset) => {
-      const tags = asset.tags ?? []
-      return (
-        asset.name.toLowerCase().includes(normalizedSearch) ||
-        asset.id.toLowerCase().includes(normalizedSearch) ||
-        tags.some((tag) => tag.toLowerCase().includes(normalizedSearch))
-      )
-    })
-    return sortAssets(filtered, sort)
-  }, [assets, isApiAssetSource, search, sort])
+    return sortAssets(
+      filterAssets(archivedAssets, 'ALL', search, {
+        mediaType: mediaTypeFilter,
+        date: dateFilter,
+      }),
+      sort,
+    )
+  }, [assets, dateFilter, mediaTypeFilter, search, sort])
+
+  const visibleMediaTypeCounts = useMemo(
+    () =>
+      visibleAssets.reduce(
+        (accumulator, asset) => {
+          const mediaType = asset.mediaType ?? 'OTHER'
+          accumulator[mediaType] += 1
+          return accumulator
+        },
+        {
+          VIDEO: 0,
+          AUDIO: 0,
+          IMAGE: 0,
+          OTHER: 0,
+        },
+      ),
+    [visibleAssets],
+  )
 
   const selectedAsset = useMemo(
     () => assets.find((asset) => asset.id === selectedAssetId) ?? null,
@@ -303,8 +361,13 @@ export function useLibraryPageController() {
   }, [setSearch])
 
   useEffect(() => {
-    writeLibraryFilterParams(search, sort)
-  }, [search, sort])
+    writeLibraryFilterParams({
+      search,
+      mediaTypeFilter,
+      dateFilter,
+      sort,
+    })
+  }, [dateFilter, mediaTypeFilter, search, sort])
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -315,6 +378,8 @@ export function useLibraryPageController() {
       dispatch(
         hydrateLibraryWorkspace({
           search: next.search ?? '',
+          mediaTypeFilter: next.mediaTypeFilter ?? 'ALL',
+          dateFilter: next.dateFilter ?? 'ALL',
           sort: next.sort ?? '-created_at',
         }),
       )
@@ -335,9 +400,14 @@ export function useLibraryPageController() {
     selectedAssetId,
     search,
     setSearch,
+    mediaTypeFilter,
+    setMediaTypeFilter,
+    dateFilter,
+    setDateFilter,
     onKeywordClick,
     sort,
     setSort,
+    visibleMediaTypeCounts,
     densityMode,
     displayType,
     setDisplayType,
