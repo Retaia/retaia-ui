@@ -53,4 +53,22 @@ describe('createAppStore', () => {
     expect(state.dateFilter).toBe('LAST_7_DAYS')
     expect(state.sort).toBe('name')
   })
+
+  it('hydrates rejects workspace from query params over persisted state', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-02-26T12:00:00.000Z'))
+    window.history.replaceState(
+      window.history.state,
+      '',
+      '/rejects?q=risk&sort=-updated_at&media_type=VIDEO&captured_at_from=2026-02-22T12:00:00.000Z',
+    )
+
+    const store = createAppStore()
+    const state = store.getState().rejectsWorkspace
+
+    expect(state.search).toBe('risk')
+    expect(state.mediaTypeFilter).toBe('VIDEO')
+    expect(state.dateFilter).toBe('LAST_7_DAYS')
+    expect(state.sort).toBe('-updated_at')
+  })
 })

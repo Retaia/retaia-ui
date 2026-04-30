@@ -3,6 +3,7 @@ import type { RootState } from '../index'
 
 export const selectReviewWorkspaceState = (state: RootState) => state.reviewWorkspace
 export const selectLibraryWorkspaceState = (state: RootState) => state.libraryWorkspace
+export const selectRejectsWorkspaceState = (state: RootState) => state.rejectsWorkspace
 
 export const selectReviewWorkspaceQueryModel = createSelector(
   [selectReviewWorkspaceState],
@@ -19,6 +20,16 @@ export const selectReviewWorkspaceQueryModel = createSelector(
 
 export const selectLibraryWorkspaceQueryModel = createSelector(
   [selectLibraryWorkspaceState],
+  (workspace) => ({
+    search: workspace.search,
+    mediaTypeFilter: workspace.mediaTypeFilter,
+    dateFilter: workspace.dateFilter,
+    sort: workspace.sort,
+  }),
+)
+
+export const selectRejectsWorkspaceQueryModel = createSelector(
+  [selectRejectsWorkspaceState],
   (workspace) => ({
     search: workspace.search,
     mediaTypeFilter: workspace.mediaTypeFilter,

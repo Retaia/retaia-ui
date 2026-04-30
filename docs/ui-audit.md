@@ -13,6 +13,7 @@ Mise a jour documentaire le 30 avril 2026:
 - `Review` ouvre maintenant par defaut sur une file de travail explicite plutot que sur `ALL`
 - la disponibilite bulk de `Review` est maintenant derivee du resultat effectif gouverne plutot que des flags bruts
 - `Library` expose maintenant des facettes utiles de recherche et de requalification
+- `Rejects` expose maintenant des facettes utiles de recherche, de retention et de requalification prudente
 
 ## 1. Resume executif
 
@@ -32,7 +33,7 @@ Bloqueurs restants les plus importants avant implementation UI cible:
 
 1. clarifier la source documentaire et le statut reel du repo
 2. continuer a clarifier `Review` sans casser les parcours batch
-3. densifier `Rejects`, `Auth` et `Settings` sans reintroduire de logique implicite
+3. densifier `Auth` et `Settings` sans reintroduire de logique implicite
 
 ## 2. Vision produit vs contraintes specs (separees clairement)
 

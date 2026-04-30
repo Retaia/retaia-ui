@@ -2,9 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   readActivityFilterParams,
   readLibraryFilterParams,
+  readRejectsFilterParams,
   readReviewFilterParams,
   writeActivityFilterParams,
   writeLibraryFilterParams,
+  writeRejectsFilterParams,
   writeReviewFilterParams,
 } from './workspaceQueryParams'
 
@@ -144,5 +146,45 @@ describe('workspaceQueryParams', () => {
     expect(params.get('q')).toBeNull()
     expect(params.get('scope')).toBeNull()
     expect(params.get('linked')).toBeNull()
+  })
+
+  it('reads and writes rejects params with shared API-compatible filters', () => {
+    window.history.replaceState({}, '', '/rejects?from=workspace')
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-02-26T12:00:00.000Z'))
+
+    writeRejectsFilterParams({
+      search: ' purge ',
+      mediaTypeFilter: 'VIDEO',
+      dateFilter: 'LAST_30_DAYS',
+      sort: '-updated_at',
+    })
+
+    let params = new URLSearchParams(window.location.search)
+    expect(params.get('q')).toBe('purge')
+    expect(params.get('media_type')).toBe('VIDEO')
+    expect(params.get('captured_at_from')).not.toBeNull()
+    expect(params.get('sort')).toBe('-updated_at')
+    expect(params.get('from')).toBe('workspace')
+
+    const parsed = readRejectsFilterParams()
+    expect(parsed.search).toBe('purge')
+    expect(parsed.mediaTypeFilter).toBe('VIDEO')
+    expect(parsed.dateFilter).toBe('LAST_30_DAYS')
+    expect(parsed.sort).toBe('-updated_at')
+
+    writeRejectsFilterParams({
+      search: '',
+      mediaTypeFilter: 'ALL',
+      dateFilter: 'ALL',
+      sort: '-created_at',
+    })
+
+    params = new URLSearchParams(window.location.search)
+    expect(params.get('q')).toBeNull()
+    expect(params.get('media_type')).toBeNull()
+    expect(params.get('captured_at_from')).toBeNull()
+    expect(params.get('captured_at_to')).toBeNull()
+    expect(params.get('sort')).toBeNull()
   })
 })
