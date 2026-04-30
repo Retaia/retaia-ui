@@ -6,8 +6,11 @@ import { mswServer } from '../test-utils/mswServer'
 describe('api client with msw', () => {
   it('validates and normalizes app policy payload from mocked api', async () => {
     mswServer.use(
-      http.get('http://localhost/api/v1/app/policy', () =>
-        HttpResponse.json({
+      http.get('http://localhost/api/v1/app/policy', ({ request }) => {
+        const url = new URL(request.url)
+        expect(url.searchParams.get('client_feature_flags_contract_version')).toBe('1.2.0')
+
+        return HttpResponse.json({
           server_policy: {
             feature_flags: {
               'features.decisions.bulk': true,
@@ -18,8 +21,8 @@ describe('api client with msw', () => {
             effective_feature_flags_contract_version: '1.2.0',
             feature_flags_compatibility_mode: 'STRICT',
           },
-        }),
-      ),
+        })
+      }),
     )
     const api = createApiClient({ baseUrl: 'http://localhost/api/v1' })
 

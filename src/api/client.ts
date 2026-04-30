@@ -42,6 +42,8 @@ import { buildQueryString, createRequest, resolveConfig, type ApiClientConfig } 
 export { ApiError }
 export type { ApiErrorPayload, ApiClientConfig }
 
+const FEATURE_FLAGS_CONTRACT_VERSION = '1.2.0'
+
 export function createApiClient(
   baseUrlOrConfig: string | ApiClientConfig = '/api/v1',
   legacyFetchImpl?: typeof fetch,
@@ -76,7 +78,9 @@ export function createApiClient(
     },
 
     getAppPolicy: async () => {
-      const path = '/app/policy'
+      const path = `/app/policy${buildQueryString({
+        client_feature_flags_contract_version: FEATURE_FLAGS_CONTRACT_VERSION,
+      })}`
       const result = await request<unknown>(path)
       return parseAppPolicyResponse(result, path)
     },

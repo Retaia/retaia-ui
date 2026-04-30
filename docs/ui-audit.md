@@ -9,6 +9,7 @@ Mise a jour documentaire le 30 avril 2026:
 - `Rejects` couvre maintenant `reopen`, `reprocess` et `purge`
 - fallback waveform synthetique retire
 - purge cadree avec anciennete visible dans le detail
+- `GET /app/policy` annonce maintenant `client_feature_flags_contract_version`
 
 ## 1. Resume executif
 
@@ -27,7 +28,7 @@ Constat principal:
 Bloqueurs restants les plus importants avant implementation UI cible:
 
 1. clarifier la source documentaire et le statut reel du repo
-2. corriger les ecarts runtime autour des feature flags et du contrat `GET /app/policy`
+2. corriger le pilotage UI des actions critiques encore derive depuis les flags bruts
 3. remettre `Review` sur une logique de file de travail plus explicite sans casser les parcours batch
 
 ## 2. Vision produit vs contraintes specs (separees clairement)
