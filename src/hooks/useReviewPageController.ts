@@ -41,8 +41,9 @@ import {
 import { useAssetListFocus } from '../hooks/useAssetListFocus'
 import { useDisplayType } from '../hooks/useDisplayType'
 import {
-  isStateConflictApiError,
   mapReviewApiErrorToMessage,
+  resolveReviewRefreshReason,
+  type ReviewRefreshReason,
 } from '../infrastructure/review/apiReviewErrorAdapter'
 import { reportUiIssue } from '../ui/telemetry'
 import {
@@ -184,15 +185,17 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   } | null>(null)
   const [savingProcessingProfile, setSavingProcessingProfile] = useState(false)
   const [shouldRefreshSelectedAsset, setShouldRefreshSelectedAsset] = useState(false)
+  const [selectedAssetRefreshReason, setSelectedAssetRefreshReason] = useState<ReviewRefreshReason | null>(null)
   const [refreshingSelectedAsset, setRefreshingSelectedAsset] = useState(false)
   const applySelectedAssetId = useCallback((nextAssetId: string | null) => {
     setMetadataStatus(null)
     setDecisionStatus(null)
     setProcessingProfileStatus(null)
     setShouldRefreshSelectedAsset(false)
+    setSelectedAssetRefreshReason(null)
     setSelectedAssetId(nextAssetId)
     setSelectionAnchorId(nextAssetId)
-  }, [setDecisionStatus, setMetadataStatus, setProcessingProfileStatus, setSelectedAssetId, setSelectionAnchorId, setShouldRefreshSelectedAsset])
+  }, [setDecisionStatus, setMetadataStatus, setProcessingProfileStatus, setSelectedAssetId, setSelectedAssetRefreshReason, setSelectionAnchorId, setShouldRefreshSelectedAsset])
   const listQuery = useMemo<ListAssetsQuery>(() => {
     const now = new Date()
     const from = new Date(now)
@@ -330,8 +333,8 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     (error: unknown) =>
       resolveReviewApiError(error, {
         mapErrorToMessage: (value) => mapReviewApiErrorToMessage(value, t),
-        isStateConflictError: isStateConflictApiError,
-        flagStateConflictForRefresh: false,
+        resolveRefreshReason: resolveReviewRefreshReason,
+        flagRefreshForResolution: false,
       }).message,
     [t],
   )
@@ -339,14 +342,15 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     (error: unknown) => {
       const result = resolveReviewApiError(error, {
         mapErrorToMessage: (value) => mapReviewApiErrorToMessage(value, t),
-        isStateConflictError: isStateConflictApiError,
+        resolveRefreshReason: resolveReviewRefreshReason,
       })
       if (result.shouldRefreshSelectedAsset) {
         setShouldRefreshSelectedAsset(true)
+        setSelectedAssetRefreshReason(result.refreshReason)
       }
       return result.message
     },
-    [setShouldRefreshSelectedAsset, t],
+    [setSelectedAssetRefreshReason, setShouldRefreshSelectedAsset, t],
   )
   const {
     previewingBatch,
@@ -355,6 +359,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     previewStatus,
     executeStatus,
     shouldRefreshAssetsAfterConflict,
+    refreshRecommendationReason,
     reportBatchId,
     reportLoading,
     reportStatus,
@@ -377,7 +382,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     t,
     setRetryStatus,
     mapErrorToMessage: mapBatchErrorToMessage,
-    isRefreshRecommendedError: isStateConflictApiError,
+    resolveRefreshRecommendationReason: resolveReviewRefreshReason,
     onBatchExecutionApplied: (successIds, nextStatesById) => {
       setAssets((current) =>
         current.map((asset) => {
@@ -727,14 +732,15 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     (error: unknown) => {
       const result = resolveReviewApiError(error, {
         mapErrorToMessage: (value) => mapReviewApiErrorToMessage(value, t),
-        isStateConflictError: isStateConflictApiError,
+        resolveRefreshReason: resolveReviewRefreshReason,
       })
       if (result.shouldRefreshSelectedAsset) {
         setShouldRefreshSelectedAsset(true)
+        setSelectedAssetRefreshReason(result.refreshReason)
       }
       return result.message
     },
-    [setShouldRefreshSelectedAsset, t],
+    [setSelectedAssetRefreshReason, setShouldRefreshSelectedAsset, t],
   )
   const {
     previewingPurge,
@@ -825,8 +831,8 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       if (result.kind === 'error') {
         const resolved = resolveReviewApiError(result.error, {
           mapErrorToMessage: (value) => mapReviewApiErrorToMessage(value, t),
-          isStateConflictError: isStateConflictApiError,
-          flagStateConflictForRefresh: false,
+          resolveRefreshReason: resolveReviewRefreshReason,
+          flagRefreshForResolution: false,
         })
         setDecisionStatus({
           kind: 'error',
@@ -847,6 +853,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
         message: t('detail.refreshDone'),
       })
       setShouldRefreshSelectedAsset(false)
+      setSelectedAssetRefreshReason(null)
     } finally {
       setRefreshingSelectedAsset(false)
       setRetryStatus(null)
@@ -1157,6 +1164,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     previewStatus,
     executeStatus,
     shouldRefreshAssetsAfterConflict,
+    refreshRecommendationReason,
     retryStatus,
     reportBatchId,
     reportStatus,
@@ -1205,6 +1213,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     savingMetadata,
     metadataStatus,
     shouldRefreshSelectedAsset,
+    selectedAssetRefreshReason,
     refreshingSelectedAsset,
     assetListRegionRef,
     handleAssetClick,

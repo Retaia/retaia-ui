@@ -28,13 +28,13 @@ describe('useBatchExecution', () => {
         t,
         setRetryStatus: vi.fn(),
         mapErrorToMessage: () => 'error.preconditionFailed',
-        isRefreshRecommendedError: (error) =>
-          Boolean(
-            typeof error === 'object'
-              && error
-              && 'payload' in error
-              && (error as { payload?: { code?: string } }).payload?.code === 'PRECONDITION_FAILED',
-          ),
+        resolveRefreshRecommendationReason: (error) =>
+          typeof error === 'object'
+            && error
+            && 'payload' in error
+            && (error as { payload?: { code?: string } }).payload?.code === 'PRECONDITION_FAILED'
+            ? 'precondition_failed'
+            : null,
         onBatchExecutionApplied,
       }),
     )
@@ -54,6 +54,7 @@ describe('useBatchExecution', () => {
     await waitFor(() => {
       expect(result.current.shouldRefreshAssetsAfterConflict).toBe(true)
     })
+    expect(result.current.refreshRecommendationReason).toBe('precondition_failed')
 
     expect(apiClient.submitAssetDecision).toHaveBeenCalledWith(
       'asset-1',
@@ -70,5 +71,6 @@ describe('useBatchExecution', () => {
     })
 
     expect(result.current.shouldRefreshAssetsAfterConflict).toBe(false)
+    expect(result.current.refreshRecommendationReason).toBeNull()
   })
 })

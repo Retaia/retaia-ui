@@ -5,6 +5,7 @@ import type { Asset, DecisionAction, ProcessingProfile } from '../../domain/asse
 import { getActionAvailability } from '../../domain/actionAvailability'
 import type { DensityMode } from '../../hooks/useDensityMode'
 import type { DisplayType } from '../../hooks/useDisplayType'
+import type { ReviewRefreshReason } from '../../infrastructure/review/apiReviewErrorAdapter'
 
 type Props = {
   t: TFunction
@@ -28,6 +29,7 @@ type Props = {
   savingMetadata: boolean
   metadataStatus: { kind: 'success' | 'error'; message: string } | null
   showRefreshAction: boolean
+  refreshActionReason: ReviewRefreshReason | null
   refreshingAsset: boolean
   assetListRegionRef: React.RefObject<HTMLElement | null>
   onDecision: (id: string, action: DecisionAction) => void
@@ -69,6 +71,7 @@ export function ReviewListDetailSection({
   savingMetadata,
   metadataStatus,
   showRefreshAction,
+  refreshActionReason,
   refreshingAsset,
   assetListRegionRef,
   onDecision,
@@ -138,6 +141,7 @@ export function ReviewListDetailSection({
           onExecutePurge={onExecutePurge}
           onRefreshAsset={onRefreshAsset}
           showRefreshAction={showRefreshAction}
+          refreshActionReason={refreshActionReason}
           refreshingAsset={refreshingAsset}
           onOpenStandaloneDetail={onOpenStandaloneDetail}
           standaloneHref={standaloneHref}

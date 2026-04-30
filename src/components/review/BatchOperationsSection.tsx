@@ -2,6 +2,7 @@ import { BsLayers } from 'react-icons/bs'
 import { ActionBatchSection } from '../app/ActionBatchSection'
 import { BatchExecutionStatusAlerts } from './BatchExecutionStatusAlerts'
 import { getActionAvailability } from '../../domain/actionAvailability'
+import type { ReviewRefreshReason } from '../../infrastructure/review/apiReviewErrorAdapter'
 
 type Props = {
   t: (key: string, values?: Record<string, string | number>) => string
@@ -26,6 +27,7 @@ type Props = {
   previewStatus: { kind: 'success' | 'error'; message: string } | null
   executeStatus: { kind: 'success' | 'error'; message: string } | null
   shouldRefreshAssetsAfterConflict: boolean
+  refreshRecommendationReason: ReviewRefreshReason | null
   retryStatus: string | null
   onApplyDecisionToBatch: (action: 'KEEP' | 'REJECT') => void
   onClearBatch: () => void
@@ -49,6 +51,7 @@ export function BatchOperationsSection({
   previewStatus,
   executeStatus,
   shouldRefreshAssetsAfterConflict,
+  refreshRecommendationReason,
   retryStatus,
   onApplyDecisionToBatch,
   onClearBatch,
@@ -81,11 +84,12 @@ export function BatchOperationsSection({
           onCancelPendingBatchExecution={onCancelPendingBatchExecution}
         />
         <BatchExecutionStatusAlerts
+          t={t}
           previewStatus={previewStatus}
           executeStatus={executeStatus}
           shouldRefreshAssetsAfterConflict={shouldRefreshAssetsAfterConflict}
+          refreshRecommendationReason={refreshRecommendationReason}
           onRefreshAssetsAfterConflict={onRefreshAssetsAfterBatchConflict}
-          refreshAssetsLabel={t('actions.refreshAssets')}
           retryStatus={retryStatus}
         />
     </section>
