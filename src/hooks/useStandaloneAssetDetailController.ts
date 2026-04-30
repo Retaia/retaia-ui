@@ -456,6 +456,7 @@ export function useStandaloneAssetDetailController(context: Context) {
       getActionAvailability({
         visibleCount: selectedAsset ? 1 : 0,
         batchCount: 0,
+        eligibleBatchCount: 0,
         previewingBatch: false,
         executingBatch: false,
         schedulingBatchExecution: false,

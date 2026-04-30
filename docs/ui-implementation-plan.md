@@ -19,6 +19,7 @@ Regle de base:
 - `GET /app/policy` envoie `client_feature_flags_contract_version`
 - `Review` ouvre par defaut sur une file de travail explicite plutot que sur `ALL`
 - la disponibilite bulk de `Review` derive maintenant du resultat effectif gouverne
+- `Review` rend maintenant le scope reel de `apply decisions` explicite avant preview et execution
 - `Library` expose maintenant des facettes utiles de recherche et de requalification
 - `Rejects` expose maintenant des facettes utiles de recherche, retention et requalification prudente
 - `Auth` est maintenant traite comme une vraie surface publique `public only`
@@ -38,7 +39,6 @@ Regle de suivi:
    - uniformiser les UX `409` / `412` / `428` / `423`
 
 3. Stabiliser les actions critiques.
-   - rendre `apply decisions` plus lisible
    - pousser plus loin le cadrage des actions destructives restantes
    - conserver la suppression des faux signaux visuels sur les derives manquants
 

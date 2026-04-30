@@ -10,6 +10,7 @@ function createAvailability() {
   return getActionAvailability({
     visibleCount: 3,
     batchCount: 2,
+    eligibleBatchCount: 2,
     previewingBatch: false,
     executingBatch: false,
     schedulingBatchExecution: false,
@@ -31,6 +32,16 @@ describe('ActionBatchSection', () => {
         availability={createAvailability()}
         batchIdsLength={2}
         batchScope={{ pending: 1, keep: 1, reject: 0 }}
+        batchExecutionScope={{
+          selected: 2,
+          eligible: 1,
+          archived: 1,
+          rejected: 0,
+          pendingDecision: 1,
+          alreadyMoved: 0,
+          otherStates: 0,
+          ineligible: 1,
+        }}
         batchTimeline={[{ key: 'queued', active: true, done: false, label: 'queued' }]}
         pendingBatchExecution={null}
         pendingBatchUndoSeconds={0}
@@ -45,6 +56,7 @@ describe('ActionBatchSection', () => {
     )
 
     expect(screen.getByText('actions.batchSelected')).toBeInTheDocument()
+    expect(screen.getByText('actions.executionScopeTitle')).toBeInTheDocument()
     expect(screen.getByTestId('batch-timeline')).toBeInTheDocument()
   })
 
@@ -62,6 +74,16 @@ describe('ActionBatchSection', () => {
         availability={createAvailability()}
         batchIdsLength={2}
         batchScope={{ pending: 1, keep: 1, reject: 0 }}
+        batchExecutionScope={{
+          selected: 2,
+          eligible: 2,
+          archived: 1,
+          rejected: 1,
+          pendingDecision: 0,
+          alreadyMoved: 0,
+          otherStates: 0,
+          ineligible: 0,
+        }}
         batchTimeline={[{ key: 'queued', active: true, done: false, label: 'queued' }]}
         pendingBatchExecution={{ expiresAt: Date.now() + 1000 }}
         pendingBatchUndoSeconds={5}
@@ -92,5 +114,56 @@ describe('ActionBatchSection', () => {
 
     await user.click(screen.getByRole('button', { name: 'actions.executeCancel' }))
     expect(onCancelPendingBatchExecution).toHaveBeenCalled()
+  })
+
+  it('disables preview and execute when no selected asset is actually executable', () => {
+    const availability = getActionAvailability({
+      visibleCount: 3,
+      batchCount: 2,
+      eligibleBatchCount: 0,
+      previewingBatch: false,
+      executingBatch: false,
+      schedulingBatchExecution: false,
+      reportBatchId: null,
+      reportLoading: false,
+      undoCount: 0,
+      selectedAssetState: null,
+      previewingPurge: false,
+      executingPurge: false,
+      purgePreviewMatchesSelected: false,
+    })
+
+    render(
+      <ActionBatchSection
+        t={t}
+        availability={availability}
+        batchIdsLength={2}
+        batchScope={{ pending: 2, keep: 0, reject: 0 }}
+        batchExecutionScope={{
+          selected: 2,
+          eligible: 0,
+          archived: 0,
+          rejected: 0,
+          pendingDecision: 2,
+          alreadyMoved: 0,
+          otherStates: 0,
+          ineligible: 2,
+        }}
+        batchTimeline={[{ key: 'queued', active: true, done: false, label: 'queued' }]}
+        pendingBatchExecution={null}
+        pendingBatchUndoSeconds={0}
+        previewingBatch={false}
+        executingBatch={false}
+        onApplyDecisionToBatch={vi.fn()}
+        onClearBatch={vi.fn()}
+        onPreviewBatchMove={vi.fn(async () => {})}
+        onExecuteBatchMove={vi.fn(async () => {})}
+        onCancelPendingBatchExecution={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'actions.previewBatch' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'actions.executeBatch' })).toBeDisabled()
+    expect(screen.getByText('actions.executionScopeNoneEligible')).toBeInTheDocument()
   })
 })

@@ -16,6 +16,7 @@ Mise a jour documentaire le 30 avril 2026:
 - `Rejects` expose maintenant des facettes utiles de recherche, de retention et de requalification prudente
 - `Auth` est maintenant traite comme une surface publique stricte
 - les overrides runtime ne vivent plus dans `Auth` et restent secondaires dans `Settings`
+- `Review` rend maintenant le scope reel de `apply decisions` explicite avant preview et execution
 
 ## 1. Resume executif
 
@@ -35,7 +36,7 @@ Bloqueurs restants les plus importants avant implementation UI cible:
 
 1. clarifier la source documentaire et le statut reel du repo
 2. continuer a clarifier `Review` sans casser les parcours batch
-3. clarifier encore `Review` et les surfaces secondaires restantes sans reintroduire de logique implicite
+3. clarifier encore les surfaces secondaires restantes sans reintroduire de logique implicite
 
 ## 2. Vision produit vs contraintes specs (separees clairement)
 

@@ -347,6 +347,7 @@ export function useRejectsPageController() {
       getActionAvailability({
         visibleCount: visibleAssets.length,
         batchCount: 0,
+        eligibleBatchCount: 0,
         previewingBatch: false,
         executingBatch: false,
         schedulingBatchExecution: false,

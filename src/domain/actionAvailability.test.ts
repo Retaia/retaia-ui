@@ -4,6 +4,7 @@ import { getActionAvailability } from './actionAvailability'
 const baseInput = {
   visibleCount: 1,
   batchCount: 1,
+  eligibleBatchCount: 1,
   previewingBatch: false,
   executingBatch: false,
   schedulingBatchExecution: false,
@@ -37,6 +38,7 @@ describe('getActionAvailability', () => {
         ...baseInput,
         visibleCount: 0,
         batchCount: 0,
+        eligibleBatchCount: 0,
         undoCount: 0,
         reportBatchId: null,
       }),

@@ -329,6 +329,7 @@ export function AssetDetailPanel({
   const effectiveAvailability = availability ?? getActionAvailability({
     visibleCount: 0,
     batchCount: 0,
+    eligibleBatchCount: 0,
     previewingBatch: false,
     executingBatch: false,
     schedulingBatchExecution: false,

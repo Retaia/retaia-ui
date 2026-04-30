@@ -3,6 +3,7 @@ import type { AssetState } from './assets'
 export type ActionAvailabilityInput = {
   visibleCount: number
   batchCount: number
+  eligibleBatchCount: number
   previewingBatch: boolean
   executingBatch: boolean
   schedulingBatchExecution: boolean
@@ -25,8 +26,9 @@ export function getActionAvailability(input: ActionAvailabilityInput) {
     keepBatchDisabled: input.batchCount === 0 || batchBusy,
     rejectBatchDisabled: input.batchCount === 0 || batchBusy,
     clearBatchDisabled: input.batchCount === 0 || batchBusy,
-    previewBatchDisabled: input.batchCount === 0 || input.previewingBatch || input.schedulingBatchExecution,
-    executeBatchDisabled: input.batchCount === 0 || input.executingBatch,
+    previewBatchDisabled:
+      input.eligibleBatchCount === 0 || input.previewingBatch || input.schedulingBatchExecution,
+    executeBatchDisabled: input.eligibleBatchCount === 0 || input.executingBatch,
     refreshReportDisabled: !input.reportBatchId || input.reportLoading,
     undoDisabled: input.undoCount === 0,
     previewPurgeDisabled: !selectedRejected || input.previewingPurge,

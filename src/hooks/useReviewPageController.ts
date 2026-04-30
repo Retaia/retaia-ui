@@ -30,6 +30,7 @@ import { useSelectionFlow } from '../hooks/useSelectionFlow'
 import { type Locale } from '../i18n/resources'
 import { applySingleReviewDecision } from '../application/review/applySingleReviewDecision'
 import { summarizeBatchScope } from '../application/review/batchScopeSummary'
+import { resolveBatchExecutionScope } from '../application/review/batchExecutionScope'
 import { finalizeBulkDecisionResult } from '../application/review/bulkDecisionFinalization'
 import { resolveReviewApiError } from '../application/review/errorResolution'
 import { submitReviewDecisions } from '../application/review/submitReviewDecisions'
@@ -312,6 +313,10 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   }, [assetDetailLoadState, isApiAssetSource, selectedAssetId])
 
   const batchScope = useMemo(() => summarizeBatchScope(assets, batchIds), [assets, batchIds])
+  const batchExecutionScope = useMemo(
+    () => resolveBatchExecutionScope(assets, batchIds),
+    [assets, batchIds],
+  )
   const todoAssets = useMemo(
     () => assets.filter((asset) => asset.state === 'DECISION_PENDING'),
     [assets],
@@ -994,6 +999,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       getActionAvailability({
         visibleCount: visibleAssets.length,
         batchCount: batchIds.length,
+        eligibleBatchCount: batchExecutionScope.eligible,
         previewingBatch,
         executingBatch,
         schedulingBatchExecution: !!pendingBatchExecution,
@@ -1009,6 +1015,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     [
       visibleAssets.length,
       batchIds.length,
+      batchExecutionScope.eligible,
       previewingBatch,
       executingBatch,
       pendingBatchExecution,
@@ -1141,6 +1148,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     effectiveAvailability,
     batchIds,
     batchScope,
+    batchExecutionScope,
     batchTimeline,
     pendingBatchExecution,
     pendingBatchUndoSeconds,

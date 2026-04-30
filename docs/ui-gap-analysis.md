@@ -43,8 +43,6 @@ Comparaison faite entre:
 
 ### Actions dangereuses mal encadrees
 
-- `apply decisions` reste a rendre plus lisible et plus explicite sur son scope exact
-
 ### Suppressions ou refontes recommandees
 
 #### Sortir du flux principal

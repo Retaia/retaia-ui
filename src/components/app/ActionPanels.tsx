@@ -17,6 +17,17 @@ type BatchScope = {
   reject: number
 }
 
+type BatchExecutionScope = {
+  selected: number
+  eligible: number
+  archived: number
+  rejected: number
+  pendingDecision: number
+  alreadyMoved: number
+  otherStates: number
+  ineligible: number
+}
+
 type BatchTimelineStep = {
   key: string
   active: boolean
@@ -37,6 +48,7 @@ type Props = {
   availability: ReturnType<typeof getActionAvailability>
   batchIdsLength: number
   batchScope: BatchScope
+  batchExecutionScope: BatchExecutionScope
   batchTimeline: BatchTimelineStep[]
   pendingBatchExecution: { expiresAt: number } | null
   pendingBatchUndoSeconds: number
@@ -80,6 +92,7 @@ export function ActionPanels({
   availability,
   batchIdsLength,
   batchScope,
+  batchExecutionScope,
   batchTimeline,
   pendingBatchExecution,
   pendingBatchUndoSeconds,
@@ -192,6 +205,7 @@ export function ActionPanels({
                 availability={availability}
                 batchIdsLength={batchIdsLength}
                 batchScope={batchScope}
+                batchExecutionScope={batchExecutionScope}
                 batchTimeline={batchTimeline}
                 pendingBatchExecution={pendingBatchExecution}
                 pendingBatchUndoSeconds={pendingBatchUndoSeconds}

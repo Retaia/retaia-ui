@@ -15,6 +15,17 @@ type BatchScope = {
   reject: number
 }
 
+type BatchExecutionScope = {
+  selected: number
+  eligible: number
+  archived: number
+  rejected: number
+  pendingDecision: number
+  alreadyMoved: number
+  otherStates: number
+  ineligible: number
+}
+
 type BatchTimelineStep = {
   key: string
   active: boolean
@@ -28,6 +39,7 @@ type Props = {
   availability: ReturnType<typeof getActionAvailability>
   batchIdsLength: number
   batchScope: BatchScope
+  batchExecutionScope: BatchExecutionScope
   batchTimeline: BatchTimelineStep[]
   pendingBatchExecution: { expiresAt: number } | null
   pendingBatchUndoSeconds: number
@@ -46,6 +58,7 @@ export function ActionBatchSection({
   availability,
   batchIdsLength,
   batchScope,
+  batchExecutionScope,
   batchTimeline,
   pendingBatchExecution,
   pendingBatchUndoSeconds,
@@ -119,6 +132,31 @@ export function ActionBatchSection({
             t('actions.batchScopeKeep', { count: batchScope.keep }),
             t('actions.batchScopeReject', { count: batchScope.reject }),
           ].join(' · ')}
+        </p>
+      </section>
+      <section className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-900/60 dark:bg-amber-950/20">
+        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-amber-800 dark:text-amber-200">
+          {t('actions.executionScopeTitle')}
+        </p>
+        <p className="mb-0 text-sm text-amber-900 dark:text-amber-100">
+          {t('actions.executionScopeSummary', {
+            eligible: batchExecutionScope.eligible,
+            selected: batchExecutionScope.selected,
+          })}
+        </p>
+        <p className="mt-2 mb-0 text-xs text-amber-800 dark:text-amber-200">
+          {[
+            t('actions.executionScopeArchive', { count: batchExecutionScope.archived }),
+            t('actions.executionScopeRejects', { count: batchExecutionScope.rejected }),
+            t('actions.executionScopePending', { count: batchExecutionScope.pendingDecision }),
+            t('actions.executionScopeAlreadyMoved', { count: batchExecutionScope.alreadyMoved }),
+            t('actions.executionScopeOther', { count: batchExecutionScope.otherStates }),
+          ].join(' · ')}
+        </p>
+        <p className="mt-2 mb-0 text-xs text-amber-900 dark:text-amber-100">
+          {batchExecutionScope.eligible === 0
+            ? t('actions.executionScopeNoneEligible')
+            : t('actions.executionScopeHelp')}
         </p>
       </section>
       <section className="mt-2" aria-label={t('actions.timelineTitle')}>
