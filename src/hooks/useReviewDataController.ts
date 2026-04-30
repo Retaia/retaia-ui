@@ -3,6 +3,7 @@ import { type Dispatch, type SetStateAction, useCallback, useEffect, useRef, use
 import { mapApiSummaryToAsset } from '../api/assetMapper'
 import { ApiError, type ApiClient } from '../api/client'
 import type { ListAssetsQuery } from '../api/contracts'
+import { resolveBulkDecisionsEnabled } from '../application/review/reviewFeatureAvailability'
 import type { Asset } from '../domain/assets'
 import { mergeAssetWithDetail } from '../domain/review/assetDetailMerge'
 
@@ -175,6 +176,13 @@ export function useReviewDataController({
     retry: false,
   })
 
+  const userFeaturesQuery = useQuery({
+    queryKey: ['auth-me-features', apiRuntimeKey],
+    queryFn: () => apiClient.getUserFeatures(),
+    enabled: isApiAssetSource,
+    retry: false,
+  })
+
   const policyLoadState: 'idle' | 'loading' | 'ready' | 'error' = !isApiAssetSource
     ? 'ready'
     : policyQuery.isPending && !policyQuery.data
@@ -183,10 +191,18 @@ export function useReviewDataController({
         ? 'error'
         : 'ready'
 
+  const bulkAvailabilityLoadState: 'idle' | 'loading' | 'ready' | 'error' = !isApiAssetSource
+    ? 'ready'
+    : userFeaturesQuery.isPending && !userFeaturesQuery.data
+      ? 'loading'
+      : userFeaturesQuery.isError || userFeaturesQuery.isRefetchError
+        ? 'error'
+        : 'ready'
+
   const bulkDecisionsEnabled = !isApiAssetSource
     ? true
-    : policyLoadState === 'ready' &&
-      policyQuery.data?.server_policy?.feature_flags?.['features.decisions.bulk'] === true
+    : bulkAvailabilityLoadState === 'ready' &&
+      resolveBulkDecisionsEnabled(userFeaturesQuery.data)
 
   const policySummary = !isApiAssetSource || !policyQuery.data
     ? null
@@ -235,6 +251,7 @@ export function useReviewDataController({
   return {
     assetsLoadState,
     policyLoadState,
+    bulkAvailabilityLoadState,
     bulkDecisionsEnabled,
     policySummary,
     refreshingPolicy: policyQuery.isRefetching,

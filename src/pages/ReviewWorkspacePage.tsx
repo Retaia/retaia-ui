@@ -41,6 +41,7 @@ export default function ReviewWorkspacePage() {
           isApiAssetSource={controller.isApiAssetSource}
           assetsLoadState={controller.assetsLoadState}
           policyLoadState={controller.policyLoadState}
+          bulkAvailabilityLoadState={controller.bulkAvailabilityLoadState}
           bulkDecisionsEnabled={controller.bulkDecisionsEnabled}
           policySummary={controller.policySummary}
           refreshingPolicy={controller.refreshingPolicy}

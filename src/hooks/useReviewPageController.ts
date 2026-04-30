@@ -218,6 +218,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
   const {
     assetsLoadState,
     policyLoadState,
+    bulkAvailabilityLoadState,
     bulkDecisionsEnabled,
     policySummary,
     refreshingPolicy,
@@ -1129,6 +1130,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     loadingMoreAssets,
     loadMoreAssets,
     policyLoadState,
+    bulkAvailabilityLoadState,
     bulkDecisionsEnabled,
     policySummary,
     refreshingPolicy,

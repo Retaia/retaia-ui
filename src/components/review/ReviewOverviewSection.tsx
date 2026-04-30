@@ -23,6 +23,7 @@ type Props = {
   isApiAssetSource: boolean
   assetsLoadState: 'idle' | 'loading' | 'ready' | 'error'
   policyLoadState: 'idle' | 'loading' | 'ready' | 'error'
+  bulkAvailabilityLoadState: 'idle' | 'loading' | 'ready' | 'error'
   bulkDecisionsEnabled: boolean
   policySummary: {
     featureFlagsCount: number
@@ -50,6 +51,7 @@ export function ReviewOverviewSection({
   isApiAssetSource,
   assetsLoadState,
   policyLoadState,
+  bulkAvailabilityLoadState,
   bulkDecisionsEnabled,
   policySummary,
   refreshingPolicy,
@@ -117,6 +119,7 @@ export function ReviewOverviewSection({
         isApiAssetSource={isApiAssetSource}
         assetsLoadState={assetsLoadState}
         policyLoadState={policyLoadState}
+        bulkAvailabilityLoadState={bulkAvailabilityLoadState}
         bulkDecisionsEnabled={bulkDecisionsEnabled}
         policySummary={policySummary}
         refreshingPolicy={refreshingPolicy}

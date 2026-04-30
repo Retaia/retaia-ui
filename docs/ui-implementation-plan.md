@@ -18,6 +18,7 @@ Regle de base:
 - anciennete asset visible avant purge
 - `GET /app/policy` envoie `client_feature_flags_contract_version`
 - `Review` ouvre par defaut sur une file de travail explicite plutot que sur `ALL`
+- la disponibilite bulk de `Review` derive maintenant du resultat effectif gouverne
 
 Regle de suivi:
 
@@ -30,7 +31,6 @@ Regle de suivi:
    - remettre `Review` sur une logique de file de travail claire
 
 2. Corriger les ecarts de conformite runtime.
-   - cesser de piloter une action critique depuis les flags bruts si un resultat effectif gouverne existe
    - uniformiser les UX `409` / `412` / `428` / `423`
 
 3. Stabiliser les actions critiques.
