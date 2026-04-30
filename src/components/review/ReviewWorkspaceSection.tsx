@@ -1,6 +1,5 @@
 import { ActionPanels } from '../app/ActionPanels'
-import { ReviewTodoDonePanel } from '../app/ReviewTodoDonePanel'
-import type { Asset } from '../../domain/assets'
+import { ReviewQueueStatePanel, type ReviewQueueStateGroup } from '../app/ReviewQueueStatePanel'
 import { getActionAvailability } from '../../domain/actionAvailability'
 import type { DensityMode } from '../../hooks/useDensityMode'
 import type { ReviewRefreshReason } from '../../infrastructure/review/apiReviewErrorAdapter'
@@ -39,8 +38,7 @@ type Props = {
   lastSuccessfulReportData: unknown
   reportExportStatus: string | null
   undoStackLength: number
-  todoAssets: Asset[]
-  doneAssets: Asset[]
+  reviewQueueGroups: ReviewQueueStateGroup[]
   onApplySavedView: (view: 'DEFAULT' | 'PENDING' | 'BATCH') => void
   onApplyPresetPendingRecent: () => void
   onApplyPresetImagesRejected: () => void
@@ -88,8 +86,7 @@ export function ReviewWorkspaceSection(props: Props) {
     lastSuccessfulReportData,
     reportExportStatus,
     undoStackLength,
-    todoAssets,
-    doneAssets,
+    reviewQueueGroups,
     onApplySavedView,
     onApplyPresetPendingRecent,
     onApplyPresetImagesRejected,
@@ -157,10 +154,9 @@ export function ReviewWorkspaceSection(props: Props) {
         onExportBatchReport={onExportBatchReport}
         onUndoLastAction={onUndoLastAction}
       />
-      <ReviewTodoDonePanel
+      <ReviewQueueStatePanel
         t={t}
-        todoAssets={todoAssets}
-        doneAssets={doneAssets}
+        groups={reviewQueueGroups}
         onOpenAsset={onOpenAsset}
       />
     </>

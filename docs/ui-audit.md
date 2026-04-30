@@ -105,7 +105,7 @@ Ils ne peuvent pas:
 | Review via derives uniquement | `PROJECT-BRIEF.md`, `WORKFLOWS.md`, `ANTI-PATTERNS.md` | previews, thumbs, waveform, transcript viennent de Core; aucun chemin SMB expose au navigateur |
 | Etat metier strict | `STATE-MACHINE.md` | l'UI doit piloter les actions depuis l'etat courant exact; aucune interpretation libre |
 | `REVIEW_PENDING_PROFILE` sans decision | `STATE-MACHINE.md`, `WORKFLOWS.md`, `TEST-PLAN.md` | l'action primaire est le choix de `processing_profile`; `KEEP` / `REJECT` doivent rester bloques |
-| `DECIDED_KEEP` / `DECIDED_REJECT` ne valent pas move applique | `WORKFLOWS.md`, `ANTI-PATTERNS.md` | l'UI doit separer "decision posee" de "move applique" |
+| `DECIDED_KEEP` / `DECIDED_REJECT` ne valent pas move applique | `WORKFLOWS.md`, `ANTI-PATTERNS.md` | ferme: `Review` expose maintenant ces etats comme files intermediaires distinctes avant application du move |
 | `apply decision` explicite et unitaire | `GOLDEN-RULES.md`, `WORKFLOWS.md` | preview, confirmation et resultat agrege UI; appels asset par asset cote Core |
 | Purge uniquement sur `REJECTED` | `STATE-MACHINE.md`, `WORKFLOWS.md`, `AUTHZ-MATRIX.md` | pas de purge ailleurs; confirmation forte obligatoire |
 | `If-Match` obligatoire sur mutations critiques | `STATE-MACHINE.md`, `TEST-PLAN.md`, `API-CONTRACTS.md` | UX de conflit et refresh explicite obligatoires |

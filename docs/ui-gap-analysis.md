@@ -34,7 +34,6 @@ Comparaison faite entre:
 
 ### Etats manquants ou mal exposes
 
-- `DECIDED_KEEP` / `DECIDED_REJECT` ne sont pas assez traites comme des etats intermediaires a part entiere
 - `PURGED` n'a pas de surface informative dediee si reference directe
 
 ### Flux incorrects
