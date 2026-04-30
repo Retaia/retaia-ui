@@ -72,6 +72,7 @@ export function ReviewToolbar({
               onChange={(event) => onFilterChange(event.target.value as AssetFilter)}
               className={controlClass}
             >
+              <option value="WORK_QUEUE">{labels.stateLabel('WORK_QUEUE')}</option>
               <option value="ALL">{labels.all}</option>
               {ASSET_STATES.map((state) => (
                 <option key={state} value={state}>

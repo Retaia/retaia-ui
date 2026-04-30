@@ -21,7 +21,7 @@ export const PROCESSING_PROFILES = [
 ] as const
 
 export type AssetState = (typeof ASSET_STATES)[number]
-export type AssetFilter = AssetState | 'ALL'
+export type AssetFilter = AssetState | 'ALL' | 'WORK_QUEUE'
 export type AssetMediaType = (typeof ASSET_MEDIA_TYPES)[number]
 export type AssetMediaTypeFilter = AssetMediaType | 'ALL'
 export type ProcessingProfile = (typeof PROCESSING_PROFILES)[number]
@@ -75,6 +75,19 @@ export const ASSET_STATE_LABEL_KEYS: Record<AssetState, string> = {
   PURGED: 'toolbar.statePurged',
 }
 
+export const REVIEW_WORK_QUEUE_STATES: readonly AssetState[] = [
+  'READY',
+  'PROCESSING_REVIEW',
+  'REVIEW_PENDING_PROFILE',
+  'DECISION_PENDING',
+  'DECIDED_KEEP',
+  'DECIDED_REJECT',
+] as const
+
+export function isReviewWorkQueueState(state: AssetState) {
+  return REVIEW_WORK_QUEUE_STATES.includes(state)
+}
+
 function inferMediaTypeFromName(name: string): AssetMediaType {
   const lower = name.toLowerCase()
   if (lower.endsWith('.mov') || lower.endsWith('.mp4') || lower.endsWith('.mxf')) {
@@ -113,7 +126,9 @@ export const filterAssets = (
       : null
 
   return assets.filter((asset) => {
-    const matchesFilter = filter === 'ALL' || asset.state === filter
+    const matchesFilter =
+      filter === 'ALL' ||
+      (filter === 'WORK_QUEUE' ? isReviewWorkQueueState(asset.state) : asset.state === filter)
     const matchesType =
       mediaTypeFilter === 'ALL' || getAssetMediaType(asset) === mediaTypeFilter
     const capturedAtValue = asset.capturedAt ? Date.parse(asset.capturedAt) : Number.NaN

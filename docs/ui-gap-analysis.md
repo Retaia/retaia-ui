@@ -19,7 +19,6 @@ Comparaison faite entre:
 
 | Priorite | Type d'ecart | Ecart | Situation actuelle | Attendu | Risque |
 | --- | --- | --- | --- | --- | --- |
-| Haute | Ambiguite UX | `Review` default sur `ALL` | `reviewWorkspaceSlice` initialise `filter: 'ALL'` | workspace centre sur le flux operateur, sans masquer les autres etats mais sans les melanger par defaut | confusion entre queue de travail et catalogue |
 | Moyenne | Ecran incomplet | `Library` reste une recherche minimale | seulement recherche + tri + drawer detail | vrais facettes utiles et langage de requalification | `Library` trop pauvre pour un usage long |
 | Moyenne | Ecran incomplet | `Rejects` reste une requalification partielle | recherche + tri + actions unitaires; pas encore de langage ni d'outillage plus dense pour traitement long | espace prudent de remise a decision et purge differee, avec outillage plus complet | `Rejects` reste utilisable mais encore etroit pour un usage intensif |
 | Moyenne | Surface trop technique | `Settings` et `Auth` exposent les controles `API base URL` / `API token` | surfaces visibles dans le produit | ces controles restent secondaires et clairement environnement/dev | pollution de l'IA operateur |

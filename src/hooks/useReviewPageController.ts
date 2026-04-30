@@ -201,7 +201,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       from.setDate(from.getDate() - 30)
     }
     return {
-      state: filter === 'ALL' ? undefined : filter,
+      state: filter === 'ALL' || filter === 'WORK_QUEUE' ? undefined : filter,
       media_type:
         mediaTypeFilter === 'IMAGE'
           ? 'PHOTO'
@@ -237,21 +237,19 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       setAssets,
     })
   const visibleAssets = useMemo(() => {
-    const baseAssets = isApiAssetSource
-      ? assets
-      : sortAssets(
-          filterAssets(assets, filter, search, {
-            mediaType: mediaTypeFilter,
-            date: dateFilter,
-          }),
-          sort,
-        )
+    const baseAssets = sortAssets(
+      filterAssets(assets, filter, search, {
+        mediaType: mediaTypeFilter,
+        date: dateFilter,
+      }),
+      sort,
+    )
     if (!batchOnly) {
       return baseAssets
     }
     const batchIdSet = new Set(batchIds)
     return baseAssets.filter((asset) => batchIdSet.has(asset.id))
-  }, [assets, batchIds, batchOnly, dateFilter, filter, isApiAssetSource, mediaTypeFilter, search, sort])
+  }, [assets, batchIds, batchOnly, dateFilter, filter, mediaTypeFilter, search, sort])
 
   const counts = useMemo(() => countAssetsByState(assets), [assets])
   const selectedAsset = useMemo(
@@ -280,7 +278,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
       const next = readReviewFilterParams()
       dispatch(
         hydrateReviewWorkspace({
-          filter: next.filter ?? 'ALL',
+          filter: next.filter ?? 'WORK_QUEUE',
           mediaTypeFilter: next.mediaTypeFilter ?? 'ALL',
           dateFilter: next.dateFilter ?? 'ALL',
           sort: next.sort ?? '-created_at',
@@ -665,9 +663,15 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     if (!target) {
       return
     }
-    if (filter !== 'ALL' || mediaTypeFilter !== 'ALL' || dateFilter !== 'ALL' || search !== '' || batchOnly) {
+    if (
+      filter !== 'WORK_QUEUE' ||
+      mediaTypeFilter !== 'ALL' ||
+      dateFilter !== 'ALL' ||
+      search !== '' ||
+      batchOnly
+    ) {
       recordAction(t('activity.openNextPending'))
-      setFilter('ALL')
+      setFilter('WORK_QUEUE')
       setMediaTypeFilter('ALL')
       setDateFilter('ALL')
       setSearch('')

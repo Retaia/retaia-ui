@@ -56,6 +56,35 @@ describe('workspaceQueryParams', () => {
     expect(params.get('captured_at_to')).toBeNull()
   })
 
+  it('uses work queue as implicit review default and keeps all as explicit override', () => {
+    window.history.replaceState({}, '', '/review')
+
+    writeReviewFilterParams({
+      filter: 'WORK_QUEUE',
+      mediaTypeFilter: 'ALL',
+      dateFilter: 'ALL',
+      sort: '-created_at',
+      search: '',
+    })
+
+    let params = new URLSearchParams(window.location.search)
+    expect(params.get('state')).toBeNull()
+
+    writeReviewFilterParams({
+      filter: 'ALL',
+      mediaTypeFilter: 'ALL',
+      dateFilter: 'ALL',
+      sort: '-created_at',
+      search: '',
+    })
+
+    params = new URLSearchParams(window.location.search)
+    expect(params.get('state')).toBe('ALL')
+
+    const parsed = readReviewFilterParams()
+    expect(parsed.filter).toBe('ALL')
+  })
+
   it('reads and writes library params with shared q/sort behavior', () => {
     window.history.replaceState({}, '', '/library?foo=bar')
     writeLibraryFilterParams(' ambiance ', 'name')

@@ -21,7 +21,7 @@ export type QuickFilterState = {
 }
 
 export const DEFAULT_QUICK_FILTER_STATE: QuickFilterState = {
-  filter: 'ALL',
+  filter: 'WORK_QUEUE',
   mediaTypeFilter: 'ALL',
   dateFilter: 'ALL',
   search: '',
@@ -51,7 +51,7 @@ export function getQuickFilterPresetState(preset: QuickFilterPreset): QuickFilte
     }
   }
   return {
-    filter: 'ALL',
+    filter: 'WORK_QUEUE',
     mediaTypeFilter: 'VIDEO',
     dateFilter: 'LAST_30_DAYS',
     search: '',
@@ -62,7 +62,7 @@ export function getQuickFilterPresetState(preset: QuickFilterPreset): QuickFilte
 export function getSavedViewState(view: SavedView): QuickFilterState {
   if (view === 'BATCH') {
     return {
-      filter: 'ALL',
+      filter: 'WORK_QUEUE',
       mediaTypeFilter: 'ALL',
       dateFilter: 'ALL',
       search: '',
