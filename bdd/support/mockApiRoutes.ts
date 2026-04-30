@@ -146,8 +146,11 @@ export const installMockApiRoutes = async (page: Page, state: MockApiState) => {
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        user_feature_enabled: { 'features.auth.2fa': true },
-        effective_feature_enabled: { 'features.auth.2fa': state.appMfaFeatureEnabled },
+        user_feature_enabled: { 'features.auth.2fa': true, 'features.decisions.bulk': true },
+        effective_feature_enabled: {
+          'features.auth.2fa': state.appMfaFeatureEnabled,
+          'features.decisions.bulk': true,
+        },
         feature_governance: [{ key: 'features.auth.2fa', user_can_disable: true }],
         core_v1_global_features: ['features.core.auth'],
       }),

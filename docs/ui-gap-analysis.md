@@ -13,7 +13,6 @@ Comparaison faite entre:
 
 | Priorite | Type d'ecart | Ecart | Situation actuelle | Attendu | Risque |
 | --- | --- | --- | --- | --- | --- |
-| Haute | Conformite runtime | disponibilite review pilotee sur `feature_flags` bruts | `useReviewDataController` lit directement `server_policy.feature_flags['features.decisions.bulk']` | decisions UI derivees du resultat effectif gouverne, pas d'heuristique locale | branchement UI faux si app/user gating diverge du flag brut |
 
 ### Ecarts importants
 
