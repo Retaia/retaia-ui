@@ -31,20 +31,31 @@ export function RuntimeSettingsSection({ t, controller }: RuntimeSettingsSection
       </p>
 
       <div className="mt-5 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-          {t('app.apiConnectionTitle')}
-        </h3>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-          {t('settings.runtimeConnectionBody')}
-        </p>
-        {isApiAuthLockedByEnv ? (
-          <p className="mt-3 text-xs font-medium text-gray-500 dark:text-gray-400">
-            {t('app.authEnvLocked')}
+        <div>
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            {t('settings.runtimeConnectionTitle')}
+          </h3>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+            {t('settings.runtimeConnectionBody')}
           </p>
-        ) : null}
-        <div className="mt-4">
-          <ApiConnectionSettingsSection t={t} controller={controller} />
         </div>
+
+        <details className="mt-4 rounded-lg border border-dashed border-gray-300 bg-white p-4 dark:border-gray-700 dark:bg-gray-900" data-testid="runtime-advanced-connection">
+          <summary className="cursor-pointer list-none text-sm font-semibold text-gray-900 dark:text-gray-100">
+            {t('settings.runtimeConnectionAdvancedTitle')}
+          </summary>
+          <p className="mt-3 text-sm text-gray-600 dark:text-gray-300">
+            {t('settings.runtimeConnectionAdvancedBody')}
+          </p>
+          {isApiAuthLockedByEnv ? (
+            <p className="mt-3 text-xs font-medium text-gray-500 dark:text-gray-400">
+              {t('app.authEnvLocked')}
+            </p>
+          ) : null}
+          <div className="mt-4">
+            <ApiConnectionSettingsSection t={t} controller={controller} />
+          </div>
+        </details>
       </div>
 
       <div className="mt-5 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950">

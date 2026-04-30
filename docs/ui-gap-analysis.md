@@ -18,8 +18,6 @@ Comparaison faite entre:
 
 | Priorite | Type d'ecart | Ecart | Situation actuelle | Attendu | Risque |
 | --- | --- | --- | --- | --- | --- |
-| Moyenne | Surface trop technique | `Settings` et `Auth` exposent les controles `API base URL` / `API token` | surfaces visibles dans le produit | ces controles restent secondaires et clairement environnement/dev | pollution de l'IA operateur |
-| Moyenne | Surface publique inachevee | `/auth` n'est pas traite comme une vraie route `public only` | pas de redirection explicite si deja connecte | auth publique exclusive hors shell | friction et confusion de navigation |
 
 ### Ecarts secondaires
 
@@ -52,7 +50,6 @@ Comparaison faite entre:
 #### Sortir du flux principal
 
 - `UiResetPage`
-- controles dev `API token` / `API base URL` dans les parcours metier
 - hero sections trop demonstratives dans les pages de travail
 
 #### Refondre

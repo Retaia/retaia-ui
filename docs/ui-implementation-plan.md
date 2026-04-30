@@ -21,6 +21,8 @@ Regle de base:
 - la disponibilite bulk de `Review` derive maintenant du resultat effectif gouverne
 - `Library` expose maintenant des facettes utiles de recherche et de requalification
 - `Rejects` expose maintenant des facettes utiles de recherche, retention et requalification prudente
+- `Auth` est maintenant traite comme une vraie surface publique `public only`
+- les overrides de connectivite runtime ne vivent plus dans `Auth` et restent secondaires dans `Settings`
 
 Regle de suivi:
 
@@ -46,9 +48,7 @@ Regle de suivi:
    - `Activity` comme journal local mieux cadre
 
 2. Nettoyer les surfaces techniques.
-   - sortir les controles dev/runtime du premier plan
    - separer clairement `Account` et `Settings`
-   - rendre les routes auth strictement publiques
 
 3. Refactorer l'orchestration.
    - reduire la taille de `useReviewPageController.ts`

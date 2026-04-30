@@ -232,11 +232,13 @@ export const enTranslation = {
   'page.scaffold.next': 'Next implementation slice',
   'page.auth.title': 'Authentication and recovery',
   'page.auth.body':
-    'Public surface for sign-in, account recovery, email verification, and runtime API connection settings.',
+    'Public surface for sign-in, account recovery, and email verification, without product shell or runtime settings.',
   'page.auth.resetBody':
     'This entry prepares the password reset flow without creating a disconnected page outside the shared auth surface.',
   'page.auth.verifyBody':
     'This entry prepares the email verification flow while keeping one coherent public surface.',
+  'page.auth.redirectLoading':
+    'Operator session detected. Redirecting to the account surface...',
   'page.settings.eyebrow': 'UI runtime',
   'page.settings.title': 'Preferences and connectivity',
   'page.settings.body':
@@ -249,8 +251,12 @@ export const enTranslation = {
   'settings.runtimeTitle': 'Runtime connectivity',
   'settings.runtimeBody':
     'Runtime configuration stays explicit: what is locked by environment remains visible, and admin governance stays separate from operator account actions.',
+  'settings.runtimeConnectionTitle': 'Secondary runtime connectivity',
   'settings.runtimeConnectionBody':
-    'Configure the UI connection to Core and verify reachability without inventing a parallel runtime state machine.',
+    'Runtime connectivity remains available here for environment and diagnostic needs, without taking over public or operator workflows.',
+  'settings.runtimeConnectionAdvancedTitle': 'Open connection overrides',
+  'settings.runtimeConnectionAdvancedBody':
+    'These settings are for development, test, or support environments. They must not be confused with an operator business action.',
   'settings.runtimeDiagnosticsTitle': 'Runtime diagnostics',
   'settings.runtimeDiagnosticsBody':
     'Read-only runtime signals keep server availability explicit instead of inferred locally.',
