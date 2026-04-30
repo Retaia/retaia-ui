@@ -50,6 +50,8 @@ describe('RuntimeSettingsSection', () => {
 
     expect(screen.getByText('settings.runtimeAdminTitle')).toBeInTheDocument()
     expect(screen.getByTestId('auth-app-feature-toggle')).toBeInTheDocument()
+    expect(screen.getByText('settings.runtimeConnectionTitle')).toBeInTheDocument()
+    expect(screen.getByTestId('runtime-advanced-connection')).toBeInTheDocument()
     expect(screen.getByTestId('runtime-readiness-status')).toHaveTextContent('settings.runtimeReadinessStatus.ok')
   })
 

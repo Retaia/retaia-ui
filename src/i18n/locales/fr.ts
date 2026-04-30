@@ -232,11 +232,13 @@ export const frTranslation = {
   'page.scaffold.next': 'Prochaine tranche d’implémentation',
   'page.auth.title': 'Authentification et récupération',
   'page.auth.body':
-    'Surface publique pour connexion, récupération de compte, vérification email et configuration de connexion API runtime.',
+    'Surface publique pour connexion, récupération de compte et vérification email, sans shell métier ni réglages runtime.',
   'page.auth.resetBody':
     'Cette entrée prépare le flux de réinitialisation de mot de passe sans recréer une page parallèle au reste du socle auth.',
   'page.auth.verifyBody':
     'Cette entrée prépare le flux de vérification email tout en conservant une seule surface publique cohérente.',
+  'page.auth.redirectLoading':
+    'Session opérateur détectée. Redirection vers la surface de compte en cours...',
   'page.settings.eyebrow': 'Runtime UI',
   'page.settings.title': 'Préférences et connectivité',
   'page.settings.body':
@@ -249,8 +251,12 @@ export const frTranslation = {
   'settings.runtimeTitle': 'Connectivité runtime',
   'settings.runtimeBody':
     'La configuration runtime doit rester explicite : ce qui est verrouillé par l’environnement reste visible, et la gouvernance admin reste séparée du compte opérateur.',
+  'settings.runtimeConnectionTitle': 'Connectivité runtime secondaire',
   'settings.runtimeConnectionBody':
-    'Configure la connexion UI vers Core et vérifie l’accessibilité sans inventer une machine à états runtime parallèle.',
+    'La connectivité runtime reste disponible ici pour les besoins d’environnement et de diagnostic, sans envahir les parcours publics ou métier.',
+  'settings.runtimeConnectionAdvancedTitle': 'Ouvrir les overrides de connexion',
+  'settings.runtimeConnectionAdvancedBody':
+    'Ces réglages servent aux environnements de développement, test ou support. Ils ne doivent pas être confondus avec une action métier opérateur.',
   'settings.runtimeDiagnosticsTitle': 'Diagnostics runtime',
   'settings.runtimeDiagnosticsBody':
     'Expose un état de lecture seule du runtime pour éviter les suppositions locales sur la disponibilité serveur.',

@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ApiError, type ApiClient } from '../../api/client'
 import { mapApiErrorToMessage } from '../../api/errorMapping'
 import {
@@ -41,6 +41,9 @@ export function useAuthSessionController(args: {
   const authRequiresOtp = useAppSelector((state) => state.authUi.authRequiresOtp)
   const authUser = useAppSelector((state) => state.authUi.authUser)
   const userFeatureState = useAppSelector((state) => state.authUi.userFeatureState)
+  const [authSessionLoadState, setAuthSessionLoadState] = useState<'loading' | 'ready'>(
+    effectiveApiToken ? 'loading' : 'ready',
+  )
 
   const handleLogin = useCallback(async () => {
     const result = await dispatch(loginWithContextThunk({
@@ -126,6 +129,7 @@ export function useAuthSessionController(args: {
 
     let canceled = false
     const loadCurrentUser = async () => {
+      setAuthSessionLoadState('loading')
       try {
         const currentUser = await apiClient.getCurrentUser()
         const userFeatures = await apiClient.getUserFeatures()
@@ -134,6 +138,7 @@ export function useAuthSessionController(args: {
         }
         dispatch(setUserFeatureStateAction(normalizeFeatures(userFeatures)))
         dispatch(setAuthUserAction(normalizeAuthUser(currentUser)))
+        setAuthSessionLoadState('ready')
       } catch (error) {
         if (canceled) {
           return
@@ -147,6 +152,7 @@ export function useAuthSessionController(args: {
             message: t('app.authSessionExpired'),
           }))
         }
+        setAuthSessionLoadState('ready')
       }
     }
 
@@ -166,6 +172,7 @@ export function useAuthSessionController(args: {
     authStatus,
     authLoading,
     authRequiresOtp,
+    authSessionLoadState: effectiveApiToken ? authSessionLoadState : 'ready',
     authUser,
     setAuthUser: (value: SetStateAction<typeof authUser>) => {
       const nextValue = typeof value === 'function' ? value(authUser) : value
