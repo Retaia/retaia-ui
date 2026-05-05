@@ -92,7 +92,7 @@
     "jsdom": "^29.1.1",
     "msw": "^2.13.4",
     "openapi-typescript": "^7.13.0",
-    "postcss": "^8.5.10",
+    "postcss": "^8.5.14",
     "start-server-and-test": "^3.0.2",
     "tailwindcss": "^4.2.4",
     "tsx": "^4.21.0",
