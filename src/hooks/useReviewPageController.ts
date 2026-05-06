@@ -33,6 +33,7 @@ import { summarizeBatchScope } from '../application/review/batchScopeSummary'
 import { resolveBatchExecutionScope } from '../application/review/batchExecutionScope'
 import { finalizeBulkDecisionResult } from '../application/review/bulkDecisionFinalization'
 import { resolveReviewApiError } from '../application/review/errorResolution'
+import { buildReviewQueueGroups } from '../application/review/reviewQueueGroups'
 import { submitReviewDecisions } from '../application/review/submitReviewDecisions'
 import {
   refreshReviewAsset,
@@ -320,14 +321,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     () => resolveBatchExecutionScope(assets, batchIds),
     [assets, batchIds],
   )
-  const todoAssets = useMemo(
-    () => assets.filter((asset) => asset.state === 'DECISION_PENDING'),
-    [assets],
-  )
-  const doneAssets = useMemo(
-    () => assets.filter((asset) => asset.state !== 'DECISION_PENDING'),
-    [assets],
-  )
+  const reviewQueueGroups = useMemo(() => buildReviewQueueGroups(assets), [assets])
   const selectedAssetState = selectedAsset?.state ?? null
   const mapBatchErrorToMessage = useCallback(
     (error: unknown) =>
@@ -1174,8 +1168,7 @@ export function useReviewPageController({ view = 'workspace' }: ReviewPageProps 
     reportExportStatus,
     undoStack,
     activityLog,
-    todoAssets,
-    doneAssets,
+    reviewQueueGroups,
     applySavedView: applySavedViewWithBatchGuard,
     applyPresetPendingRecent,
     applyPresetImagesRejected,

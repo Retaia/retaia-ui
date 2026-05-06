@@ -78,8 +78,7 @@ export default function ReviewWorkspacePage() {
           lastSuccessfulReportData={controller.lastSuccessfulReportData}
           reportExportStatus={controller.reportExportStatus}
           undoStackLength={controller.undoStack.length}
-          todoAssets={controller.todoAssets}
-          doneAssets={controller.doneAssets}
+          reviewQueueGroups={controller.reviewQueueGroups}
           onApplySavedView={controller.applySavedView}
           onApplyPresetPendingRecent={controller.applyPresetPendingRecent}
           onApplyPresetImagesRejected={controller.applyPresetImagesRejected}

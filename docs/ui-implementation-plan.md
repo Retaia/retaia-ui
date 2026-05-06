@@ -21,6 +21,7 @@ Regle de base:
 - la disponibilite bulk de `Review` derive maintenant du resultat effectif gouverne
 - `Review` rend maintenant le scope reel de `apply decisions` explicite avant preview et execution
 - `Review` unifie maintenant la resolution explicite des conflits et preconditions `409` / `412` / `428` / `423`
+- `Review` expose maintenant `DECIDED_KEEP` / `DECIDED_REJECT` comme etats intermediaires distincts
 - `Library` expose maintenant des facettes utiles de recherche et de requalification
 - `Rejects` expose maintenant des facettes utiles de recherche, retention et requalification prudente
 - `Auth` est maintenant traite comme une vraie surface publique `public only`
