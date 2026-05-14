@@ -94,7 +94,7 @@
     "openapi-typescript": "^7.13.0",
     "postcss": "^8.5.14",
     "start-server-and-test": "^3.0.2",
-    "tailwindcss": "^4.2.4",
+    "tailwindcss": "^4.3.0",
     "tsx": "^4.21.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.59.2",
