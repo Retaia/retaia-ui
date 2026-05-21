@@ -95,7 +95,7 @@
     "postcss": "^8.5.14",
     "start-server-and-test": "^3.0.5",
     "tailwindcss": "^4.3.0",
-    "tsx": "^4.21.0",
+    "tsx": "^4.22.3",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.59.4",
     "v8-to-istanbul": "^9.3.0",
